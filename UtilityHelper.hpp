@@ -8,6 +8,8 @@ using namespace std;
 #include <algorithm>
 #include <functional>
 
+#include "./Misc/ListNode.cpp"
+
 // Declaration
 template <typename T, typename V>
 class UtilityHelper {
@@ -115,5 +117,5 @@ void UtilityHelper<T, V>::run(vector<vector<T>> inputs, vector<V> outputs,
       cout << "Function Ouput: " << funcOutput << endl;
    }
 }
- 
+
 #endif

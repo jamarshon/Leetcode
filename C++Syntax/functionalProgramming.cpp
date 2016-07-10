@@ -13,7 +13,7 @@ int epsilon = 2;
 function<bool(int)> subtractor = [epsilon](int a) -> bool { return epsilon - a > 0; };
 
 // each
-// for_each(first, last, function(currentElement))
+
 #include <algorithm>
 vector<int> v{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
  

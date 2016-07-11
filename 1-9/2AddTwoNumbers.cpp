@@ -11,6 +11,7 @@ Output: 7 -> 0 -> 8
 /*
 	Submission Date: 2016-07-10
 	Runtime: 40 ms
+	Difficulty: MEDIUM
 */
 
 using namespace std;

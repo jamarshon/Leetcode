@@ -15,6 +15,7 @@ Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer 
 /*
 	Submission Date: 2016-07-10
 	Runtime: 116 ms
+	Difficulty: MEDIUM
 */
 
 using namespace std;

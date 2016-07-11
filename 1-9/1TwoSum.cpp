@@ -14,6 +14,7 @@ return [0, 1].
 /*
 	Submission Date: 2016-07-09
 	Runtime: 20ms
+	Difficulty: EASY
 */
 using namespace std;
 #include <iostream>

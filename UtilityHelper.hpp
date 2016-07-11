@@ -27,6 +27,9 @@ class UtilityHelper {
           // Same as above accept the output is not a vector, it's a scalar
           void run(vector<vector<T>> inputs, vector<V> outputs, 
                   vector<function<V(vector<T>)> > funcs);
+          // A list of inputs and a list of outputs
+          void run(vector<T> inputs, vector<V> outputs, vector<T> printables,
+                  function<V(T)> func);
 };
 
 // Definition
@@ -115,6 +118,29 @@ void UtilityHelper<T, V>::run(vector<vector<T>> inputs, vector<V> outputs,
       printT(input);
       cout << "Output: " << output << endl;
       cout << "Function Ouput: " << funcOutput << endl;
+   }
+}
+
+template <typename T, typename V>
+void UtilityHelper<T, V>::run(vector<T> inputs, vector<V> outputs, 
+                              vector<T> printables, function<V(T)> func) {
+  T input;
+  V output;
+  T printable;
+  V funcOutput;
+
+  for(int i = 0, len = inputs.size(); i < len; i++) {
+      input = inputs[i];
+      output = outputs[i];
+      printable = printables[i];
+
+      printf("Test Case %d: \n", i);
+      cout << "Input: " << input << endl;
+      cout << "Additional Info: " << printable << endl;
+      funcOutput = func(input);
+      cout << "Output: " << output << endl;
+      cout << "Function Ouput: " << funcOutput << endl;
+      cout << endl;
    }
 }
 

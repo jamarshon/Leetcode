@@ -71,6 +71,7 @@ class Solution {
 	    }
 };
 
+///////////////////TestCases////////////////////////////////////////
 int main() {
 	Solution s;
 	UtilityHelper<string, int> util;
@@ -101,6 +102,5 @@ int main() {
 
 	function<int(string)> func = bind(&Solution::lengthOfLongestSubstring, &s, placeholders::_1);
 	util.run(inputs, outputs, printables, func);
-	//s.lengthOfLongestSubstring("tmmzuxt");
 	return 0;
 }

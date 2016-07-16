@@ -17,6 +17,8 @@ class UtilityHelper {
           // Prints all the elements of the array
           void printT(vector<T> v);
           void printV(vector<V> v);
+          // Print from i to j inclusive
+          void printT(vector<T> v, int i, int j);
           // Does a comparison on the array to see if they are equal
           bool isEqual(vector<T> v1, vector<T> v2);
           // Sorts both arrays first as does not depend on order
@@ -45,6 +47,15 @@ void UtilityHelper<T, V>::printT(vector<T> v) {
 template <typename T, typename V>
 void UtilityHelper<T, V>::printV(vector<V> v) {
      for(int i = 0, len = v.size(); i < len; i++) {
+          cout << v[i];
+          cout << " ";
+     }
+     cout << endl;
+}
+
+template <typename T, typename V>
+void UtilityHelper<T, V>::printT(vector<T> v, int i, int j) {
+     for(; i < j; i++) {
           cout << v[i];
           cout << " ";
      }

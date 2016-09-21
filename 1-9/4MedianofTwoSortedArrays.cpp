@@ -19,7 +19,7 @@ The median is (2 + 3)/2 = 2.5
 
 /*
 	Submission Date: 2016-07-22
-	Runtime: 88 ms
+	Runtime: 35 ms
 	Difficulty: HARD
 */
 
@@ -27,49 +27,47 @@ using namespace std;
 #include "../UtilityHelper.hpp"
 class Solution {
 public:
-    double findMedianSortedArrays(vector<int>& A, vector<int>& B) {
-        vector<int> tempArr;
-        int temp, i, j, maxOfLeft, minOfRight;
-        int m = A.size(),
-            n = B.size();
-
-        if(m > n) {
-            // swap A and B such that the length of A (m) is less than B (n)
-            tempArr = A;
-            A = B;
-            B = tempArr;
-            temp = m;
-            m = n;
-            n = temp;
+    double findMedianSortedArrays(vector<int>& C, vector<int>& D) {
+        int cLen = C.size(),
+            dLen = D.size();
+        vector<int> A;
+        vector<int> B;
+        int i, j, M, N;
+        if(cLen < dLen) {
+            A = C;
+            B = D;
+            M = cLen;
+            N = dLen;
+        } else {
+            B = C;
+            A = D;
+            N = cLen;
+            M = dLen;
         }
-        if(n == 0){ return -1; }
 
         int imin = 0,
-            imax = m,
-            halfLen = (m + n + 1) / 2;
-
+            imax = M,
+            halfLen = (M + N + 1)/2; // this is middle index of the combined length of A and B
+        int maxLeft, minRight;
         while(imin <= imax) {
             i = (imin + imax) / 2;
             j = halfLen - i;
-            if(j > 0 && i < m && B[j - 1] > A[i]) {
-                imin = i + 1; // i is too small, must increase it
-            } else if(i > 0 && j < n && A[i - 1] > B[j]) {
-                imax = i - 1; // i is too big, must decrease it
+            if(i > 0 && j < N && A[i-1] > B[j]) {
+                imax = i - 1; // i is too large so decrease it
+            } else if(j > 0 && i < M && B[j-1] > A[i]) {
+                imin = i + 1; // i is too small so increase it
             } else {
-                // i is perfect
-                if(i == 0) { maxOfLeft = B[j - 1]; }
-                else if(j == 0) { maxOfLeft = A[i - 1]; }
-                else { maxOfLeft = max(A[i - 1], B[j - 1]); }
-
-                if((m + n) % 2 == 1) {
-                    return maxOfLeft;
+                if(i == 0){ maxLeft = B[j-1]; }
+                else if(j == 0){ maxLeft = A[i-1]; }
+                else{ maxLeft = max(B[j-1], A[i-1]); }
+                if((M + N) % 2 == 1) {
+                    return maxLeft;
                 }
 
-                if(i == m) { minOfRight = B[j]; }
-                else if(j == n) { minOfRight = A[i]; }
-                else { minOfRight = min(A[i], B[j]); }
-
-                return (maxOfLeft + minOfRight) / 2.0;
+                if(i == M){ minRight = B[j]; }
+                else if(j == N){ minRight = A[i]; }
+                else{ minRight = min(B[j], A[i]); }
+                return (maxLeft + minRight) / 2.0;
             }
         }
     }

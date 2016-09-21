@@ -50,12 +50,11 @@ class Solution {
 	    		// it should be the largest of the already seen indexes of that letter
 	    		// which will always be the last element of the vector
 	    		if (hashTable.find(lastLetter) != hashTable.end()) {
-	    			indices = hashTable[lastLetter];
+	    				indices = hashTable[lastLetter];
 	        		startIndex = max(indices[indices.size() - 1] + 1, startIndex);
 	        	}
 
 	        	currentLen = endIndex - startIndex + 1;
-	    		// cout << "Longest Substring is: " << s.substr(startIndex, currentLen) << endl;
 	        	if(currentLen > longestSubstrLen) {
 	        		longestSubstrStartInd = startIndex;
 	        		longestSubstrLen = currentLen;
@@ -67,7 +66,7 @@ class Solution {
 	    	longestSubstring = s.substr(longestSubstrStartInd, longestSubstrLen);
 	    	cout << "Longest Substring is: " << longestSubstring << endl;
 	    	hashTable.clear();
-	        return longestSubstring.length();
+        return longestSubstring.length();
 	    }
 };
 
@@ -76,27 +75,27 @@ int main() {
 	Solution s;
 	UtilityHelper<string, int> util;
 	vector<string> inputs = {
-		"abcabcbb", // testcase 1
-		"bbbbb", // testcase 2
-		"pwwkew", // testcase 3
-		"", // testcase 4
-		"abba", // testcase 5
+		// "abcabcbb", // testcase 1
+		// "bbbbb", // testcase 2
+		// "pwwkew", // testcase 3
+		// "", // testcase 4
+		// "abba", // testcase 5
 		"tmmzuxt", // testcase 6
 	};
 	vector<string> printables = {
-		"abc", // testcase 1
-		"b", // testcase 2
-		"wke", // testcase 3
-		"", // testcase 4
-		"ba", // testcase 5
+		// "abc", // testcase 1
+		// "b", // testcase 2
+		// "wke", // testcase 3
+		// "", // testcase 4
+		// "ba", // testcase 5
 		"mzuxt", // testcase 6
 	};
 	vector<int> outputs = {
-		3, // testcase 1
-		1, // testcase 2
-		3, // testcase 3
-		0, // testcase 4
-		2, // testcase 5
+		// 3, // testcase 1
+		// 1, // testcase 2
+		// 3, // testcase 3
+		// 0, // testcase 4
+		// 2, // testcase 5
 		5, // testcase 5
 	};
 

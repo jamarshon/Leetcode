@@ -4,20 +4,44 @@
 		"selected_items":
 		[
 			[
+				"size",
+				"sizeof"
+			],
+			[
+				"long",
+				"longestPalindrome"
+			],
+			[
+				"sub",
+				"subString"
+			],
+			[
+				"min",
+				"minOfRight"
+			],
+			[
+				"max",
+				"maxOfLeft"
+			],
+			[
+				"median",
+				"median1"
+			],
+			[
+				"m",
+				"m2AfterRemoval"
+			],
+			[
+				"media",
+				"median2"
+			],
+			[
 				"num",
 				"nums1"
 			],
 			[
 				"nums",
 				"nums2"
-			],
-			[
-				"min",
-				"minSecondElement"
-			],
-			[
-				"max",
-				"maxFirstElement"
 			],
 			[
 				"ret",
@@ -324,42 +348,43 @@
 	"buffers":
 	[
 		{
-			"file": "1-9/1TwoSum.cpp",
+			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 2092,
+				"buffer_size": 1481,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "test.cpp",
+			"file": "C++Syntax/basic.cpp",
 			"settings":
 			{
-				"buffer_size": 155,
-				"line_ending": "Windows"
+				"buffer_size": 1335,
+				"line_ending": "Windows",
+				"name": "// convert array to vector"
 			}
 		},
 		{
 			"file": "1-9/4MedianofTwoSortedArrays.cpp",
 			"settings":
 			{
-				"buffer_size": 4450,
+				"buffer_size": 3603,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "UtilityHelper.hpp",
+			"file": "1-9/3LongestSubstringWithout RepeatingCharacters.cpp",
 			"settings":
 			{
-				"buffer_size": 4481,
+				"buffer_size": 2968,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "C++Syntax/functionalProgramming.cpp",
+			"file": "1-9/5LongestPalindromicSubstring.cpp",
 			"settings":
 			{
-				"buffer_size": 1390,
+				"buffer_size": 1613,
 				"line_ending": "Windows"
 			}
 		}
@@ -427,7 +452,7 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 332.0,
+		"height": 392.0,
 		"last_filter": "",
 		"selected_items":
 		[
@@ -468,19 +493,50 @@
 	"expanded_folders":
 	[
 		"/C/Users/simon/Documents/GitHub/leetcode",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9"
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9",
+		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/functionalProgramming.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/convertArrayToVector.cpp",
+		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/simon/AppData/Local/Temp/7zO6E47.tmp/myMovePoles_Group4.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO5D8D.tmp/DFT.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO3032.tmp/BME252_Assign3_Script_Group4.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO1626.tmp/BME252_Assign3_Script_Group4.m",
+		"/C/Users/simon/Documents/1/BME252/Matlab-Assignment-2_20581472_20586885/Program/run.m",
+		"/C/Users/simon/Documents/1/BME252/Matlab-Assignment-2_20581472_20586885/Program/DFT.m",
+		"/C/Users/simon/AppData/Local/Temp/7zOBC9.tmp/synthVoice.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO8E8A.tmp/myMovePoles.m",
+		"/C/Users/simon/AppData/Local/Temp/7zOBD5D.tmp/BME252_Assign3_Script.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO13AC.tmp/getModel.m",
+		"/C/Users/simon/Documents/GitHub/leetcode/UtilityHelper.hpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/1TwoSum.cpp",
+		"/C/Users/simon/AppData/Local/Temp/7zOF78D.tmp/recognitionTest.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO924.tmp/sigmoid.m",
+		"/C/Users/simon/AppData/Local/Temp/7zO2661.tmp/recognizeDigits.m",
+		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/printing.cpp",
+		"/C/Users/simon/Documents/Arduino/IR_PROJECT/IR_PROJECT.ino",
+		"/C/Users/simon/Documents/Arduino/libraries/IRemote3/IRremote3.cpp",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/IRremote2.cpp",
+		"/C/Users/simon/Documents/Arduino/libraries/IRemote3/CppList.cpp",
+		"/C/Users/simon/Documents/Arduino/libraries/IRemote3/CppList/CppList.cpp",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRtest/IRtest.pde",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRsendDemo/IRsendDemo.pde",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRrelay/IRrelay.pde",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRrecvDump/IRrecvDump.pde",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRrecvDemo/IRrecvDemo.pde",
+		"/C/Users/simon/Documents/Arduino/libraries/IRremote/examples/IRrecord/IRrecord.pde",
+		"/C/Users/simon/Documents/GitHub/leetcode/Misc/ListNode.cpp",
+		"/C/Users/simon/AppData/Local/Temp/7zO5D1.tmp/comp.cs",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/3LongestSubstringWithout RepeatingCharacters.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/2AddTwoNumbers.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/UtilityHelper.hpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/4MedianofTwoSortedArrays.CPP",
-		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Users/simon/Documents/cling/src/examples/HowToUseJIT/HowToUseJIT.cpp",
 		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/CustomC++Build.sublime-build",
 		"/C/Users/simon/Documents/GitHub/leetcode/leetcode.sublime-project",
-		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/simon/Documents/1/BME252/Assignment2/Program/findPeaks.m",
 		"/C/Users/simon/Documents/1/BME252/Assignment2/Program/DFT.m",
 		"/C/Users/simon/Documents/1/BME252/Assignment2/Program/determineTone.m",
@@ -491,7 +547,6 @@
 		"/C/Users/simon/Downloads/test2.m",
 		"/C/Users/simon/Downloads/DFT.m",
 		"/C/Users/simon/Documents/1/BME252/DFT.m",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/1TwoSum.cpp",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/GeneralConcepts/postvsget.txt",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/GeneralConcepts/ssl.txt",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/inheritance.js",
@@ -570,40 +625,11 @@
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/text.css",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/longestCommonSubSequence.js",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/Sorting/selectionSort.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/squareRoot.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/binarySearch.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/OOPConcepts/ThreePillarsOOP.txt",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/OOPConcepts/GeneralOOP.txt",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/OOPConcepts/GeneralOOP.cs",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/DataStructures/treeTraversals.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/DataStructures/avlTree.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/SampleProblem/stringAlphabetEncoding.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/javascript-vs-jQuery.js",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/index.html",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/vendor-prefixes.css",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/selectors.css",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/background.css",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/gcd.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/main.css",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/addingCSS.css",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/event-propagation.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/equal-signs.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/factorsIsPrime.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/identying-variable-type.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/currying.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/DataStructures/treeHeight.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/treeTraversals.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/postOrderTraversal.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/inOrderTraversal.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/preOrderTraversal.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/DataStructures/queue.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/DataStructures/stack.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/JSConcepts/usuage-of-new.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/CONCEPTS.txt"
+		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/squareRoot.js"
 	],
 	"find":
 	{
-		"height": 28.0
+		"height": 53.0
 	},
 	"find_in_files":
 	{
@@ -625,6 +651,20 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"B",
+			"A",
+			"std::",
+			"printables",
+			">\n",
+			"ledState",
+			"lastButtonState",
+			"medianCombineTwoElements",
+			"cout <<",
+			"a",
+			"medianCombineTwoElement",
+			"transform",
+			"cout ",
+			"mid",
 			"nums2",
 			"nums1",
 			"rest",
@@ -738,21 +778,7 @@
 			"sortedArray",
 			"recursiveBinarySearch",
 			"key",
-			"this.remove()",
-			".on(",
-			"settimeout",
-			"Analytics",
-			"#source-code",
-			"return",
-			"new",
-			"<span class=\"blue keyword\">",
-			"var",
-			"Analytics",
-			"$",
-			"TemplateLoader",
-			"getPageId",
-			"tileArray",
-			".text("
+			"this.remove()"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -760,6 +786,9 @@
 		"regex": false,
 		"replace_history":
 		[
+			"O",
+			"X",
+			"inLockDown",
 			"right",
 			"left",
 			"<span class=\"red keyword\">return</span>",
@@ -784,52 +813,52 @@
 			[
 				{
 					"buffer": 0,
-					"file": "1-9/1TwoSum.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2092,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1506,
-								1506
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1210.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
 					"file": "test.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 155,
+						"buffer_size": 1481,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								92,
-								92
+								517,
+								517
 							]
 						],
 						"settings":
 						{
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "C++Syntax/basic.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1335,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								133,
+								133
+							]
+						],
+						"settings":
+						{
+							"auto_name": "// convert array to vector",
 							"syntax": "Packages/C++/C++.sublime-syntax"
 						},
 						"translation.x": 0.0,
@@ -845,23 +874,25 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4450,
+						"buffer_size": 3603,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								819,
-								819
+								2080,
+								2080
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.sublime-syntax"
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 4.0,
-						"translation.y": 1365.0,
+						"translation.x": 0.0,
+						"translation.y": 1332.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -869,49 +900,19 @@
 				},
 				{
 					"buffer": 3,
-					"file": "UtilityHelper.hpp",
+					"file": "1-9/3LongestSubstringWithout RepeatingCharacters.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4481,
+						"buffer_size": 2968,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1937,
-								1937
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1034.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "C++Syntax/functionalProgramming.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1390,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
+								1578,
+								1578
 							]
 						],
 						"settings":
@@ -920,7 +921,37 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 15.0,
+						"translation.y": 853.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "1-9/5LongestPalindromicSubstring.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1613,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1395,
+								1395
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 520.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
@@ -931,7 +962,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 45.0
 	},
 	"input":
 	{
@@ -962,7 +993,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 240.0
+		"height": 267.0
 	},
 	"output.find_results":
 	{
@@ -972,7 +1003,7 @@
 	"project": "leetcode.sublime-project",
 	"replace":
 	{
-		"height": 52.0
+		"height": 100.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -981,6 +1012,14 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"uri",
+				"UtilityHelper.hpp"
+			],
+			[
+				"listnode",
+				"Misc\\ListNode.cpp"
+			],
 			[
 				"func",
 				"C++Syntax\\functionalProgramming.cpp"
@@ -1484,14 +1523,6 @@
 			[
 				"sour",
 				"static\\styles\\source-code.css"
-			],
-			[
-				"sc.s",
-				"static\\styles\\source-code.css"
-			],
-			[
-				"p1.",
-				"static\\legacy-modules\\source-code\\page1.html"
 			]
 		],
 		"width": 0.0
@@ -1504,7 +1535,7 @@
 		[
 			[
 				"",
-				"C:\\Users\\simon\\Dropbox\\WATERLOO\\Programming\\JavaScript-Data-Structures-Algorithms-Concepts.sublime-project"
+				"C:\\Users\\simon\\Documents\\Web Dev\\frex-backend\\frex-backend\\frex-backend.sublime-project"
 			]
 		],
 		"width": 639.0

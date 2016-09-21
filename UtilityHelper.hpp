@@ -32,6 +32,7 @@ class UtilityHelper {
           // A list of inputs and a list of outputs
           void run(vector<T> inputs, vector<V> outputs, vector<T> printables,
                   function<V(T)> func);
+          void run(vector<T> inputs, vector<V> outputs, function<V(T)> func);
 };
 
 // Definition
@@ -104,7 +105,7 @@ void UtilityHelper<T, V>::run(vector<vector<T>> inputs, vector<vector<V>> output
       printT(input);
       cout << "Output: ";
       printV(output);
-      cout << "Function Ouput: ";
+      cout << "Function Output: ";
       printV(funcOutput);
       cout << endl;
    }
@@ -128,7 +129,7 @@ void UtilityHelper<T, V>::run(vector<vector<T>> inputs, vector<V> outputs,
       cout << "Input: ";
       printT(input);
       cout << "Output: " << output << endl;
-      cout << "Function Ouput: " << funcOutput << endl;
+      cout << "Function Output: " << funcOutput << endl;
    }
 }
 
@@ -150,9 +151,29 @@ void UtilityHelper<T, V>::run(vector<T> inputs, vector<V> outputs,
       cout << "Additional Info: " << printable << endl;
       funcOutput = func(input);
       cout << "Output: " << output << endl;
-      cout << "Function Ouput: " << funcOutput << endl;
+      cout << "Function Output: " << funcOutput << endl;
       cout << endl;
    }
 }
+
+template <typename T, typename V>
+void UtilityHelper<T, V>::run(vector<T> inputs, vector<V> outputs, function<V(T)> func) {
+  T input;
+  V output;
+  V funcOutput;
+
+  for(int i = 0, len = inputs.size(); i < len; i++) {
+      input = inputs[i];
+      output = outputs[i];
+
+      printf("Test Case %d: \n", i);
+      cout << "Input: " << input << endl;
+      funcOutput = func(input);
+      cout << "Output: " << output << endl;
+      cout << "Function Output: " << funcOutput << endl;
+      cout << endl;
+   }
+}
+
 
 #endif

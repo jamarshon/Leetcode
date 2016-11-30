@@ -1,8 +1,20 @@
-using namespace std;
-#include <unordered_map>
-#include <iostream>
-#include <algorithm>
+/*
+17. Letter Combinations of a Phone Number
+Given a digit string, return all possible letter combinations that the number could represent.
 
+A mapping of digit to letters (just like on the telephone buttons) is given below.
+
+Input:Digit string "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+
+/*
+    Submission Date: 2016-07-29
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+using namespace std;
+
+#include <unordered_map>
 class Solution {
 private:
     unordered_map<char, vector<char>> LETTER_DIGIT_MAP = {
@@ -17,13 +29,13 @@ private:
     };
 public:
     vector<string> letterCombinations(string digits) {
+        if(digits == ""){ return {}; }
         vector<string> result = {""};
         for(char digit : digits) {
             vector<char> letters = LETTER_DIGIT_MAP[digit];
             vector<string> temp = {};
             for(char letter : letters) {
-            	// temp.push_back(result[0] + letter);
-             	for(string str: result) {
+                for(string str: result) {
              		temp.push_back(str + letter);
              	}
             }
@@ -32,7 +44,3 @@ public:
         return result;
     }
 };
-
-int main() {
-	return 0;
-}

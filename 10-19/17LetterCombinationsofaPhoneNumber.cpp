@@ -8,7 +8,7 @@ Input:Digit string "23"
 Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
 
 /*
-    Submission Date: 2016-07-29
+    Submission Date: 2016-11-29
     Runtime: 3 ms
     Difficulty: MEDIUM
 */

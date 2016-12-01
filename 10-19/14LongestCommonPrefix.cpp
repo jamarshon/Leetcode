@@ -3,7 +3,7 @@
 Write a function to find the longest common prefix string amongst an array of strings.
 
 /*
-    Submission Date: 2016-07-26
+    Submission Date: 2016-11-26
     Runtime: 6 ms
     Difficulty: EASY
 */

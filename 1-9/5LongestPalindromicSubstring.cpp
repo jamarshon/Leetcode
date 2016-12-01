@@ -5,7 +5,7 @@ that the maximum length of S is 1000, and there exists one unique longest palind
 */
 
 /*
-	Submission Date: 2016-07-29
+	Submission Date: 2016-11-29
 	Runtime: 106 ms
 	Difficulty: MEDIUM
 */

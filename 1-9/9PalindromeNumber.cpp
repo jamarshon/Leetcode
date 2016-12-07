@@ -27,6 +27,9 @@ public:
         if(x < 0){ return false; }
         int i = floor(log10(x));
         while(i > 0) {
+            int leftDigit = floor(x / pow(10, i));
+            int rightDigit = x % 10;
+            if(leftDigit != rightDigit) {
                 return false;
             }
             x %= (int)pow(10, i);

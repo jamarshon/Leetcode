@@ -403,7 +403,7 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 93,
+				"buffer_size": 679,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -423,6 +423,30 @@
 			{
 				"buffer_size": 2368,
 				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "function pdr(arr, offset, n){\n\tif(n <= 0) { return \"\"; }\n\tvar retStr = \"\";\n\tvar col = offset;\n\tvar row = offset;\n\tvar limit = offset + n;\n\n\tfor(; col < limit; col++){ retStr += arr[row][col]; }\n\tfor(col--, row++; row < limit; row++){ retStr += arr[row][col]; }\n\tfor(row--, col--; col > offset; col--){ retStr += arr[row][col]; }\n\tfor(var rowLimit = offset + 1; row >= rowLimit; row--){ retStr += arr[row][col]; }\n\treturn retStr + pdr(arr, row + 1, n - 2);\n}",
+			"settings":
+			{
+				"buffer_size": 457,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "1-9/9PalindromeNumber.cpp",
+			"settings":
+			{
+				"buffer_size": 1192,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"settings":
+			{
+				"buffer_size": 0,
 				"line_ending": "Windows"
 			}
 		}
@@ -847,7 +871,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -856,15 +880,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 93,
+						"buffer_size": 679,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								80,
-								80
+								666,
+								666
 							]
 						],
 						"settings":
@@ -872,10 +896,10 @@
 							"syntax": "Packages/C++/C++.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 171.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -891,8 +915,8 @@
 						"selection":
 						[
 							[
-								619,
-								700
+								796,
+								796
 							]
 						],
 						"settings":
@@ -902,10 +926,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 216.0,
+						"translation.y": 57.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -921,8 +945,8 @@
 						"selection":
 						[
 							[
-								621,
-								621
+								395,
+								395
 							]
 						],
 						"settings":
@@ -932,10 +956,94 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 572.0,
+						"translation.y": 1237.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 457,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								457
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "1-9/9PalindromeNumber.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1192,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								912,
+								912
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 353.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -974,7 +1082,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 247.0
+		"height": 293.0
 	},
 	"output.find_results":
 	{
@@ -993,6 +1101,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"test",
+				"test.cpp"
+			],
 			[
 				"bas",
 				"C++Syntax\\basic.cpp"
@@ -1032,10 +1144,6 @@
 			[
 				"test.",
 				"test.cpp"
-			],
-			[
-				"test",
-				"test.js"
 			],
 			[
 				"inher",

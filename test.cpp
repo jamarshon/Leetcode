@@ -1,29 +1,51 @@
 using namespace std;
 #include <iostream>
-#include <cmath>
+#include <stack>
 
-class Solution {
-public:
-	bool isPalindrome(int x) {
- 		if(x < 0){ return false; }
-    	int i = floor(log10(x));
-    	while(i > 0) {
-    		int msn = floor(x / pow(10, i));
-    		int lsn = x % 10;
-    		if(msn != lsn) {
-    			return false;
-    		}
-    		x %= (int)pow(10, i);
-    		x /= 10;
-    		i -= 2;
-    	}
-    	return true;
-    }
-};
+int longestValidParentheses(string s) {
+	int i = 0,
+			len = s.length(),
+			lastBalancedIndex = -1,
+			currentValidParenthesisCount = 0,
+			longestValidParenthesisCount = 0;
+
+	stack<char> charStack;
+	while(i < len) {
+		// find next open bracket
+		int intialI = i;
+		while(s[i] == ')') i++;
+		charStack.push(s[i]);
+		
+		if(lastBalancedIndex != i) {
+			currentValidParenthesisCount = 0;
+		}
+		
+		currentValidParenthesisCount++;
+		
+		while(++i < len && !charStack.empty()) {
+			if(s[i] == ')') {
+				charStack.pop();
+			} else if(s[i] == '(') {
+				charStack.push(s[i]);
+			}
+			currentValidParenthesisCount++;
+		}
+
+		if(charStack.empty()) {
+			lastBalancedIndex = i;
+			longestValidParenthesisCount = max(currentValidParenthesisCount, longestValidParenthesisCount);
+		} else {
+			i = intialI + 1;
+			stack<char>().swap(charStack);
+		}
+	}
+	return longestValidParenthesisCount;
+}
 
 int main() {
-	Solution s;
-	int input = -2147483648;
-	cout << s.isPalindrome(input) << endl;
+	cout << longestValidParentheses("(()") << endl;
+	cout << longestValidParentheses(")()())") << endl;
 	return 0;
 }
+
+

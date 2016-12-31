@@ -403,25 +403,34 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 679,
+				"buffer_size": 1065,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "1-9/7ReverseInteger.cpp",
+			"file": "30-39/32LongestValidParentheses.cpp",
 			"settings":
 			{
-				"buffer_size": 929,
+				"buffer_size": 1727,
 				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "/*"
+			}
+		},
+		{
+			"file": ".gitignore",
+			"settings":
+			{
+				"buffer_size": 5,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "1-9/8StringtoInteger(atoi).CPP",
+			"file": "40-49/48RotateImage.cpp",
 			"settings":
 			{
-				"buffer_size": 2368,
+				"buffer_size": 999,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -555,13 +564,15 @@
 	"expanded_folders":
 	[
 		"/C/Users/simon/Documents/GitHub/leetcode",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19",
 		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/Documents/GitHub/leetcode/40-49/48RotateImage.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/7ReverseInteger.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).CPP",
+		"/C/Users/simon/Downloads/a (1).cpp",
+		"/C/Users/simon/Downloads/a.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/4MedianofTwoSortedArrays.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/5LongestPalindromicSubstring.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/10-19/17LetterCombinationsofaPhoneNumber.cpp",
@@ -684,15 +695,11 @@
 		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/app.css",
 		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/googleAnalytics.jsx",
 		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/webpack.config.babel.js",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/screenplayGame.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/NavigationBar.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/EpisodeTile.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/App.jsx",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/longestUniqSubstring.js"
+		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/screenplayGame.jsx"
 	],
 	"find":
 	{
-		"height": 35.0
+		"height": 34.0
 	},
 	"find_in_files":
 	{
@@ -714,6 +721,13 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"j",
+			"z",
+			"s",
+			"str",
+			"k",
+			"i",
+			"j",
 			"B",
 			"A",
 			"std::",
@@ -834,14 +848,7 @@
 			"A",
 			"Value",
 			"value",
-			"Value",
-			"value",
-			"Value",
-			"value",
-			"sortedArray",
-			"recursiveBinarySearch",
-			"key",
-			"this.remove()"
+			"Value"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -871,7 +878,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -880,15 +887,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 679,
+						"buffer_size": 1065,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								666,
-								666
+								950,
+								1049
 							]
 						],
 						"settings":
@@ -896,27 +903,86 @@
 							"syntax": "Packages/C++/C++.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 171.0,
+						"translation.y": 585.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "30-39/32LongestValidParentheses.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1727,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1669,
+								1669
+							]
+						],
+						"settings":
+						{
+							"auto_name": "/*",
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 891.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": ".gitignore",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 5,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "1-9/7ReverseInteger.cpp",
+					"buffer": 3,
+					"file": "40-49/48RotateImage.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 929,
+						"buffer_size": 999,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								796,
-								796
+								240,
+								0
 							]
 						],
 						"settings":
@@ -926,44 +992,14 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 57.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "1-9/8StringtoInteger(atoi).CPP",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2368,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								395,
-								395
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1237.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
+					"buffer": 4,
 					"semi_transient": false,
 					"settings":
 					{
@@ -986,11 +1022,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 5,
 					"file": "1-9/9PalindromeNumber.cpp",
 					"semi_transient": false,
 					"settings":
@@ -1016,11 +1052,11 @@
 						"translation.y": 353.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 6,
 					"semi_transient": false,
 					"settings":
 					{
@@ -1043,7 +1079,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"type": "text"
 				}
 			]
@@ -1101,6 +1137,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"48",
+				"40-49\\48RotateImage.cpp"
+			],
 			[
 				"test",
 				"test.cpp"
@@ -1608,10 +1648,6 @@
 			[
 				"page6",
 				"static\\legacy-modules\\source-code\\page6.html"
-			],
-			[
-				"page5",
-				"static\\legacy-modules\\source-code\\page5.html"
 			]
 		],
 		"width": 0.0

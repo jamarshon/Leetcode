@@ -15,6 +15,8 @@ Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
 using namespace std;
 
 #include <unordered_map>
+#include <vector>
+
 class Solution {
 private:
     unordered_map<char, vector<char>> LETTER_DIGIT_MAP = {
@@ -44,3 +46,7 @@ public:
         return result;
     }
 };
+
+int main(){
+    return 0;
+}

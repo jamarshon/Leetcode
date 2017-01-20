@@ -434,12 +434,13 @@
 			}
 		},
 		{
-			"contents": "A\t216.239.32.21\t\nA\t216.239.34.21\t\nA\t216.239.36.21\t\nA\t216.239.38.21\t\nAAAA\t2001:4860:4802:32::15\t\nAAAA\t2001:4860:4802:34::15\t\nAAAA\t2001:4860:4802:36::15\t\nAAAA\t2001:4860:4802:38::15\t\nCNAME\tghs.googlehosted.com\twww\n\nHTTP Error 404. The requested resource is not found.",
+			"file": "90-99/92ReverseLinkedListII.cpp",
 			"settings":
 			{
-				"buffer_size": 264,
+				"buffer_size": 1400,
+				"encoding": "UTF-8",
 				"line_ending": "Windows",
-				"name": "A\t216.239.32.21"
+				"name": "/*"
 			}
 		},
 		{
@@ -890,7 +891,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -937,7 +938,7 @@
 						[
 							[
 								31,
-								7
+								3
 							]
 						],
 						"settings":
@@ -947,34 +948,6 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1168.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 264,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								186,
-								206
-							]
-						],
-						"settings":
-						{
-							"auto_name": "A\t216.239.32.21",
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
@@ -982,9 +955,40 @@
 					"type": "text"
 				},
 				{
+					"buffer": 2,
+					"file": "90-99/92ReverseLinkedListII.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1400,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1068,
+								1068
+							]
+						],
+						"settings":
+						{
+							"auto_name": "/*",
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
 					"buffer": 3,
 					"file": "20-29/25ReverseNodesinkGroup.exe",
-					"semi_transient": true,
+					"semi_transient": false,
 					"settings":
 					{
 						"buffer_size": 113362,

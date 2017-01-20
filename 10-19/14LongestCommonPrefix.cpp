@@ -48,3 +48,7 @@ public:
     	return lcp;
     }
 };
+
+int main() {
+    return 0;
+}

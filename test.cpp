@@ -44,7 +44,12 @@ public:
     }
 };
 int main() {
-    Solution s;
-    cout << s.addBinary("100", "110010") << endl;
+    // Solution s;
+    string s = "hello";
+    string enclosed = "(" + s + ")";
+    switch(1) {
+    case 1 : cout << '1'; // prints "1",
+    case 2 : cout << '2'; // then prints "2"
+}
     return 0;
 }

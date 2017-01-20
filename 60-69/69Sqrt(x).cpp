@@ -1,3 +1,14 @@
+/*
+69. Sqrt(x)
+Implement int sqrt(int x).
+
+Compute and return the square root of x.
+/*
+    Submission Date: 2017-01-19
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+
 using namespace std;
 #include <iostream>
 
@@ -22,10 +33,7 @@ public:
         }
     }
 };
+
 int main() {
-    Solution s;
-    cout << s.mySqrt(8192) << endl;
-    cout << s.mySqrt(1) << endl;
-    cout << s.mySqrt(2) << endl;
-    return 0;
+	return 0;
 }

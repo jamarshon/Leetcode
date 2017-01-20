@@ -1,5 +1,19 @@
+/*
+67. Add Binary
+Given two binary strings, return their sum (also a binary string).
+
+For example,
+a = "11"
+b = "1"
+Return "100".
+
+/*
+    Submission Date: 2017-01-20
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
 using namespace std;
-#include <iostream>
 #include <unordered_map>
 #include <string>
 
@@ -43,8 +57,7 @@ public:
         return result;
     }
 };
+
 int main() {
-    Solution s;
-    cout << s.addBinary("100", "110010") << endl;
-    return 0;
+	return 0;
 }

@@ -1,7 +1,20 @@
+/*
+56. Merge Intervals
+Given a collection of intervals, merge all overlapping intervals.
+
+For example,
+Given [1,3],[2,6],[8,10],[15,18],
+return [1,6],[8,10],[15,18].
+
+/*
+    Submission Date: 2017-01-19
+    Runtime: 49 ms
+    Difficulty: HARD
+*/
+
 using namespace std;
 #include <iostream>
 #include <vector>
-#include <string>
 #include <algorithm>
 
 struct Interval {
@@ -27,13 +40,10 @@ public:
         sort(intervals.begin(), intervals.end(), sortComparison());
         int j = 0;
         vector<Interval> retVec = {intervals[0]};
-        print(intervals);
         for(int i = 1; i < len; i++) {
-            print(retVec);
             if(overlap(intervals[i], retVec[j])) {
-                cout << j << endl;
-                retVec[j].start = min(intervals[i].start, intervals[j].start);
-                retVec[j].end = max(intervals[i].end, intervals[j].end);
+                retVec[j].start = min(intervals[i].start, retVec[j].start);
+                retVec[j].end = max(intervals[i].end, retVec[j].end);
             } else {
                 retVec.push_back(intervals[i]);
                 j++;
@@ -45,20 +55,8 @@ public:
     bool overlap(Interval a, Interval b) {
         return !(a.end < b.start || a.start > b.end);
     }
-    void print(vector<Interval> v) {
-        for(auto i: v) {
-            cout << "[" << i.start << "," << i.end << "],";
-        }
-        cout << endl;
-    }
 };
+
 int main() {
-    Solution s;
-    vector<Interval> v = {{2,3},{2,2},{3,3},{1,3},{5,7},{2,2},{4,6}};
-    Interval a = {4, 6};
-    Interval b = {5, 7};
-    // cout << s.overlap(a, b) << endl;
-    vector<Interval> d = s.merge(v);
-    s.print(d);
     return 0;
 }

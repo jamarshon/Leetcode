@@ -25,9 +25,9 @@ var files = numericFolders.reduce(function(memo, folder){
 
  var base = '# leetcode \r\n' +
 						'Ongoing solutions to leetcode in C++ \r\n \r\n' +
-						'Completed questions: \r\n';
+						'Completed questions: \r\n \r\n';
 
-var message = base + files.join('\r\n');
+var message = base + files.join('\r\n \r\n');
 fs.writeFile('README.md', message, function(err){
 	if(err) throw err;
 })

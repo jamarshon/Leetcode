@@ -4,7 +4,7 @@ Merge two sorted linked lists and return it as a new list. The new list should b
 
 /*
     Submission Date: 2017-01-20
-    Runtime: 12 ms
+    Runtime: 9 ms
     Difficulty: EASY
 */
 using namespace std;

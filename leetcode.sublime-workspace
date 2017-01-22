@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"c",
+				"carry"
+			],
+			[
+				"b",
+				"bCurrent"
+			],
+			[
+				"a",
+				"aCurrent"
+			],
+			[
+				"s",
+				"sqrt"
+			],
+			[
+				"mid",
+				"midComplement"
+			],
+			[
 				"ret",
 				"retVec"
 			],
@@ -40,16 +60,8 @@
 				"nextInterval"
 			],
 			[
-				"mid",
-				"midValue"
-			],
-			[
 				"INT",
 				"INT_MIN"
-			],
-			[
-				"s",
-				"seenNumeric"
 			],
 			[
 				"see",
@@ -190,14 +202,6 @@
 			[
 				"n2",
 				"n2Val"
-			],
-			[
-				"b",
-				"bValue"
-			],
-			[
-				"a",
-				"aValue"
 			],
 			[
 				"en",
@@ -423,45 +427,52 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 638,
+				"buffer_size": 648,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "50-59/56MergeIntervals.cpp",
+			"file": "90-99/92ReverseLinkedListII.cpp",
 			"settings":
 			{
-				"buffer_size": 1419,
-				"encoding": "UTF-8",
-				"line_ending": "Windows",
-				"name": "/*"
-			}
-		},
-		{
-			"file": "60-69/61RotateList.cpp",
-			"settings":
-			{
-				"buffer_size": 1135,
+				"buffer_size": 1400,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "90-99/94BinaryTreeInorderTraversal.cpp",
+			"contents": "[\"(((())))\",\"((()()))\",\"((())())\",\"((()))()\",\"(()(()))\",\"(()()())\",\"(()())()\",\"(())()()\",\"()((()))\",\"()(()())\",\"()(())()\",\"()(())()\",\"()()(())\",\"()()()()\"]",
 			"settings":
 			{
-				"buffer_size": 1267,
-				"encoding": "UTF-8",
+				"buffer_size": 155,
 				"line_ending": "Windows",
-				"name": "/*"
+				"name": "[\"(((())))\",\"((()()))\",\"((())())\",\"((()))()\",\"(()("
 			}
 		},
 		{
-			"file": "60-69/66PlusOne.cpp",
+			"contents": "public class Solution {\n  public ListNode swapPairs(ListNode head) {\n    if(head==null || head.next==null) return head;\n    ListNode newHead = head.next, a=head,b=a.next,pre = null;\n    while(a!=null && b!=null){\n      a.next = b.next;\n      b.next = a;\n      if(pre!=null) pre.next = b;\n      if(a.next==null) break;\n      b = a.next.next;\n      pre = a;\n      a = a.next;\n    }\n    return newHead;\n  }\n}",
 			"settings":
 			{
-				"buffer_size": 900,
+				"buffer_size": 405,
+				"line_ending": "Windows",
+				"name": "public class Solution {"
+			}
+		},
+		{
+			"file": "/C/Users/simon/Downloads/chrome-extension/a/background.js",
+			"settings":
+			{
+				"buffer_size": 464,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/simon/Downloads/chrome-extension/a/manifest.json",
+			"settings":
+			{
+				"buffer_size": 308,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -571,15 +582,24 @@
 	"expanded_folders":
 	[
 		"/C/Users/simon/Documents/GitHub/leetcode",
-		"/C/Users/simon/Documents/GitHub/leetcode/40-49",
-		"/C/Users/simon/Documents/GitHub/leetcode/50-59",
-		"/C/Users/simon/Documents/GitHub/leetcode/60-69",
-		"/C/Users/simon/Documents/GitHub/leetcode/90-99",
-		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax",
-		"/C/Users/simon/Documents/GitHub/leetcode/Misc"
+		"/C/Users/simon/Documents/GitHub/leetcode/90-99"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/Documents/GitHub/leetcode/60-69/67AddBinary.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/20-29/21MergeTwoSortedLists.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/run.bat",
+		"/C/Users/simon/Documents/GitHub/leetcode/node-script.js",
+		"/C/Users/simon/Documents/GitHub/leetcode/README.md",
+		"/C/Users/simon/Documents/GitHub/leetcode/10-19/11ContainerWithMostWater.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/20-29/20ValidParentheses.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/60-69/66PlusOne.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/90-99/94BinaryTreeInorderTraversal.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/60-69/61RotateList.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/50-59/56MergeIntervals.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/60-69/69Sqrt(x).cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).CPP",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/9PalindromeNumber.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/20-29/25ReverseNodesinkGroup.exe",
 		"/C/Users/simon/Documents/GitHub/leetcode/90-99/92ReverseLinkedListII.cpp",
@@ -593,7 +613,6 @@
 		"/C/Users/simon/Documents/GitHub/leetcode/30-39/33SearchinRotatedSortedArray.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/UtilityHelper.hpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/7ReverseInteger.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).CPP",
 		"/C/Users/simon/Downloads/a (1).cpp",
 		"/C/Users/simon/Downloads/a.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/4MedianofTwoSortedArrays.cpp",
@@ -694,24 +713,11 @@
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/SampleProblem/printParenthesis.js",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/findLargestLexicographicalString.js",
 		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/lib/frexServer.ex",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/App.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/NavigationBar.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/FlippableSentence.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/flippableSentence.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/gameScreen.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/GameScreen.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/matchingGame.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/navigationBar.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/EpisodeTileGallery.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/EpisodeTile.jsx",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/screenplayGame.html",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/screenplayGame.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/css/episodeTileGallery.css",
-		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/utility/gameScreenHelper.jsx"
+		"/C/Users/simon/Documents/Web Dev/frex-backend/frex-backend/frontend/js/components/App.jsx"
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 28.0
 	},
 	"find_in_files":
 	{
@@ -733,6 +739,15 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"head",
+			"MAP",
+			" * ",
+			" && carry > 0",
+			"\"",
+			":",
+			"long",
+			"midRoot",
+			"1",
 			" * ",
 			"v",
 			"]",
@@ -851,16 +866,7 @@
 			"=",
 			"src",
 			"/>",
-			"<EpisodeTile srcOfMousedOverTile={this.state.srcOfMousedOverTile} onMouseLeave={ml} onMouseEnter={mo} ",
-			".html",
-			"arr",
-			"Arr",
-			"arr",
-			"|",
-			"}",
-			"|",
-			"ilen",
-			"css"
+			"<EpisodeTile srcOfMousedOverTile={this.state.srcOfMousedOverTile} onMouseLeave={ml} onMouseEnter={mo} "
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -899,50 +905,19 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 638,
+						"buffer_size": 648,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								349,
-								349
+								632,
+								632
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 64.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "50-59/56MergeIntervals.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1419,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								244,
-								0
-							]
-						],
-						"settings":
-						{
-							"auto_name": "/*",
 							"syntax": "Packages/C++/C++.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
@@ -951,60 +926,117 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "60-69/61RotateList.cpp",
-					"semi_transient": false,
+					"buffer": 1,
+					"file": "90-99/92ReverseLinkedListII.cpp",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 1135,
+						"buffer_size": 1400,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6,
-								18
+								493,
+								396
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.sublime-syntax"
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 218.0,
+						"translation.y": 309.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "90-99/94BinaryTreeInorderTraversal.cpp",
+					"buffer": 2,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1267,
+						"buffer_size": 155,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								348,
-								0
+								155,
+								155
 							]
 						],
 						"settings":
 						{
-							"auto_name": "/*",
+							"auto_name": "[\"(((())))\",\"((()()))\",\"((())())\",\"((()))()\",\"(()(",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 405,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								287,
+								287
+							]
+						],
+						"settings":
+						{
+							"auto_name": "public class Solution {",
 							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
+							"tab_size": 2,
 							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/C/Users/simon/Downloads/chrome-extension/a/background.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 464,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								464,
+								464
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1014,31 +1046,33 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "60-69/66PlusOne.cpp",
+					"buffer": 5,
+					"file": "/C/Users/simon/Downloads/chrome-extension/a/manifest.json",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 900,
+						"buffer_size": 308,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								368,
-								368
+								308,
+								308
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.sublime-syntax"
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 162.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -1046,7 +1080,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 26.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -1077,7 +1111,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 293.0
+		"height": 237.0
 	},
 	"output.find_results":
 	{
@@ -1087,7 +1121,7 @@
 	"project": "leetcode.sublime-project",
 	"replace":
 	{
-		"height": 48.0
+		"height": 52.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1641,7 +1675,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 267.0,
+	"side_bar_width": 278.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

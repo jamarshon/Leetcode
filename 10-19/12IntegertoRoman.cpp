@@ -1,3 +1,16 @@
+/*
+12. Integer to Roman
+
+Given an integer, convert it to a roman numeral.
+
+Input is guaranteed to be within the range from 1 to 3999.
+
+/*
+    Submission Date: 2017-01-23
+    Runtime: 59 ms
+    Difficulty: MEDIUM
+*/
+
 using namespace std;
 #include <iostream>
 #include <vector>
@@ -56,7 +69,5 @@ public:
 };
 
 int main() {
-   Solution s;
-   cout << s.intToRoman(4);
     return 0;
 }

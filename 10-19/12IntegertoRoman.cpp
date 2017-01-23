@@ -7,7 +7,7 @@ Input is guaranteed to be within the range from 1 to 3999.
 
 /*
     Submission Date: 2017-01-23
-    Runtime: 59 ms
+    Runtime: 138 ms
     Difficulty: MEDIUM
 */
 
@@ -31,6 +31,17 @@ public:
         Denomination{5, "V"},
         Denomination{1, "I"}
     };
+
+    void checkAndAddDenomination(int i, int offset, int len, Denomination denomination, int& num, string& result) {
+        if(i + offset < len) {
+            Denomination smallerDenomination = VEC[i + offset];
+            int difference = denomination.value - smallerDenomination.value;
+            if(num >= difference && difference > smallerDenomination.value) {
+              num -= difference;
+              result += smallerDenomination.symbol + denomination.symbol;
+            }
+        }
+    }
     string intToRoman(int num) {
         int difference;
         string result = "";
@@ -43,23 +54,8 @@ public:
                 num -= denomination.value;
                 result += denomination.symbol;
             } else {
-                if(i + 1 < len) {
-                    smallerDenomination = VEC[i + 1];
-                    difference = denomination.value - smallerDenomination.value;
-                    if(num >= difference && difference > smallerDenomination.value) {
-                      num -= difference;
-                      result += smallerDenomination.symbol + denomination.symbol;
-                    }
-                }
-
-                if(i + 2 < len) {
-                    smallerDenomination = VEC[i + 2];
-                    difference = denomination.value - smallerDenomination.value;
-                    if(num >= difference && difference > smallerDenomination.value) {
-                      num -= difference;
-                      result += smallerDenomination.symbol + denomination.symbol;
-                    }
-                }
+                checkAndAddDenomination(i, 1, len, denomination, num, result);
+                checkAndAddDenomination(i, 2, len, denomination, num, result);
                 i++;
             }
         }

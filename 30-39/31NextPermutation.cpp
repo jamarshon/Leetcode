@@ -13,7 +13,7 @@ Here are some examples. Inputs are in the left-hand column and its corresponding
 
 /*
     Submission Date: 2017-01-24
-    Runtime: 32 ms
+    Runtime: 13 ms
     Difficulty: MEDIUM
 */
 using namespace std;
@@ -27,26 +27,28 @@ public:
         int len = nums.size();
         if(len <= 1) return;
         
-        vector<int>::reverse_iterator ceilIt, endIt;
         // starting from the right find any elements that are after it that are larger than it
         // if there is, swap them and sort in descending order all the elements after it
-        for(int i = 0; i < len; i++) {
-            endIt = nums.rbegin() + i;
-            ceilIt = upper_bound(nums.rbegin(), endIt, nums[len - i - 1]);
-            if(ceilIt != endIt) {
-              swap(nums[len - i - 1], *ceilIt);
-              sort(nums.rbegin(), endIt, greater<int>());
-              return;
-            }
+        int i = len - 2;
+        while(i >= 0 && nums[i] >= nums[i + 1]) i--;
+
+        int offset;
+        if(i == -1) {
+            offset = 0;
+        } else {
+            int j = len - 1;
+            while(nums[i] >= nums[j]) j--;
+            swap(nums[i], nums[j]);
+            offset = i + 1;
         }
-        
-        reverse(nums.begin(), nums.end());
+
+        reverse(nums.begin() + offset, nums.end());   
     }
 };
 
 int main() {
     Solution s;
-    vector<int> v{1,3,2};
+    vector<int> v{1,5,1};
     s.nextPermutation(v);
     return 0;
 }

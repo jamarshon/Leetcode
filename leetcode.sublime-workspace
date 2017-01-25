@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"end",
+				"endIt"
+			],
+			[
+				"cur",
+				"currentMaxInd"
+			],
+			[
+				"begin",
+				"beginIt"
+			],
+			[
+				"begi",
+				"beginIt"
+			],
+			[
 				"V",
 				"VEC"
 			],
@@ -232,10 +248,6 @@
 				"currRow"
 			],
 			[
-				"cur",
-				"currRow"
-			],
-			[
 				"left",
 				"leftCell"
 			],
@@ -431,34 +443,7 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 454,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "10-19/12IntegertoRoman.cpp",
-			"settings":
-			{
-				"buffer_size": 1779,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "90-99/92ReverseLinkedListII.cpp",
-			"settings":
-			{
-				"buffer_size": 1400,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "20-29/26RemoveDuplicatesfromSortedArray.cpp",
-			"settings":
-			{
-				"buffer_size": 968,
+				"buffer_size": 872,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -468,6 +453,15 @@
 			"settings":
 			{
 				"buffer_size": 1344,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "30-39/31NextPermutation.cpp",
+			"settings":
+			{
+				"buffer_size": 1445,
+				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
@@ -590,12 +584,12 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Users/simon/Documents/GitHub/leetcode",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29"
+		"/C/Users/simon/Documents/GitHub/leetcode"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/Documents/GitHub/leetcode/20-29/26RemoveDuplicatesfromSortedArray.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/10-19/12IntegertoRoman.cpp",
 		"/C/Users/simon/Downloads/chrome-extension/a/manifest.json",
 		"/C/Users/simon/Downloads/chrome-extension/a/background.js",
 		"/C/Users/simon/Documents/GitHub/leetcode/60-69/67AddBinary.cpp",
@@ -721,9 +715,7 @@
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/randomAndRound.js",
 		"/C/Users/simon/Dropbox/WATERLOO/Programming/CSSConcepts/font.css",
 		"/C/Users/simon/Documents/Web Dev/webpack-express-boilerplate/server.js",
-		"/C/Users/simon/Documents/Web Dev/webpack-express-boilerplate/package.json",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/SampleProblem/printParenthesis.js",
-		"/C/Users/simon/Dropbox/WATERLOO/Programming/Algorithm/findLargestLexicographicalString.js"
+		"/C/Users/simon/Documents/Web Dev/webpack-express-boilerplate/package.json"
 	],
 	"find":
 	{
@@ -906,7 +898,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -915,15 +907,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 454,
+						"buffer_size": 872,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								350,
-								350
+								0,
+								872
 							]
 						],
 						"settings":
@@ -933,57 +925,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 59.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "10-19/12IntegertoRoman.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1779,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								216,
-								216
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 252.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "90-99/92ReverseLinkedListII.cpp",
-					"semi_transient": true,
+					"buffer": 1,
+					"file": "10-19/17LetterCombinationsofaPhoneNumber.cpp",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1400,
+						"buffer_size": 1344,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								1400
+								392,
+								0
 							]
 						],
 						"settings":
@@ -1000,67 +962,37 @@
 					"type": "text"
 				},
 				{
+					"buffer": 2,
+					"file": "30-39/31NextPermutation.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1445,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								540,
+								540
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 125.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
 					"buffer": 3,
-					"file": "20-29/26RemoveDuplicatesfromSortedArray.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 968,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								42,
-								3
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "10-19/17LetterCombinationsofaPhoneNumber.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1344,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								552,
-								607
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 378.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
 					"semi_transient": false,
 					"settings":
 					{
@@ -1083,11 +1015,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 4,
 					"file": "60-69/61RotateList.cpp",
 					"semi_transient": false,
 					"settings":
@@ -1110,10 +1042,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 203.0,
+						"translation.y": 183.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]

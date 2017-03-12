@@ -4,12 +4,52 @@
 		"selected_items":
 		[
 			[
-				"sum",
-				"sumToIndex"
+				"A",
+				"size_A"
+			],
+			[
+				"find",
+				"find_repeated_values"
+			],
+			[
+				"marg",
+				"margin-bottom"
+			],
+			[
+				"margin",
+				"margin-right"
+			],
+			[
+				"exper",
+				"experiments"
+			],
+			[
+				"experim",
+				"experiments"
+			],
+			[
+				"mar",
+				"margin-bottom"
+			],
+			[
+				"is",
+				"isActive"
+			],
+			[
+				"mari",
+				"margin"
+			],
+			[
+				"backg",
+				"background-color"
 			],
 			[
 				"loc",
-				"localFileObj"
+				"locationProvider"
+			],
+			[
+				"sum",
+				"sumToIndex"
 			],
 			[
 				"que",
@@ -176,10 +216,6 @@
 				"maxStr"
 			],
 			[
-				"A",
-				"A_pt"
-			],
-			[
 				"k",
 				"kBitMask"
 			],
@@ -260,10 +296,6 @@
 				"splitArr"
 			],
 			[
-				"margin",
-				"margin-bottom"
-			],
-			[
 				"overflow-",
 				"overflow-y"
 			],
@@ -278,10 +310,6 @@
 			[
 				"style",
 				"styleCode"
-			],
-			[
-				"is",
-				"isPalindrome"
 			],
 			[
 				"sta",
@@ -354,10 +382,6 @@
 			[
 				"asc",
 				"asciiStr"
-			],
-			[
-				"find",
-				"findEncodings"
 			],
 			[
 				"parent",
@@ -490,14 +514,6 @@
 			[
 				"previ",
 				"previousArrow"
-			],
-			[
-				"inlin",
-				"inline-block"
-			],
-			[
-				"banner",
-				"bannerDiv"
 			]
 		]
 	},
@@ -507,41 +523,8 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 820,
+				"buffer_size": 1044,
 				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "10-19/11ContainerWithMostWater.cpp",
-			"settings":
-			{
-				"buffer_size": 1103,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "20-29/27RemoveElement.cpp",
-			"settings":
-			{
-				"buffer_size": 1088,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "1-9/7ReverseInteger.cpp",
-			"settings":
-			{
-				"buffer_size": 929,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "60-69/67AddBinary.cpp",
-			"settings":
-			{
-				"buffer_size": 1324,
 				"line_ending": "Windows"
 			}
 		}
@@ -651,11 +634,28 @@
 	[
 		"/C/Users/simon/Documents/GitHub/leetcode",
 		"/C/Users/simon/Documents/GitHub/leetcode/20-29",
+		"/C/Users/simon/Documents/GitHub/leetcode/40-49",
 		"/C/Users/simon/Documents/GitHub/leetcode/90-99",
 		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/package.json",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/error.ejs",
+		"/C/Users/simon/Documents/GitHub/leetcode/60-69/67AddBinary.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/7ReverseInteger.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/20-29/27RemoveElement.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/login.ejs",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/blue.ejs",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/app.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/routes/index.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/layout.jade",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/index.jade",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/error.jade",
+		"/C/Users/simon/Documents/GitHub/leetcode/10-19/13RomantoInteger.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/40-49/49GroupAnagrams.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/index.js",
+		"/C/Users/simon/Documents/GitHub/leetcode/10-19/11ContainerWithMostWater.cpp",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/test-cases/output/http-file-server.txt",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/test-cases/output/filtered-ls-output.txt",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/test-cases/output/http-collect.txt",
@@ -723,7 +723,6 @@
 		"/C/Users/simon/Downloads/generate_cluster.m",
 		"/C/Users/simon/Documents/GitHub/leetcode/90-99/98ValidateBinarySearchTree.cpp",
 		"/C/Users/simon/Downloads/ci-technology.txt",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/13RomantoInteger.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/10-19/12IntegertoRoman.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/10-19/17LetterCombinationsofaPhoneNumber.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/60-69/61RotateList.cpp",
@@ -731,12 +730,10 @@
 		"/C/Users/simon/Documents/GitHub/leetcode/20-29/26RemoveDuplicatesfromSortedArray.cpp",
 		"/C/Users/simon/Downloads/chrome-extension/a/manifest.json",
 		"/C/Users/simon/Downloads/chrome-extension/a/background.js",
-		"/C/Users/simon/Documents/GitHub/leetcode/60-69/67AddBinary.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/20-29/21MergeTwoSortedLists.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/run.bat",
 		"/C/Users/simon/Documents/GitHub/leetcode/node-script.js",
 		"/C/Users/simon/Documents/GitHub/leetcode/README.md",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/11ContainerWithMostWater.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/20-29/20ValidParentheses.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/60-69/66PlusOne.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/90-99/94BinaryTreeInorderTraversal.cpp",
@@ -755,7 +752,6 @@
 		"/C/Users/simon/Documents/GitHub/leetcode/30-39/32LongestValidParentheses.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/30-39/33SearchinRotatedSortedArray.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/UtilityHelper.hpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/7ReverseInteger.cpp",
 		"/C/Users/simon/Downloads/a (1).cpp",
 		"/C/Users/simon/Downloads/a.cpp",
 		"/C/Users/simon/Documents/GitHub/leetcode/1-9/4MedianofTwoSortedArrays.cpp",
@@ -771,19 +767,7 @@
 		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
 		"/C/Users/simon/AppData/Local/Temp/7zO6E47.tmp/myMovePoles_Group4.m",
 		"/C/Users/simon/AppData/Local/Temp/7zO5D8D.tmp/DFT.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO3032.tmp/BME252_Assign3_Script_Group4.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO1626.tmp/BME252_Assign3_Script_Group4.m",
-		"/C/Users/simon/Documents/1/BME252/Matlab-Assignment-2_20581472_20586885/Program/run.m",
-		"/C/Users/simon/Documents/1/BME252/Matlab-Assignment-2_20581472_20586885/Program/DFT.m",
-		"/C/Users/simon/AppData/Local/Temp/7zOBC9.tmp/synthVoice.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO8E8A.tmp/myMovePoles.m",
-		"/C/Users/simon/AppData/Local/Temp/7zOBD5D.tmp/BME252_Assign3_Script.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO13AC.tmp/getModel.m",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/1TwoSum.cpp",
-		"/C/Users/simon/AppData/Local/Temp/7zOF78D.tmp/recognitionTest.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO924.tmp/sigmoid.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO2661.tmp/recognizeDigits.m",
-		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/printing.cpp"
+		"/C/Users/simon/AppData/Local/Temp/7zO3032.tmp/BME252_Assign3_Script_Group4.m"
 	],
 	"find":
 	{
@@ -809,6 +793,16 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"experiments",
+			"experiment",
+			"<span class=\"label ",
+			"h2",
+			",",
+			":",
+			",",
+			"\"",
+			"MAP",
+			"static",
 			"max",
 			"mit",
 			"console.log",
@@ -926,17 +920,7 @@
 			"dataSource",
 			"style=",
 			"textAlign",
-			"dim",
-			"',",
-			": '",
-			"gamescreen",
-			"header-link-button",
-			"renderChunks",
-			"classname",
-			"datasource",
-			".bind",
-			"handleFrenchClick",
-			".bind("
+			"dim"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -944,6 +928,8 @@
 		"regex": true,
 		"replace_history":
 		[
+			",",
+			"'",
 			"O",
 			"X",
 			"inLockDown",
@@ -975,15 +961,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 820,
+						"buffer_size": 1044,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								723,
-								723
+								841,
+								841
 							]
 						],
 						"settings":
@@ -993,130 +979,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 302.0,
+						"translation.y": 398.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "10-19/11ContainerWithMostWater.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1103,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 249.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "20-29/27RemoveElement.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1088,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								63,
-								64
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "1-9/7ReverseInteger.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 929,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								929
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "60-69/67AddBinary.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1324,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								1324
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
 					"type": "text"
 				}
 			]
@@ -1692,9 +1558,17 @@
 	"select_project":
 	{
 		"height": 500.0,
-		"last_filter": "",
+		"last_filter": "ne",
 		"selected_items":
 		[
+			[
+				"ne",
+				"C:\\Users\\simon\\Documents\\Web Dev\\nemoo\\nemoo.sublime-project"
+			],
+			[
+				"nem",
+				"C:\\Users\\simon\\Documents\\Web Dev\\nemoo\\nemoo.sublime-project"
+			],
 			[
 				"",
 				"C:\\Users\\simon\\Documents\\Web Dev\\jamarshon.appspot.com\\jamarshon.sublime-project"

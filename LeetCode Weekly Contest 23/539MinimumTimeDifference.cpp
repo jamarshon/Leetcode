@@ -1,10 +1,27 @@
+/*
+539. Minimum Time Difference
+Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
+minutes difference between any two time points in the list.
+
+Example 1:
+Input: ["23:59","00:00"]
+Output: 1
+
+Note:
+The number of time points in the given list is at least 2 and won't exceed 20000.
+The input time is legal and ranges from 00:00 to 23:59.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 43 ms
+    Difficulty: MEDIUM
+*/
+
 using namespace std;
 #include <iostream>
-#include <map>
-#include <unordered_map>
-#include <algorithm>
-#include <bitset>
+#include <vector>
 #include <limits.h>
+#include <algorithm>
 
 class Solution {
 public:
@@ -36,9 +53,5 @@ public:
 };
 
 int main() {
-    Solution s;
-    vector<string> v{"23:59","00:00"};
-    cout << s.findMinDifference(v);
-    
     return 0;
 }

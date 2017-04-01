@@ -4,6 +4,130 @@
 		"selected_items":
 		[
 			[
+				"mod",
+				"modifiedPublication"
+			],
+			[
+				"pub",
+				"publicationId"
+			],
+			[
+				"ne",
+				"newName"
+			],
+			[
+				"quer",
+				"queryYear"
+			],
+			[
+				"stu",
+				"stubData"
+			],
+			[
+				"date",
+				"date1"
+			],
+			[
+				"ret",
+				"retTimeArr"
+			],
+			[
+				"roud",
+				"roundCommandStr"
+			],
+			[
+				"pas",
+				"pastNoon"
+			],
+			[
+				"Te",
+				"TEST_CONST"
+			],
+			[
+				"Dat",
+				"DateService"
+			],
+			[
+				"dif",
+				"diffTimeArr"
+			],
+			[
+				"time",
+				"timeArr"
+			],
+			[
+				"is",
+				"isNaN"
+			],
+			[
+				"le",
+				"leapYearDay"
+			],
+			[
+				"mi",
+				"milliseconds"
+			],
+			[
+				"yea",
+				"YearTwoThousand"
+			],
+			[
+				"buf",
+				"buffer"
+			],
+			[
+				"the",
+				"threadID"
+			],
+			[
+				"consu",
+				"consumers"
+			],
+			[
+				"thread",
+				"threadID"
+			],
+			[
+				"N",
+				"NOT"
+			],
+			[
+				"thr",
+				"threadID"
+			],
+			[
+				"th",
+				"threadID"
+			],
+			[
+				"thre",
+				"threadID"
+			],
+			[
+				"str",
+				"str2tree"
+			],
+			[
+				"rig",
+				"rightExpression"
+			],
+			[
+				"lef",
+				"leftExpression"
+			],
+			[
+				"min",
+				"minDiff"
+			],
+			[
+				"tie",
+				"timePoints"
+			],
+			[
+				"rev",
+				"reverse"
+			],
+			[
 				"A",
 				"size_A"
 			],
@@ -30,10 +154,6 @@
 			[
 				"mar",
 				"margin-bottom"
-			],
-			[
-				"is",
-				"isActive"
 			],
 			[
 				"mari",
@@ -86,10 +206,6 @@
 			[
 				"js",
 				"jsonObj"
-			],
-			[
-				"quer",
-				"queryIso"
 			],
 			[
 				"j",
@@ -160,10 +276,6 @@
 				"midComplement"
 			],
 			[
-				"ret",
-				"retVec"
-			],
-			[
 				"I",
 				"Interval"
 			],
@@ -174,10 +286,6 @@
 			[
 				"current",
 				"current2"
-			],
-			[
-				"ne",
-				"nextInterval"
 			],
 			[
 				"l",
@@ -220,10 +328,6 @@
 				"kBitMask"
 			],
 			[
-				"mi",
-				"minRight"
-			],
-			[
 				"im",
 				"imin"
 			],
@@ -246,10 +350,6 @@
 			[
 				"sub",
 				"subString"
-			],
-			[
-				"min",
-				"minOfRight"
 			],
 			[
 				"median",
@@ -414,106 +514,6 @@
 			[
 				"value",
 				"valuesLen"
-			],
-			[
-				"Ut",
-				"utilHelper"
-			],
-			[
-				"transit",
-				"transition-duration"
-			],
-			[
-				"inline",
-				"inline-block"
-			],
-			[
-				"font",
-				"font-size"
-			],
-			[
-				"get",
-				"getPageId"
-			],
-			[
-				"_arrow",
-				"_arrowHelper"
-			],
-			[
-				"Arr",
-				"ArrowHelper"
-			],
-			[
-				"navi",
-				"navigateCallback"
-			],
-			[
-				"tile",
-				"tileModel"
-			],
-			[
-				"boot",
-				"bootstrapModal"
-			],
-			[
-				"start",
-				"startPage"
-			],
-			[
-				"util",
-				"UtilHelper"
-			],
-			[
-				"star",
-				"startPage"
-			],
-			[
-				"Starte",
-				"startPageView"
-			],
-			[
-				"pol",
-				"polyhedronDiv"
-			],
-			[
-				"navig",
-				"navigation-bar"
-			],
-			[
-				"template",
-				"templateLoader"
-			],
-			[
-				"prot",
-				"prototype"
-			],
-			[
-				"templa",
-				"templateId"
-			],
-			[
-				"remove",
-				"removeArrows"
-			],
-			[
-				"prev",
-				"previousEnv"
-			],
-			[
-				"st",
-				"startPage"
-			],
-			[
-				"pre",
-				"previousArrowStr"
-			],
-			[
-				"env",
-				"environment"
-			],
-			[
-				"previ",
-				"previousArrow"
 			]
 		]
 	},
@@ -523,8 +523,15 @@
 			"file": "test.cpp",
 			"settings":
 			{
-				"buffer_size": 1044,
-				"encoding": "UTF-8",
+				"buffer_size": 2869,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "UtilityHelper.hpp",
+			"settings":
+			{
+				"buffer_size": 5074,
 				"line_ending": "Windows"
 			}
 		}
@@ -633,13 +640,71 @@
 	"expanded_folders":
 	[
 		"/C/Users/simon/Documents/GitHub/leetcode",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29",
-		"/C/Users/simon/Documents/GitHub/leetcode/40-49",
-		"/C/Users/simon/Documents/GitHub/leetcode/90-99",
 		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax"
 	],
 	"file_history":
 	[
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/src/DateService.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-1.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/Jason Lian 20586885/Part 2/exercise-3.txt",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/Jason Lian 20586885/Part 2/exercise-2-stub.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/Jason Lian 20586885/Part 2/exercise-2-driver.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/Jason Lian 20586885/Part 2/exercise-2.txt",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 1/exercise-3.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 1/exercise-2.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 1/exercise-1.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/exercise-2-driver.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/src/PublicationService.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/exercise-2-stub.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/exercise-2-test.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-2-stub.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-2-driver.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-2-test.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/README.txt",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-3.txt",
+		"/C/Users/simon/Downloads/322-stuff/index.html",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/exercise-2.txt",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/src/FormatService.js",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/Part 2/test/test.js",
+		"/C/Users/simon/Downloads/concurrency-master/Part2/QueueTest.java",
+		"/C/Users/simon/Downloads/concurrency-master/Part2/CompensationTest.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO574F.tmp/Exercise2.java",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/exercise-1.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/test.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/exercise-2.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/test2.cpp",
+		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A4/exercise-3.cpp",
+		"/C/Users/simon/AppData/Local/Temp/7zOC5A7.tmp/SemaphoreThread.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO5E01.tmp/SemaphoreDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO4824.tmp/MainDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO9CB6.tmp/SemaphoreDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO3AB9.tmp/SemaphoreThread.java",
+		"/C/Users/simon/AppData/Local/Temp/7zOEC0B.tmp/MainDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO66D9.tmp/Producer.java",
+		"/C/Users/simon/AppData/Local/Temp/7zOC0F2.tmp/RunnableThread.java",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/LeetCode Weekly Contest 23/541ReverseStringII.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/LeetCode Weekly Contest 23/539MinimumTimeDifference.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/30-39/31NextPermutation.cpp",
+		"/C/Users/simon/Downloads/PracticeSystem.java",
+		"/C/Users/simon/Documents/GitHub/leetcode/1-9/1TwoSum.cpp",
+		"/C/Users/simon/AppData/Local/Temp/7zO525A.tmp/Semaphore.java",
+		"/C/Users/simon/AppData/Local/Temp/7zOF33F.tmp/README.md",
+		"/C/Users/simon/AppData/Local/Temp/7zODF93.tmp/SemaphoreThread.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO57A9.tmp/Producer.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO203C.tmp/Semaphore.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO97D2.tmp/MainDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO915.tmp/SemaphoreDriver.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO71EE.tmp/Semaphore.java",
+		"/C/Users/simon/AppData/Local/Temp/7zO48A1.tmp/Semaphore.java",
+		"/C/Users/simon/Documents/GitHub/leetcode/10-19/13RomantoInteger.cpp",
+		"/C/Users/simon/Documents/GitHub/usaco/README.md",
+		"/C/Users/simon/Documents/GitHub/leetcode/milk2.in",
+		"/C/Users/simon/AppData/Local/Temp/7zO5604.tmp/DivisionThreads.java",
+		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/CustomC++Build.sublime-build",
+		"/C/Users/simon/Documents/GitHub/leetcode/LeetCode Weekly Contest 23/536ConstructBinaryTreefromString.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/90-99/94BinaryTreeInorderTraversal.cpp",
+		"/C/Users/simon/Documents/GitHub/leetcode/40-49/49GroupAnagrams.cpp",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/package.json",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/error.ejs",
 		"/C/Users/simon/Documents/GitHub/leetcode/60-69/67AddBinary.cpp",
@@ -652,8 +717,6 @@
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/layout.jade",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/index.jade",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/views/error.jade",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/13RomantoInteger.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/40-49/49GroupAnagrams.cpp",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/mock/index.js",
 		"/C/Users/simon/Documents/GitHub/leetcode/10-19/11ContainerWithMostWater.cpp",
 		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/test-cases/output/http-file-server.txt",
@@ -708,70 +771,11 @@
 		"/C/Users/simon/Downloads/run (1).m",
 		"/C/Users/simon/Downloads/plot_clusters (1).m",
 		"/C/Users/simon/Downloads/generateSpace.m",
-		"/C/Users/simon/Downloads/kNN_classifier.m",
-		"/C/Users/simon/Downloads/Gauss2d.m",
-		"/C/Users/simon/Downloads/ErrorAnalysis.m",
-		"/C/Users/simon/Downloads/plot_ellipse.m",
-		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/program4.js",
-		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/program3.js",
-		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/program2.js",
-		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/errors.txt",
-		"/C/Users/simon/Dropbox/WATERLOO/SYDE322/322 A2/output.txt",
-		"/C/Users/simon/Downloads/run.m",
-		"/C/Users/simon/Downloads/error_ellipse.m",
-		"/C/Users/simon/Downloads/plot_clusters.m",
-		"/C/Users/simon/Downloads/generate_cluster.m",
-		"/C/Users/simon/Documents/GitHub/leetcode/90-99/98ValidateBinarySearchTree.cpp",
-		"/C/Users/simon/Downloads/ci-technology.txt",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/12IntegertoRoman.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/17LetterCombinationsofaPhoneNumber.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/60-69/61RotateList.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/30-39/31NextPermutation.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29/26RemoveDuplicatesfromSortedArray.cpp",
-		"/C/Users/simon/Downloads/chrome-extension/a/manifest.json",
-		"/C/Users/simon/Downloads/chrome-extension/a/background.js",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29/21MergeTwoSortedLists.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/run.bat",
-		"/C/Users/simon/Documents/GitHub/leetcode/node-script.js",
-		"/C/Users/simon/Documents/GitHub/leetcode/README.md",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29/20ValidParentheses.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/60-69/66PlusOne.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/90-99/94BinaryTreeInorderTraversal.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/50-59/56MergeIntervals.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/60-69/69Sqrt(x).cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/8StringtoInteger(atoi).CPP",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/9PalindromeNumber.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29/25ReverseNodesinkGroup.exe",
-		"/C/Users/simon/Documents/GitHub/leetcode/90-99/92ReverseLinkedListII.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/20-29/25ReverseNodesinkGroup.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/10-19/14LongestCommonPrefix.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/50-59/58LengthofLastWord.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/40-49/25ReverseNodesinkGroup.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/40-49/48RotateImage.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/30-39/32LongestValidParentheses.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/30-39/33SearchinRotatedSortedArray.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/UtilityHelper.hpp",
-		"/C/Users/simon/Downloads/a (1).cpp",
-		"/C/Users/simon/Downloads/a.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/4MedianofTwoSortedArrays.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/5LongestPalindromicSubstring.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/6ZigZagConversion.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/1-9/3LongestSubstringWithout RepeatingCharacters.cpp",
-		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/CustomC++Build.sublime-build",
-		"/C/Users/simon/Documents/GitHub/leetcode/test.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/basic.cpp",
-		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
-		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/functionalProgramming.cpp",
-		"/C/Users/simon/Documents/GitHub/leetcode/C++Syntax/convertArrayToVector.cpp",
-		"/C/Users/simon/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-		"/C/Users/simon/AppData/Local/Temp/7zO6E47.tmp/myMovePoles_Group4.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO5D8D.tmp/DFT.m",
-		"/C/Users/simon/AppData/Local/Temp/7zO3032.tmp/BME252_Assign3_Script_Group4.m"
+		"/C/Users/simon/Downloads/kNN_classifier.m"
 	],
 	"find":
 	{
-		"height": 38.0
+		"height": 36.0
 	},
 	"find_in_files":
 	{
@@ -793,6 +797,50 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"PublicationProvider",
+			"hiddenData",
+			"Month",
+			"EndYear",
+			"endYear",
+			"EndYear",
+			"endYear",
+			"BeginYear",
+			"beginYear",
+			"BeginYear",
+			"beginYear",
+			"BeginYear",
+			"beginYear",
+			"begin",
+			"FormatService",
+			"command",
+			"validdate",
+			"\"jason\"",
+			"throw",
+			"MyError",
+			"noon",
+			"midnight",
+			"given year, month, day, hours, minutes, seconds",
+			"print",
+			"semaphore",
+			"in",
+			"/2",
+			"unordered_map",
+			"struct",
+			"unordered_map",
+			"cout",
+			"not",
+			"TreeNode",
+			"->",
+			"left",
+			"int",
+			"struct treenode",
+			"min_diff",
+			"3",
+			"slice",
+			"parseInt",
+			"var",
+			"MAX",
+			"groupAnagrams",
 			"experiments",
 			"experiment",
 			"<span class=\"label ",
@@ -876,51 +924,7 @@
 			"B",
 			"A",
 			"std::",
-			"printables",
-			">\n",
-			"ledState",
-			"lastButtonState",
-			"medianCombineTwoElements",
-			"cout <<",
-			"a",
-			"medianCombineTwoElement",
-			"transform",
-			"cout ",
-			"mid",
-			"nums2",
-			"nums1",
-			"rest",
-			"traversal",
-			"sort",
-			"console.log",
-			"rawPrice",
-			"rawPriceOne",
-			":",
-			" {",
-			"n1",
-			"|",
-			"font",
-			"font-size:",
-			"1.42857143",
-			"#3EA87F",
-			"html",
-			".html",
-			"flippableSentenceContainer",
-			"dimOnHover",
-			"styles.tilestyle",
-			"tilestyle",
-			".gamescreen",
-			"redirect",
-			"metadata",
-			"this.props",
-			"key",
-			".html",
-			"dataSource",
-			"episodes",
-			"dataSource",
-			"style=",
-			"textAlign",
-			"dim"
+			"printables"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -928,6 +932,8 @@
 		"regex": true,
 		"replace_history":
 		[
+			"DateService",
+			"'jason'",
 			",",
 			"'",
 			"O",
@@ -952,7 +958,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -961,15 +967,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1044,
+						"buffer_size": 2869,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								841,
-								841
+								206,
+								206
 							]
 						],
 						"settings":
@@ -979,7 +985,37 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 398.0,
+						"translation.y": 309.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "UtilityHelper.hpp",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 5074,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								286,
+								286
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -990,7 +1026,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 30.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -1021,17 +1057,17 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 237.0
+		"height": 154.0
 	},
 	"output.find_results":
 	{
-		"height": 287.0
+		"height": 436.0
 	},
 	"pinned_build_system": "Packages/User/CustomC++Build.sublime-build",
 	"project": "leetcode.sublime-project",
 	"replace":
 	{
-		"height": 56.0
+		"height": 66.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1040,6 +1076,18 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"test",
+				"test.cpp"
+			],
+			[
+				"test2",
+				"test2.cpp"
+			],
+			[
+				"nex",
+				"30-39\\31NextPermutation.cpp"
+			],
 			[
 				"bin",
 				"60-69\\67AddBinary.cpp"
@@ -1063,10 +1111,6 @@
 			[
 				"48",
 				"40-49\\48RotateImage.cpp"
-			],
-			[
-				"test",
-				"test.cpp"
 			],
 			[
 				"bas",
@@ -1543,14 +1587,6 @@
 			[
 				"p7",
 				"static\\legacy-modules\\source-code\\page7.html"
-			],
-			[
-				"p6",
-				"static\\legacy-modules\\source-code\\page6.html"
-			],
-			[
-				"p5",
-				"static\\legacy-modules\\source-code\\page5.html"
 			]
 		],
 		"width": 0.0
@@ -1558,9 +1594,21 @@
 	"select_project":
 	{
 		"height": 500.0,
-		"last_filter": "ne",
+		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"",
+				"C:\\Users\\simon\\Documents\\GitHub\\usaco\\usaco.sublime-project"
+			],
+			[
+				"ches",
+				"C:\\Users\\simon\\Documents\\MachineLearning\\ComputerVision\\chess-ai\\chess-ai.sublime-project"
+			],
+			[
+				"ja",
+				"C:\\Users\\simon\\Dropbox\\WATERLOO\\Programming\\JavaScript-Data-Structures-Algorithms-Concepts.sublime-project"
+			],
 			[
 				"ne",
 				"C:\\Users\\simon\\Documents\\Web Dev\\nemoo\\nemoo.sublime-project"
@@ -1568,10 +1616,6 @@
 			[
 				"nem",
 				"C:\\Users\\simon\\Documents\\Web Dev\\nemoo\\nemoo.sublime-project"
-			],
-			[
-				"",
-				"C:\\Users\\simon\\Documents\\Web Dev\\jamarshon.appspot.com\\jamarshon.sublime-project"
 			],
 			[
 				"java",
@@ -1600,7 +1644,7 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 278.0,
 	"status_bar_visible": true,
 	"template_settings":

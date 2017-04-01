@@ -1,52 +1,124 @@
 using namespace std;
 #include <iostream>
-#include <map>
+#include <thread>
+#include <vector>
 #include <unordered_map>
+#include <mutex> 
+#include <condition_variable>
+#include <atomic>
 #include <algorithm>
-#include <bitset>
-#include <limits.h>
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+struct semaphore {
+    string name;
+    int value;
+    mutex mtx;
+    condition_variable cv;
 };
 
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
+void wait(semaphore *s) { // P()
+    unique_lock<mutex> lck(s -> mtx); 
+    s -> value--; 
+    if(s -> value < 0) {
+        (s -> cv).wait(lck);
     }
-};
+}
+
+void signal(semaphore *s) { // V()
+    unique_lock<mutex> lck(s -> mtx); 
+    s -> value++; 
+    if(s -> value <= 0) {
+        (s -> cv).notify_one();
+    }
+}
+
+int N = 10;
+
+int bufferSize = N/2;
+int* buffer = new int[bufferSize]();
+
+int numberOfItems = 10; // number of items per thread
+int numberOfThreads = 2; // pairs of consumers/producers to make
+
+int in = 0; // index to produce to
+int out = 0; // index to consume from
+
+semaphore* mtx = new semaphore{"mtx", 1};
+semaphore* full = new semaphore{"full", 0};
+semaphore* empty = new semaphore{"empty", bufferSize};
+
+atomic<bool> finishedThreadCreation(false);
+void waitUntilCompleted(){ while(!finishedThreadCreation.load()) this_thread::yield(); }
+
+void printBuffer(bool isProducer) {
+    if(in == out && isProducer) { // everything is full
+        cout << "[";
+        for(int i = 0; i < bufferSize; i++) cout << buffer[i] << " ";
+        cout << "]" << endl;
+    } else {
+        for(int i = 0; i < bufferSize; i++) {
+            if(i == out) cout << "[ ";
+            if(i == in ) cout << "] ";
+            cout << buffer[i] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void produce(int threadID) {
+    waitUntilCompleted();
+
+    for(int i = 1; i <= numberOfItems; i++) {
+        int item = (threadID+1)*i*10;
+        wait(empty);
+        wait(mtx);
+        
+        // add item to buffer
+        buffer[in] = item;
+        in = (in + 1) % bufferSize;
+        printf("Thread #%d produced %d\n", threadID, item);
+        // printBuffer(true);
+
+        signal(mtx);
+        signal(full);
+    }
+}
+
+void consume(int threadID) {
+    waitUntilCompleted();
+
+    for(int i = 1; i <= numberOfItems; i++) {
+        wait(full);
+        wait(mtx);
+
+        // remove an item from buffer
+        int temp = buffer[out];
+        buffer[out] = -1; // consumed item
+        out = (out + 1) % bufferSize;
+        printf("Thread #%d consumed %d\n", threadID, temp);
+        // printBuffer(false);
+
+        signal(mtx);
+        signal(empty);
+    }
+}
 
 int main() {
-    Solution s;
-    s.str2tree("4(2(3)(1))(6(5))");
-    // string a = "abc";
-    // cout << a.substr(10) << endl;
+    thread producers[N];
+    thread consumers[N];
+
+    fill(buffer, buffer + bufferSize, -1);
+
+    for(int i = 0; i < numberOfThreads; i++) {
+        producers[i] = thread(produce, i);
+        consumers[i] = thread(consume, numberOfThreads + i);
+    }
+
+    finishedThreadCreation.store(true);
+
+    for(int i = 0; i < numberOfThreads; i++) {
+        producers[i].join();
+        consumers[i].join();
+    }
+
     return 0;
 }

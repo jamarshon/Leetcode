@@ -32,32 +32,48 @@ No duplicates in both lists.
 */
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
 class Solution {
 public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> m;
+        for(int i = 0; i < list1.size(); i++) {
+            m[list1[i]] = i;
+        }
+        
+        vector<string> res;
+        int min_index_sum = -1;
+        for(int i = 0; i < list2.size(); i++) {
+            string s2 = list2[i];
+            if(m.count(s2)) {
+                int new_sum = i + m[s2];
+                if(min_index_sum == -1) {
+                    min_index_sum = new_sum;
+                    res.push_back(s2);
+                    continue;
                 }
-                max_set = max(current_set, max_set);
+                
+                if(new_sum == min_index_sum) {
+                    res.push_back(s2);
+                } else if(new_sum < min_index_sum) {
+                    min_index_sum = new_sum;
+                    res.clear();
+                    res.push_back(s2);
+                }
             }
         }
-        return max_set;
+        return res;
     }
 };
 
 int main() {
+    Solution s;
+    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
+    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
+    vector<string> t = s.findRestaurant(v1, v2);
+    cout << t.size() << endl;
     return 0;
 }

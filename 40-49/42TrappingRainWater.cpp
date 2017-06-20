@@ -14,7 +14,6 @@ Given [0,1,0,2,1,0,1,3,2,1,2,1], return 6.
 
 #include <iostream>
 #include <vector>
-#include <stack>
 
 using namespace std;
 
@@ -53,8 +52,8 @@ public:
 
 int main() {
     Solution s;
-    // vector<int> v{0,1,0,2,1,0,1,3,2,1,2,1};
-    vector<int> v{2,0,2};
+    vector<int> v{0,1,0,2,1,0,1,3,2,1,2,1};
+    // vector<int> v{2,0,2};
     cout << s.trap(v);
     return 0;
 }

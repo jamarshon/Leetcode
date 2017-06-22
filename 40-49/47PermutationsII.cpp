@@ -12,13 +12,13 @@ For example,
 
 /*
     Submission Date: 2017-06-20
-    Runtime: 38 ms
+    Runtime: 35 ms
     Difficulty: MEDIUM
 */
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <unordered_set>
 
 using namespace std;
 
@@ -30,16 +30,20 @@ class Solution {
             return;
         }
 
+        unordered_set<int> s;
         for(int i = index; i < len; i++) {
-            if(i != index && ((index == 0 && nums[i-1] == nums[i]) || nums[i] == nums[index])) continue;
-            swap(nums[i], nums[index]);
-            permuteUnique(nums, index + 1, res);
-            swap(nums[i], nums[index]);
+            // Swap any number from i in [index, len) with nums[index] if moving that number x
+            // to nums[index] hasn't been done before. Basically just swapping unique x's to nums[index]
+            if(s.find(nums[i]) == s.end()) {
+                s.insert(nums[i]);
+                swap(nums[i], nums[index]);
+                permuteUnique(nums, index + 1, res);
+                swap(nums[i], nums[index]);
+            }
         }
     }
 public:
     vector<vector<int>> permuteUnique(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
         vector<vector<int>> res;
         permuteUnique(nums, 0, res);
         return res;

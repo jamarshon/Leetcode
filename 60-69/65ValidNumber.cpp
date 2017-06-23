@@ -84,7 +84,33 @@ public:
     }
 };
 
-
 int main() {
+    Solution s;
+    cout << s.isNumber("0") << ' ' <<  true << endl;
+    cout << s.isNumber(" 0.1 ") << ' ' <<  true << endl;
+    cout << s.isNumber("abc") << ' ' <<  false << endl;
+    cout << s.isNumber("1 a") << ' ' <<  false << endl;
+    cout << s.isNumber("1  ") << ' ' <<  true << endl;
+    cout << s.isNumber("2e10") << ' ' <<  true << endl;
+    cout << s.isNumber("-2e10") << ' ' <<  true << endl;
+    cout << s.isNumber("2ee") << ' ' <<  false << endl;
+    cout << s.isNumber(" ") << ' ' <<  false << endl;
+    cout << s.isNumber(".1") << ' ' <<  true << endl;
+    cout << s.isNumber("0e") << ' ' <<  false << endl;
+    cout << s.isNumber(". 1") << ' ' <<  false << endl;
+    cout << s.isNumber("1e.") << ' ' <<  false << endl;
+    cout << s.isNumber("1e.2") << ' ' <<  false << endl;
+    cout << s.isNumber("2e0") << ' ' <<  true << endl;
+    cout << s.isNumber("1.e2") << ' ' <<  true << endl;
+    cout << s.isNumber(".e1") << ' ' <<  false << endl;
+    cout << s.isNumber("1e-.2") << ' ' <<  false << endl;
+    cout << s.isNumber("2e0.1") << ' ' <<  false << endl;
+    cout << s.isNumber("1e2e3") << ' ' <<  false << endl;
+    cout << s.isNumber("0e ") << ' ' <<  false << endl;
+    cout << s.isNumber(" e0") << ' ' <<  false << endl;
+    cout << s.isNumber("3-2") << ' ' <<  false << endl;
+    cout << s.isNumber("+.8") << ' ' <<  true << endl;
+    cout << s.isNumber(" 005047e+6") << ' ' <<  true << endl;
+    cout << s.isNumber("+") << ' ' <<  false << endl;
     return 0;
 }

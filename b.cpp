@@ -8,7 +8,16 @@ using namespace std;
 
 
 int main() {
-    vector<int> v {0,1,3,2,6,7,5,4};
-     for(auto i: v) cout << bitset<3>(i).to_string() << endl;
+
+    for(int i = 0; i < 10; i++) {
+        int n = i;
+        int res = 1;
+        while(n) {
+            res *= n--;
+        }
+
+        cout << '{' << to_string(i) << ", " << res << "},"<< endl;
+    }
+    
     return 0;
 }

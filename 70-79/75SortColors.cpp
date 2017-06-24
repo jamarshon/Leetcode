@@ -56,7 +56,6 @@ public:
                     break;
                 case blue:
                     swap(nums[right_bound], nums[i]);
-                    // cout << "swap" << nums[right_bound] << endl;
                     right_bound--;
                     break;
                 case white:

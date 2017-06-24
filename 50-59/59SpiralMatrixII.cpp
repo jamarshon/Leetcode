@@ -21,6 +21,7 @@ You should return the following matrix:
 
 #include <iostream>
 #include <vector>
+#include <functional>
 
 using namespace std;
 
@@ -28,47 +29,35 @@ class Solution {
 public:
     vector<vector<int>> generateMatrix(int n) {
         vector<vector<int>> v(n, vector<int>(n, 0));
-        
-        int top = 0;
-        int left = 0;
-        int right = n-1;
-        int bottom = n-1;
-        int temp;
-        int count = 1;
-        while(left <= right && top <= bottom) {
-            temp = left;
-            while(temp <= right) {
-                v[top][temp++] = count++;
+        function<int(int, int)> mod = [](const int& x, const int& n) -> int {
+            int r = x % n;
+            return r < 0 ? r + n : r;
+        };
+
+        int i = 0;
+        int j = 0;
+        int di = 0;
+        int dj = 1;
+
+        for(int count = 1; count <= n*n; count++) {
+            v[i][j] = count;
+            if(v[mod(i + di, n)][mod(j + dj, n)]) {
+                swap(di, dj);
+                dj *= -1;
             }
-            
-            top++;
-            temp = top;
-            while(temp <= bottom) {
-                v[temp++][right] = count++;
-            }
-            
-            if(top > bottom) break;
-            
-            right--;
-            temp = right;
-            while(temp >= left) {
-                v[bottom][temp--] = count++;
-            }
-            
-            if(left > right) break;
-            
-            bottom--;
-            temp = bottom;
-            while(temp >= top) {
-                v[temp--][left] = count++;
-            }
-            
-            left++;
+            i += di;
+            j += dj;
         }
         return v;
     }
 };
 
 int main() {
+    Solution s;
+    vector<vector<int>> t = s.generateMatrix(4);
+    for(auto v2: t) {
+        for(auto e: v2) cout << e << ' ';
+            cout << endl;
+    }
     return 0;
 }

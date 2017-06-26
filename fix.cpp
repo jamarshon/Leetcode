@@ -9,6 +9,19 @@ void fix(string arr) {
     cout << arr << endl;
 }
 
-int main() {
-    fix("[[7],[9],[6]]");
+template <typename T>
+void print(vector<T> v) {
+    for(auto e: v) cout << e << ' ';
+    cout << endl;
 }
+
+template <typename T> 
+void print2(vector<vector<T>> v) {
+    for(auto v2: v) print(v2);
+}
+
+int main() {
+    fix("[[2], [1], [1,2,2], [2,2], [1,2], [] ]");
+    return 0;
+}
+

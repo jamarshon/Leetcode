@@ -19,7 +19,7 @@ If nums = [1,2,2], a solution is:
 
 /*
     Submission Date: 2017-06-25
-    Runtime: 3 ms
+    Runtime: 9 ms
     Difficulty: MEDIUM
 */
 

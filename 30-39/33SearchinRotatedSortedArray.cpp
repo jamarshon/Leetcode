@@ -19,28 +19,26 @@ using namespace std;
 class Solution {
 public:
     int search(vector<int>& nums, int target) {
-        return binarySearch(nums, 0, nums.size(), target);
-    }
-    int binarySearch(vector<int>& nums, int low, int high, int target) {
-        if(low >= high) return -1;
-        
-        int midIndex = (low + high) >> 1,
-            midValue = nums[midIndex];
-            
-        if(midValue == target) return midIndex;
-        
-        if(nums[low] < midValue) {
-            if(nums[low] <= target && target <= midValue) {
-                return binarySearch(nums, low, midIndex, target);
-            } else {
-                return binarySearch(nums, midIndex, high, target);
-            }
-        } else {
-            if(nums[low] <= target || target <= midValue) {
-               return binarySearch(nums, low, midIndex, target);
-            } else {
-                return binarySearch(nums, midIndex, high, target);
+        int low = 0;
+        int high = nums.size() - 1;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+
+            if(nums[mid] == target) return mid;
+            if(nums[low] <= nums[mid]) {
+                if(target >= nums[low] && target < nums[mid]) {
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
+            } else { // nums[mid] < nums[high]
+                if(target > nums[mid] && target <= nums[high]) {
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
             }
         }
+        return -1;
     }
 };

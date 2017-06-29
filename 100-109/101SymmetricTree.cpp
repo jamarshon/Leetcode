@@ -49,6 +49,7 @@ public:
         return true;
     }
 };
+
 int main() {
     Solution s;
     return 0;

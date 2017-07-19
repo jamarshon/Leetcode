@@ -9,7 +9,7 @@ Some examples:
   ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
 
 /*
-    Submission Date: 2017-06-11
+    Submission Date: 2017-07-18
     Runtime: 3 ms
     Difficulty: MEDIUM
 */

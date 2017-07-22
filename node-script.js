@@ -58,3 +58,4 @@ fs.writeFile('to_do.txt', message, function(err){
 	if(err) throw err;
 });
 
+console.log(files.length);

@@ -1,3 +1,5 @@
 *.exe
+done.txt
+to_do.txt
 leetcode.sublime-project
 leetcode.sublime-workspace

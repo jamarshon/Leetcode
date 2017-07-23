@@ -12,6 +12,7 @@ Contest     Ranking     Percentile
 38          557/2034    27.4
 40          266/2133    12.5
 41          555/2174    25.5
+42          568/2297    24.7
 
 Best Percentile: 12.5
 
@@ -19,3 +20,4 @@ Global Ranking
 
 Date        Ratings     Ranking     Percentile
 2017-07-15  1828        2274/21097  10.8
+2017-07-23  1833        2262/21656  10.4

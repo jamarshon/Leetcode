@@ -13,32 +13,42 @@ var numericFolders = directories.reduce(function(memo, dir) {
 	return memo;
 }, []);
 
+var num_map = {};
+var max_num = 0;
+
 var files = numericFolders.reduce(function(memo, folder){
 	var files = fs.readdirSync(folder);
 	files.forEach(function(file){
 		if(file.indexOf('.exe') !== -1) return;
 		var data = fs.readFileSync(folder + '/' + file, 'utf8');
 		var firstline = data.split('\r\n')[1];
-		console.assert(firstline.match(/\d/) !== null);
-		memo.push(firstline);
+
+		var filenum = firstline.match(/[\d]+/);
+		console.assert(filenum !== null);
+
+		filenum = parseInt(filenum[0]);
+		console.assert(!isNaN(filenum));
+
+		num_map[filenum] = true;
+		max_num = Math.max(max_num, filenum);
+
+		var foldermatch = folder.match(/([\d]+)-([\d]+)/);
+		if(foldermatch !== null) {
+			console.assert(foldermatch.length === 3);
+			var lower = parseInt(foldermatch[1]);
+			var higher = parseInt(foldermatch[2]);
+			console.assert(!isNaN(lower) && !isNaN(higher));
+			console.assert(lower <= filenum && filenum <= higher);
+		}
+
+		memo.push({line: firstline, number: filenum});
 	});
 	return memo;
 }, []);
 
-var num_map = {};
-var max_num = 0;
+
 files.sort(function(a,b){
-	var num_a = a.match(/[\d]+/);
-	var num_b = b.match(/[\d]+/);
-	console.assert(num_a !== null && num_b !== null);
-
-	num_a = parseInt(num_a[0]);
-	num_b = parseInt(num_b[0]);
-
-	console.assert(!isNaN(num_a) && !isNaN(num_b));
-	num_map[num_a] = num_map[num_b] = true;
-	max_num = Math.max(Math.max(max_num, num_a), num_b);
-	return num_a - num_b;
+	return a.number - b.number;
 });
 
 var to_do = [];
@@ -47,6 +57,8 @@ for(var i = 1; i <= max_num; i++) {
 		to_do.push(i);
 	}
 }
+
+files = files.map(x => x.line);
 
 var message = JSON.stringify(files, null, 4);
 fs.writeFile('done.txt', message, function(err){

@@ -26,6 +26,7 @@ The number of given pairs will be in the range [1, 1000].
 #include <vector>
 
 using namespace std;
+
 class Solution {
 public:
     int findLongestChain(vector<vector<int>>& pairs) {

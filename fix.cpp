@@ -3,6 +3,8 @@
 
 using namespace std;
 
+// $('#question-app tr .text-success').closest('tr').remove()
+
 void fix(string arr) {
     replace(arr.begin(), arr.end(), '[', '{');
     replace(arr.begin(), arr.end(), ']', '}');

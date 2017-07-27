@@ -1,6 +1,6 @@
 /*
 160. Intersection of Two Linked Lists
-TWrite a program to find the node at which the intersection of two singly linked lists begins.
+Write a program to find the node at which the intersection of two singly linked lists begins.
 
 
 For example, the following two linked lists:
@@ -27,9 +27,6 @@ Your code should preferably run in O(n) time and use only O(1) memory.
 */
 
 #include <iostream>
-#include <vector>
-#include <unordered_set>
-#include <stack>
 
 using namespace std;
 

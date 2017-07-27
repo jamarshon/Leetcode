@@ -22,6 +22,7 @@ You may assume k is always valid, 1 ? k ? array's length.
 using namespace std;
 
 typedef priority_queue<int, vector<int>, greater<int>> MinHeap;
+
 class Solution {
 public:
     int findKthLargest(vector<int>& nums, int k) {

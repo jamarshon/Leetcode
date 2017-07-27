@@ -1,2 +1,2 @@
 # leetcode 
-Ongoing solutions to leetcode in C++ 
+Ongoing solutions to leetcode in C++

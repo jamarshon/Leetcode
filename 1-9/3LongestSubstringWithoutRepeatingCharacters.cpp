@@ -18,11 +18,11 @@ Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer 
 	Difficulty: MEDIUM
 */
 
-using namespace std;
-#include "../UtilityHelper.hpp"
-
+#include <iostream>
 #include <unordered_map>
 #include <algorithm>
+
+using namespace std;
 
 class Solution {
 	private:
@@ -64,42 +64,11 @@ class Solution {
 	    	}
 	    	
 	    	longestSubstring = s.substr(longestSubstrStartInd, longestSubstrLen);
-	    	cout << "Longest Substring is: " << longestSubstring << endl;
 	    	hashTable.clear();
         return longestSubstring.length();
 	    }
 };
 
-///////////////////TestCases////////////////////////////////////////
 int main() {
-	Solution s;
-	UtilityHelper<string, int> util;
-	vector<string> inputs = {
-		// "abcabcbb", // testcase 1
-		// "bbbbb", // testcase 2
-		// "pwwkew", // testcase 3
-		// "", // testcase 4
-		// "abba", // testcase 5
-		"tmmzuxt", // testcase 6
-	};
-	vector<string> printables = {
-		// "abc", // testcase 1
-		// "b", // testcase 2
-		// "wke", // testcase 3
-		// "", // testcase 4
-		// "ba", // testcase 5
-		"mzuxt", // testcase 6
-	};
-	vector<int> outputs = {
-		// 3, // testcase 1
-		// 1, // testcase 2
-		// 3, // testcase 3
-		// 0, // testcase 4
-		// 2, // testcase 5
-		5, // testcase 5
-	};
-
-	function<int(string)> func = bind(&Solution::lengthOfLongestSubstring, &s, placeholders::_1);
-	util.run(inputs, outputs, printables, func);
 	return 0;
 }

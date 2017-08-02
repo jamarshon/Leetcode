@@ -20,6 +20,7 @@ convert("PAYPALISHIRING", 3) should return "PAHNAPLSIIGYIR".
     Difficulty: EASY
 */
 using namespace std;
+
 #include <iostream>
 #include <string>
 

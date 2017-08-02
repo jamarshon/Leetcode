@@ -16,12 +16,11 @@ return [0, 1].
 	Runtime: 20ms
 	Difficulty: EASY
 */
-using namespace std;
 #include <iostream>
 #include <vector>
-#include <functional>
 #include <unordered_map>
-#include "../UtilityHelper.hpp"
+
+using namespace std;
 
 class Solution {
 	private:
@@ -58,24 +57,7 @@ class Solution {
 	    }
 };
 
-////////////////////TestCases////////////////////////////////////////
 int main() {
 	Solution s;
-	UtilityHelper<int, int> util;
-
-	vector<vector<int>> inputs = {
-		{2, 7, 11, 15},
-		{-3, 4, 3, 90}
-	};
-	vector<vector<int>> outputs = {
-		{0, 1},
-		{0, 2}
-	};
-
-	vector<function< vector<int>(vector<int>) >> funcs = {
-		bind(&Solution::twoSum, &s, placeholders::_1, 9),
-		bind(&Solution::twoSum, &s, placeholders::_1, 0)
-	};
-
-	util.run(inputs, outputs, funcs);
+	return 0;
 }

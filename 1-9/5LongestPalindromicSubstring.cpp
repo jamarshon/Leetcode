@@ -11,12 +11,12 @@ that the maximum length of S is 1000, and there exists one unique longest palind
 */
 
 using namespace std;
-#include <algorithm>
-#include "../UtilityHelper.hpp"
-#include <algorithm>
-#include <cstring>
+
 #include <algorithm>
 #include <cstring>
+#include <algorithm>
+#include <cstring>
+
 class Solution {
 public:
     string convertToFormat(string s) {
@@ -31,12 +31,12 @@ public:
         int len = str.length();
         int P[len];
         
-        memset(P, 0, sizeof(int)*len);
-        int R = 1, C = 1;
+        fill(P, P + len, 0);
+        int R = 0, C = 0;
 
         int maxLen = 0;
         string maxStr;
-        for(int i = 2; i < len; i++) {
+        for(int i = 1; i < len; i++) {
             int mirror = 2 * C - i;
             if(i < R) {
                 P[i] = min(R - i, P[mirror]);
@@ -45,7 +45,6 @@ public:
             while(str[i + (1 + P[i])] == str[i - (1 + P[i])]) {
                 P[i]++;
             }
-            cout << P[i] << endl;
             if(P[i] > maxLen) {
                 maxLen = P[i];
                 maxStr = str.substr(i - maxLen, 2 * maxLen + 1);
@@ -61,21 +60,7 @@ public:
         return maxStr;
     }
 };
-///////////////////TestCases////////////////////////////////////////
-int main() {
-	Solution s;
-    UtilityHelper<string, string> util;
-    double output, result;
 
-    vector<string> inputs = {
-        "civilwartestingwhetherthatnaptionoranynartionsoconceivedandsodedicatedcanlongendureWeareqmetonagreatbattlefiemldoftzhatwarWehavecometodedicpateaportionofthatfieldasafinalrestingplaceforthosewhoheregavetheirlivesthatthatnationmightliveItisaltogetherfangandproperthatweshoulddothisButinalargersensewecannotdedicatewecannotconsecratewecannothallowthisgroundThebravelmenlivinganddeadwhostruggledherehaveconsecrateditfaraboveourpoorponwertoaddordetractTgheworldadswfilllittlenotlenorlongrememberwhatwesayherebutitcanneverforgetwhattheydidhereItisforusthelivingrathertobededicatedheretotheulnfinishedworkwhichtheywhofoughtherehavethusfarsonoblyadvancedItisratherforustobeherededicatedtothegreattdafskremainingbeforeusthatfromthesehonoreddeadwetakeincreaseddevotiontothatcauseforwhichtheygavethelastpfullmeasureofdevotionthatweherehighlyresolvethatthesedeadshallnothavediedinvainthatthisnationunsderGodshallhaveanewbirthoffreedomandthatgovernmentofthepeoplebythepeopleforthepeopleshallnotperishfromtheearth",
-        "cbbc"
-    };
-    vector<string> outputs = {
-        "test",
-    };
-    cout << s.longestPalindrome(inputs[1]) << endl;
-    // function<string(string)> func = bind(&Solution::longestPalindrome, &s, placeholders::_1);
-    // util.run(inputs, outputs, func);
+int main() {
     return 0;
 }

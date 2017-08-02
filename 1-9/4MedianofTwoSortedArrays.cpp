@@ -23,8 +23,11 @@ The median is (2 + 3)/2 = 2.5
 	Difficulty: HARD
 */
 
+#include <iostream>
+#include <vector>
+
 using namespace std;
-#include "../UtilityHelper.hpp"
+
 class Solution {
 public:
     double findMedianSortedArrays(vector<int>& C, vector<int>& D) {
@@ -73,66 +76,6 @@ public:
     }
 };
 
-///////////////////TestCases////////////////////////////////////////
 int main() {
-	Solution s;
-	UtilityHelper<int, double> util;
-	double output, result;
-
-	vector<vector<vector<int>>> inputs = {
-		{ {1, 3}, {2} }, // testcase 1
-		{ {1, 2}, {3, 4} }, // testcase 2
-		{ {}, {1}}, // testcase 3 
-		{ {1, 2}, {1, 2, 3} }, // testcase 4
-		{ {1}, {2, 3, 4} }, // testcase 5
-        { {5, 6}, {1, 2, 3, 4, 7} }, // testcase 6
-        { {2}, {} }, // testcase 7
-        { {2, 5}, {1, 3, 4} }, // testcase 8
-        { {1, 2, 3}, {1, 2} }, // testcase 9
-        { {1, 2}, {3, 4, 5} }, // testcase 10
-        { {3, 4, 5}, {1, 2, 6, 7, 8}}, // testcase 11
-        { {5, 6}, {1, 2, 3, 4} }, // testcase 12
-        { {4, 5, 6, 8}, {1, 2, 3, 7, 9, 10} }, // testcase 13
-        { {1, 2, 3, 4}, {5, 6, 7, 8} }, // testcase 14
-        
-	};
-	vector<double> outputs = {
-		2.0, // testcase 1
-		2.5, // testcase 2
-		1.0, // testcase 3
-		2.0, // testcase 4
-		2.5, // testcase 5
-        4.0, // testcase 6
-        2.0, // testcase 7
-        3.0, // testcase 8
-        2.0, // testcase 9
-        3.0, // testcase 10
-        4.5, // testcase 11
-        3.5, // testcase 12
-        5.5, // testcase 13
-        4.5, // testcase 14
-	};
-
-    int numTestCases = inputs.size();
-
-	vector<vector<int>> input;
-	for(int i = 0; i < numTestCases; i++) {
-		input = inputs[i];
-		output = outputs[i];
-
-		printf("Test Case %d: \n", i);
-
-		cout << "Input: ";
-		util.printT(input[0]);
-		util.printT(input[1]);
-
-		cout << "Output: ";
-		cout << output << endl;
-
-		cout << "Function Output: ";
-		result = s.findMedianSortedArrays(input[0], input[1]);
-		cout << result << endl;
-
-		cout << endl;
-	}
+	return 0;
 }

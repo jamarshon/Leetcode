@@ -15,6 +15,7 @@ You are responsible to gather all the input requirements up front.
 */
 
 using namespace std;
+
 #include <iostream>
 #include <limits.h>
 

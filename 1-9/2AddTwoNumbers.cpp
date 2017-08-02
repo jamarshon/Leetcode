@@ -14,15 +14,22 @@ Output: 7 -> 0 -> 8
 	Difficulty: MEDIUM
 */
 
+#include <iostream>
+
 using namespace std;
-#include "../UtilityHelper.hpp"
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
 
 class Solution {
 	public:
-	    ListNode<int>* addTwoNumbers(ListNode<int>* l1, ListNode<int>* l2) {
+	    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
 	    	int l1Val, l2Val, total;
-	    	ListNode<int>* head = l1;
-	        ListNode<int>* prev = NULL;
+	    	ListNode* head = l1;
+	        ListNode* prev = NULL;
 	    	int carryover = 0;
 	        while(l1 != NULL && l2 != NULL) {
 	        	l1Val = l1 -> val;
@@ -55,48 +62,15 @@ class Solution {
 
 	        // End of both lists, if there is still a carryover than create a new node
 	        if(carryover == 1) {
-	            ListNode<int>* lastNode = new ListNode<int>(1);
+	            ListNode* lastNode = new ListNode(1);
 	            prev -> next = lastNode;
 	        }
 	        return head;
 	    }
 };
 
-///////////////////TestCases////////////////////////////////////////
 int main() {
-	Solution s;
-	LinkedListUtil<int> llUtil;
-	int numTestCases = 3;
-
-	vector<vector<vector<int>>> inputs = {
-		{ {2, 4, 3}, {5, 6, 4} }, // testcase 1
-		{ {5}, {5} }, // testcase 2
-		{ {1}, {9, 9} } // testcase 3
-	};
-	vector<vector<int>> outputs = {
-		{7, 0, 8}, // testcase 1
-		{0, 1}, // test case 2
-		{0, 0, 1} // test case 3
-	};
-
-	for(int i = 0; i < numTestCases; i++) {
-		vector<ListNode<int>*> inputList = llUtil.convertToVecOfListNodes(inputs[i]);
-		ListNode<int>* outputList = llUtil.vec2Node(outputs[i]);
-
-		printf("Test Case %d: \n", i);
-
-		cout << "Input: ";
-		llUtil.printList(inputList[0]);
-		llUtil.printList(inputList[1]);
-
-		cout << "Output: ";
-		llUtil.printList(outputList);
-
-		cout << "Function Ouput: ";
-		ListNode<int>* result = s.addTwoNumbers(inputList[0], inputList[1]);
-		llUtil.printList(result);
-		cout << endl;
-	}
+	return 0;
 }
 
 

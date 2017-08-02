@@ -33,7 +33,7 @@ public:
         
         // backward sweep
         int back_product = 1;
-        for(int i = N-1; i >=0; i--) {
+        for(int i = N-1; i >= 0; i--) {
             dp[i] *= back_product;
             back_product *= nums[i];
         }

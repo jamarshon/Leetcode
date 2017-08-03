@@ -22,6 +22,7 @@ Return 3.
 #include <algorithm>
 
 using namespace std;
+
 class Solution {
 public:
     int numDistinct(string s, string t) {

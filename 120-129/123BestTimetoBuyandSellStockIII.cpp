@@ -9,7 +9,7 @@ You may not engage in multiple transactions at the same time (ie, you must sell 
 buy again).
 
 /*
-    Submission Date: 2017-08-02
+    Submission Date: 2017-08-03
     Runtime: 9 ms
     Difficulty: HARD
 */

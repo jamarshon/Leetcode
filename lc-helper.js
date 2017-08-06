@@ -41,6 +41,7 @@ function getFiles() {
                 var lower = parseInt(foldermatch[1]);
                 var higher = parseInt(foldermatch[2]);
                 console.assert(!isNaN(lower) && !isNaN(higher));
+                console.assert(lower == 1 || higher - lower == 9);
                 console.assert(lower <= filenum && filenum <= higher);
             }
             memo.push({line: firstline, number: filenum, path: './' + folder + '/' + file});

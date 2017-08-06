@@ -11,11 +11,29 @@ files = output[0];
 var paths = files.map(x => x.path);
 
 var separator = '\n' + '/'.repeat(100) + '\n';
-var content = paths.reduce((memo, path) => {
-    var file_content = fs.readFileSync(path, 'utf8');
-    return memo + separator + file_content;
-}, '');
+var lines = 0;
+var limit = 1000;
+var memo = "";
+var file = 0;
 
-fs.writeFile('concat.cpp', content, function(err){
-    if(err) throw err;
-});
+for(var i = 0, len = paths.length; i < len; i++) {
+    var path = paths[i];
+    var file_content = fs.readFileSync(path, 'utf8');
+    var num_lines = file_content.split('\n').length;
+
+    if(i == len - 1) {
+        memo += separator + file_content;
+    }
+    if(i == len - 1 || lines + num_lines > limit) {
+        fs.writeFile('./concat/' + file + '.cpp', memo, function(err){
+            if(err) throw err;
+        });
+        file++;
+        memo = "";
+        lines = 0;
+    }
+
+    lines += num_lines;
+    memo += separator + file_content;
+}
+

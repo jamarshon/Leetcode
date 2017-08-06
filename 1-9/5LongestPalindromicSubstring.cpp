@@ -6,58 +6,56 @@ that the maximum length of S is 1000, and there exists one unique longest palind
 
 /*
 	Submission Date: 2016-11-29
-	Runtime: 106 ms
+	Runtime: 6 ms
 	Difficulty: MEDIUM
 */
 
 using namespace std;
 
+#include <vector>
 #include <algorithm>
-#include <cstring>
-#include <algorithm>
-#include <cstring>
 
 class Solution {
 public:
-    string convertToFormat(string s) {
-        string retStr;
-        for(int i = 0, len = s.length(); i < len; i++) {
-            retStr += s[i] + string("#");
-        }
-        return "$#" + retStr + "@";
-    }
     string longestPalindrome(string s) {
-        string str = convertToFormat(s);
-        int len = str.length();
-        int P[len];
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+        for(auto c: s) str += string(1, c) + kNullChar;
         
-        fill(P, P + len, 0);
-        int R = 0, C = 0;
-
-        int maxLen = 0;
-        string maxStr;
-        for(int i = 1; i < len; i++) {
-            int mirror = 2 * C - i;
-            if(i < R) {
-                P[i] = min(R - i, P[mirror]);
+        int N = str.size();
+        vector<int> dp(N, 0);
+        int right = 0;
+        int center = 0;
+        
+        string longest_palindrome = "";
+        for(int i = 1; i < N; i++) {
+            int mirror = 2*center - i;
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirror]);
             }
             
-            while(str[i + (1 + P[i])] == str[i - (1 + P[i])]) {
-                P[i]++;
-            }
-            if(P[i] > maxLen) {
-                maxLen = P[i];
-                maxStr = str.substr(i - maxLen, 2 * maxLen + 1);
+            int left_ind = i - (1 + dp[i]);
+            int right_ind = i + (1 + dp[i]);
+            while(left_ind >= 0 && right_ind < N && str[left_ind] == str[right_ind]) {
+                left_ind--;
+                right_ind++;
+                dp[i]++;
             }
             
-            if(i + P[i] > R) {
-                C = i;
-                R = i + P[i];
+            int pal_len = right_ind - left_ind - 1;
+            if(pal_len > longest_palindrome.size()) {
+                longest_palindrome = str.substr(left_ind + 1, pal_len);
+            }
+            
+            if(i + dp[i] > right) {
+                right = i + dp[i];
+                center = i;
             }
         }
-
-        maxStr.erase(remove(maxStr.begin(), maxStr.end(), '#'), maxStr.end());
-        return maxStr;
+        
+        auto it = remove_if(longest_palindrome.begin(), longest_palindrome.end(), [&kNullChar](const char& c){ return c== kNullChar; });
+        longest_palindrome.erase(it, longest_palindrome.end());
+        return longest_palindrome;
     }
 };
 

@@ -29,7 +29,7 @@ Note: Do not use the eval built-in library function.
 
 using namespace std;
 
-class Solution {
+class Solution2 {
     unordered_map<char, function<int(int, int)>> ops_m{
         {'+', [](const int a, const int b){ return a + b; }},
         {'-', [](const int a, const int b){ return a - b; }},
@@ -93,6 +93,75 @@ public:
             if(i < N) {
                 op = ops_m[s[i]];
             }
+        }
+
+        return res;
+    }
+};
+
+class Solution {
+public:
+    int calculate(string s) {
+        stack<string> stk;
+        int N = s.size();
+
+        for(int i = 0; i < N; i++) {
+            // space continue
+            if(isspace(s[i])) continue;
+            // '(', '+', '-' push to stack
+            if(s[i] == '(' || s[i] == '+' || s[i] == '-') {
+                stk.push(string(1, s[i]));
+            } else if(isdigit(s[i])) {
+                // number so get the whole number and push to stack
+                int start = i;
+                while(i < N && isdigit(s[i])) i++;
+                string val = s.substr(start, i - start);
+                stk.push(val);
+                i--;
+            } else if(s[i] == ')') {
+                // closing bracket keep popping until one "(" is removed
+                // keep evaluating the expression, check if number is preceded by 
+                // a negative
+                int curr = 0;
+                while(!stk.empty()) {
+                    string top = stk.top();
+                    stk.pop();
+                    if(top == "(") break;
+                    int val = stoi(top);
+                    if(!stk.empty()) {
+                        if(stk.top() == "-") {
+                            val *= -1;
+                            stk.pop();
+                        } else {
+                            if(stk.top() == "+") {
+                                stk.pop();
+                            } else {
+                                assert(stk.top() == "(");
+                            }
+                        }
+                    }
+                    curr += val;
+                }
+                stk.push(to_string(curr));
+            } else {
+                assert(false);
+            }
+        }
+
+        // evaluate remaining stack
+        int res = 0;
+        while(!stk.empty()) {
+            int val = stoi(stk.top());
+            stk.pop();
+            if(!stk.empty()) {
+                if(stk.top() == "-") {
+                    val *= -1;
+                } else {
+                    assert(stk.top() == "+");
+                }
+                stk.pop();
+            }
+            res += val;
         }
 
         return res;

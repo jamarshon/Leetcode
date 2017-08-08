@@ -151,6 +151,14 @@ public:
             if(A[i] == -1) continue;
             // if we try smaller jumps first, don't need to worry about lexicographical order
             // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
+            // Clearly, when k = n-1, it is true because there is only 1 possible path, which is [n]. 
+            // When k = i and i < n-1, we search for an index j, which has smallest cost or 
+            // smallest j if the same cost. If there are >= 2 paths having the same minimum cost, 
+            // for example,
+            // P = [k+1, j+1, ..., n]
+            // Q = [k+1, m+1, ..., n] (m > j)
+            // The path P with smaller index j is always the lexicographically smaller path.
+            // So the argument is true by induction.
             for(int j = 1; j <= B && i + j < N; j++) { 
                 if(dp[i + j] == INT_MAX) continue;
                 // cost of taking this jump is smaller

@@ -25,6 +25,7 @@ Note:
 #include <set>
 
 using namespace std;
+
 class Solution2 {
 public:
     int nthSuperUglyNumber(int n, vector<int>& primes) {

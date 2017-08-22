@@ -21,7 +21,7 @@ descendant of itself according to the LCA definition.
 
 /*
     Submission Date: 2017-08-21
-    Runtime: 27 ms
+    Runtime: 29 ms
     Difficulty: EASY
 */
 #include <iostream>

@@ -1,10 +1,15 @@
 // https://leetcode.com/api/problems/algorithms/
 var a = {};
+
 var b = a.stat_status_pairs;
- 
+var main_url = 'https://leetcode.com/problems/'
 var parse = function(arr) {
     var res = arr.reduce((memo, x) => {
-        var row = {id: x.stat.question_id, name: x.stat.question__title};
+        var row = {
+            id: x.stat.question_id, 
+            name: x.stat.question__title,
+            url: main_url + x.stat.question__title_slug + '/'
+        };
         memo.push(row);
         return memo;
     }, []);
@@ -44,3 +49,21 @@ var not_attempted_p = parse(not_attempted);
  
 var diag = `not_completed = ${not_completed_p.length},\ncompleted = ${completed_p.length},\nnot_attempted = ${not_attempted_p.length}`;
 console.log(diag);
+
+var c_dict = {};
+for(var i = 0; i < completed_p.length; i++) c_dict[completed_p[i].id] = true;
+
+var d = [];
+var d_dict = {};
+d = d.map(x => parseInt(x.slice(0, x.indexOf('.'))));
+for(var i = 0; i < d.length; i++) d_dict[d[i]] = true;
+
+console.log("not in website");
+for(var k in d_dict) {
+    if(typeof c_dict[k] === 'undefined') console.log(k);
+}
+
+console.log("not saved");
+for(var k in c_dict) {
+    if(typeof d_dict[k] === 'undefined') console.log(k);
+}

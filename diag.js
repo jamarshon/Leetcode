@@ -1,5 +1,12 @@
-// https://leetcode.com/api/problems/algorithms/
-var a = {};
+function httpGet(theUrl) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return JSON.parse(xmlHttp.responseText);
+}
+
+var url = 'https://leetcode.com/api/problems/algorithms/';
+var a = httpGet(url);
 
 var b = a.stat_status_pairs;
 var main_url = 'https://leetcode.com/problems/'

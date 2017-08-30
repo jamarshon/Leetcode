@@ -35,46 +35,24 @@ public:
     h index is choose index from [0,n] such that
     h elements have citations >= h and N - h have citations < h
 
+    Bucket sort
+    bucket[i] for i = [0,n) indicates frequency of value i
+    in citations. bucket[n] indications frequency of value >= n
+    in citations.
 
-    1) sort and see if citations[i] >= N - i as N - i is the number
-    of elements that are greater than or equal to this element
-    from [i,N). Since it is sorted, i elements are less than citations[i].
-    If citations[i] is greater than N - i, it means
-    h = N - i as h elements [i, N) have citations[i] >= h 
-    and h elements [0, i) have citations[i] < h
-    */
-    int hIndex2(vector<int>& citations) {
-        sort(citations.begin(), citations.end());
-        int res = 0;
-        int N = citations.size();
+    sum[i] shows how many element are greater than or equal to
+    i so if sum[i] >= i then h = i as there are sum[i] elements
+    greater than or equal to i and N - i elements smaller than
+    i.
 
-        for(int i = 0; i < N; i++) {
-            if(citations[i] >= N - i) {
-                return N - i;
-            }
-        }
-        return res;
-    }
+    3, 0, 6, 1, 5
 
-    /*
-        2) Bucket sort
-        bucket[i] for i = [0,n) indicates frequency of value i
-        in citations. bucket[n] indications frequency of value >= n
-        in citations.
+    buckets
+    0 1 2 3 4 5
+    1 1 0 1 0 2
 
-        sum[i] shows how many element are greater than or equal to
-        i so if sum[i] >= i then h = i as there are sum[i] elements
-        greater than or equal to i and N - i elements smaller than
-        i.
-
-        3, 0, 6, 1, 5
-
-        buckets
-        0 1 2 3 4 5
-        1 1 0 1 0 2
-
-        sum   5 4 3 3 2 2  
-        index 0 1 2 3 4 5 
+    sum   5 4 3 3 2 2  
+    index 0 1 2 3 4 5 
     */
     int hIndex(vector<int>& citations) {
         int N = citations.size();

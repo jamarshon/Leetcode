@@ -24,7 +24,7 @@ Return the array [2, 1, 1, 0].
 
 using namespace std;
 
-class Solution {
+class Solution2 {
 public:
     /*
         nlogn using tree
@@ -88,8 +88,66 @@ public:
     }
 };
 
+class Solution {
+    typedef pair<int,int> pii;
+public:
+    void mergeSort(vector<pii>& v, vector<pii>& sp, vector<int>& res,
+            int start, int end) {
+        /* for a subarray of v for indices [start, end], there
+        is a left subarray [start, mid] and a right subarray
+        [mid + 1, end]. If an item in the left subarray (left[i])
+        is less than an item in the right subarray (right[j]), 
+        then left[i] is the next element in the sorted sequence and
+        there are j elements that are smaller than left[i] that is
+        to the right of left[i] so res[indexof(left[i])] += j
+
+        use <= because [0,j) should not include numbers that equal
+        to left[i]
+        */
+        if(start >= end) return;
+        int mid = start + (end - start)/2;
+        mergeSort(v, sp, res, start, mid);
+        mergeSort(v, sp, res, mid + 1, end);
+
+        int idx = 0;
+        int s1 = start, s2 = mid + 1;
+        int e1 = mid + 1, e2 = end + 1;
+        while(s1 < e1 || s2 < e2) {
+            // left goes before right as right is empty (s2 >= e2)
+            // or start of left is less than or equal to start of right
+            if(s2 >= e2 || (s1 < e1 && v[s1].first <= v[s2].first)) {
+                sp[idx++] = v[s1];
+                res[v[s1].second] += s2 - mid - 1;
+                s1++;
+            } else {
+                sp[idx++] = v[s2];
+                s2++;
+            }
+        }
+        
+        for(int i = 0; i < idx; i++) v[i + start] = sp[i];
+    }
+
+    vector<int> countSmaller(vector<int>& nums) {
+        int N = nums.size();
+
+        vector<pii> v, sp(N);
+
+        for(int i = 0; i < N; i++) {
+            v.emplace_back(nums[i], i);
+        }
+
+        vector<int> res(N, 0);
+        
+        mergeSort(v, sp, res, 0, N - 1);
+        return res;
+    }
+};
 
 int main() {
     Solution s;
+    vector<int> v{5,2,6,1};
+    v = s.countSmaller(v);
+    for(auto e: v) cout << e << endl;
     return 0;
 }

@@ -1,237 +1,49 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-623. Add One Row to Tree
-Given the root of a binary tree, then value v and depth d, you need to add a row of 
-nodes with value v at the given depth d. The root node is at depth 1.
+260. Single Number III
+Given an array of numbers nums, in which exactly two elements 
+appear only once and all the other elements appear exactly twice. 
+Find the two elements that appear only once.
 
-The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
-N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
-subtree root. And N's original left subtree should be the left subtree of the new left 
-subtree root, its original right subtree should be the right subtree of the new right 
-subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
-tree node with value v as the new root of the whole original tree, and the original 
-tree is the new root's left subtree.
+For example:
 
-Example 1:
-Input: 
-A binary tree as following:
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
+Given nums = [1, 2, 1, 3, 2, 5], return [3, 5].
 
-v = 1
-
-d = 2
-
-Output: 
-       4
-      / \
-     1   1
-    /     \
-   2       6
-  / \     / 
- 3   1   5   
-
-Example 2:
-Input: 
-A binary tree as following:
-      4
-     /   
-    2    
-   / \   
-  3   1    
-
-v = 1
-
-d = 3
-
-Output: 
-      4
-     /   
-    2
-   / \    
-  1   1
- /     \  
-3       1
 Note:
-The given d is in range [1, maximum depth of the given tree + 1].
-The given binary tree has at least one tree node.
-
+The order of the result is not important. So in the above example, 
+[5, 3] is also correct.
+Your algorithm should run in linear runtime complexity. Could you 
+implement it using only constant space complexity?
 /*
-    Submission Date: 2017-06-18
-    Runtime: 19 ms
+    Submission Date: 2017-08-23
+    Runtime: 23 ms
     Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
-        if(root == NULL) return;
-        if(d == 0) {
-            vec.push_back(root);
-            return;
-        }
-        
-        getRow(root -> left, d - 1, vec);
-        getRow(root -> right, d - 1, vec);
-    }
-public:
-    TreeNode* addOneRow(TreeNode* root, int v, int d) {
-        // get all nodes at depth d - 1
-        vector<TreeNode*> vec;
-        if(d == 1) {
-            TreeNode* new_root = new TreeNode(v);
-            new_root -> left = root;
-            root = new_root;
-        } else {
-            getRow(root, d - 2, vec);
-            for(auto t: vec) {
-                TreeNode* left = t -> left;
-                TreeNode* right = t -> right;
-                t -> left = new TreeNode(v);
-                t -> right = new TreeNode(v);
-                t -> left -> left = left;
-                t -> right -> right = right;
-            }
-        }
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-624. Maximum Distance in Arrays
-Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
-integers from two different arrays (each array picks one) and calculate the distance. 
-We define the distance between two integers a and b to be their absolute difference 
-|a-b|. Your task is to find the maximum distance.
-
-Example 1:
-Input: 
-[[1,2,3],
- [4,5],
- [1,2,3]]
-Output: 4
-Explanation: 
-One way to reach the maximum distance 4 is to pick 1 in the first or third array 
-and pick 5 in the second array.
-Note:
-Each given array will have at least 1 number. There will be at least two non-empty arrays.
-The total number of the integers in all the m arrays will be in the range of [2, 10000].
-The integers in the m arrays will be in the range of [-10000, 10000].
-
-/*
-    Submission Date: 2017-06-18
-    Runtime: 32 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-struct Start {
-    int index;
-    int first_value;
-};
-
-struct End {
-    int index;
-    int last_value;
-};
-
 class Solution {
 public:
-    int maxDistance(vector<vector<int>>& arrays) {
-        int N = arrays.size();
-        vector<Start> v;
-        vector<End> v2;
-        for(int i = 0; i < N; i++) {
-            Start e = {i, arrays[i][0]};
-            End e2 = {i, arrays[i].back()};
-            v.push_back(e);
-            v2.push_back(e2);
+    vector<int> singleNumber(vector<int>& nums) {
+        // 1, 2, 1, 3, 2, 5 -> 3 ^ 5 = 011 ^ 101 = 110
+        int xor_all = 0; // x ^ y
+        for(auto num: nums) xor_all ^= num;
+        
+        // lsb of 110 is 010 so xor all number that has this bit set
+        // 2 ^ 2 ^ 3 = 010 ^ 010 ^ 011 = 011
+        int lsb = xor_all & ~(xor_all-1);
+        int xor_same_lsb = 0;
+        for(auto num: nums) {
+            if(num & lsb) xor_same_lsb ^= num;
         }
-
-        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
-        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
-
-        int max_dist = -1;
-        int max_search = N;
-
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < max_search; j++) {
-                if(v[i].index != v2[j].index) {
-                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
-                    max_search = j;
-                    break;
-                }
-            }
-        }
-        return max_dist;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-628. Maximum Product of Three Numbers
-Given an integer array, find three numbers whose product is maximum and output the maximum product.
-
-Example 1:
-Input: [1,2,3]
-Output: 6
-Example 2:
-Input: [1,2,3,4]
-Output: 24
-Note:
-The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
-Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 79 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int maximumProduct(vector<int>& nums) {
-        int N = nums.size();
         
-        if(N < 3) return INT_MIN;
-        
-        sort(nums.begin(), nums.end());
-        
-        // three largest or 1 largest and 2 smallest
-        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
+        // xor_same_lsb is x and xor_all ^ x = (x ^ y) ^ x = y
+        int x = xor_same_lsb;
+        int y = xor_all ^ x;
+        return {x,y};
     }
 };
 
@@ -241,93 +53,48 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-636. Exclusive Time of Functions
-Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
-find the exclusive time of these functions.
+263. Ugly Number
+Write a program to check whether a given number is an ugly number.
 
-Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
-another function.
+Ugly numbers are positive numbers whose prime factors only include 2, 3, 5. 
+For example, 6, 8 are ugly while 14 is not ugly since it includes another prime factor 7.
 
-A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
-means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
-very end of time 0.
-
-Exclusive time of a function is defined as the time spent within this function, the time spent by 
-calling other functions should not be considered as this function's exclusive time. You should 
-return the exclusive time of each function sorted by their function id.
-
-Example 1:
-Input:
-n = 2
-logs = 
-["0:start:0",
- "1:start:2",
- "1:end:5",
- "0:end:6"]
-Output:[3, 4]
-Explanation:
-Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
-Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
-Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
-So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
-Note:
-Input logs will be sorted by timestamp, NOT log id.
-Your output should be sorted by function id, which means the 0th element of your output corresponds 
-to the exclusive time of function 0.
-Two functions won't start or end at the same time.
-Functions could be called recursively, and will always end.
-1 <= n <= 100
+Note that 1 is typically treated as an ugly number.
 
 /*
-    Submission Date: 2017-07-15
-    Runtime: 63 ms
-    Difficulty: MEDIUM
+    Submission Date: 2017-08-06
+    Runtime: 6 ms
+    Difficulty: EASY
 */
 
 #include <iostream>
-#include <vector>
-#include <stack>
-#include <sstream>
-#include <cassert>
 
 using namespace std;
 
-struct Log {
-    int id;
-    string status;
-    int timestamp;
-};
-
 class Solution {
 public:
-    vector<int> exclusiveTime(int n, vector<string>& logs) {
-        vector<int> times(n, 0);
-        stack<Log> st;
-        for(string log: logs) {
-            stringstream ss(log);
-            string temp, temp2, temp3;
-            getline(ss, temp, ':');
-            getline(ss, temp2, ':');
-            getline(ss, temp3, ':');
+    bool isUgly2(int num) {
+        if(num <= 0) return false;
+        if(num == 1) return true;
 
-            Log item = {stoi(temp), temp2, stoi(temp3)};
-            if(item.status == "start") {
-                st.push(item);
-            } else {
-                assert(st.top().id == item.id);
+        if(num % 2 == 0) return isUgly(num / 2);
+        if(num % 3 == 0) return isUgly(num / 3);
+        if(num % 5 == 0) return isUgly(num / 5);
+        
+        return false;
+    }
 
-                int time_added = item.timestamp - st.top().timestamp + 1;
-                times[item.id] += item.timestamp - st.top().timestamp + 1;
-                st.pop();
+    bool isUgly(int num) {
+        if(num <= 0) return false;
 
-                if(!st.empty()) {
-                    assert(st.top().status == "start");
-                    times[st.top().id] -= time_added;
-                }
+        int primes[3] = {2,3,5};
+        for(int i = 0; i < 3; i++) {
+            while(num % primes[i] == 0) {
+                num /= primes[i];
             }
         }
 
-        return times;
+        return num == 1;
     }
 };
 
@@ -336,349 +103,170 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-637. Average of Levels in Binary Tree
-Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+264. Ugly Number II
+Write a program to find the n-th ugly number.
 
-Example 1:
-Input:
-    3
-   / \
-  9  20
-    /  \
-   15   7
-Output: [3, 14.5, 11]
-Explanation:
-The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
-[3, 14.5, 11].
-Note:
-The range of node's value is in the range of 32-bit signed integer.
+Ugly numbers are positive numbers whose prime factors only 
+include 2, 3, 5. For example, 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 
+is the sequence of the first 10 ugly numbers.
 
+Note that 1 is typically treated as an ugly number, and n 
+does not exceed 1690.
 /*
-    Submission Date: 2017-07-09
-    Runtime: 22 ms
-    Difficulty: EASY
+    Submission Date: 2017-08-23
+    Runtime: 36 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
 #include <queue>
 
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+class Solution {
+public:
+    int nthUglyNumber(int n) {
+        typedef long long ll;
+        typedef pair<ll,ll> pll;
+
+        // pair where first is value and second is the minimum permissable
+        // index for arr
+
+        // we keep track of the smallest value using min heap and
+        // remove the value to add smallest*arr[i] for i from index to 3
+        // the index keeps track of allowable factors as 2*2*3 and
+        // 3*2*2 is the same so by only keeping factors in increasing
+        // order we can avoid duplicates
+        // when n - 1 elements are removed then the top of the min heap
+        // is the answer
+        auto cmp = [](const pll& lhs, const pll& rhs) {
+            return lhs.first == rhs.first ? lhs.second > rhs.second : lhs.first > rhs.first;
+        };
+
+        priority_queue<pll, vector<pll>, decltype(cmp)> pq(cmp);
+        pq.emplace(1,0);
+
+        int removed = 0;
+        ll arr[3] = {2, 3, 5};
+        while(removed < n - 1) {
+            pll top = pq.top();
+            pq.pop();
+
+            for(int i = top.second; i < 3; i++) {
+                pq.emplace(top.first*arr[i], i);
+            }
+            removed++;
+        }
+
+        return pq.top().first;
+    }
 };
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+268. Missing Number
+Given an array containing n distinct numbers taken from 0, 1, 2, ..., n, 
+find the one that is missing from the array.
+
+For example,
+Given nums = [0, 1, 3] return 2.
+
+Note:
+Your algorithm should run in linear runtime complexity. Could you implement 
+it using only constant extra space complexity?
+
+/*
+    Submission Date: 2017-08-12
+    Runtime: 29 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
 
 class Solution {
 public:
-    vector<double> averageOfLevels(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        vector<double> res;
-        
-        while(!q.empty()) {
-            int size = q.size();
-            int size1 = 0;
-            double sum = 0;
-            for(int i = 0; i < size; i++) {
-                TreeNode* f = q.front();
-                if(f) {
-                    sum += f -> val;
-                    size1++;
-                    q.push(f -> left);
-                    q.push(f -> right);
-                }
-                
-                q.pop();
-            }
-            if(size1)
-            res.push_back(sum/size1);
+    int missingNumber(vector<int>& nums) {
+        int res = 0;
+        int N = nums.size();
+        for(int i = 1; i <= N; i++) {
+            res ^= i;
+            res ^= nums[i-1];
         }
-        
         return res;
     }
 };
 
 int main() {
-    Solution s;
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-638. Shopping Offers
-In LeetCode Store, there are some kinds of items to sell. Each item has a price.
+273. Integer to English Words
+Convert a non-negative integer to its english words representation. Given input is 
+guaranteed to be less than 2^31 - 1.
 
-However, there are some special offers, and a special offer consists of one or more different kinds of 
-items with a sale price.
-
-You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
-The job is to output the lowest price you have to pay for exactly certain items as given, where you could
- make optimal use of the special offers.
-
-Each special offer is represented in the form of an array, the last number represents the price you need 
-to pay for this special offer, other numbers represents how many specific items you could get if you buy 
-this offer.
-
-You could use any of special offers as many times as you want.
-
-Example 1:
-Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
-Output: 14
-Explanation: 
-There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
-In special offer 1, you can pay $5 for 3A and 0B
-In special offer 2, you can pay $10 for 1A and 2B. 
-You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
-Example 2:
-Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
-Output: 11
-Explanation: 
-The price of A is $2, and $3 for B, $4 for C. 
-You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
-You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
-for 1C. 
-You cannot add more items, though only $9 for 2A ,2B and 1C.
-Note:
-There are at most 6 kinds of items, 100 special offers.
-For each item, you need to buy at most 6 of them.
-You are not allowed to buy more items than you want, even if that would lower the overall price.
+For example,
+123 -> "One Hundred Twenty Three"
+12345 -> "Twelve Thousand Three Hundred Forty Five"
+1234567 -> "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
 
 /*
-    Submission Date: 2017-07-09
-    Runtime: 26 ms
-    Difficulty: MEDIUM
+    Submission Date: 2017-08-12
+    Runtime: 16 ms
+    Difficulty: HARD
 */
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, int> m;
-public:
-    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
-        string key = "";
-        
-        int N = needs.size();
-        
-        int res = INT_MAX;
-        
-        int count = 0;
-        int price_cost = 0;
-        for(int i = 0; i < N; i++) {
-            key += to_string(needs[i]);
-            count += needs[i] == 0;
-            price_cost += needs[i]*price[i];
-        }
-        
-        if(m.count(key)) return m[key];
-        
-        if(count == N) return 0;
-        
-        res = min(res, price_cost);
-        
-        vector<vector<int>> restore;
-        for(auto it = special.begin(); it != special.end();) {
-            vector<int> sp = *it;
-            
-            bool should_erase = false;
-            for(int i = 0; i < N; i++) {
-                if(sp[i] > needs[i]) {
-                    should_erase = true;
-                    break;
-                }
-            }
-            
-            if(should_erase) {
-                restore.push_back(sp);
-                it = special.erase(it);
-            } else {
-                // everything in sp[i] <= needs[i] so we can take it
-                for(int i = 0; i < N; i++) {
-                    needs[i] -= sp[i];
-                }
-                
-                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
-                for(int i = 0; i < N; i++) {
-                    needs[i] += sp[i];
-                }
-                it++;
-            }
-        }
-        
-        for(auto e: restore) special.push_back(e);
-        return m[key] = res;
-    }
-    
-    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
-        return shoppingOffersHelper(price, special, needs);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
+#include <functional>
 
 using namespace std;
 
 class Solution {
 public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
+    string numberToWords(int num) {
+        if(num == 0) return "Zero";
+        
+        vector<pair<int, string>> val_to_str{
+            {1e9, "Billion"}, {1e6, "Million"}, {1e3, "Thousand"}, {1e2, "Hundred"},
+            {90, "Ninety"}, {80, "Eighty"}, {70, "Seventy"}, {60, "Sixty"}, {50, "Fifty"},
+            {40, "Forty"}, {30, "Thirty"}, {20, "Twenty"}, {19, "Nineteen"}, {18, "Eighteen"},
+            {17, "Seventeen"}, {16, "Sixteen"}, {15, "Fifteen"}, {14, "Fourteen"}, {13, "Thirteen"},
+            {12, "Twelve"}, {11, "Eleven"}, {10, "Ten"}, {9, "Nine"}, {8, "Eight"}, {7, "Seven"},
+            {6, "Six"}, {5, "Five"}, {4, "Four"}, {3, "Three"}, {2, "Two"}, {1, "One"}
+        };
+
+        string res = "";
+        function<string(string, string)> add = [](const string& a, const string& b){
+            return a.empty() ? b : a + " " + b;
+        };
+
+        while(num) {
+            for(auto p: val_to_str) {
+                if(num == 0) break;
+                if(num >= p.first) {
+                    int to_change = num / p.first;
+                    if(to_change == 1 && p.first < 1e2) {
+                        res = add(res, p.second);
+                        if(num == p.first) {
+                            num = 0;
+                            break;
+                        }
                     } else {
-                        break;
+                        res = add(add(res, numberToWords(to_change)), p.second);
                     }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
+                    num %= p.first;
                 }
             }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
         }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
+        return res;
     }
 };
 
@@ -687,215 +275,316 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-645. Set Mismatch
-The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
-the numbers in the set got duplicated to another number in the set, which results in repetition of one 
-number and loss of another number.
+274. H-Index
+Given an array of citations (each citation is a non-negative integer) 
+of a researcher, write a function to compute the researcher's h-index.
 
-Given an array nums representing the data status of this set after the error. Your task is to firstly 
-find the number occurs twice and then find the number that is missing. Return them in the form of an array.
+According to the definition of h-index on Wikipedia: "A scientist has 
+index h if h of his/her N papers have at least h citations each, and 
+the other N − h papers have no more than h citations each."
 
-Example 1:
-Input: nums = [1,2,2,4]
-Output: [2,3]
-Note:
-The given array size will in the range [2, 10000].
-The given array's numbers won't have any order.
+For example, given citations = [3, 0, 6, 1, 5], which means the 
+researcher has 5 papers in total and each of them had received 
+3, 0, 6, 1, 5 citations respectively. Since the researcher has 
+3 papers with at least 3 citations each and the remaining two 
+with no more than 3 citations each, his h-index is 3.
 
+Note: If there are several possible values for h, the maximum one 
+is taken as the h-index.
 /*
-    Submission Date: 2017-07-23
-    Runtime: 62 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findErrorNums(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        for(auto num: nums) freq[num]++;
-        
-        int N = nums.size();
-        int duplicate = -1;
-        int missing = -1;
-        for(int i = 1; i <= N; i++) {
-            if(missing != -1 && duplicate != -1) break;
-            if(!freq.count(i)) {
-                missing = i;
-            } else if(freq[i] >= 2) {
-                duplicate = i;
-            }
-        }
-        return {duplicate, missing};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-646. Maximum Length of Pair Chain
-You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
-
-Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
-formed in this fashion.
-
-Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
-pairs. You can select pairs in any order.
-
-Example 1:
-Input: [[1,2], [2,3], [3,4]]
-Output: 2
-Explanation: The longest chain is [1,2] -> [3,4]
-Note:
-The number of given pairs will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 82 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLongestChain(vector<vector<int>>& pairs) {
-        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
-            return v1[1] < v2[1];
-        });
-        
-        vector<vector<int>> res;
-        
-        for(auto p: pairs) {
-            if(res.empty() || res.back()[1] < p[0]) {
-                res.push_back(p);
-            }
-        }
-        
-        return res.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-647. Palindromic Substrings
-Given a string, your task is to count how many palindromic substrings in this string.
-
-The substrings with different start indexes or end indexes are counted as different substrings even 
-they consist of same characters.
-
-Example 1:
-Input: "abc"
-Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-Example 2:
-Input: "aaa"
-Output: 6
-Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
-Note:
-The input string length won't exceed 1000.
-
-/*
-    Submission Date: 2017-07-23
+    Submission Date: 2017-08-26
     Runtime: 3 ms
     Difficulty: MEDIUM
 */
-
 #include <iostream>
+#include <vector>
 #include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    3, 0, 6, 1, 5 -> 0, 1, 3, 5, 6
+                i    0, 1, 2, 3, 4
+              N - i  5, 4, 3, 2, 1  
+    h index is choose index from [0,n] such that
+    h elements have citations >= h and N - h have citations < h
+
+    Bucket sort
+    bucket[i] for i = [0,n) indicates frequency of value i
+    in citations. bucket[n] indications frequency of value >= n
+    in citations.
+
+    sum[i] shows how many element are greater than or equal to
+    i so if sum[i] >= i then h = i as there are sum[i] elements
+    greater than or equal to i and N - i elements smaller than
+    i.
+
+    3, 0, 6, 1, 5
+
+    buckets
+    0 1 2 3 4 5
+    1 1 0 1 0 2
+
+    sum   5 4 3 3 2 2  
+    index 0 1 2 3 4 5 
+    */
+    int hIndex(vector<int>& citations) {
+        int N = citations.size();
+
+        vector<int> bucket(N + 1, 0);
+        for(auto c: citations) {
+            // if citation greater than N just use N
+            // else increase bucket[c]
+            bucket[min(c, N)]++; 
+        }
+
+        int sum = 0;
+        for(int i = N; i >= 0; i--) {
+            sum += bucket[i];
+            if(sum >= i) return i;
+        }
+
+        return 0;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<int> v{3, 0, 6, 1, 5};
+    cout << s.hIndex(v) << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+275. H-Index II
+Follow up for H-Index: What if the citations array is sorted in 
+ascending order? Could you optimize your algorithm?
+/*
+    Submission Date: 2017-08-30
+    Runtime: 192 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    int Manacher(string s) {
-        const char kNullChar = '\0';
-        string str = string(1, kNullChar);
+    /*
+    3, 0, 6, 1, 5 -> 0, 1, 3, 5, 6
+                i    0, 1, 2, 3, 4
+              N - i  5, 4, 3, 2, 1  
+    h index is choose index from [0,n] such that
+    h elements have citations >= h and N - h have citations < h
 
-        for(auto c: s) str += string(1, c) + kNullChar;
-
-        string max_str = "";
-        int len = str.size();
-        int right = 0;
-        int center = 0;
-        vector<int> dp(len, 0);
-
-        for(int i = 1; i < len; i++) {
-            int mirr = 2*center - i;
-
-            // i is within right so can take the minimum of the mirror or distance from right
-            if(i < right) {
-                dp[i] = min(right - i, dp[mirr]);
-            }
-
-            // keep expanding around i while it is the same and increment P[i]
-            int left_index = i - (1 + dp[i]);
-            int right_index = i + (1 + dp[i]);
-            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
-                left_index--;
-                right_index++;
-                dp[i]++;
-            }
-
-            // i goes beyond current right so it is the new center
-            if(i + dp[i] > right) {
-                center = i;
-                right = i + dp[i];
-            }
-        }
-        
-        int count = 0;
-        for(int i = 0; i < len; i++) {
-            count += ceil((double)dp[i]/2.0);
-        }
-        return count;
-    }
-
-    int countSubstrings(string s) {
-        return Manacher(s);
-    }
-
-    int countSubstrings2(string s) {
-        int res = 0;
-        int N = s.size();
-        int left, right;
+    sort and see if citations[i] >= N - i as N - i is the number
+    of elements that are greater than or equal to this element
+    from [i,N). Since it is sorted, i elements are less than citations[i].
+    If citations[i] is greater than N - i, it means
+    h = N - i as h elements [i, N) have citations[i] >= h 
+    and h elements [0, i) have citations[i] < h
+    */
+    int hIndex(vector<int>& citations) {
+        int N = citations.size();
         for(int i = 0; i < N; i++) {
-            res++;
-            
-            // treat as odd
-            left = i - 1;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-            
-            // treat as even
-            left = i;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
+            if(citations[i] >= N - i) {
+                return N - i;
             }
         }
-        
+        return 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+278. First Bad Version
+You are a product manager and currently leading a team to develop a new product. 
+Unfortunately, the latest version of your product fails the quality check. 
+Since each version is developed based on the previous version, all the 
+versions after a bad version are also bad.
+
+Suppose you have n versions [1, 2, ..., n] and you want to find out the first bad one, 
+which causes all the following ones to be bad.
+
+You are given an API bool isBadVersion(version) which will return whether version is 
+bad. Implement a function to find the first bad version. You should minimize the 
+number of calls to the API.
+
+/*
+    Submission Date: 2017-08-12
+    Runtime: 46 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <set>
+
+using namespace std;
+// Forward declaration of isBadVersion API.
+bool isBadVersion(int version);
+
+class Solution {
+public:
+    int firstBadVersion(int n) {
+        int low = 1;
+        int high = n;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+            if(isBadVersion(mid)) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return low;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+279. Perfect Squares
+Given a positive integer n, find the least number of perfect square numbers 
+(for example, 1, 4, 9, 16, ...) which sum to n.
+
+For example, given n = 12, return 3 because 12 = 4 + 4 + 4; given n = 13, 
+return 2 because 13 = 4 + 9.
+
+/*
+    Submission Date: 2017-08-12
+    Runtime: 59 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int numSquares(int n) {
+        if(n == 0) return 0;
+        int sq = sqrt(n);
+        vector<int> dp(n + 1);
+
+        iota(dp.begin(), dp.end(), 0);
+
+        // dp[i][j] means minimum number using [0,i] squares for the number j
+        // dp[i][j] = min(
+        //              dp[i-1][j], // we don't use this square
+        //              dp[i][j-i*i] // we use this square )
+        // since we only use the previous row, just save space with 1d vector
+        for(int i = 2; i <= sq; i++) {
+            for(int j = 1; j <= n; j++) {
+                int r = j - i*i;
+                if(r >= 0) {
+                    dp[j] = min(dp[j], dp[r] + 1);
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+282. Expression Add Operators
+Given a string that contains only digits 0-9 and a target value, return all 
+possibilities to add binary operators (not unary) +, -, or * between the digits 
+so they evaluate to the target value.
+
+Examples: 
+"123", 6 -> ["1+2+3", "1*2*3"] 
+"232", 8 -> ["2*3+2", "2+3*2"]
+"105", 5 -> ["1*0+5","10-5"]
+"00", 0 -> ["0+0", "0-0", "0*0"]
+"3456237490", 9191 -> []
+
+/*
+    Submission Date: 2017-08-12
+    Runtime: 59 ms
+    Difficulty: HARD
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void getOperators(string num, int index, int target, 
+                        string curr, int val, 
+                        string curr_product, int product, vector<string>& res) {
+
+        int N = num.size();
+        if(index == N) { // no more numbers to process
+            if(curr.empty()) { 
+                // result just contains multiplication curr="" curr_product="ab*c*de" -> "ab*c*de" 
+                if(product == target) res.push_back(curr_product);
+            } else {
+                // try add/subtract product to current and see if it reaches target
+                // e.g curr = "ab*c*de + f - g*hi" 
+                // curr_product = "jk*lmn*qr" -> "ab*c*de + f - g*hi - jk*lmn*qr" 
+                // or "ab*c*de + f - g*hi + jk*lmn*qr". curr_product could just be one number like "qrs"
+                if(val - product == target) res.push_back(curr + "-" + curr_product);  
+                if(val + product == target) res.push_back(curr + "+" + curr_product);
+            }
+            return;
+        }
+
+        int sub_val = num[index] - '0';
+        for(int i = index + 1; i <= N; i++) {
+            string sub = num.substr(index, i - index);
+
+            // either continue product
+            if(!curr_product.empty()) {
+                getOperators(num, i, target, curr, val, 
+                                        curr_product + "*" + sub, product * sub_val, res);
+            }
+
+            // end product and add or subtract it
+            if(!curr.empty()) {
+                getOperators(num, i, target, curr + "-" + curr_product, val - product, 
+                                        sub, sub_val, res);
+            }
+
+            string new_curr = curr.empty() ? curr_product : curr + "+" + curr_product;
+            getOperators(num, i, target, new_curr, val + product, 
+                                        sub, sub_val, res);
+
+            // cannot process multiple zeros e.g 000 + xyz, 0xy or 000*xy is not valid must be 
+            // single zeros and no leading zeros
+            if(num[index] == '0') break;
+
+            // check for overflow of sub_val
+            int char_val = num[i] - '0';
+            if(sub_val > (INT_MAX - char_val)/10) break; 
+
+            sub_val = sub_val*10 + char_val;
+        }
+    }
+
+    vector<string> addOperators(string num, int target) {
+        vector<string> res;
+        getOperators(num, 0, target, "", 0, "", 0, res);
         return res;
     }
 };
@@ -905,83 +594,412 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-648. Replace Words
-In English, we have a concept called root, which can be followed by some other words to form another 
-longer word - let's call this word successor. For example, the root an, followed by other, which can 
-form another word another.
+283. Move Zeroes
+Given an array nums, write a function to move all 0's to the end 
+of it while maintaining the relative order of the non-zero elements.
 
-Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
-in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
-root with the shortest length.
+For example, given nums = [0, 1, 0, 3, 12], after calling your 
+function, nums should be [1, 3, 12, 0, 0].
 
-You need to output the sentence after the replacement.
-
-Example 1:
-Input: dict = ["cat", "bat", "rat"]
-sentence = "the cattle was rattled by the battery"
-Output: "the cat was rat by the bat"
 Note:
-The input will only have lower-case letters.
-1 <= dict words number <= 1000
-1 <= sentence words number <= 1000
-1 <= root length <= 100
-1 <= sentence words length <= 1000
+You must do this in-place without making a copy of the array.
+Minimize the total number of operations.
 
 /*
-    Submission Date: 2017-07-23
-    Runtime: 159 ms
+    Submission Date: 2017-08-30
+    Runtime: 16 ms
     Difficulty: MEDIUM
 */
 
 #include <iostream>
-#include <unordered_set>
-#include <set>
-#include <algorithm>
-#include <sstream>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        unordered_set<string> ds(dict.begin(), dict.end());
-        set<int> word_size;
-        for(auto ds_e: ds) {
-            word_size.insert(ds_e.size());
-        }
-
-        stringstream ss(sentence);
-        string temp;
-
-        vector<string> res;
-        while(getline(ss, temp, ' ')) {
-            bool found = false;
-            for(auto len: word_size) {
-                if(len > temp.size()) {
-                    res.push_back(temp);
-                    found = true;
-                    break;
-                } else {
-                    if(ds.count(temp.substr(0, len))) {
-                        res.push_back(temp.substr(0, len));
-                        found = true;
-                        break;
-                    }
-                }
+    void moveZeroes(vector<int>& nums) {
+        int N = nums.size();
+        int read_idx = 0, write_idx = 0;
+        while(read_idx < N) {
+            if(nums[read_idx] != 0) {
+                nums[write_idx] = nums[read_idx];
+                write_idx++;
             }
-
-            if(!found) {
-                res.push_back(temp);
-            }
+            read_idx++;
+            
         }
-
-        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
-            return memo.empty() ? a : memo + " " + a;
-        });
+        
+        while(write_idx < N) nums[write_idx++] = 0;
     }
 };
 
 int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+284. Peeking Iterator
+Given an Iterator class interface with methods: next() and hasNext(), 
+design and implement a PeekingIterator that support the peek() 
+operation -- it essentially peek() at the element that will be 
+returned by the next call to next().
+
+Here is an example. Assume that the iterator is initialized to the 
+beginning of the list: [1, 2, 3].
+
+Call next() gets you 1, the first element in the list.
+
+Now you call peek() and it returns 2, the next element. Calling 
+next() after that still return 2.
+
+You call next() the final time and it returns 3, the last element. 
+Calling hasNext() after that should return false.
+
+Follow up: How would you extend your design to be generic and work 
+with all types, not just integer?
+/*
+    Submission Date: 2017-08-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cassert>
+
+using namespace std;
+
+// Below is the interface for Iterator, which is already defined for you.
+// **DO NOT** modify the interface for Iterator.
+class Iterator {
+    struct Data;
+    Data* data;
+public:
+    Iterator(const vector<int>& nums);
+    Iterator(const Iterator& iter);
+    virtual ~Iterator();
+    // Returns the next element in the iteration.
+    int next();
+    // Returns true if the iteration has more elements.
+    bool hasNext() const;
+};
+
+
+class PeekingIterator : public Iterator {
+    Iterator* it_;
+public:
+    PeekingIterator(const vector<int>& nums) : Iterator(nums) {
+        // Initialize any member here.
+        // **DO NOT** save a copy of nums and manipulate it directly.
+        // You should only use the Iterator interface methods.
+        it_ = new Iterator(nums);
+    }
+
+    // Returns the next element in the iteration without advancing the iterator.
+    int peek() {
+        assert(hasNext());
+        Iterator* temp = new Iterator(*it_);
+        int res = it_ -> next();
+        delete it_;
+        it_ = temp;
+        return res;
+    }
+
+    // hasNext() and next() should behave the same as in the Iterator interface.
+    // Override them if needed.
+    int next() {
+        assert(hasNext());
+        return it_ -> next();
+    }
+
+    bool hasNext() const {
+        return it_ -> hasNext();
+    }
+};
+
+class PeekingIterator2 : public Iterator {
+    int prev_;
+    bool remaining_;
+    Iterator* it_;
+public:
+    PeekingIterator2(const vector<int>& nums) : Iterator(nums) {
+        // Initialize any member here.
+        // **DO NOT** save a copy of nums and manipulate it directly.
+        // You should only use the Iterator interface methods.
+        it_ = new Iterator(nums);
+        remaining_ = it_ -> hasNext();
+        if(remaining_) {
+            prev_ = it_ -> next();
+        }
+    }
+
+    // Returns the next element in the iteration without advancing the iterator.
+    int peek() {
+        return prev_;
+    }
+
+    // hasNext() and next() should behave the same as in the Iterator interface.
+    // Override them if needed.
+    int next() {
+        int res = prev_;
+        remaining_ = it_ -> hasNext();
+        if(remaining_) prev_ = it_ -> next();
+        return res;
+    }
+
+    bool hasNext() const {
+        return remaining_;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+292. Nim Game
+You are playing the following Nim Game with your friend: There is a 
+heap of stones on the table, each time one of you take turns to 
+remove 1 to 3 stones. The one who removes the last stone will 
+be the winner. You will take the first turn to remove the stones.
+
+Both of you are very clever and have optimal strategies for the 
+game. Write a function to determine whether you can win the game 
+given the number of stones in the heap.
+
+For example, if there are 4 stones in the heap, then you will 
+never win the game: no matter 1, 2, or 3 stones you remove, 
+the last stone will always be removed by your friend.
+/*
+    Submission Date: 2017-08-26
+    Runtime: 0 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        if n <= 3, player wins as they just take it
+        if n == 4, player loses as no matter what they take
+        there will be some remaining for opponent
+
+        if 4 < n <= 4 + 3, player can win as they can reduce 
+        it to n == 4 by taking away [1,3] stones
+
+        if n == 8, player loses as no matter what they take
+        opponent can reduce it n == 4
+
+        for the generalized case (n):
+        if n % 4 == 0, player loses as whatever they take x = [1,3], 
+        opponent takes 4 - x to get n % 4 == 0 again until n == 4
+        which opponent wins
+        so n % 4 != 0 where n % 4 == x where x = [1, 3] is when player 
+        wins as player can reduce by x leading to n % 4 == 0 for the opponent
+        causing the opponent to lose as seen above
+    */
+    bool canWinNim(int n) {
+        return n % 4 != 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+306. Additive Number
+Additive number is a string whose digits can form additive sequence.
+
+A valid additive sequence should contain at least three numbers. 
+Except for the first two numbers, each subsequent number in the 
+sequence must be the sum of the preceding two.
+
+For example:
+"112358" is an additive number because the digits can form an 
+additive sequence: 1, 1, 2, 3, 5, 8.
+
+1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
+"199100199" is also an additive number, the additive sequence is: 
+1, 99, 100, 199.
+1 + 99 = 100, 99 + 100 = 199
+Note: Numbers in the additive sequence cannot have leading zeros, 
+so sequence 1, 2, 03 or 1, 02, 3 is invalid.
+
+Given a string containing only digits '0'-'9', write a function 
+to determine if it's an additive number.
+
+Follow up:
+How would you handle overflow for very large input integers?
+/*
+    Submission Date: 2017-08-21
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isAdditiveNumber(string num) {
+        int N = num.size();
+        
+        long long o1 = 0;
+        long long o2 = 0;
+        
+        // given a string, we extract o1 and o2 from it leaving (o3)xxxx and calling the recursive function
+        for(int i = 0; i < N; i++) {
+            o1 = o1*10 + (num[i] - '0');
+            o2 = 0;
+            for(int j = i + 1; j < N; j++) {
+                o2 = o2*10 + (num[j] - '0');
+                if(isAdditiveNumber(num.substr(j + 1), o2, o1 + o2)) {
+                    return true;
+                }
+                if(o2 == 0) break; // o2 begins with 0
+            }
+            
+            if(o1 == 0) break; // o1 begins with 0
+        }
+        
+        return false;
+    }
+    
+    // num should be (o3)xxxx if it is o3 then return true
+    // else if it is (o3)xxxx then call the function on xxxx looking for o2 + o3 at the front and o3 becomes o2
+    // f(num, o2, o3) -> f(num.substr(i), o3, o2 + o3) where i the first index of x
+    bool isAdditiveNumber(string num, long long o2, long long o3) {
+        int N = num.size();
+        if(N == 0) return false;
+        if(num.front() == '0') return N == 1 && o3 == 0; // o3 begins with zero
+        
+        long long curr = 0;
+        for(int i = 0; i < N; i++) {
+            curr = curr*10 + (num[i] - '0');
+            if(curr > o3) return false;
+            if(curr == o3) {
+                return i == N-1 || isAdditiveNumber(num.substr(i + 1), o3, o2 + o3);
+            }
+        }
+        
+        return false;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+310. Minimum Height Trees
+For a undirected graph with tree characteristics, we can choose any 
+node as the root. The result graph is then a rooted tree. Among all 
+possible rooted trees, those with minimum height are called minimum 
+height trees (MHTs). Given such a graph, write a function to find all 
+the MHTs and return a list of their root labels.
+
+Format
+The graph contains n nodes which are labeled from 0 to n - 1. You will 
+be given the number n and a list of undirected edges (each edge is a 
+pair of labels).
+
+You can assume that no duplicate edges will appear in edges. Since 
+all edges are undirected, [0, 1] is the same as [1, 0] and thus 
+will not appear together in edges.
+
+Example 1:
+
+Given n = 4, edges = [[1, 0], [1, 2], [1, 3]]
+
+        0
+        |
+        1
+       / \
+      2   3
+return [1]
+
+Example 2:
+
+Given n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]]
+
+     0  1  2
+      \ | /
+        3
+        |
+        4
+        |
+        5
+return [3, 4]
+
+Note:
+
+(1) According to the definition of tree on Wikipedia: “a tree is 
+an undirected graph in which any two vertices are connected by 
+exactly one path. In other words, any connected graph without 
+simple cycles is a tree.”
+
+(2) The height of a rooted tree is the number of edges on the 
+longest downward path between the root and a leaf.
+/*
+    Submission Date: 2017-08-21
+    Runtime: 76 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findMinHeightTrees(int n, vector<pair<int, int>>& edges) {
+        if(n == 1) return {0}; // one node so the root of mht is itself
+        
+        vector<unordered_set<int>> graph(n);
+        for(auto p: edges) {
+            graph[p.first].insert(p.second);
+            graph[p.second].insert(p.first);
+        }
+        
+        vector<int> leaves;
+        for(int i = 0; i < n; i++) {
+            // this node is connected to only one other node (parent) so it is a leaf
+            if(graph[i].size() == 1) {
+                leaves.push_back(i);
+            }
+        }
+        
+        // reverse BFS the idea is to select nodes that are only connected to one other node
+        // these nodes are leafs and are removed. Update the new leafs by keeping track of the
+        // number of children of each node. If it goes to 1, it means it is only connected to its
+        // parent and is now a leaf
+        // when there are only 2 or less leafs then it means these are the roots
+        
+        while(n > 2) { // tree has more than 2 nodes
+            n -= leaves.size(); // remove the leafs
+            
+            vector<int> new_leaves;
+            for(auto leaf: leaves) {
+                int parent = *graph[leaf].begin();
+                graph[parent].erase(leaf); // from the parent remove the leaf
+                if(graph[parent].size() == 1) { // if the parent has no children, it is now a new leaf
+                    new_leaves.push_back(parent);
+                }
+            }
+            leaves = new_leaves;
+        }
+        
+        return leaves;
+    }
+};
+
+int main() {
+    Solution s;
     return 0;
 }

@@ -1,6 +1,204 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+210. Course Schedule II
+There are a total of n courses you have to take, labeled from 0 to n - 1.
+
+Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a 
+pair: [0,1]
+
+Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish 
+all courses.
+
+There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, 
+return an empty array.
+
+For example:
+
+2, [[1,0]]
+There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is 
+[0,1]
+
+4, [[1,0],[2,0],[3,1],[3,2]]
+There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 
+2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is
+[0,2,1,3].
+
+Note:
+The input prerequisites is a graph represented by a list of edges, not adjacency matrices. Read more about how a graph is 
+represented.
+You may assume that there are no duplicate edges in the input prerequisites.
+
+/*
+    Submission Date: 2017-07-26
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <stack>
+
+using namespace std;
+
+class Solution {
+public:
+    bool TopologicalSortUtil(const int vertex, const vector<vector<int>>& vertex_to_edges, unordered_set<int>& visited, 
+        unordered_set<int>& expanding, stack<int>& st) {
+
+        if(expanding.count(vertex)) {
+            return true;
+        }
+
+        expanding.insert(vertex);
+        
+        for(auto neighbor: vertex_to_edges[vertex]) {
+            if(visited.count(neighbor)) continue;
+            bool has_cycle = TopologicalSortUtil(neighbor, vertex_to_edges, visited, expanding, st);
+            if(has_cycle) return true;
+        }
+
+        visited.insert(vertex);
+        expanding.erase(vertex);
+
+        st.push(vertex);
+        return false;
+    }
+
+    vector<int> TopologicalSort(const int numCourses, const vector<vector<int>>& vertex_to_edges) {
+        unordered_set<int> visited;
+        unordered_set<int> expanding;
+        stack<int> st;
+
+        bool has_cycle = false;
+        for(int vertex = 0; vertex < numCourses; vertex++) {
+            if(visited.count(vertex)) continue;
+            has_cycle = TopologicalSortUtil(vertex, vertex_to_edges, visited, expanding, st);
+            if(has_cycle) break;
+        }
+
+        vector<int> res;
+        if(!has_cycle) {
+            while(!st.empty()) {
+                res.push_back(st.top());
+                st.pop();
+            }
+        }
+
+        return res;
+    }
+    vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
+        vector<vector<int>> vertex_to_edges(numCourses, vector<int>{});
+
+        for(auto prereq: prerequisites) {
+            vertex_to_edges[prereq.second].push_back(prereq.first);
+        }
+
+        return TopologicalSort(numCourses, vertex_to_edges);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+211. Add and Search Word - Data structure design
+Design a data structure that supports the following two operations:
+
+void addWord(word)
+bool search(word)
+search(word) can search a literal word or a regular expression string containing only letters a-z or .. A . 
+means it can represent any one letter.
+
+For example:
+
+addWord("bad")
+addWord("dad")
+addWord("mad")
+search("pad") -> false
+search("bad") -> true
+search(".ad") -> true
+search("b..") -> true
+Note:
+You may assume that all words are consist of lowercase letters a-z.
+
+/*
+    Submission Date: 2017-08-03
+    Runtime: 43 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <queue>
+#include <tuple>
+
+using namespace std;
+
+struct TrieNode {
+    TrieNode* child[26];
+    bool is_word;
+    TrieNode() {
+        is_word = false;
+        for(int i = 0; i < 26; i++) child[i] = NULL;
+    }
+};
+
+class WordDictionary {
+    TrieNode* root_;
+public:
+    /** Initialize your data structure here. */
+    WordDictionary() {
+        root_ = new TrieNode();
+    }
+    
+    /** Adds a word into the data structure. */
+    void addWord(string word) {
+        TrieNode* curr = root_;
+        for(int i = 0, N = word.size(); i < N; i++) {
+            char c = word[i];
+            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
+            curr = curr -> child[c - 'a'];
+        }
+        curr -> is_word = true;
+    }
+    
+    /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
+    bool search(string word) {
+        queue<pair<TrieNode*, int>> q;
+        q.emplace(root_, 0);
+
+        TrieNode* curr;
+        int index;
+        while(!q.empty()) {
+            tie(curr, index) = q.front();
+            q.pop();
+
+            if(index == word.size()) {
+                if(curr -> is_word) return true;
+                continue;
+            }
+            if(word[index] == '.') { // increase index and add all 26 child to the queue
+                for(int i = 0; i < 26; i++) {
+                    if(curr -> child[i] == NULL) continue;
+                    q.emplace(curr -> child[i], index + 1);
+                }
+            } else {
+                // check if current character is valid
+                if(curr -> child[word[index] - 'a'] == NULL) continue; 
+                q.emplace(curr -> child[word[index] - 'a'], index + 1);
+            }
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 212. Word Search II
 Given a 2D board and a list of words from the dictionary, find all words in the board.
 
@@ -585,6 +783,162 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+219. Contains Duplicate II
+Given an array of integers and an integer k, find out whether there are two distinct indices 
+i and j in the array such that nums[i] = nums[j] and the absolute difference between i and j 
+is at most k.
+
+/*
+    Submission Date: 2017-08-07
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    bool containsNearbyDuplicate(vector<int>& nums, int k) {
+        unordered_map<int, int> m;
+        int N = nums.size();
+        for(int i = 0; i < N; i++) {
+            if(m.count(nums[i])) {
+                if(i - m[nums[i]] <= k) return true;
+            }
+            m[nums[i]] = i;
+        }
+        return false;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+220. Contains Duplicate III
+Given an array of integers, find out whether there are two distinct indices 
+i and j in the array such that the absolute difference between nums[i] and nums[j] 
+is at most t and the absolute difference between i and j is at most k.
+
+/*
+    Submission Date: 2017-08-07
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <map>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution2 {
+public:
+    // O(nlogk) maintain window of k and do range search on it
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 0 || t < 0) return false;
+        
+        map<int, int> m;
+        int N = nums.size();
+        for(int i = 0; i < N; i++) {
+            int above = (nums[i] > INT_MAX - t) ? INT_MAX : nums[i] + t;
+            int below = (nums[i] < INT_MIN + t) ? INT_MIN : nums[i] - t;
+            
+            if(above < below) swap(above, below);
+            
+            auto below_it = m.lower_bound(below);
+            auto above_it = m.upper_bound(above);
+            
+            while(below_it != above_it) {
+                if(below_it -> second > 0) return true;
+                below_it++;
+            }
+            
+            m[nums[i]]++;
+            if(i >= k) {
+                m[nums[i-k]]--;
+            }
+        }
+        return false;
+    }
+};
+
+class Solution1 {
+public:
+    // nlogn + check if adjacent numbers are close enough in index
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 0 || t < 0) return false;
+        
+        int N = nums.size();
+        vector<pair<int,int>> v;
+        for(int i = 0; i < N; i++) {
+            v.emplace_back(nums[i], i);
+        }
+        
+        sort(v.begin(), v.end(), [](const pair<int,int>& lhs, const pair<int,int>& rhs){
+            return lhs.first < rhs.first;
+        });
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                if(v[i].first < 0 && v[j].first > INT_MAX + v[i].first) break;
+                
+                int diff = v[j].first - v[i].first;
+                int idx_diff = abs(v[j].second - v[i].second);
+                if(diff > t) break;
+                if(idx_diff <= k) return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    // numbers 0,1,2 and bucket of 3 they all get put into bucket[1]
+    // since negative numbers are allowed we remap to nums[i] - INT_MIN as bucket 0 should include
+    // INT_MIN, we check adjacent bucket to see if across bucket values work
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 1 || t < 0) return false;
+
+        unordered_map<long, long> m;
+        int N = nums.size();
+        for(int i = 0; i < N; i++) {
+            long remapped_num = (long)nums[i] - INT_MIN;
+            long bucket = remapped_num/((long)t + 1);
+
+            bool another_el_same_bucket = m.count(bucket);
+            bool bucket_below_close_enough = m.count(bucket-1) && remapped_num - m[bucket-1] <= t;
+            bool bucket_above_close_enough = m.count(bucket+1) && m[bucket+1] - remapped_num<= t;
+            if(another_el_same_bucket || bucket_below_close_enough || bucket_above_close_enough) {
+                return true;
+            }
+
+            if(m.size() >= k) {
+                long last_bucket = ((long)nums[i-k] - INT_MIN)/((long) t + 1);
+                m.erase(last_bucket);
+            }
+            
+            m[bucket] = remapped_num;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 221. Maximal Square
 Given a 2D binary matrix filled with 0's and 1's, find the largest square containing only 1's and 
 return its area.
@@ -626,350 +980,6 @@ public:
         }
 
         return res*res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-222. Count Complete Tree Nodes
-Given a complete binary tree, count the number of nodes.
-
-Definition of a complete binary tree from Wikipedia:
-In a complete binary tree every level, except possibly the last, is completely filled, and all nodes 
-in the last level are as far left as possible. It can have between 1 and 2h nodes inclusive at the 
-last level h.
-
-/*
-    Submission Date: 2017-08-03
-    Runtime: 72 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int countNodes(TreeNode* root) {
-        if(root == NULL) return 0;
-
-        TreeNode* curr = root;
-        int l_depth = 0, r_depth = 0;
-        while(curr) {
-            curr = curr -> left;
-            l_depth++;
-        }
-        
-        curr = root;
-        while(curr) {
-            curr = curr -> right;
-            r_depth++;
-        }
-
-        if(l_depth == r_depth) { // filled tree
-            return (1 << l_depth) - 1;
-        } else { // not completely filled get the count of left and right with this node
-            return 1 + countNodes(root -> left) + countNodes(root -> right);
-        }
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-226. Invert Binary Tree
-Invert a binary tree.
-
-     4
-   /   \
-  2     7
- / \   / \
-1   3 6   9
-to
-     4
-   /   \
-  7     2
- / \   / \
-9   6 3   1
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* invertTree(TreeNode* root) {
-        if(root == NULL) return NULL;
-        TreeNode* left = invertTree(root -> left);
-        TreeNode* right = invertTree(root -> right);
-        root -> left = right;
-        root -> right = left;
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-228. Summary Ranges
-Given a sorted integer array without duplicates, return the summary of its ranges.
-
-For example, given [0,1,2,4,5,7], return ["0->2","4->5","7"].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> summaryRanges(vector<int>& nums) {
-        vector<string> res;
-        int N = nums.size();
-        for(int i = 0; i < N;) {
-            int start, prev;
-            start = prev = nums[i++];
-            while(i < N && nums[i] == prev + 1) {
-                prev++;
-                i++;
-            }
-            if(start == prev) {
-                res.push_back(to_string(start));
-            } else {
-                res.push_back(to_string(start) + "->" + to_string(prev));
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-231. Power of Two
-Given an integer, write a function to determine if it is a power of two.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isPowerOfTwo(int n) {
-        return n > 0 ? (n & (n - 1)) == 0 : false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-234. Palindrome Linked List
-Given a singly linked list, determine if it is a palindrome.
-
-Follow up:
-Could you do it in O(n) time and O(1) space?
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
-class Solution {
-public:
-    ListNode* reverse(ListNode* head) {
-        ListNode* prev = NULL;
-        ListNode* curr = head;
-        ListNode* next = curr -> next;
-
-        while(curr) {
-            curr -> next = prev;
-            prev = curr;
-            curr = next;
-            if(next != NULL) next = curr -> next;
-        }
-
-        return prev;
-    }
-
-    bool isEqual(ListNode* a, ListNode* b) {
-        while(a && b) {
-            if(a -> val != b -> val) return false;
-            a = a -> next;
-            b = b -> next;
-        }
-        return a == NULL && b == NULL;
-    }
-
-    bool isPalindrome(ListNode* head) {
-        ListNode* slow, *fast, *last_slow;
-        last_slow = NULL;
-        slow = fast = head;
-
-        while(fast && fast -> next) {
-            fast = fast -> next -> next;
-            last_slow = slow;
-            slow = slow -> next;
-        }
-
-        if(slow == head) return true;
-
-        last_slow -> next = NULL;
-
-        bool is_even_length = fast == NULL;
-        // marker is where to start reversing if even and it's next is where to start reversing if odd
-        // e.g marker is 1 in 0 -> 1 -> 2 -> 3 and marker is 2 in 0 -> 1 -> 2 -> 3 -> 4
-        ListNode* marker = slow;
-
-        ListNode* rev_head = is_even_length ? reverse(marker) : reverse(marker -> next); // reverse last half
-        bool res = isEqual(head, rev_head); // check if first half and reversed second half is the same
-        ListNode* rev_tail = reverse(rev_head); // undo the reverse
-        if(is_even_length) {
-            last_slow -> next = rev_tail;
-        } else {
-            last_slow -> next = marker; // place the marker back in between the first half and second half for odd length
-            marker -> next = rev_tail;
-        }
-
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-237. Delete Node in a Linked List
-Write a function to delete a node (except the tail) in a singly linked list, given only access to 
-that node.
-
-Supposed the linked list is 1 -> 2 -> 3 -> 4 and you are given the third node with value 3, the linked list 
-should become 1 -> 2 -> 4 after calling your function.
-
-/*
-    Submission Date: 2017-07-21
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
-class Solution {
-public:
-    void deleteNode(ListNode* node) {
-        node -> val = node -> next -> val;
-        node -> next = node -> next -> next;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-238. Product of Array Except Self
-Given an array of n integers where n > 1, nums, return an array output such that output[i] is equal to the 
-product of all the elements of nums except nums[i].
-
-Solve it without division and in O(n).
-
-For example, given [1,2,3,4], return [24,12,8,6].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 68 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> productExceptSelf(vector<int>& nums) {
-        int N = nums.size();
-        vector<int> dp(N);
-        
-        // forwards sweep
-        int product = 1;
-        for(int i = 0; i < N; i++) {
-            dp[i] = product;
-            product *= nums[i];
-        }
-        
-        // backward sweep
-        int back_product = 1;
-        for(int i = N-1; i >= 0; i--) {
-            dp[i] *= back_product;
-            back_product *= nums[i];
-        }
-        
-        return dp;
     }
 };
 

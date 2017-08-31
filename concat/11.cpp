@@ -1,6 +1,230 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+174. Dungeon Game
+The demons had captured the princess (P) and imprisoned her in the bottom-right corner of a dungeon. 
+The dungeon consists of M x N rooms laid out in a 2D grid. Our valiant knight (K) was initially positioned 
+in the top-left room and must fight his way through the dungeon to rescue the princess.
+
+The knight has an initial health point represented by a positive integer. If at any point his health point 
+drops to 0 or below, he dies immediately.
+
+Some of the rooms are guarded by demons, so the knight loses health (negative integers) upon entering these 
+rooms; other rooms are either empty (0's) or contain magic orbs that increase the knight's health 
+(positive integers).
+
+In order to reach the princess as quickly as possible, the knight decides to move only rightward or 
+downward in each step.
+
+
+Write a function to determine the knight's minimum initial health so that he is able to rescue the princess.
+
+For example, given the dungeon below, the initial health of the knight must be at least 7 if he follows 
+the optimal path RIGHT-> RIGHT -> DOWN -> DOWN.
+
+-2 (K)  -3  3
+-5  -10 1
+10  30  -5 (P)
+
+Notes:
+
+The knight's health has no upper bound.
+Any room can contain threats or power-ups, even the first room the knight enters and the bottom-right room 
+where the princess is imprisoned.
+
+/*
+    Submission Date: 2017-07-25
+    Runtime: 6 ms
+    Difficulty: HARD
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int calculateMinimumHP(vector<vector<int>>& dungeon) {
+        int rows = dungeon.size();
+        if(rows == 0) return 0;
+
+        int cols = dungeon.front().size();
+        vector<vector<int>> hp(rows + 1, vector<int>(cols + 1, INT_MAX));
+        hp[rows][cols - 1] = 1;
+        hp[rows - 1][cols] = 1;
+        
+        for(int i = rows-1; i >= 0; i--) {
+            for(int j = cols-1; j >= 0; j--) {
+                hp[i][j] = max(1, min(hp[i+1][j], hp[i][j+1]) - dungeon[i][j]);
+            }
+        }
+        
+        return hp[0][0];
+    }
+};
+
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+179. Largest Number
+Given a list of non negative integers, arrange them such that they form the largest number.
+
+For example, given [3, 30, 34, 5, 9], the largest formed number is 9534330.
+
+Note: The result may be very large, so you need to return a string instead of an integer.
+
+/*
+    Submission Date: 2017-07-26
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    string concat(const vector<string>& nums_str) {
+        return accumulate(nums_str.begin(), nums_str.end(), string(), [](const string& memo, const string& el){ return memo + el; });
+    }
+
+    string largestNumber(vector<int>& nums) {
+        if(nums.empty()) return "0";
+        int N = nums.size();
+        vector<string> nums_str(N);
+        transform(nums.begin(), nums.end(), nums_str.begin(), [](const int& num){ return to_string(num); });
+        sort(nums_str.begin(), nums_str.end(), [](const string& lhs, const string& rhs){
+            return lhs + rhs > rhs + lhs;        
+        });
+
+        if(nums_str.front()[0] == '0') return "0";
+        return concat(nums_str);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+187. Repeated DNA Sequences
+All DNA is composed of a series of nucleotides abbreviated as A, C, G, and T, for example: "ACGAATTCCG". 
+When studying DNA, it is sometimes useful to identify repeated sequences within the DNA.
+
+Write a function to find all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule.
+
+For example,
+
+Given s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT",
+
+Return:
+["AAAAACCCCC", "CCCCCAAAAA"].
+
+/*
+    Submission Date: 2017-07-26
+    Runtime: 99 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRepeatedDnaSequences(string s) {
+        unordered_map<string, int> freq;
+        for(int i = 0; i <= (int)s.size() - 10; i++) {
+            string seq = s.substr(i, 10);
+            freq[seq]++;
+        }
+
+        vector<string> res;
+        for(auto kv: freq) {
+            if(kv.second > 1) {
+                res.push_back(kv.first);
+            }
+        }
+        return res;
+    }
+};
+
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+188. Best Time to Buy and Sell Stock IV
+Say you have an array for which the ith element is the price of a given stock on day i.
+
+Design an algorithm to find the maximum profit. You may complete at most k transactions.
+
+Note:
+You may not engage in multiple transactions at the same time (ie, you must sell the stock 
+before you buy again).
+
+/*
+    Submission Date: 2017-08-07
+    Runtime: 3 ms
+    Difficulty: HARD
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxProfit(int K, vector<int>& prices) {
+        int N = prices.size();
+        if(N < 2) return 0;
+        
+        if(K > N) {
+            // unlimited transactions
+            int count = 0;
+            for(int i = 1; i < N; i++) {
+                count += max(prices[i] - prices[i-1], 0);
+            }
+            return count;
+        }
+
+        // space saving dp where dp[k][i] is maximum of k transactions from indices 0 to i
+        // dp[k][i] = max(
+        //              dp[k][i-1], 
+        //              prices[i] + max(dp[k-1][j] - prices[j]) for all j < i )
+        // dp[0][i] = 0
+        vector<int> dp(N, 0);
+        for(int k = 1; k <= K; k++) {
+            int max_prev_trans = -prices[0];
+            for(int i = 1; i < N; i++) {
+                max_prev_trans = max(max_prev_trans, dp[i] - prices[i]);
+                dp[i] = max(dp[i-1], prices[i] + max_prev_trans);
+            }
+        }
+        
+        return dp[N-1];
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 189. Rotate Array
 Rotate an array of n elements to the right by k steps.
 
@@ -772,203 +996,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-210. Course Schedule II
-There are a total of n courses you have to take, labeled from 0 to n - 1.
-
-Some courses may have prerequisites, for example to take course 0 you have to first take course 1, which is expressed as a 
-pair: [0,1]
-
-Given the total number of courses and a list of prerequisite pairs, return the ordering of courses you should take to finish 
-all courses.
-
-There may be multiple correct orders, you just need to return one of them. If it is impossible to finish all courses, 
-return an empty array.
-
-For example:
-
-2, [[1,0]]
-There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is 
-[0,1]
-
-4, [[1,0],[2,0],[3,1],[3,2]]
-There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 
-2 should be taken after you finished course 0. So one correct course order is [0,1,2,3]. Another correct ordering is
-[0,2,1,3].
-
-Note:
-The input prerequisites is a graph represented by a list of edges, not adjacency matrices. Read more about how a graph is 
-represented.
-You may assume that there are no duplicate edges in the input prerequisites.
-
-/*
-    Submission Date: 2017-07-26
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    bool TopologicalSortUtil(const int vertex, const vector<vector<int>>& vertex_to_edges, unordered_set<int>& visited, 
-        unordered_set<int>& expanding, stack<int>& st) {
-
-        if(expanding.count(vertex)) {
-            return true;
-        }
-
-        expanding.insert(vertex);
-        
-        for(auto neighbor: vertex_to_edges[vertex]) {
-            if(visited.count(neighbor)) continue;
-            bool has_cycle = TopologicalSortUtil(neighbor, vertex_to_edges, visited, expanding, st);
-            if(has_cycle) return true;
-        }
-
-        visited.insert(vertex);
-        expanding.erase(vertex);
-
-        st.push(vertex);
-        return false;
-    }
-
-    vector<int> TopologicalSort(const int numCourses, const vector<vector<int>>& vertex_to_edges) {
-        unordered_set<int> visited;
-        unordered_set<int> expanding;
-        stack<int> st;
-
-        bool has_cycle = false;
-        for(int vertex = 0; vertex < numCourses; vertex++) {
-            if(visited.count(vertex)) continue;
-            has_cycle = TopologicalSortUtil(vertex, vertex_to_edges, visited, expanding, st);
-            if(has_cycle) break;
-        }
-
-        vector<int> res;
-        if(!has_cycle) {
-            while(!st.empty()) {
-                res.push_back(st.top());
-                st.pop();
-            }
-        }
-
-        return res;
-    }
-    vector<int> findOrder(int numCourses, vector<pair<int, int>>& prerequisites) {
-        vector<vector<int>> vertex_to_edges(numCourses, vector<int>{});
-
-        for(auto prereq: prerequisites) {
-            vertex_to_edges[prereq.second].push_back(prereq.first);
-        }
-
-        return TopologicalSort(numCourses, vertex_to_edges);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-211. Add and Search Word - Data structure design
-Design a data structure that supports the following two operations:
-
-void addWord(word)
-bool search(word)
-search(word) can search a literal word or a regular expression string containing only letters a-z or .. A . 
-means it can represent any one letter.
-
-For example:
-
-addWord("bad")
-addWord("dad")
-addWord("mad")
-search("pad") -> false
-search("bad") -> true
-search(".ad") -> true
-search("b..") -> true
-Note:
-You may assume that all words are consist of lowercase letters a-z.
-
-/*
-    Submission Date: 2017-08-03
-    Runtime: 43 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <queue>
-#include <tuple>
-
-using namespace std;
-
-struct TrieNode {
-    TrieNode* child[26];
-    bool is_word;
-    TrieNode() {
-        is_word = false;
-        for(int i = 0; i < 26; i++) child[i] = NULL;
-    }
-};
-
-class WordDictionary {
-    TrieNode* root_;
-public:
-    /** Initialize your data structure here. */
-    WordDictionary() {
-        root_ = new TrieNode();
-    }
-    
-    /** Adds a word into the data structure. */
-    void addWord(string word) {
-        TrieNode* curr = root_;
-        for(int i = 0, N = word.size(); i < N; i++) {
-            char c = word[i];
-            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
-            curr = curr -> child[c - 'a'];
-        }
-        curr -> is_word = true;
-    }
-    
-    /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
-    bool search(string word) {
-        queue<pair<TrieNode*, int>> q;
-        q.emplace(root_, 0);
-
-        TrieNode* curr;
-        int index;
-        while(!q.empty()) {
-            tie(curr, index) = q.front();
-            q.pop();
-
-            if(index == word.size()) {
-                if(curr -> is_word) return true;
-                continue;
-            }
-            if(word[index] == '.') { // increase index and add all 26 child to the queue
-                for(int i = 0; i < 26; i++) {
-                    if(curr -> child[i] == NULL) continue;
-                    q.emplace(curr -> child[i], index + 1);
-                }
-            } else {
-                // check if current character is valid
-                if(curr -> child[word[index] - 'a'] == NULL) continue; 
-                q.emplace(curr -> child[word[index] - 'a'], index + 1);
-            }
-        }
-        return false;
-    }
-};
-
-int main() {
     return 0;
 }

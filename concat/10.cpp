@@ -437,6 +437,101 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+164. Maximum Gap
+Given an unsorted array, find the maximum difference between the successive elements in its 
+sorted form.
+
+Try to solve it in linear time/space.
+
+Return 0 if the array contains less than 2 elements.
+
+You may assume all elements in the array are non-negative integers and fit in the 32-bit 
+signed integer range.
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 9 ms
+    Difficulty: HARD
+*/
+
+#include <iostream>
+#include <vector>
+#include <functional>
+
+using namespace std;
+
+class Solution {
+    vector<int> freq_, temp_space_;
+public:
+    // time complexity is O(d*(n + k)) where k is the radix or base (k=10)
+    // d is the number of counting sort calls (max number of digits)
+    void radix_sort(vector<int>& nums) {
+        int N = nums.size();
+        freq_.assign(10, 0);
+        temp_space_.assign(N, 0);
+
+        int divide = 1;
+        while(count_sort(nums, divide, N)){
+            divide *= 10;
+        }
+    }
+
+    // returns true if it moves anything
+    bool count_sort(vector<int>& nums, int divide, int N) {
+        fill(freq_.begin(), freq_.end(), 0);
+        function<int(int)> get_digit = [&divide](int num){ return num/divide % 10; };
+
+        // get the frequency of each number
+        int less_than_divide_count = 0;
+        for(auto num: nums) {
+            less_than_divide_count += num < divide;
+            freq_[get_digit(num)]++;
+        }
+
+        if(less_than_divide_count == N) return false;
+
+        // convert number to indices
+        for(int i = 1; i < 10; i++) {
+            freq_[i] += freq_[i - 1];
+        }
+
+        // write to temp_space_ starting from the back to keep stable
+        for(int i = N-1; i >= 0; i--) {
+            int& idx = freq_[get_digit(nums[i])];
+            temp_space_[idx - 1] = nums[i]; 
+            idx--;
+        }
+
+        for(int i = 0; i < N; i++) {
+            nums[i] = temp_space_[i];
+        }
+
+        return true;
+    }
+
+    int maximumGap(vector<int>& nums) {
+        int N = nums.size();
+        if(N < 2) return 0;
+
+        radix_sort(nums);
+
+        int max_gap = 0;
+        for(int i = 1; i < N; i++) 
+            max_gap = max(max_gap, nums[i] - nums[i-1]);
+        return max_gap;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<int> v{10,4,2,23,30,1};
+    // vector<int> v{5,4,2,6,9,1};
+    int r = s.maximumGap(v);
+    cout << "r=" << r << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 165. Compare Version Numbers
 Compare two version numbers version1 and version2.
 If version1 > version2 return 1, if version1 < version2 return -1, otherwise return 0.
@@ -656,10 +751,66 @@ You may assume that the array is non-empty and the majority element always exist
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <cassert>
 
 using namespace std;
 
 class Solution {
+public:
+/*
+Moore’s Voting Algorithm
+When applying the algorithm on an array, only one of below two cases might happen:
+
+A. the first candidate’s counter never drops to zero through out the array, or;
+B. the first candidate’s counter drops to zero at some point (reset point).
+
+If A, then apparently this candidate is the majority;
+
+If B, then (let’s say we have an array of n elements, and by the first time 
+counter drops to zero we have gone through x elements so far):
+
+    If the real majority element M never appeared in the subarray before the 
+    reset point, then it will still be the majority in the remaining subarray 
+    — do the algorithm again on remaining subarray;
+
+    If the majority element M has appeared in the subarray before reset 
+    point, then it must only have appeared up to x/2 times (because counter 
+    is now zero). Thus in remaining subarray we have (n-x) elements 
+    in total, of which at least (n/2 +1 – x/2) = (n-x)/2 +1 are M [to 
+    be more precise, it's at least (floor(n/2) +1 - x/2) = floor((n-x)/2)+1 ], 
+    making it still the majority in remaining subarray — do the 
+    algorithm again on remaining subarray;
+
+And there we have it like a recursive function. Note that this is when 
+there IS a majority (more than half) in the array. When there's no majority, 
+this process will give you a wrong candidate, that's why you always have to 
+do a second pass to check.
+    */
+    int majorityElement(vector<int>& nums) {
+        if(nums.empty()) return 0;
+
+        int res = nums.front();
+        int count = 1;
+        int N = nums.size();
+        
+        // find candidate
+        for(int i = 1; i < N; i++) {
+            count += nums[i] == res ? 1: -1;
+            if(count == 0) {
+                res = nums[i];
+                count = 1;
+            }
+        }
+
+        // confirm that this a majority
+        count = 0;
+        for(auto num: nums) count += num == res;
+        assert(count >= N/2);
+        return res;
+    }
+};
+
+class Solution2 {
 public:
     int majorityElement(vector<int>& nums) {
         unordered_map<int, int> value_to_freq;
@@ -802,170 +953,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-174. Dungeon Game
-The demons had captured the princess (P) and imprisoned her in the bottom-right corner of a dungeon. 
-The dungeon consists of M x N rooms laid out in a 2D grid. Our valiant knight (K) was initially positioned 
-in the top-left room and must fight his way through the dungeon to rescue the princess.
-
-The knight has an initial health point represented by a positive integer. If at any point his health point 
-drops to 0 or below, he dies immediately.
-
-Some of the rooms are guarded by demons, so the knight loses health (negative integers) upon entering these 
-rooms; other rooms are either empty (0's) or contain magic orbs that increase the knight's health 
-(positive integers).
-
-In order to reach the princess as quickly as possible, the knight decides to move only rightward or 
-downward in each step.
-
-
-Write a function to determine the knight's minimum initial health so that he is able to rescue the princess.
-
-For example, given the dungeon below, the initial health of the knight must be at least 7 if he follows 
-the optimal path RIGHT-> RIGHT -> DOWN -> DOWN.
-
--2 (K)  -3  3
--5  -10 1
-10  30  -5 (P)
-
-Notes:
-
-The knight's health has no upper bound.
-Any room can contain threats or power-ups, even the first room the knight enters and the bottom-right room 
-where the princess is imprisoned.
-
-/*
-    Submission Date: 2017-07-25
-    Runtime: 6 ms
-    Difficulty: HARD
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int calculateMinimumHP(vector<vector<int>>& dungeon) {
-        int rows = dungeon.size();
-        if(rows == 0) return 0;
-
-        int cols = dungeon.front().size();
-        vector<vector<int>> hp(rows + 1, vector<int>(cols + 1, INT_MAX));
-        hp[rows][cols - 1] = 1;
-        hp[rows - 1][cols] = 1;
-        
-        for(int i = rows-1; i >= 0; i--) {
-            for(int j = cols-1; j >= 0; j--) {
-                hp[i][j] = max(1, min(hp[i+1][j], hp[i][j+1]) - dungeon[i][j]);
-            }
-        }
-        
-        return hp[0][0];
-    }
-};
-
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-179. Largest Number
-Given a list of non negative integers, arrange them such that they form the largest number.
-
-For example, given [3, 30, 34, 5, 9], the largest formed number is 9534330.
-
-Note: The result may be very large, so you need to return a string instead of an integer.
-
-/*
-    Submission Date: 2017-07-26
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    string concat(const vector<string>& nums_str) {
-        return accumulate(nums_str.begin(), nums_str.end(), string(), [](const string& memo, const string& el){ return memo + el; });
-    }
-
-    string largestNumber(vector<int>& nums) {
-        if(nums.empty()) return "0";
-        int N = nums.size();
-        vector<string> nums_str(N);
-        transform(nums.begin(), nums.end(), nums_str.begin(), [](const int& num){ return to_string(num); });
-        sort(nums_str.begin(), nums_str.end(), [](const string& lhs, const string& rhs){
-            return lhs + rhs > rhs + lhs;        
-        });
-
-        if(nums_str.front()[0] == '0') return "0";
-        return concat(nums_str);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-187. Repeated DNA Sequences
-All DNA is composed of a series of nucleotides abbreviated as A, C, G, and T, for example: "ACGAATTCCG". 
-When studying DNA, it is sometimes useful to identify repeated sequences within the DNA.
-
-Write a function to find all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule.
-
-For example,
-
-Given s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT",
-
-Return:
-["AAAAACCCCC", "CCCCCAAAAA"].
-
-/*
-    Submission Date: 2017-07-26
-    Runtime: 99 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRepeatedDnaSequences(string s) {
-        unordered_map<string, int> freq;
-        for(int i = 0; i <= (int)s.size() - 10; i++) {
-            string seq = s.substr(i, 10);
-            freq[seq]++;
-        }
-
-        vector<string> res;
-        for(auto kv: freq) {
-            if(kv.second > 1) {
-                res.push_back(kv.first);
-            }
-        }
-        return res;
-    }
-};
-
-
-int main() {
-    Solution s;
     return 0;
 }

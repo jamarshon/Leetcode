@@ -1,710 +1,233 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-565. Array Nesting
-A zero-indexed array A consisting of N different integers is given. The array contains 
-all integers in the range [0, N - 1].
+233. Number of Digit One
+Given an integer n, count the total number of digit 1 
+appearing in all non-negative integers less than or equal to n.
 
-Sets S[K] for 0 <= K < N are defined as follows:
-
-S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
-
-Sets S[K] are finite for each K and should NOT contain duplicates.
-
-Write a function that given an array A consisting of N integers, return the size of 
-the largest set S[K] for this array.
-
-Example 1:
-Input: A = [5,4,0,3,1,6,2]
-Output: 4
-Explanation: 
-A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
-
-One of the longest S[K]:
-S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
-Note:
-N is an integer within the range [1, 20,000].
-The elements of A are all distinct.
-Each element of array A is an integer within the range [0, N-1].
-/*
-    Submission Date: 2017-05-29
-    Runtime: 36 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
-                }
-                max_set = max(current_set, max_set);
-            }
-        }
-        return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
+For example:
+Given n = 13,
+Return 6, because digit 1 occurred in the following numbers: 
+1, 10, 11, 12, 13.
 
 /*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
-
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
-
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
-
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
-
-Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
-
-Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
-/*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
-            }
-        }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
-    }
-};
-
-int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to 
-make word1 and word2 the same, where in each step you can delete one character in either string.
-
-Example 1:
-Input: "sea", "eat"
-Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
-Note:
-The length of given words won't exceed 500.
-Characters in given words can only be lower-case letters.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minDistance(string word1, string word2) {
-        int row = word2.size() + 1;
-        int col = word1.size() + 1;
-        int dp[501][501];
-        for(int i = 0; i < row; i++) dp[i][0] = i;
-        for(int i = 0; i < col; i++) dp[0][i] = i;
-
-        for(int i = 1; i < row; i++) {
-            for(int j = 1; j < col; j++) {
-                if(word2[i - 1] == word1[j - 1]) {
-                    dp[i][j] = dp[i - 1][j - 1];
-                } else {
-                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
-                }
-            }
-        }
-        
-        return dp[row - 1][col - 1];
-    }
-};
-
-int main() {
-	Solution s;
-    cout << s.minDistance("sea", "eat");
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-05-27
+    Submission Date: 2017-08-21
     Runtime: 3 ms
-    Difficulty: MEDIUM
+    Difficulty: HARD
 */
 #include <iostream>
-#include <algorithm>
-#include <vector>
+#include <cmath>
 
 using namespace std;
 
-class Solution {
+class Solution2 {
 public:
-    double eucl_sq(vector<int>& p1, vector<int>& p2) {
-        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-    }
+    // low is the form of 10^n where 10^n <= high < 10^(n+1) meaning low and high have same number of digits
+    int countDigitOne(int low, int high) {
+        while(low > high) low /= 10; // 100 and 002 we need to make them the same so 10 and 2
 
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        // distance squared
-        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
+        if(low == 0) return 0;
+        if(low == 1) return 1;
 
-        sort(dist.begin(), dist.end());
+        int res = 0;
+        int diff = min(high-low+1, low); // 461-100 -> 100 or 120-100 -> 20
 
-        // should result in 4 equal length sides and two longer sides that are the diagonals 
-        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-        bool non_zero_sides = dist[0] > 0;
+        res += diff;
 
-        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
-        return equal_sides && non_zero_sides && correct_diagonals;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-594. Longest Harmonious Subsequence
-We define a harmonious array is an array where the difference between its maximum value and its minimum 
-value is exactly 1.
-
-Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
-its possible subsequences.
-
-Example 1:
-Input: [1,3,2,2,5,2,3,7]
-Output: 5
-Explanation: The longest harmonious subsequence is [3,2,2,2,3].
-Note: The length of the input array will not exceed 20,000.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 109 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLHS(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        int max_len = 0;
-        for(int d: nums) {
-            int current = 0;
-            if(freq.find(d) != freq.end()) {
-                current += freq[d];
-                freq[d] += 1;
-            } else {
-                freq[d] = 1;
-            }
-
-            int adj = 0;
-            if(freq.find(d-1) != freq.end()) {
-                adj = max(adj, freq[d-1]);
-            }
-
-            if(freq.find(d+1) != freq.end()) {
-                adj = max(adj, freq[d+1]);
-            }
-
-            if(adj == 0) continue;
-            current += adj + 1;
-            max_len = max(current, max_len);
-        }
-        return max_len;
-    }
-};
-
-int main() {
-    vector<int> v{1,3,2,2,5,2,3,7};
-    Solution s;
-    cout << s.findLHS(v) << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-598. Range Addition II
-Given an m * n matrix M initialized with all 0's and several update operations.
-
-Operations are represented by a 2D array, and each operation is represented by an array with 
-two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
-and 0 <= j < b.
-
-You need to count and return the number of maximum integers in the matrix after performing 
-all the operations.
-
-Example 1:
-Input: 
-m = 3, n = 3
-operations = [[2,2],[3,3]]
-Output: 4
-Explanation: 
-Initially, M = 
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-
-After performing [2,2], M = 
-[[1, 1, 0],
- [1, 1, 0],
- [0, 0, 0]]
-
-After performing [3,3], M = 
-[[2, 2, 1],
- [2, 2, 1],
- [1, 1, 1]]
-
-So the maximum integer in M is 2, and there are four of it in M. So return 4.
-Note:
-The range of m and n is [1,40000].
-The range of a is [1,m], and the range of b is [1,n].
-The range of operations size won't exceed 10,000.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxCount(int m, int n, vector<vector<int>>& ops) {
-        for(vector<int> op: ops) {
-            m = min(m, op[0]);
-            n = min(n, op[1]);
-        }
-        return m*n;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
-favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index sum. If there 
-is a choice tie between answers, output all of them with no order requirement. You could assume 
-there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
-index sum 1 (0+1).
-Note:
-The length of both lists will be in the range of [1, 1000].
-The length of strings in both lists will be in the range of [1, 30].
-The index is starting from 0 to the list length minus 1.
-No duplicates in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-        unordered_map<string, int> m;
-        for(int i = 0; i < list1.size(); i++) {
-            m[list1[i]] = i;
-        }
+        int high_first_digit = high/low;
         
-        vector<string> res;
-        int min_index_sum = -1;
-        for(int i = 0; i < list2.size(); i++) {
-            string s2 = list2[i];
-            if(m.count(s2)) {
-                int new_sum = i + m[s2];
-                if(min_index_sum == -1) {
-                    min_index_sum = new_sum;
-                    res.push_back(s2);
-                    continue;
-                }
+        // high_first_digit = 461/100 = 4 
+        // we consider 0-99 100-199 200-299, 300-399, 400-461
+        // there are high_first_digit - 1 full intervals countDigitOne(10, 99)
+        // there is one incomplete interval countDigitOne(10,61)
+        int full_interval = countDigitOne(low/10, low-1);
+        for(int i = 0; i < high_first_digit; i++) { 
+            res += full_interval;
+        }
+
+        res += countDigitOne(low/10, high % low);
+        return res;
+    }
+
+    int countDigitOne(int x) {
+        if(x < 0) return 0;
+
+        int n = floor(log10(x));
+        int low = round(pow(10, n));
+        return countDigitOne(low, x);
+    } 
+};
+
+class Solution {
+public:
+    int countDigitOne(int n) {
+        typedef long long ll;
+        ll res = 0;
+
+        /*
+            Given a number xxxxyzzz where indices are 76543210 and k=3 which is where y appears
+            we want to count how many times y is one. 
+            xxxx would be numbers 0000 to xxxx so they appear xxxx - 0000 + 1 times or (xxxx + 1)
+            if y >= 2 then it means for the (xxxx+1) times, there is 10^k occurences that y is 1
+                so it is just (xxxx+1)*10^k
+            if y == 1 then for the (xxxx+1) times, there is (xxxx+1)-1 full intervals of 10^k that has 
+                y equal to 1 and there is one partial interval for the numbers zzz which occur zzz - 000 + 1
+                times or (zzz+1) so it is xxxx*10^k + zzz+1
+            if y == 0 then the (xxxx+1) complete intervals do not include the last one as y is not greater than
+                one so it is xxxx*10^k
+
+            e.g (y >= 2) 4(3)zz there is x + 1 = 5 times x(1)zz can occur 0(1)zz, 1(1)zz, 2(1)zz, 3(1)zz, 4(1)zz
+                y >= 2 meaning the last interval 4(1)zz is considered complete (4100 to 4199) is included by 4(3)zz
+                so it is 5*10^2
+
+                (y == 1) 4(1)zz the last interval 4(1)zz is not considered complete but for 0(1)zz, 1(1)zz, 2(1)zz, 
+                3(1)zz there are 4*10^2 ones. The partial interval of 4(1)zz has zz + 1 number of ones as 4(1)00
+                to 4(1)zz include zz + 1 elements for a total of 4*10^2 + (zz + 1)
                 
-                if(new_sum == min_index_sum) {
-                    res.push_back(s2);
-                } else if(new_sum < min_index_sum) {
-                    min_index_sum = new_sum;
-                    res.clear();
-                    res.push_back(s2);
-                }
+                (y == 0) 4(0)zz the last interval 4(1)zz is not complete so there is 4*10^2 for 0(1)zz, 1(1)zz, 2(1)zz, 
+                3(1)zz and the zz + 1 elements do not count towards the total as y is not one so just 4*10^2
+        */
+        for(ll i = 1; i <= n; i *= 10) { // i is 10^k
+            // denote xxxxy as temp, xxxx as prefix, y as digit, and zz as suffix
+            ll temp = n/i;
+            ll prefix = temp / 10;
+            ll digit = temp % 10;
+            ll suffix = n % i;
+
+            if(digit >= 2) {
+                res += (prefix + 1)*i; // (xxxx+1)*10^k
+            } else if(digit == 1) {
+                res += (prefix)*i + (suffix + 1); // xxxx*10^k + zzz+1
+            } else { // digit == 0
+                res += (prefix)*i; // xxxx*10^k
             }
         }
+        return res;
+        
+    }
+};
+
+int main() {
+    Solution s;
+    cout << s.countDigitOne(13) << endl; // 6
+    cout << s.countDigitOne(100) << endl; // 21
+    cout << s.countDigitOne(101) << endl; // 23
+    cout << s.countDigitOne(102) << endl; // 24
+    cout << s.countDigitOne(1410065408) << endl; // 1737167499
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+234. Palindrome Linked List
+Given a singly linked list, determine if it is a palindrome.
+
+Follow up:
+Could you do it in O(n) time and O(1) space?
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    ListNode* reverse(ListNode* head) {
+        ListNode* prev = NULL;
+        ListNode* curr = head;
+        ListNode* next = curr -> next;
+
+        while(curr) {
+            curr -> next = prev;
+            prev = curr;
+            curr = next;
+            if(next != NULL) next = curr -> next;
+        }
+
+        return prev;
+    }
+
+    bool isEqual(ListNode* a, ListNode* b) {
+        while(a && b) {
+            if(a -> val != b -> val) return false;
+            a = a -> next;
+            b = b -> next;
+        }
+        return a == NULL && b == NULL;
+    }
+
+    bool isPalindrome(ListNode* head) {
+        ListNode* slow, *fast, *last_slow;
+        last_slow = NULL;
+        slow = fast = head;
+
+        while(fast && fast -> next) {
+            fast = fast -> next -> next;
+            last_slow = slow;
+            slow = slow -> next;
+        }
+
+        if(slow == head) return true;
+
+        last_slow -> next = NULL;
+
+        bool is_even_length = fast == NULL;
+        // marker is where to start reversing if even and it's next is where to start reversing if odd
+        // e.g marker is 1 in 0 -> 1 -> 2 -> 3 and marker is 2 in 0 -> 1 -> 2 -> 3 -> 4
+        ListNode* marker = slow;
+
+        ListNode* rev_head = is_even_length ? reverse(marker) : reverse(marker -> next); // reverse last half
+        bool res = isEqual(head, rev_head); // check if first half and reversed second half is the same
+        ListNode* rev_tail = reverse(rev_head); // undo the reverse
+        if(is_even_length) {
+            last_slow -> next = rev_tail;
+        } else {
+            last_slow -> next = marker; // place the marker back in between the first half and second half for odd length
+            marker -> next = rev_tail;
+        }
+
         return res;
     }
 };
 
 int main() {
-    Solution s;
-    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
-    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
-    vector<string> t = s.findRestaurant(v1, v2);
-    cout << t.size() << endl;
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
+235. Lowest Common Ancestor of a Binary Search Tree
+Given a binary search tree (BST), find the lowest common ancestor 
+(LCA) of two given nodes in the BST.
 
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
+According to the definition of LCA on Wikipedia: “The lowest 
+common ancestor is defined between two nodes v and w as the 
+lowest node in T that has both v and w as descendants (where 
+we allow a node to be a descendant of itself).”
 
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
+        _______6______
+       /              \
+    ___2__          ___8__
+   /      \        /      \
+   0      _4       7       9
+         /  \
+         3   5
+For example, the lowest common ancestor (LCA) of nodes 2 and 8 is 6. 
+Another example is LCA of nodes 2 and 4 is 2, since a node can be a 
+descendant of itself according to the LCA definition.
 
 /*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-606. Construct String from Binary Tree
-You need to construct a string consists of parenthesis and integers from a 
-binary tree with the preorder traversing way.
-
-The null node needs to be represented by empty parenthesis pair "()". And you 
-need to omit all the empty parenthesis pairs that don't affect the one-to-one 
-mapping relationship between the string and the original binary tree.
-
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
-
-Output: "1(2(4))(3)"
-
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
-
-Output: "1(2()(4))(3)"
-
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one 
-mapping relationship between the input and the output.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 15 ms
+    Submission Date: 2017-08-21
+    Runtime: 29 ms
     Difficulty: EASY
 */
 #include <iostream>
@@ -720,18 +243,19 @@ struct TreeNode {
 
 class Solution {
 public:
-    string tree2str(TreeNode* t) {
-        if(t == NULL) return "";
-        string root = to_string(t -> val);
-        string left = tree2str(t -> left);
-        string right = tree2str(t -> right);
-        
-        if(left.empty() && right.empty())
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == NULL) return NULL;
+        if(p == NULL || q == NULL) return p ? p : q;
+
+        int p_val = p -> val, q_val = q -> val, root_val = root -> val;
+
+        if(root_val > p_val && root_val > q_val) {
+            return lowestCommonAncestor(root -> left, p, q);
+        } else if(root_val < p_val && root_val < q_val) {
+            return lowestCommonAncestor(root -> right, p, q);
+        } else {
             return root;
-        if(!left.empty() && right.empty())
-            return root + "(" + left + ")";
-        
-        return root + "(" + left + ")" + "(" + right + ")";
+        }
     }
 };
 
@@ -741,168 +265,612 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-609. Find Duplicate File in System
-Given a list of directory info including directory path, and all the files 
-with contents in this directory, you need to find out all the groups of 
-duplicate files in the file system in terms of their paths.
+236. Lowest Common Ancestor of a Binary Tree
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in 
+the tree.
 
-A group of duplicate files consists of at least two files that have exactly 
-the same content.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is 
+defined between two nodes v and w as the lowest node in T that has both v and w 
+as descendants (where we allow a node to be a descendant of itself).”
 
-A single directory info string in the input list has the following format:
-
-"root/d1/d2/.../dm f1.txt(f1_content) f2.txt(f2_content) ... fn.txt(fn_content)"
-
-It means there are n files (f1.txt, f2.txt ... fn.txt with content f1_content, 
-f2_content ... fn_content, respectively) in directory root/d1/d2/.../dm. Note 
-that n >= 1 and m >= 0. If m = 0, it means the directory is just the root 
-directory.
-
-The output is a list of group of duplicate file paths. For each group, it 
-contains all the file paths of the files that have the same content. A 
-file path is a string that has the following format:
-
-"directory_path/file_name.txt"
-
-Example 1:
-Input:
-["root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)", 
-"root 4.txt(efgh)"]
-Output:  
-[["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
-
-Note:
-No order is required for the final output.
-
-You may assume the directory name, file name and file content only has letters 
-and digits, and the length of file content is in the range of [1,50].
-
-The number of files given is in the range of [1,20000].
-
-You may assume no files or directories share the same name in the same directory.
-
-You may assume each given directory info represents a unique directory. Directory 
-path and file info are separated by a single blank space.
-
-Follow-up beyond contest:
-Imagine you are given a real file system, how will you search files? DFS or BFS?
-
-If the file content is very large (GB level), how will you modify your solution?
-
-If you can only read the file by 1kb each time, how will you modify your solution?
-
-What is the time complexity of your modified solution? 
-
-What is the most time-consuming part and memory consuming part of it? 
-
-How to optimize?
-
-How to make sure the duplicated files you find are not false positive?
+        _______3______
+       /              \
+    ___5__          ___1__
+   /      \        /      \
+   6      _2       0       8
+         /  \
+         7   4
+For example, the lowest common ancestor (LCA) of nodes 5 and 1 is 3. Another 
+example is LCA of nodes 5 and 4 is 5, since a node can be a descendant of 
+itself according to the LCA definition.
 
 /*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
+    Submission Date: 2017-08-14
+    Runtime: 16 ms
     Difficulty: MEDIUM
 */
 #include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q, TreeNode*& res) {
+        if(root == NULL) return 0;
+        
+        int count = 0;
+        if(root == p) count++;
+        if(root == q) count++;
+
+        if(count == 2) { // root == p == q so root is lca
+            res = root; 
+            return 2; 
+        }
+        
+        int left_count = lowestCommonAncestor(root -> left, p, q, res);
+        if(left_count == 2) return 2; // found p and q in root -> left
+        count += left_count;
+
+        // root is either p or q and the other is in the left tree so root is lca
+        if(count == 2) { 
+            res = root;
+            return 2;
+        }
+        
+        int right_count = lowestCommonAncestor(root -> right, p, q, res);
+        if(right_count == 2) return 2; // found p and q in root -> right
+        count += right_count;
+
+        // root and left_tree has either p or q and the other is in the right tree 
+        // so root is lca
+        if(count == 2) {
+            res = root;
+            return 2;
+        }
+        
+        return count; 
+    }
+    
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        TreeNode* res = NULL;
+        lowestCommonAncestor(root, p, q, res);
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+237. Delete Node in a Linked List
+Write a function to delete a node (except the tail) in a singly linked list, given only access to 
+that node.
+
+Supposed the linked list is 1 -> 2 -> 3 -> 4 and you are given the third node with value 3, the linked list 
+should become 1 -> 2 -> 4 after calling your function.
+
+/*
+    Submission Date: 2017-07-21
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    void deleteNode(ListNode* node) {
+        node -> val = node -> next -> val;
+        node -> next = node -> next -> next;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+238. Product of Array Except Self
+Given an array of n integers where n > 1, nums, return an array output such that output[i] is equal to the 
+product of all the elements of nums except nums[i].
+
+Solve it without division and in O(n).
+
+For example, given [1,2,3,4], return [24,12,8,6].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 68 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
 #include <vector>
-#include <unordered_map>
-#include <sstream>
 
 using namespace std;
 
 class Solution {
-    pair<string, string> getContent(string& s) {
-        int bracket_ind = s.rfind("(") + 1;
-        string content = s.substr(bracket_ind, s.size() - bracket_ind - 1);
-        string filename = s.substr(0, bracket_ind - 1);
-        return make_pair(filename, content);
-    }
 public:
-    vector<vector<string>> findDuplicate(vector<string>& paths) {
-        // key content, value file
-        unordered_map<string, vector<string>> m;
-        for(string path: paths) {
-            stringstream ss(path);
-            string token;
-            string dir = "";
-            while(getline(ss, token, ' ')) {
-                if(dir.empty()) {
-                    dir = token;
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> dp(N);
+        
+        // forwards sweep
+        int product = 1;
+        for(int i = 0; i < N; i++) {
+            dp[i] = product;
+            product *= nums[i];
+        }
+        
+        // backward sweep
+        int back_product = 1;
+        for(int i = N-1; i >= 0; i--) {
+            dp[i] *= back_product;
+            back_product *= nums[i];
+        }
+        
+        return dp;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+239. Sliding Window Maximum
+Given an array nums, there is a sliding window of size k which is 
+moving from the very left of the array to the very right. You can 
+only see the k numbers in the window. Each time the sliding window 
+moves right by one position.
+
+For example,
+Given nums = [1,3,-1,-3,5,3,6,7], and k = 3.
+
+Window position                Max
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+Therefore, return the max sliding window as [3,3,5,5,6,7].
+
+Note: 
+You may assume k is always valid, ie: 1 ≤ k ≤ input array's 
+size for non-empty array.
+
+Follow up:
+Could you solve it in linear time?
+/*
+    Submission Date: 2017-08-21
+    Runtime: 69 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+#include <list>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        typedef pair<int,int> pii;
+        list<pii> ls;
+
+        int N = nums.size();
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            while(!ls.empty() && ls.front().second <= i - k) {
+                ls.pop_front();
+            }
+
+            while(!ls.empty() && ls.back().first < nums[i]) {
+                ls.pop_back();
+            }
+
+            ls.emplace_back(nums[i], i);
+            if(i >= k - 1) res.push_back(ls.front().first);
+        }
+
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+240. Search a 2D Matrix II
+Write an efficient algorithm that searches for a value in an m x n matrix. 
+This matrix has the following properties:
+
+Integers in each row are sorted in ascending from left to right.
+Integers in each column are sorted in ascending from top to bottom.
+For example,
+
+Consider the following matrix:
+
+[
+  [1,   4,  7, 11, 15],
+  [2,   5,  8, 12, 19],
+  [3,   6,  9, 16, 22],
+  [10, 13, 14, 17, 24],
+  [18, 21, 23, 26, 30]
+]
+Given target = 5, return true.
+
+Given target = 20, return false.
+/*
+    Submission Date: 2017-08-22
+    Runtime: 79 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        if(matrix.empty()) return false;
+        int M = matrix.size();
+        int N = matrix.front().size();
+        
+        int i = 0;
+        int j = N - 1;
+        while(i < M && j >= 0) {
+            if(matrix[i][j] == target) return true;
+            if(matrix[i][j] > target) { // smaller than everything in this column 
+                j--;
+            } else if(matrix[i][j] < target) { // bigger than everything in this row
+                i++;
+            }
+        }
+        
+        return false;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+241. Different Ways to Add Parentheses
+Given a string of numbers and operators, return all possible results from computing all the 
+different possible ways to group numbers and operators. The valid operators are +, - and *.
+
+Example 1
+Input: "2-1-1".
+
+((2-1)-1) = 0
+(2-(1-1)) = 2
+Output: [0, 2]
+
+
+Example 2
+Input: "2*3-4*5"
+
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+Output: [-34, -14, -10, -10, 10]
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <unordered_map>
+#include <functional>
+#include <sstream>
+
+using namespace std;
+
+struct Element {
+    bool is_operator;
+    int value;
+    Element(bool _is_operator, int _value): is_operator(_is_operator), value(_value) {}
+};
+
+struct ETreeNode {
+    Element e;
+    ETreeNode* left, *right;
+    ETreeNode(Element _e): e(_e), left(NULL), right(NULL) {}
+};
+
+class SolutionTree {
+public:
+    ETreeNode* cloneWithOffset(ETreeNode* curr, int offset) {
+        if(curr == NULL) return NULL;
+        Element offset_e = curr -> e;
+        offset_e.value += offset;
+
+        ETreeNode* new_curr = new ETreeNode(offset_e);
+        new_curr -> left = cloneWithOffset(curr -> left, offset);
+        new_curr -> right = cloneWithOffset(curr -> right, offset);
+        return new_curr;
+    }
+
+    void destroyTree(ETreeNode* root) {
+        if(root == NULL) return;
+        destroyTree(root -> left);
+        destroyTree(root -> right);
+        delete root;
+    }
+
+    vector<ETreeNode*> generateTrees(int n) {
+        if(n == 0) return {};
+        vector<vector<ETreeNode*>> dp(n + 1);
+        dp[0] = {NULL};
+
+        for(int len = 1; len <= n; len++) {
+            for(int j = 0; j < len; j++) {
+                vector<ETreeNode*> left_trees = dp[j],
+                                right_trees = dp[len - j - 1];
+                for(auto left_tree: left_trees) {
+                    for(auto right_tree: right_trees) {
+                        ETreeNode* curr = new ETreeNode(Element{true, j});
+                        curr -> left = cloneWithOffset(left_tree, 0);
+                        curr -> right = cloneWithOffset(right_tree, j+1);
+                        dp[len].push_back(curr);
+                    }
+                }
+                
+            }
+        }
+
+        for(int i = 0; i < n; i++) {
+            for(auto tree: dp[i]) destroyTree(tree);
+        }
+        return dp[n];
+    }
+
+    void inorderPlaceValuesAndOperators(ETreeNode* root, vector<Element>& numbers, vector<Element> operators, int& i, int& j){
+        if(root == NULL) return;
+        inorderPlaceValuesAndOperators(root -> left, numbers, operators, i, j);
+        root -> e = operators[i++];
+        if(root -> left == NULL) {
+            root -> left = new ETreeNode(numbers[j++]);
+        }
+
+        if(root -> right) {
+            inorderPlaceValuesAndOperators(root -> right, numbers, operators, i, j);
+        } else {
+            root -> right = new ETreeNode(numbers[j++]);
+        }
+    }
+
+    int evaluateTree(ETreeNode* root) {
+        assert(root != NULL); // should never happen as the numbers are the leafs
+        if(root -> e.is_operator) {
+            if(root -> e.value == '*') {
+                return evaluateTree(root -> left) * evaluateTree(root -> right);
+            } else if(root -> e.value == '+') {
+                return evaluateTree(root -> left) + evaluateTree(root -> right);
+            } else if(root -> e.value == '-'){
+                return evaluateTree(root -> left) - evaluateTree(root -> right);
+            } else {
+                assert(false);
+                return -1;
+            }
+        } else {
+            return root -> e.value;
+        }
+    }
+
+    void preorder(ETreeNode* curr) {
+        if(curr == NULL) {
+            cout << "NULL ";
+        } else {
+            if(curr -> e.is_operator) cout << char(curr -> e.value) << ' ';
+            else cout << (curr -> e.value) << ' ';
+            preorder(curr -> left);
+            preorder(curr -> right);
+        }
+    }
+
+    vector<int> diffWaysToCompute(string input) {
+        int start = 0;
+        int end = 0;
+        int N = input.size();
+
+        vector<Element> operators;
+        vector<Element> numbers;
+        while(end < N) {
+            if(input[end] == '*' || input[end] == '-' || input[end] == '+') {
+                string s = input.substr(start, end - start);
+                if(!s.empty()) {
+                    numbers.emplace_back(false, stoi(s));
+                }
+                operators.emplace_back(true, input[end]);
+                start = end + 1;
+            }
+            end++;
+        }
+
+        string s = input.substr(start, end - start);
+        if(!s.empty()) {
+            numbers.emplace_back(false, stoi(s));
+        }
+
+        vector<ETreeNode*> uniqueTrees = generateTrees(operators.size());
+        vector<int> res;
+        int i,j;
+        for(auto tree: uniqueTrees) {
+            i = j = 0;
+            inorderPlaceValuesAndOperators(tree, numbers, operators, i, j);
+            res.push_back(evaluateTree(tree));
+        }
+        return res;
+    }
+};
+
+
+class SolutionDP {
+    unordered_map<char, function<int(int,int)>> ops_m {
+        {'*', [](const int& a, const int& b){ return a*b; }},
+        {'+', [](const int& a, const int& b){ return a+b; }},
+        {'-', [](const int& a, const int& b){ return a-b; }},
+    };
+public: 
+    vector<int> diffWaysToCompute(string input) {
+        vector<int> nums; // nums will be size N and ops should be size N - 1 but extra added just for convenience
+        vector<char> ops;
+
+        int num;
+        char op;
+        stringstream ss(input + "+");
+
+        while(ss >> num && ss >> op) {
+            nums.push_back(num);
+            ops.push_back(op);
+        }
+
+        int N = nums.size();
+        if(N == 1) return nums;
+
+        /**
+            dp[i][j] is a vector of all possible values from operations from index i to j inclusive where indexes
+            correspond with integers from the nums array
+            e.g. "2*3-4*5" -> nums = [2,3,4,5] and ops = ['*', '-', '*'] dp[2][3] = {20} as 4*5 or ops[2](dp[2][2], dp[3][3])
+
+            dp[i][i] would just be {nums[i]}
+            dp[i][j] would be {op[k](dp[i][k], dp[k+1][j]), ... for all k from [i, j)}
+            final result is just indexes 0 to N-1 or dp[0][N-1]
+        */
+        vector<vector<vector<int>>> dp(N, vector<vector<int>>(N));
+
+        for(int i = N-1; i >= 0; i--) {
+            for(int j = i; j < N; j++) {
+                if(i == j) {
+                    dp[i][j] = {nums[i]};
                 } else {
-                    string file = token;
-                    pair<string, string> p = getContent(file);
-                    if(m.count(p.second)) {
-                        m[p.second].push_back(dir + "/" + p.first);
-                    } else {
-                        m[p.second] = {dir + "/" + p.first};
+                    for(int k = i; k < j; k++) {
+                        vector<int>& left = dp[i][k];
+                        vector<int>& right = dp[k+1][j];
+                        function<int(int,int)> op = ops_m[ops[k]];
+                        for(auto left_el: left) {
+                            for(auto right_el: right) {
+                                dp[i][j].push_back(op(left_el, right_el));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return dp[0][N-1];
+    }
+};
+
+class Solution {
+    unordered_map<string, vector<int>> dp;
+    unordered_map<char, function<int(int,int)>> ops_m {
+        {'*', [](const int& a, const int& b){ return a*b; }},
+        {'+', [](const int& a, const int& b){ return a+b; }},
+        {'-', [](const int& a, const int& b){ return a-b; }},
+    };
+public:
+    vector<int> diffWaysToCompute(string input) {
+        if(dp.count(input)) return dp[input];
+        int N = input.size();
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            if(!isdigit(input[i])) {
+                vector<int> left = diffWaysToCompute(input.substr(0, i));
+                vector<int> right = diffWaysToCompute(input.substr(i + 1));
+                function<int(int, int)> op = ops_m[input[i]];
+                for(auto left_el: left) {
+                    for(auto right_el: right) {
+                        res.push_back(op(left_el, right_el));
                     }
                 }
             }
         }
         
-        vector<vector<string>> res;
-        for(pair<string, vector<string>> p: m) {
-            if(p.second.size() > 1) res.push_back(p.second);
-        }
-        return res;
+        if(res.empty()) res.push_back(stoi(input)); // no operations left
+        return dp[input] = res;
     }
 };
 
 int main() {
     Solution s;
+    vector<int> v = s.diffWaysToCompute("2*3-4*5");
+    for(auto e: v) cout << e << endl;
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-611. Valid Triangle Number
-Given an array consists of non-negative integers, your task is to count 
-the number of triplets chosen from the array that can make triangles if we 
-take them as side lengths of a triangle.
+242. Valid Anagram
+Given two strings s and t, write a function to determine if t is an anagram of s.
 
-Example 1:
-Input: [2,2,3,4]
-Output: 3
-Explanation:
-Valid combinations are: 
-2,3,4 (using the first 2)
-2,3,4 (using the second 2)
-2,2,3
+For example,
+s = "anagram", t = "nagaram", return true.
+s = "rat", t = "car", return false.
+
 Note:
-The length of the given array won't exceed 1000.
-The integers in the given array are in the range of [0, 1000].
+You may assume the string contains only lowercase alphabets.
+
+Follow up:
+What if the inputs contain unicode characters? How would you adapt your solution to such case?
 
 /*
-    Submission Date: 2017-06-11
-    Runtime: 442 ms
-    Difficulty: MEDIUM
+    Submission Date: 2017-08-06
+    Runtime: 13 ms
+    Difficulty: EASY
 */
 
 #include <iostream>
-#include <vector>
-#include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
 class Solution {
 public:
-    int triangleNumber(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
+    bool isAnagram(string s, string t) {
+        if(s.size() != t.size()) return false;
         
-        int count = 0;
-        int len = nums.size();
-        for(int i = 0; i < len; i++) {
-            if(nums[i] == 0) continue;
-            for(int j = i + 1; j < len; j++) {
-                int sum = nums[i] + nums[j];
-                vector<int>::iterator it = lower_bound(nums.begin(), nums.end(), sum);
-                
-                int index = it - nums.begin() - 1;
-                count += max(index - j, 0);
-                // cout << index << ' '  << j << ' ' <<count<< endl;
-            }
+        unordered_map<char, int> s_freq, t_freq;
+        for(int i = 0, len = s.size(); i < len; i++) {
+            s_freq[s[i]]++;
+            t_freq[t[i]]++;
         }
-        return count;
+        
+        if(s_freq.size() != t_freq.size()) return false;
+        for(auto kv: s_freq) {
+            if(t_freq.count(kv.first) && t_freq[kv.first] == kv.second) continue;
+            return false;
+        }
+        return true;
     }
 };
 
@@ -911,37 +879,26 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-617. Merge Two Binary Trees
-Given two binary trees and imagine that when you put one of them to cover the 
-other, some nodes of the two trees are overlapped while the others are not.
+257. Binary Tree Paths
+Given a binary tree, return all root-to-leaf paths.
 
-You need to merge them into a new binary tree. The merge rule is that if two 
-nodes overlap, then sum node values up as the new value of the merged node. 
-Otherwise, the NOT null node will be used as the node of new tree.
+For example, given the following binary tree:
 
-Example 1:
-Input: 
-    Tree 1                     Tree 2                  
-          1                         2                             
-         / \                       / \                            
-        3   2                     1   3                        
-       /                           \   \                      
-      5                             4   7                  
-Output: 
-Merged tree:
-         3
-        / \
-       4   5
-      / \   \ 
-     5   4   7
-Note: The merging process must start from the root nodes of both trees.
+   1
+ /   \
+2     3
+ \
+  5
+All root-to-leaf paths are:
 
+["1->2->5", "1->3"]
 /*
-    Submission Date: 2017-06-11
-    Runtime: 45 ms
+    Submission Date: 2017-08-23
+    Runtime: 79 ms
     Difficulty: EASY
 */
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -953,34 +910,92 @@ struct TreeNode {
 };
 
 class Solution {
-    TreeNode* mergeTreesHelper(TreeNode* t1, TreeNode* t2) {
-        if(t1 == NULL && t2 == NULL) return NULL;
-        
-        TreeNode* curr = new TreeNode(-1);
-        int new_val = -1;
-        if(t1 != NULL && t2 != NULL) {
-            new_val = t1 -> val + t2 -> val;
-        } else if(t1 != NULL) {
-            new_val = t1 -> val;
-        } else {
-            new_val = t2 -> val;
-        }
-        
-        curr -> val = new_val;
-        
-        TreeNode* left = mergeTreesHelper(t1 ? t1 -> left : NULL, t2 ? t2 -> left : NULL);
-        TreeNode* right = mergeTreesHelper(t1 ? t1 -> right : NULL, t2 ? t2 -> right : NULL);
-        curr -> left = left;
-        curr -> right = right;
-        return curr;
-    }
 public:
-    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
-        return mergeTreesHelper(t1, t2);
+    vector<string> binaryTreePaths(TreeNode* root) {
+        if(root == NULL) return {};
+        
+        string curr = to_string(root -> val);
+        vector<string> res;
+        
+        vector<string> left = binaryTreePaths(root -> left);
+        for(auto str: left) res.push_back(curr + "->" + str);
+        
+        vector<string> right = binaryTreePaths(root -> right);
+        for(auto str: right) res.push_back(curr + "->" + str);
+        
+        if(left.empty() && right.empty()) res.push_back(curr);
+        return res;
     }
 };
 
 int main() {
     Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+258. Add Digits
+Given a non-negative integer num, repeatedly add all its 
+digits until the result has only one digit.
+
+For example:
+
+Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. 
+Since 2 has only one digit, return it.
+
+Follow up:
+Could you do it without any loop/recursion in O(1) runtime?
+/*
+    Submission Date: 2017-08-25
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+/*
+    digital root problem (single digit) value obtained by an iterative 
+    process of summing digits, on each iteration using the result from 
+    the previous iteration to compute a digit sum
+
+    cyclic around 9
+    ...                 10                  20                  30
+    0 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 
+    ...             40                  50                  60
+    5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
+    ...         70                  80                  90
+    1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
+*/
+class Solution {
+public:
+    int addDigits(int num) {
+        return 1 + (num - 1) % 9;
+    }
+};
+
+class Solution2 {
+public:
+    int addDigits(int num) {
+        if(num == 0) return 0;
+        int num_digits = floor(log10(num)) + 1;
+        if(num_digits == 1) return num;
+        
+        int x = 0;
+        while(num) {
+            x += num % 10;
+            num /= 10;
+        }
+        
+        return addDigits(x);
+    }
+};
+
+int main() {
+    Solution s;
+    for(int i = 0; i < 100; i++) {
+        cout << i << ' ' << s.addDigits(i) << endl;
+    }
     return 0;
 }

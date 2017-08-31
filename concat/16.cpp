@@ -1,432 +1,115 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-649. Dota2 Senate
-In the world of Dota2, there are two parties: the Radiant and the Dire.
+313. Super Ugly Number
+Write a program to find the nth super ugly number.
 
-The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
-a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
-can exercise one of the two rights:
+Super ugly numbers are positive numbers whose all prime factors are in the given 
+prime list primes of size k. For example, [1, 2, 4, 7, 8, 13, 14, 16, 19, 26, 28, 32] 
+is the sequence of the first 12 super ugly numbers given primes = [2, 7, 13, 19] of 
+size 4.
 
-Ban one senator's right: 
-A senator can make another senator lose all his rights in this and all the following rounds.
-Announce the victory: 
-If this senator found the senators who still have rights to vote are all from the same party, he can announce 
-the victory and make the decision about the change in the game.
-Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
-party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
-
-The round-based procedure starts from the first senator to the last senator in the given order. This 
-procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
-during the procedure.
-
-Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
-which party will finally announce the victory and make the change in the Dota2 game. The output should be 
-Radiant or Dire.
-
-Example 1:
-Input: "RD"
-Output: "Radiant"
-Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights any more since his right has been banned. 
-And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Example 2:
-Input: "RDD"
-Output: "Dire"
-Explanation: 
-The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights anymore since his right has been banned. 
-And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
-And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
-who can vote.
 Note:
-The length of the given string will in the range [1, 10,000].
+(1) 1 is a super ugly number for any given primes.
+(2) The given numbers in primes are in ascending order.
+(3) 0 < k ≤ 100, 0 < n ≤ 10^6, 0 < primes[i] < 1000.
+(4) The nth super ugly number is guaranteed to fit in a 32-bit signed integer.
 
 /*
-    Submission Date: 2017-07-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string predictPartyVictory(string senate) {
-        while(!senate.empty()) {
-            for(int i = 0; i < senate.size();) {
-                char curr = senate[i];
-                int j = i;
-                for(; j < senate.size(); j++) {
-                    if(senate[j] != curr) {
-                        break;
-                    }
-                }
-            
-                if(j == senate.size()) {
-                    j = 0;
-                    for(; j < i; j++) {
-                        if(senate[j] != curr) {
-                            break;
-                        }
-                    }
-
-                    if(j == i) {
-                        if(curr == 'R') return "Radiant";
-                        return "Dire";
-                    } else {
-                        senate = senate.substr(0, j) + senate.substr(j + 1);
-                    }
-                } else {
-                    senate = senate.substr(0, j) + senate.substr(j + 1);
-                    i++;
-                }
-            }
-        }
-        return "";
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-650. 2 Keys Keyboard
-Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
-for each step:
-
-Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
-Paste: You can paste the characters which are copied last time.
-Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
-permitted. Output the minimum number of steps to get n 'A'.
-
-Example 1:
-Input: 3
-Output: 3
-Explanation:
-Intitally, we have one character 'A'.
-In step 1, we use Copy All operation.
-In step 2, we use Paste operation to get 'AA'.
-In step 3, we use Paste operation to get 'AAA'.
-Note:
-The n will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <climits>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minSteps(int n) {
-        vector<int> dp(n + 1, INT_MAX);
-        dp[0] = dp[1] = 0;
-
-        for(int i = 1; i <= n; i++) {
-            int cost = dp[i] + 1;
-            int temp = i*2;
-            if(temp > n) break; 
-            while(temp <= n) {
-                dp[temp] = min(dp[temp], ++cost);
-                temp += i;
-            }
-        }
-
-        return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-652. Find Duplicate Subtrees
-Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
-return the root node of any one of them.
-
-Two trees are duplicate if they have the same structure with same node values.
-
-Example 1: 
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-The following are two duplicate subtrees:
-      2
-     /
-    4
-and
-    4
-Therefore, you need to return above trees' root in the form of a list.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 45 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
-        if(root != NULL) {
-            string left = preorder(root -> left, freq, res);
-            string right = preorder(root -> right, freq, res);
-            
-            string str = to_string(root -> val) + " " + left + right;
-            
-            if(freq[str] == 1) res.push_back(root);
-            freq[str]++;
-            return str;
-        } else {
-            return "null ";
-        }
-    }
-    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        unordered_map<string, int> freq;
-        vector<TreeNode*> res;
-        preorder(root, freq, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-653. Two Sum IV - Input is a BST
-Given a Binary Search Tree and a target number, return true if there exist two 
-elements in the BST such that their sum is equal to the given target.
-
-Example 1:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 9
-
-Output: True
-Example 2:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 28
-
-Output: False
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-    unordered_map<int, vector<TreeNode*>> visited;
-public:
-    bool findTarget(TreeNode* root, int k) {
-        if(root == NULL) return false;
-        int target = k - (root -> val);
-        
-        if(visited.count(target)) {
-            for(auto l: visited[target]) {
-                if(l != root) return true;
-            }
-        }
-        
-        TreeNode* curr = root;
-        while(curr) {
-            if(curr != root && curr -> val == target) return true;
-            visited[curr -> val].push_back(curr);
-            if(curr -> val > target) {
-                curr = curr -> right;
-            } else {
-                curr = curr -> left;
-            }
-        }
-        
-        return findTarget(root -> left, k) || findTarget(root -> right, k);
-    }
-};
-
-class Solution {
-public:
-    void inorder(TreeNode* curr, vector<int>& res) {
-        if(curr == NULL) return;
-        inorder(curr -> left, res);
-        res.push_back(curr -> val);
-        inorder(curr -> right, res);
-    }
-    bool findTarget(TreeNode* root, int k) {
-        vector<int> sorted_arr;
-        inorder(root, sorted_arr);
-        int low = 0;
-        int high = sorted_arr.size() - 1;
-        
-        while(low < high) {
-            int sum = sorted_arr[low] + sorted_arr[high];
-            if(sum == k) return true;
-            if(sum < k) low++;
-            else high--;
-        }
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-654. Maximum Binary Tree
-Given an integer array with no duplicates. A maximum tree building on this array is defined as 
-follow:
-
-The root is the maximum number in the array.
-The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
-number.
-The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
-number.
-Construct the maximum tree by the given array and output the root node of this tree.
-
-Example 1:
-Input: [3,2,1,6,0,5]
-Output: return the tree root node representing the following tree:
-
-      6
-    /   \
-   3     5
-    \    / 
-     2  0   
-       \
-        1
-Note:
-The size of the given array will be in the range [1,1000].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
+    Submission Date: 2017-08-12
+    Runtime: 46 ms
     Difficulty: MEDIUM
 */
 
 #include <iostream>
 #include <vector>
+#include <queue>
+#include <set>
 
 using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
 
 class Solution2 {
 public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        int N = nums.size();
-        
-        int top = -1;
-        vector<int> st(N, 0);
-        vector<int> T(N, 0);
-        for(int i = 0; i < N; i++) {
-            int temp_top = top;
-            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
-                temp_top--;
+    int nthSuperUglyNumber(int n, vector<int>& primes) {
+        int K = primes.size();
+        if(n <= 0 || K <= 0) return 0;
+
+        set<int> res{1};
+        vector<int> last_prime(K, 1);
+
+        while(res.size() < n) {
+            int min_j = 0;
+            for(int j = 1; j < K; j++) {
+                if(last_prime[j] * primes[j] < last_prime[min_j] * primes[min_j]) {
+                    min_j = j;
+                }
             }
-            
-            if(temp_top != -1) T[i] = st[temp_top];
-            
-            if(temp_top < top) {
-                T[st[temp_top + 1]] = i;
+
+            res.insert(last_prime[min_j] * primes[min_j]);
+            last_prime[min_j] = *res.upper_bound(last_prime[min_j]);
+        }
+
+        return *res.rbegin();
+    }
+};
+
+class Solution3 {
+public:
+    int nthSuperUglyNumber(int n, vector<int>& primes) {
+        int K = primes.size();
+        if(n <= 0 || K <= 0) return 0;
+
+        // idx[j] corresponds to the first element in dp which 
+        // primes[j]*dp[idx[j]] >= dp[i]
+        vector<int> dp(n), idx(K, 0);
+        dp[0] = 1;
+
+        for(int i = 1; i < n; i++) {
+            int best_j = 0;
+            for(int j = 0; j < K; j++) {
+                // avoid duplicates e.g 4*3 and 6*2
+                if(dp[idx[j]] * primes[j] == dp[i-1]) idx[j]++; 
+                if(dp[idx[j]] * primes[j] < dp[idx[best_j]] * primes[best_j]) {
+                    best_j = j;
+                }
             }
-            st[++temp_top] = i;
-            top = temp_top;
+            dp[i] = dp[idx[best_j]] * primes[best_j];
+            idx[best_j]++;
         }
-        
-        T[st[0]] = -1;
-        
-        TreeNode* nodes[N];
-        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
-        
-        TreeNode* root;
-        for(int i = 0; i < N; i++) {
-            int parent_ind = T[i];
-            if(parent_ind == -1) root = nodes[i];
-            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
-            else nodes[parent_ind] -> right = nodes[i];
-        }
-        
-        return root;
+
+        return dp[n-1];
     }
 };
 
 class Solution {
 public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        vector<TreeNode*> stk;
-        for(auto num: nums) {
-            TreeNode* curr = new TreeNode(num);
-            TreeNode* left = NULL;
-            while(!stk.empty() && stk.back() -> val < num) {
-                left = stk.back();
-                stk.pop_back();
-            }
+    int nthSuperUglyNumber(int n, vector<int>& primes) {
+        int K = primes.size();
+        if(n <= 0 || K <= 0) return 0;
 
-            curr -> left = left;
-            if(!stk.empty()) {
-                stk.back() -> right = curr;
-            }
-            stk.push_back(curr);
+        vector<int> dp(n);
+        dp[0] = 1;
+        // pair<prime, index in dp>
+        auto func =[&dp](const pair<int,int> lhs, const pair<int,int> rhs){ 
+            return lhs.first*dp[lhs.second] > rhs.first*dp[rhs.second];
+        };
+
+        priority_queue<pair<int,int>, vector<pair<int,int>>, decltype(func)> pq(func);
+
+        for(int i = 0; i < K; i++) pq.push({primes[i], 0});
+
+        for(int i = 1; i < n; i++) {
+            pair<int,int> p;
+            do {
+                p = pq.top();
+                pq.pop();
+                dp[i] = p.first*dp[p.second];
+                pq.emplace(p.first, p.second + 1);
+            } while(p.first * dp[p.second] == dp[i-1]);
+            
         }
-        return stk.front();
+
+        return dp[n-1];
     }
 };
 
@@ -435,284 +118,841 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-655. Print Binary Tree
-Print a binary tree in an m*n 2D string array following these rules:
+315. Count of Smaller Numbers After Self
+You are given an integer array nums and you have to return a 
+new counts array. The counts array has the property where 
+counts[i] is the number of smaller elements to the right of 
+nums[i].
 
-The row number m should be equal to the height of the given binary tree.
-The column number n should always be an odd number.
-The root node's value (in string format) should be put in the exactly middle of the 
-first row it can be put. The column and the row where the root node belongs will separate 
-the rest space into two parts (left-bottom part and right-bottom part). You should print the 
-left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
-left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
-none while the other is not, you don't need to print anything for the none subtree but still 
-need to leave the space as large as that for the other subtree. However, if two subtrees are 
-none, then you don't need to leave space for both of them.
-Each unused space should contain an empty string "".
-Print the subtrees following the same rules.
-Example 1:
-Input:
-     1
-    /
-   2
-Output:
-[["", "1", ""],
- ["2", "", ""]]
-Example 2:
-Input:
-     1
-    / \
-   2   3
-    \
-     4
-Output:
-[["", "", "", "1", "", "", ""],
- ["", "2", "", "", "", "3", ""],
- ["", "", "4", "", "", "", ""]]
-Example 3:
-Input:
-      1
-     / \
-    2   5
-   / 
-  3 
- / 
-4 
-Output:
+Example:
 
-[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
- ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
- ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
- ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
-Note: The height of binary tree is in the range of [1, 10].
+Given nums = [5, 2, 6, 1]
 
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+Return the array [2, 1, 1, 0].
 /*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int depth(TreeNode* root) {
-        if(root == NULL) return -1;
-        return 1 + max(depth(root -> left), depth(root -> right));
-    }
-    
-    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
-        if(root == NULL) return;
-        if(start >= end) return;
-        if(row >= res.size()) return;
-        
-        string val = to_string(root -> val);
-        int mid = start + (end - start)/2;
-        res[row][mid] = val;
-        
-        populate(root -> left, res, row + 1, start, mid);
-        populate(root -> right, res, row + 1, mid + 1, end);
-    }
-    vector<vector<string>> printTree(TreeNode* root) {
-        // get the maximum depth of the tree
-        int rd = depth(root);
-        int col = (1 << (rd + 1)) - 1; 
-        // the matrix has depth rows and 2^(depth + 1) - 1 columns
-        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
-        populate(root, res, 0, 0, col);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-656. Coin Path
-Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
-and an integer B. The integer B denotes that from any place (suppose the index is i) 
-in the array A, you can jump to any one of the place in the array A indexed i+1, i+2, …, 
-i+B if this place can be jumped to. Also, if you step on the index i, you have to pay Ai 
-coins. If Ai is -1, it means you can’t jump to the place indexed i in the array.
-
-Now, you start from the place indexed 1 in the array A, and your aim is to reach the place 
-indexed N using the minimum coins. You need to return the path of indexes (starting from 1 to N) 
-in the array you should take to get to the place indexed N using minimum coins.
-
-If there are multiple paths with the same cost, return the lexicographically smallest such path.
-
-If it's not possible to reach the place indexed N then you need to return an empty array.
-
-Example 1:
-Input: [1,2,4,-1,2], 2
-Output: [1,3,5]
-Example 2:
-Input: [1,2,4,-1,2], 1
-Output: []
-Note:
-Path Pa1, Pa2, ..., Pan is lexicographically smaller than Pb1, Pb2, ..., Pbm, if and only if at 
-the first i where Pai and Pbi differ, Pai < Pbi; when no such i exists, then n < m.
-A1 >= 0. A2, ..., AN (if exist) will in the range of [-1, 100].
-Length of A is in the range of [1, 1000].
-B is in the range of [1, 100].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 12 ms
+    Submission Date: 2017-08-26
+    Runtime: 36 ms
     Difficulty: HARD
 */
-
 #include <iostream>
 #include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <climits>
 
 using namespace std;
 
-struct Compare {
-    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) const {
-        return (lhs.first == rhs.first) ? (lhs.second < rhs.second) : (lhs.first < rhs.first);
-    }
-};
-
 class Solution2 {
 public:
-    vector<vector<int>> createPath(int curr, unordered_map<int, vector<int>>& parent) {
-        if(curr == 0) return {{}};
+    /*
+        nlogn using tree
+        given arr A, traverse A from N-1 to 0 inserting value into tree
+        tree is bst (right greater than root, left smaller than root) but it has properties
+        of number of left children and number of duplicates
+        this tree represents everything to the right of the current element
+        when inserting, every right turn indicates that the current element is greater than
+        this node so the number of elements this element is greater than is
+        number of duplicates from this node and numbers of left children of this node as 
+        left tree <= node < current element
 
-        vector<vector<int>> res;
-        for(auto prev: parent[curr]) {
-            vector<vector<int>> path = createPath(prev, parent);
-            for(auto p: path) {
-                p.push_back(curr);
-                res.push_back(p);
-            }
+        e.g. [3, 2, 2, 6, 1]
+            1(0, 1)
+             \
+             6(3, 1)
+             /
+           2(0, 2)
+               \
+                3(0, 1)
+        adding 5 would put it to the right of 3 so 1(0,1), 2(0,2) and 3(0,1) are where it turned right
+        (0 + 1) (0 + 2) + (0 + 1) = 4
+    */
+    struct Node {
+        Node* left, *right;
+        int num_left, num_dup;
+        int val;
+        Node(int _val): val(_val), num_left(0), num_dup(1), left(NULL), right(NULL) {}
+    };
+
+    Node* insert(Node* root, int val, int& sum) {
+        if(root == NULL) {
+            return new Node(val);
+        } else if(root -> val == val) {
+            // duplicate increases and sum increases by number of left children
+            root -> num_dup += 1;
+            sum += root -> num_left;
+        } else if(root -> val > val) {
+            // go left so number of left children increases
+            root -> num_left += 1;
+            root -> left = insert(root -> left, val, sum);
+        } else {
+            // go right so sum increases by number of duplicates and number of left children
+            sum += (root -> num_dup) + (root -> num_left);
+            root -> right = insert(root -> right, val, sum);
         }
 
-        return res;
+        return root;
     }
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        
-        // id is index, pair weight, to
-        vector<vector<pair<int, int>>> graph(N + 1);
-        
-        graph[0] = {{A[0], 1}};
-        for(int i = 0; i < N; i++) {
-            if(A[i] == -1) continue;
-            for(int j = 1; j <= B; j++) {
-                if(i + j >= N) break;
-                if(A[i + j] == -1) continue;
-                // connect vertex i with vertex i + j by weight A[i + j]
-                graph[i + 1].emplace_back(A[i + j], i + 1 + j);
-            }
+
+    vector<int> countSmaller(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> res(N);
+        Node* root = NULL;
+        for(int i = N-1; i >= 0; i--) {
+            int sum = 0;
+            root = insert(root, nums[i], sum); 
+            res[i] = sum;
         }
-        
-        unordered_map<int, vector<int>> parent;
-        set<pair<int, int>, Compare> edges_to_process;
-        unordered_map<int, int> min_distance;
-        
-        for(int i = 1; i <= N; i++) {
-            edges_to_process.emplace(INT_MAX, i);
-            min_distance[i] = INT_MAX;
-        }
-        
-        edges_to_process.emplace(0, 0);
-        min_distance[0] = 0;
-        parent[0] = {0};
-
-        while(!edges_to_process.empty()) {
-            // Minimum weight edge
-            pair<int,int> min_edge = *edges_to_process.begin();
-            edges_to_process.erase(edges_to_process.begin());
-
-            int current_vertex = min_edge.second;
-            int current_weight = min_edge.first;
-
-            if(current_weight == INT_MAX) break;
-
-            vector<pair<int,int>> neighbors = graph[current_vertex];
-            for(pair<int,int> neighbor: neighbors) {
-                auto edge_set_it = edges_to_process.find({min_distance[neighbor.second], neighbor.second});
-                // done processing already
-                if(edge_set_it == edges_to_process.end()) continue;
-
-                // found a smaller distance
-                if(current_weight + neighbor.first <= min_distance[neighbor.second]) {
-                    if(current_weight + neighbor.first == min_distance[neighbor.second]) {
-                        parent[neighbor.second].push_back(current_vertex);
-                    } else {
-                        min_distance[neighbor.second] = current_weight + neighbor.first;
-                        parent[neighbor.second].push_back(current_vertex);
-                        edges_to_process.erase(edge_set_it);
-                        edges_to_process.emplace(min_distance[neighbor.second], neighbor.second);
-                    }
-                }
-            }
-        }
-            
-        if(min_distance[N] == INT_MAX) return {};
-
-        vector<vector<int>> v = createPath(N, parent);
-        return *min_element(v.begin(), v.end(), [](const vector<int>& lhs, const vector<int>& rhs){
-            int M = lhs.size();
-            int N = rhs.size();
-            for(int i = 0; i < min(M,N); i++) {
-                if(lhs[i] != rhs[i]) return lhs[i] < rhs[i];
-            }
-            return M < N;
-        });
+        return res;
     }
 };
 
 class Solution {
+    typedef pair<int,int> pii;
 public:
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        if(N == 0 || A[N-1] == -1) return {};
-        // dp[i] represents cost of i to N-1
-        vector<int> dp(N, INT_MAX), to(N, -1);
-        
-        dp[N-1] = A[N-1];
-        for(int i = N-2; i >= 0; i--) {
-            if(A[i] == -1) continue;
-            // if we try smaller jumps first, don't need to worry about lexicographical order
-            // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
-            for(int j = 1; j <= B && i + j < N; j++) { 
-                if(dp[i + j] == INT_MAX) continue;
-                // cost of taking this jump is smaller
-                if(A[i] + dp[i + j] < dp[i]) {
-                    dp[i] = A[i] + dp[i + j];
-                    to[i] = i + j;
-                }
+    void mergeSort(vector<pii>& v, vector<pii>& sp, vector<int>& res,
+            int start, int end) {
+        /* for a subarray of v for indices [start, end], there
+        is a left subarray [start, mid] and a right subarray
+        [mid + 1, end]. If an item in the left subarray (left[i])
+        is less than an item in the right subarray (right[j]), 
+        then left[i] is the next element in the sorted sequence and
+        there are j elements that are smaller than left[i] that is
+        to the right of left[i] so res[indexof(left[i])] += j
+
+        use <= because [0,j) should not include numbers that equal
+        to left[i]
+        */
+        if(start >= end) return;
+        int mid = start + (end - start)/2;
+        mergeSort(v, sp, res, start, mid);
+        mergeSort(v, sp, res, mid + 1, end);
+
+        int idx = 0;
+        int s1 = start, s2 = mid + 1;
+        int e1 = mid + 1, e2 = end + 1;
+        while(s1 < e1 || s2 < e2) {
+            // left goes before right as right is empty (s2 >= e2)
+            // or start of left is less than or equal to start of right
+            if(s2 >= e2 || (s1 < e1 && v[s1].first <= v[s2].first)) {
+                sp[idx++] = v[s1];
+                res[v[s1].second] += s2 - mid - 1;
+                s1++;
+            } else {
+                sp[idx++] = v[s2];
+                s2++;
             }
         }
         
-        vector<int> res;
-        if(dp[0] == INT_MAX) return res; // no path to the end
+        for(int i = 0; i < idx; i++) v[i + start] = sp[i];
+    }
 
-        for(int i = 0; i >= 0; i = to[i])
-            res.push_back(i + 1);
+    vector<int> countSmaller(vector<int>& nums) {
+        int N = nums.size();
+
+        vector<pii> v, sp(N);
+
+        for(int i = 0; i < N; i++) {
+            v.emplace_back(nums[i], i);
+        }
+
+        vector<int> res(N, 0);
+        
+        mergeSort(v, sp, res, 0, N - 1);
         return res;
     }
 };
 
 int main() {
     Solution s;
-    vector<int> v{1,2,4,-1,2};
-    s.cheapestJump(v, 2);
+    vector<int> v{5,2,6,1};
+    v = s.countSmaller(v);
+    for(auto e: v) cout << e << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+318. Maximum Product of Word Lengths
+Given a string array words, find the maximum value of 
+length(word[i]) * length(word[j]) where the two words do not 
+share common letters. You may assume that each word will contain 
+only lower case letters. If no such two words exist, return 0.
+
+Example 1:
+Given ["abcw", "baz", "foo", "bar", "xtfn", "abcdef"]
+Return 16
+The two words can be "abcw", "xtfn".
+
+Example 2:
+Given ["a", "ab", "abc", "d", "cd", "bcd", "abcd"]
+Return 4
+The two words can be "ab", "cd".
+
+Example 3:
+Given ["a", "aa", "aaa", "aaaa"]
+Return 0
+No such pair of words.
+/*
+    Submission Date: 2017-08-26
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxProduct(vector<string>& words) {
+        int res = 0;
+        int N = words.size();
+        
+        // dp[i] is the bit representation of words[i] where bit at index i corresponds
+        // with the ith letter of [a,b,c,...] that is in words[i]
+        // e.g abcf would 0...100111
+        
+        vector<int> dp(N, 0);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0, word_len = words[i].size(); j < word_len; j++) {
+                dp[i] |= 1 << (words[i][j] - 'a');
+            }
+        }
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                if((dp[i] & dp[j]) == 0) { // no intersection
+                    res = max(res, int(words[i].size() * words[j].size()));
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+    
+class Solution2 {
+public:
+    int maxProduct(vector<string>& words) {
+        int res = 0;
+        int N = words.size();
+        for(int i = 0; i < N; i++) {
+            unordered_set<char> word_i(words[i].begin(), words[i].end());
+            for(int j = i + 1; j < N; j++) {
+                bool intersect = false;
+                for(int k = 0; k < words[j].size(); k++) {
+                    if(word_i.count(words[j][k])) {
+                        intersect = true;
+                        break;
+                    }
+                }
+                
+                if(intersect) continue;
+                int pos_res = words[i].size()*words[j].size();
+                res = max(res, pos_res);
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+334. Increasing Triplet Subsequence
+Given an unsorted array return whether an increasing subsequence of 
+length 3 exists or not in the array.
+
+Formally the function should:
+Return true if there exists i, j, k 
+such that arr[i] < arr[j] < arr[k] given 0 ≤ i < j < k ≤ n-1 else 
+return false.
+Your algorithm should run in O(n) time complexity and O(1) space 
+complexity.
+
+Examples:
+Given [1, 2, 3, 4, 5],
+return true.
+
+Given [5, 4, 3, 2, 1],
+return false.
+/*
+    Submission Date: 2017-08-26
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        we have a vector of size 3 where smallest[i] indicates
+        the smallest last element of a sequence of size i
+
+        similar to LIS
+
+        for example if smallest is {1, _, _} and a 2 is found
+        it becomes {1, 2, _} but if a 0 is found it becomes
+        {0, 2, _}. Notice how it stops replacing as soon as finds
+        a smallest[i] <= num. this is to prevent replacing multiple
+        values.
+    */
+    bool increasingTriplet(vector<int>& nums) {
+        vector<int> smallest(3, 0);        
+        int size = 0;
+        
+        for(auto num: nums) {
+            bool found_replace = false;
+            for(int i = 0; i < size; i++) {
+                if(num <= smallest[i]) {
+                    smallest[i] = num;
+                    found_replace = true;
+                    break;
+                }
+            }
+            
+            if(found_replace) continue;
+            
+            if(size == 0 || smallest[size - 1] < num) {
+                smallest[size++] = num;
+            }
+            
+            if(size == 3) return true;
+        }
+        
+        return false;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+342. Power of Four
+Given an integer (signed 32 bits), write a function to check 
+whether it is a power of 4.
+
+Example:
+Given num = 16, return true. Given num = 5, return false.
+
+Follow up: Could you solve it without loops/recursion?
+/*
+    Submission Date: 2017-08-21
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPowerOfFour(int x) {
+        // (x & (x-1)) == 0 checks for power of two as it would 
+        // series of zeros with only one 1. so x-1 will AND with nothing
+        // leaving zero
+        // geometric series 1 + 4 + 16 + 64 + 256 -> a = 1, r = 4, n = 5
+        // sum{i = 0 to n-1}(a*r^i = a*(1-r^n/(1-r)
+        // so let x = sum{i = 0 to n-1}((1-4^n)/(1-4))
+        // x = (4^n - 1)/3
+        // 3*x = 4^n - 1 <- thus 4^n - 1 must be a multiple of 3
+        return x > 0 && (x & (x-1)) == 0 && (x-1) % 3 == 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+345. Reverse Vowels of a String
+Write a function that takes a string as input and reverse only 
+the vowels of a string.
+
+Example 1:
+Given s = "hello", return "holle".
+
+Example 2:
+Given s = "leetcode", return "leotcede".
+
+Note:
+The vowels does not include the letter "y".
+
+/*
+    Submission Date: 2017-08-22
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    string reverseVowels(string s) {
+        unordered_set<char> vowels{'a', 'e', 'i', 'o', 'u'};
+        vector<int> indices;
+        for(int i = 0; i < s.size(); i++) {
+            if(vowels.count(tolower(s[i]))) {
+                indices.push_back(i);
+            }
+        }
+        
+        int N = indices.size();
+        for(int i = 0; i < N/2; i++) {
+            char temp = s[indices[i]];
+            s[indices[i]] = s[indices[N- i - 1]];
+            s[indices[N - i - 1]] = temp;
+        }
+        
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+368. Largest Divisible Subset
+Given a set of distinct positive integers, find the largest subset 
+such that every pair (Si, Sj) of elements in this subset satisfies: 
+Si % Sj = 0 or Sj % Si = 0.
+
+If there are multiple solutions, return any subset is fine.
+
+Example 1:
+
+nums: [1,2,3]
+
+Result: [1,2] (of course, [1,3] will also be ok)
+Example 2:
+
+nums: [1,2,4,8]
+
+Result: [1,2,4,8]
+/*
+    Submission Date: 2017-08-21
+    Runtime: 33 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        if(nums.empty()) return {};
+        
+        sort(nums.begin(), nums.end());
+        int N = nums.size();
+        
+        vector<int> dp(N, 1), P(N,-1);
+        int max_dp_ind = 0;
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[i] % nums[j] == 0) {
+                    if(dp[j] + 1 > dp[i]) {
+                        dp[i] = dp[j] + 1;
+                        P[i] = j;
+                    }
+                }
+            }
+            
+            if(dp[max_dp_ind] < dp[i]) max_dp_ind = i;
+        }
+        
+        
+        vector<int> res(dp[max_dp_ind]);
+        int index = res.size();
+        for(int i = max_dp_ind; i >= 0; i = P[i]) {
+            res[--index] = nums[i];
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+373. Find K Pairs with Smallest Sums
+You are given two integer arrays nums1 and nums2 sorted in ascending 
+order and an integer k.
+
+Define a pair (u,v) which consists of one element from the first 
+array and one element from the second array.
+
+Find the k pairs (u1,v1),(u2,v2) ...(uk,vk) with the smallest sums.
+
+Example 1:
+Given nums1 = [1,7,11], nums2 = [2,4,6],  k = 3
+
+Return: [1,2],[1,4],[1,6]
+
+The first 3 pairs are returned from the sequence:
+[1,2],[1,4],[1,6],[7,2],[7,4],[11,2],[7,6],[11,4],[11,6]
+Example 2:
+Given nums1 = [1,1,2], nums2 = [1,2,3],  k = 2
+
+Return: [1,1],[1,1]
+
+The first 2 pairs are returned from the sequence:
+[1,1],[1,1],[1,2],[2,1],[1,2],[2,2],[1,3],[1,3],[2,3]
+Example 3:
+Given nums1 = [1,2], nums2 = [3],  k = 3 
+
+Return: [1,3],[2,3]
+
+All possible pairs are returned from the sequence:
+[1,3],[2,3]
+
+/*
+    Submission Date: 2017-08-30
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<pair<int, int>> kSmallestPairs(vector<int>& nums1, vector<int>& nums2, int k) {
+        typedef pair<int,int> pii;
+        
+        if(nums1.empty() || nums2.empty()) return {};
+        
+        auto cmp = [&nums1, &nums2](const pii& lhs, const pii& rhs){
+            int lhs_sum = nums1[lhs.first] + nums2[lhs.second];
+            int rhs_sum = nums1[rhs.first] + nums2[rhs.second];
+            return lhs_sum > rhs_sum;
+        };
+        
+        int N1 = nums1.size(), N2 = nums2.size();
+
+        priority_queue<pii, vector<pii>, decltype(cmp)> pq(cmp);
+        vector<pii> res;
+        for(int i = 0; i < N1 && i < k; i++) pq.emplace(i, 0);
+
+        while(res.size() < k && !pq.empty()) {
+            pii top = pq.top();
+            pq.pop();
+            
+            res.emplace_back(nums1[top.first], nums2[top.second]);
+
+            if(top.second + 1 < N2) pq.emplace(top.first, top.second + 1);
+        }
+
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+386. Lexicographical Numbers
+Given an integer n, return 1 - n in lexicographical order.
+
+For example, given 13, return: [1,10,11,12,13,2,3,4,5,6,7,8,9].
+
+Please optimize your algorithm to use less time and space. The input size 
+may be as large as 5,000,000.
+
+/*
+    Submission Date: 2017-08-21
+    Runtime: 239 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void lexicalOrder(int curr, int n, vector<int>& res) {
+        if(curr > n) return;
+
+        int limit = min(n + 1, curr == 1 ? 10: curr+10);
+        for(int i = curr; i < limit; i++) {
+            res.push_back(i);
+            lexicalOrder(i*10, n, res);
+        }
+    }
+    
+    vector<int> lexicalOrder(int n) {
+        vector<int> res;
+        lexicalOrder(1, n, res);
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+387. First Unique Character in a String
+Given a string, find the first non-repeating character in it and return 
+it's index. If it doesn't exist, return -1.
+
+Examples:
+
+s = "leetcode"
+return 0.
+
+s = "loveleetcode",
+return 2.
+Note: You may assume the string contain only lowercase letters.
+
+/*
+    Submission Date: 2017-08-21
+    Runtime: 93 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    int firstUniqChar(string s) {
+        unordered_map<char,int> letter_to_first_ind;
+        set<int> st;
+        for(int i = 0; i < s.size(); i++) {
+            if(letter_to_first_ind.count(s[i])) { 
+                // we've seen this letter before so we remove it from the set
+                if(st.count(letter_to_first_ind[s[i]])) {
+                    st.erase(letter_to_first_ind[s[i]]);
+                }
+            } else {
+                letter_to_first_ind[s[i]] = i;
+                st.insert(i);
+            }
+        }
+
+        return st.empty() ? -1 : *st.begin();
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+392. Is Subsequence
+Given a string s and a string t, check if s is subsequence of t.
+
+You may assume that there is only lower case English letters in 
+both s and t. t is potentially a very long (length ~= 500,000) string, 
+and s is a short string (<=100).
+
+A subsequence of a string is a new string which is formed from the 
+original string by deleting some (can be none) of the characters 
+without disturbing the relative positions of the remaining characters. 
+(ie, "ace" is a subsequence of "abcde" while "aec" is not).
+
+Example 1:
+s = "abc", t = "ahbgdc"
+
+Return true.
+
+Example 2:
+s = "axc", t = "ahbgdc"
+
+Return false.
+
+Follow up:
+If there are lots of incoming S, say S1, S2, ... , Sk where k >= 1B, 
+and you want to check one by one to see if T has its subsequence. 
+In this scenario, how would you change your code?
+
+/*
+    Submission Date: 2017-08-30
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isSubsequence(string s, string t) {
+        int s_index = 0, t_index = 0;
+        int s_len = s.size(), t_len = t.size();
+        
+        while(s_index < s_len && t_index < t_len) {
+            if(s[s_index] == t[t_index]) {
+                s_index++;
+            }
+            t_index++;
+        }
+        
+        return s_index == s_len;
+    }
+
+    bool isSubsequence2(string s, string t) {
+        int N = s.size(), M = t.size();
+        vector<vector<bool>> dp(N + 1, vector<bool>(M + 1, false));
+        for(int i = 0; i <= M; i++) dp[0][i] = true;
+    
+        for(int i = 1; i <= N; i++) {
+            for(int j = 1; j <= M; j++) {
+                if(s[i-1] == t[j-1]) {
+                    dp[i][j] = dp[i-1][j-1];
+                } else {
+                    dp[i][j] = dp[i][j-1];
+                }
+            }
+        }
+        return dp[N][M];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+404. Sum of Left Leaves
+Find the sum of all left leaves in a given binary tree.
+
+Example:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+
+There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if(root == NULL) return 0;
+        int res = 0;
+        if(root -> left && root -> left -> left == NULL && root -> left -> right == NULL) {
+            res += root -> left -> val;
+        }
+        
+        return res + sumOfLeftLeaves(root -> left) + sumOfLeftLeaves(root -> right);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+414. Third Maximum Number
+Given a non-empty array of integers, return the third maximum number in this array. 
+If it does not exist, return the maximum number. The time complexity must be in O(n).
+
+Example 1:
+Input: [3, 2, 1]
+
+Output: 1
+
+Explanation: The third maximum is 1.
+Example 2:
+Input: [1, 2]
+
+Output: 2
+
+Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
+Example 3:
+Input: [2, 2, 3, 1]
+
+Output: 1
+
+Explanation: Note that the third maximum here means the third maximum distinct number.
+Both numbers with value 2 are both considered as second maximum.
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int thirdMax(vector<int>& nums) {
+        priority_queue<int, vector<int>, greater<int>> min_heap;
+        unordered_set<int> distinct;
+        int max_item = nums.front();
+        for(auto num: nums) {
+            max_item = max(max_item, num);
+            if(distinct.count(num)) continue;
+            min_heap.push(num);
+            distinct.insert(num);
+            if(min_heap.size() > 3) {
+                int to_delete = min_heap.top();
+                distinct.erase(to_delete);
+                min_heap.pop();
+            }
+        }
+        
+        return min_heap.size() == 3 ? min_heap.top() : max_item;
+    }
+};
+
+int main() {
     return 0;
 }

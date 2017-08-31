@@ -1,6 +1,115 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+310. Minimum Height Trees
+For a undirected graph with tree characteristics, we can choose any 
+node as the root. The result graph is then a rooted tree. Among all 
+possible rooted trees, those with minimum height are called minimum 
+height trees (MHTs). Given such a graph, write a function to find all 
+the MHTs and return a list of their root labels.
+
+Format
+The graph contains n nodes which are labeled from 0 to n - 1. You will 
+be given the number n and a list of undirected edges (each edge is a 
+pair of labels).
+
+You can assume that no duplicate edges will appear in edges. Since 
+all edges are undirected, [0, 1] is the same as [1, 0] and thus 
+will not appear together in edges.
+
+Example 1:
+
+Given n = 4, edges = [[1, 0], [1, 2], [1, 3]]
+
+        0
+        |
+        1
+       / \
+      2   3
+return [1]
+
+Example 2:
+
+Given n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]]
+
+     0  1  2
+      \ | /
+        3
+        |
+        4
+        |
+        5
+return [3, 4]
+
+Note:
+
+(1) According to the definition of tree on Wikipedia: “a tree is 
+an undirected graph in which any two vertices are connected by 
+exactly one path. In other words, any connected graph without 
+simple cycles is a tree.”
+
+(2) The height of a rooted tree is the number of edges on the 
+longest downward path between the root and a leaf.
+/*
+    Submission Date: 2017-08-21
+    Runtime: 76 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findMinHeightTrees(int n, vector<pair<int, int>>& edges) {
+        if(n == 1) return {0}; // one node so the root of mht is itself
+        
+        vector<unordered_set<int>> graph(n);
+        for(auto p: edges) {
+            graph[p.first].insert(p.second);
+            graph[p.second].insert(p.first);
+        }
+        
+        vector<int> leaves;
+        for(int i = 0; i < n; i++) {
+            // this node is connected to only one other node (parent) so it is a leaf
+            if(graph[i].size() == 1) {
+                leaves.push_back(i);
+            }
+        }
+        
+        // reverse BFS the idea is to select nodes that are only connected to one other node
+        // these nodes are leafs and are removed. Update the new leafs by keeping track of the
+        // number of children of each node. If it goes to 1, it means it is only connected to its
+        // parent and is now a leaf
+        // when there are only 2 or less leafs then it means these are the roots
+        
+        while(n > 2) { // tree has more than 2 nodes
+            n -= leaves.size(); // remove the leafs
+            
+            vector<int> new_leaves;
+            for(auto leaf: leaves) {
+                int parent = *graph[leaf].begin();
+                graph[parent].erase(leaf); // from the parent remove the leaf
+                if(graph[parent].size() == 1) { // if the parent has no children, it is now a new leaf
+                    new_leaves.push_back(parent);
+                }
+            }
+            leaves = new_leaves;
+        }
+        
+        return leaves;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 313. Super Ugly Number
 Write a program to find the nth super ugly number.
 
@@ -886,70 +995,6 @@ public:
         }
         
         return res + sumOfLeftLeaves(root -> left) + sumOfLeftLeaves(root -> right);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-414. Third Maximum Number
-Given a non-empty array of integers, return the third maximum number in this array. 
-If it does not exist, return the maximum number. The time complexity must be in O(n).
-
-Example 1:
-Input: [3, 2, 1]
-
-Output: 1
-
-Explanation: The third maximum is 1.
-Example 2:
-Input: [1, 2]
-
-Output: 2
-
-Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
-Example 3:
-Input: [2, 2, 3, 1]
-
-Output: 1
-
-Explanation: Note that the third maximum here means the third maximum distinct number.
-Both numbers with value 2 are both considered as second maximum.
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int thirdMax(vector<int>& nums) {
-        priority_queue<int, vector<int>, greater<int>> min_heap;
-        unordered_set<int> distinct;
-        int max_item = nums.front();
-        for(auto num: nums) {
-            max_item = max(max_item, num);
-            if(distinct.count(num)) continue;
-            min_heap.push(num);
-            distinct.insert(num);
-            if(min_heap.size() > 3) {
-                int to_delete = min_heap.top();
-                distinct.erase(to_delete);
-                min_heap.pop();
-            }
-        }
-        
-        return min_heap.size() == 3 ? min_heap.top() : max_item;
     }
 };
 

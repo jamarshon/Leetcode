@@ -1,6 +1,70 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+414. Third Maximum Number
+Given a non-empty array of integers, return the third maximum number in this array. 
+If it does not exist, return the maximum number. The time complexity must be in O(n).
+
+Example 1:
+Input: [3, 2, 1]
+
+Output: 1
+
+Explanation: The third maximum is 1.
+Example 2:
+Input: [1, 2]
+
+Output: 2
+
+Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
+Example 3:
+Input: [2, 2, 3, 1]
+
+Output: 1
+
+Explanation: Note that the third maximum here means the third maximum distinct number.
+Both numbers with value 2 are both considered as second maximum.
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int thirdMax(vector<int>& nums) {
+        priority_queue<int, vector<int>, greater<int>> min_heap;
+        unordered_set<int> distinct;
+        int max_item = nums.front();
+        for(auto num: nums) {
+            max_item = max(max_item, num);
+            if(distinct.count(num)) continue;
+            min_heap.push(num);
+            distinct.insert(num);
+            if(min_heap.size() > 3) {
+                int to_delete = min_heap.top();
+                distinct.erase(to_delete);
+                min_heap.pop();
+            }
+        }
+        
+        return min_heap.size() == 3 ? min_heap.top() : max_item;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 433. Minimum Genetic Mutation
 A gene string can be represented by an 8-character long string, with choices from 
 "A", "C", "G", "T".
@@ -916,71 +980,6 @@ public:
         }
 
         return to_string(res.num) + "/" + to_string(res.den);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the 
-four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array 
-with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four 
-equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cassert>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    int distSq(vector<int>& a, vector<int>& b) {
-        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
-    }
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        vector<int> dist;
-        vector<vector<int>> v{p1, p2, p3, p4};
-        for(int i = 0; i < 4; i++) {
-            for(int j = i + 1; j < 4; j++) {
-                dist.push_back(distSq(v[i], v[j]));
-            }
-        }
-
-        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
-        // out of these 6 distances, there are 4 distances which are the side distances (s)
-        // and 2 that are hypotenuse (h)
-        // s^2 + s^2 = h^2
-
-        assert(dist.size() == 6);
-        map<int,int> freq;
-        for(auto e: dist) freq[e]++;
-
-        if(freq.size() != 2) return false;
-        int s = freq.begin() -> first;
-        int h = next(freq.begin(), 1) -> first;
-        return 2*s == h;
     }
 };
 

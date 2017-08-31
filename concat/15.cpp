@@ -757,6 +757,72 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+287. Find the Duplicate Number
+Given an array nums containing n + 1 integers where each integer is 
+between 1 and n (inclusive), prove that at least one duplicate number 
+must exist. Assume that there is only one duplicate number, find the 
+duplicate one.
+
+Note:
+You must not modify the array (assume the array is read only).
+You must use only constant, O(1) extra space.
+Your runtime complexity should be less than O(n^2).
+There is only one duplicate number in the array, but it could be 
+repeated more than once.
+/*
+    Submission Date: 2017-08-30
+    Runtime: 12 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        Find beginning of cycle of linked list. nums[i] represents
+        node i has a link to node nums[i]. since nums[i] is [1,n]
+        it means it will always have a link to an element in the 
+        array. there are n+1 numbers and they span from [1,n] so
+        a duplicate must exist eg n = 2 -> 1,2,_ . 
+        pigeonhole principle states that if n items are put into m 
+        containers, with n > m, then at least one container must 
+        contain more than one item. 
+        a cycle will occur as two numbers point to the same index
+        one number going into the cycle and the second completing
+        the cycle e.g [1,3,4,2,2] ->
+        indices 0 -> 1 -> 3 -> 2 -> 4 -> 2
+        values  1 -> 3 -> 2 -> 4 -> 2 -> 4
+        0 can't be the start of the cycle as there is no number
+        going into the cycle (index 0) meaning this method won't work 
+        (the guarantee of nums[i] between [1,n] must exist).
+    */
+    int findDuplicate(vector<int>& nums) {
+        int slow = 0;
+        int fast = 0;
+        
+        do {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } while(slow != fast);
+        
+        slow = 0;
+        while(slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
+        }
+        
+        return slow;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 292. Nim Game
 You are playing the following Nim Game with your friend: There is a 
 heap of stones on the table, each time one of you take turns to 
@@ -887,115 +953,6 @@ public:
         }
         
         return false;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-310. Minimum Height Trees
-For a undirected graph with tree characteristics, we can choose any 
-node as the root. The result graph is then a rooted tree. Among all 
-possible rooted trees, those with minimum height are called minimum 
-height trees (MHTs). Given such a graph, write a function to find all 
-the MHTs and return a list of their root labels.
-
-Format
-The graph contains n nodes which are labeled from 0 to n - 1. You will 
-be given the number n and a list of undirected edges (each edge is a 
-pair of labels).
-
-You can assume that no duplicate edges will appear in edges. Since 
-all edges are undirected, [0, 1] is the same as [1, 0] and thus 
-will not appear together in edges.
-
-Example 1:
-
-Given n = 4, edges = [[1, 0], [1, 2], [1, 3]]
-
-        0
-        |
-        1
-       / \
-      2   3
-return [1]
-
-Example 2:
-
-Given n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]]
-
-     0  1  2
-      \ | /
-        3
-        |
-        4
-        |
-        5
-return [3, 4]
-
-Note:
-
-(1) According to the definition of tree on Wikipedia: “a tree is 
-an undirected graph in which any two vertices are connected by 
-exactly one path. In other words, any connected graph without 
-simple cycles is a tree.”
-
-(2) The height of a rooted tree is the number of edges on the 
-longest downward path between the root and a leaf.
-/*
-    Submission Date: 2017-08-21
-    Runtime: 76 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findMinHeightTrees(int n, vector<pair<int, int>>& edges) {
-        if(n == 1) return {0}; // one node so the root of mht is itself
-        
-        vector<unordered_set<int>> graph(n);
-        for(auto p: edges) {
-            graph[p.first].insert(p.second);
-            graph[p.second].insert(p.first);
-        }
-        
-        vector<int> leaves;
-        for(int i = 0; i < n; i++) {
-            // this node is connected to only one other node (parent) so it is a leaf
-            if(graph[i].size() == 1) {
-                leaves.push_back(i);
-            }
-        }
-        
-        // reverse BFS the idea is to select nodes that are only connected to one other node
-        // these nodes are leafs and are removed. Update the new leafs by keeping track of the
-        // number of children of each node. If it goes to 1, it means it is only connected to its
-        // parent and is now a leaf
-        // when there are only 2 or less leafs then it means these are the roots
-        
-        while(n > 2) { // tree has more than 2 nodes
-            n -= leaves.size(); // remove the leafs
-            
-            vector<int> new_leaves;
-            for(auto leaf: leaves) {
-                int parent = *graph[leaf].begin();
-                graph[parent].erase(leaf); // from the parent remove the leaf
-                if(graph[parent].size() == 1) { // if the parent has no children, it is now a new leaf
-                    new_leaves.push_back(parent);
-                }
-            }
-            leaves = new_leaves;
-        }
-        
-        return leaves;
     }
 };
 

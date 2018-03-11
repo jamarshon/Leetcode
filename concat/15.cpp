@@ -823,140 +823,174 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-292. Nim Game
-You are playing the following Nim Game with your friend: There is a 
-heap of stones on the table, each time one of you take turns to 
-remove 1 to 3 stones. The one who removes the last stone will 
-be the winner. You will take the first turn to remove the stones.
+289. Game of Life
+According to the Wikipedia's article: "The Game of Life, also known 
+simply as Life, is a cellular automaton devised by the British 
+mathematician John Horton Conway in 1970."
 
-Both of you are very clever and have optimal strategies for the 
-game. Write a function to determine whether you can win the game 
-given the number of stones in the heap.
+Given a board with m by n cells, each cell has an initial state live 
+(1) or dead (0). Each cell interacts with its eight neighbors 
+(horizontal, vertical, diagonal) using the following four rules 
+(taken from the above Wikipedia article):
 
-For example, if there are 4 stones in the heap, then you will 
-never win the game: no matter 1, 2, or 3 stones you remove, 
-the last stone will always be removed by your friend.
+Any live cell with fewer than two live neighbors dies, as if caused 
+by under-population.
+Any live cell with two or three live neighbors lives on to the next 
+generation.
+Any live cell with more than three live neighbors dies, as if by 
+over-population..
+Any dead cell with exactly three live neighbors becomes a live cell, 
+as if by reproduction.
+Write a function to compute the next state (after one update) of the 
+board given its current state.
+
+Follow up: 
+Could you solve it in-place? Remember that the board needs to be 
+updated at the same time: You cannot update some cells first and 
+then use their updated values to update other cells.
+In this question, we represent the board using a 2D array. In 
+principle, the board is infinite, which would cause problems 
+when the active area encroaches the border of the array. How 
+would you address these problems?
 /*
-    Submission Date: 2017-08-26
-    Runtime: 0 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        if n <= 3, player wins as they just take it
-        if n == 4, player loses as no matter what they take
-        there will be some remaining for opponent
-
-        if 4 < n <= 4 + 3, player can win as they can reduce 
-        it to n == 4 by taking away [1,3] stones
-
-        if n == 8, player loses as no matter what they take
-        opponent can reduce it n == 4
-
-        for the generalized case (n):
-        if n % 4 == 0, player loses as whatever they take x = [1,3], 
-        opponent takes 4 - x to get n % 4 == 0 again until n == 4
-        which opponent wins
-        so n % 4 != 0 where n % 4 == x where x = [1, 3] is when player 
-        wins as player can reduce by x leading to n % 4 == 0 for the opponent
-        causing the opponent to lose as seen above
-    */
-    bool canWinNim(int n) {
-        return n % 4 != 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-306. Additive Number
-Additive number is a string whose digits can form additive sequence.
-
-A valid additive sequence should contain at least three numbers. 
-Except for the first two numbers, each subsequent number in the 
-sequence must be the sum of the preceding two.
-
-For example:
-"112358" is an additive number because the digits can form an 
-additive sequence: 1, 1, 2, 3, 5, 8.
-
-1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
-"199100199" is also an additive number, the additive sequence is: 
-1, 99, 100, 199.
-1 + 99 = 100, 99 + 100 = 199
-Note: Numbers in the additive sequence cannot have leading zeros, 
-so sequence 1, 2, 03 or 1, 02, 3 is invalid.
-
-Given a string containing only digits '0'-'9', write a function 
-to determine if it's an additive number.
-
-Follow up:
-How would you handle overflow for very large input integers?
-/*
-    Submission Date: 2017-08-21
+    Submission Date: 2017-08-30
     Runtime: 0 ms
     Difficulty: MEDIUM
 */
 #include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    typedef pair<int,int> pii;
+public:
+    int getAdajacent(const vector<vector<int>>& board, int row, int col, int M, int N) {
+        int res = 0;
+        for(int i = -1; i <= 1; i++) {
+            for(int j = -1; j <= 1; j++) {
+                if(i == 0 && j == 0) continue;
+                int x = row + i;
+                int y = col + j;
+                if(0 <= x && x < M && 0 <= y && y < N) {
+                    res += board[x][y] & 1;
+                }
+            }
+        }
+        
+        return res;
+    }
+    void gameOfLife(vector<vector<int>>& board) {
+        if(board.empty()) return;
+        
+        vector<pii> make_live, make_dead;
+        int M = board.size();
+        int N = board[0].size();
+        
+        for(int i = 0; i < M; i++) {
+            for(int j = 0; j < N; j++) {
+                int live = getAdajacent(board, i, j, M, N);
+                if(board[i][j] == 0) {
+                    if(live == 3) make_live.emplace_back(i, j);
+                } else {
+                    if(live < 2 || live > 3) make_dead.emplace_back(i, j);
+                }
+            }
+        }
+        
+        for(auto p: make_dead) board[p.first][p.second] = 0;
+        for(auto p: make_live) board[p.first][p.second] = 1;
+    }
+    
+    void gameOfLife2(vector<vector<int>>& board) {
+        if(board.empty()) return;
+        
+        int M = board.size();
+        int N = board[0].size();
+        
+        /*
+            O(1) space by storing whether to toggle for the next 
+            state in the second bit. 1x means needs to toggle whereas 
+            0x means doesn't need to toggle. Get state of z by (z & 1) 
+            and get whether to toggle by (z >> 1) so next state of
+            z is just (z >> 1) ^ (z & 1)
+        */
+        for(int i = 0; i < M; i++) {
+            for(int j = 0; j < N; j++) {
+                int live = getAdajacent(board, i, j, M, N);
+                if(board[i][j] == 0) {
+                    board[i][j] |= (live == 3) << 1;
+                } else {
+                    board[i][j] |= (live < 2 || live > 3) << 1;
+                }
+            }
+        }
+        
+        for(int i = 0; i < M; i++) {
+            for(int j = 0; j < N; j++) {
+                board[i][j] = (board[i][j] >> 1) ^ (board[i][j] & 1);
+            }
+        }
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+290. Word Pattern
+Given a pattern and a string str, find if str follows the same pattern.
+
+Here follow means a full match, such that there is a bijection between a 
+letter in pattern and a non-empty word in str.
+
+Examples:
+pattern = "abba", str = "dog cat cat dog" should return true.
+pattern = "abba", str = "dog cat cat fish" should return false.
+pattern = "aaaa", str = "dog cat cat dog" should return false.
+pattern = "abba", str = "dog dog dog dog" should return false.
+Notes:
+You may assume pattern contains only lowercase letters, and str contains 
+lowercase letters separated by a single space.
+/*
+    Submission Date: 2017-09-10
+    Runtime: 0 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
 
 using namespace std;
 
 class Solution {
 public:
-    bool isAdditiveNumber(string num) {
-        int N = num.size();
+    bool wordPattern(string pattern, string str) {
+        unordered_map<char,string> letter_to_word;
+        unordered_map<string,char> word_to_letter;
         
-        long long o1 = 0;
-        long long o2 = 0;
+        stringstream ss(str);
+        string word;
         
-        // given a string, we extract o1 and o2 from it leaving (o3)xxxx and calling the recursive function
-        for(int i = 0; i < N; i++) {
-            o1 = o1*10 + (num[i] - '0');
-            o2 = 0;
-            for(int j = i + 1; j < N; j++) {
-                o2 = o2*10 + (num[j] - '0');
-                if(isAdditiveNumber(num.substr(j + 1), o2, o1 + o2)) {
-                    return true;
-                }
-                if(o2 == 0) break; // o2 begins with 0
+        int i = 0, N = pattern.size();
+        while(i < N) {
+            ss >> word;
+            if(word.empty()) return false;
+            if(letter_to_word.count(pattern[i]) || word_to_letter.count(word)) {
+                if(word_to_letter[word] != pattern[i] || letter_to_word[pattern[i]] != word) return false;
+            } else {
+                letter_to_word[pattern[i]] = word;
+                word_to_letter[word] = pattern[i];
             }
-            
-            if(o1 == 0) break; // o1 begins with 0
+            i++;
         }
         
-        return false;
-    }
-    
-    // num should be (o3)xxxx if it is o3 then return true
-    // else if it is (o3)xxxx then call the function on xxxx looking for o2 + o3 at the front and o3 becomes o2
-    // f(num, o2, o3) -> f(num.substr(i), o3, o2 + o3) where i the first index of x
-    bool isAdditiveNumber(string num, long long o2, long long o3) {
-        int N = num.size();
-        if(N == 0) return false;
-        if(num.front() == '0') return N == 1 && o3 == 0; // o3 begins with zero
-        
-        long long curr = 0;
-        for(int i = 0; i < N; i++) {
-            curr = curr*10 + (num[i] - '0');
-            if(curr > o3) return false;
-            if(curr == o3) {
-                return i == N-1 || isAdditiveNumber(num.substr(i + 1), o3, o2 + o3);
-            }
-        }
-        
-        return false;
+        bool rem = (bool)(ss >> word);
+        return !rem;
     }
 };
 
 int main() {
-    Solution s;
     return 0;
 }

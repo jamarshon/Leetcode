@@ -1,138 +1,294 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-628. Maximum Product of Three Numbers
-Given an integer array, find three numbers whose product is maximum and output the maximum product.
+583. Delete Operation for Two Strings
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
 
 Example 1:
-Input: [1,2,3]
-Output: 6
-Example 2:
-Input: [1,2,3,4]
-Output: 24
+Input: "sea", "eat"
+Output: 2
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
 Note:
-The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
-Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
 
 /*
-    Submission Date: 2017-07-09
-    Runtime: 79 ms
-    Difficulty: EASY
+    Submission Date: 2017-05-13
+    Runtime: 29 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
 class Solution {
 public:
-    int maximumProduct(vector<int>& nums) {
-        int N = nums.size();
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
+
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
+        }
         
-        if(N < 3) return INT_MIN;
-        
-        sort(nums.begin(), nums.end());
-        
-        // three largest or 1 largest and 2 smallest
-        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
+        return dp[row - 1][col - 1];
     }
 };
 
 int main() {
-    Solution s;
-    return 0;
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-636. Exclusive Time of Functions
-Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
-find the exclusive time of these functions.
-
-Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
-another function.
-
-A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
-means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
-very end of time 0.
-
-Exclusive time of a function is defined as the time spent within this function, the time spent by 
-calling other functions should not be considered as this function's exclusive time. You should 
-return the exclusive time of each function sorted by their function id.
+592. Fraction Addition and Subtraction
+Given a string representing an expression of fraction addition 
+and subtraction, you need to return the calculation result in string 
+format. The final result should be irreducible fraction. If your final 
+result is an integer, say 2, you need to change it to the format of 
+fraction that has denominator 1. So in this case, 2 should be 
+converted to 2/1.
 
 Example 1:
-Input:
-n = 2
-logs = 
-["0:start:0",
- "1:start:2",
- "1:end:5",
- "0:end:6"]
-Output:[3, 4]
-Explanation:
-Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
-Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
-Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
-So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
+Input:"-1/2+1/2"
+Output: "0/1"
+Example 2:
+Input:"-1/2+1/2+1/3"
+Output: "1/3"
+Example 3:
+Input:"1/3-1/2"
+Output: "-1/6"
+Example 4:
+Input:"5/3+1/3"
+Output: "2/1"
 Note:
-Input logs will be sorted by timestamp, NOT log id.
-Your output should be sorted by function id, which means the 0th element of your output corresponds 
-to the exclusive time of function 0.
-Two functions won't start or end at the same time.
-Functions could be called recursively, and will always end.
-1 <= n <= 100
-
+The input string only contains '0' to '9', '/', '+' and '-'. 
+So does the output.
+Each fraction (input and output) has format ±numerator/denominator. 
+If the first input fraction or the output is positive, then '+' will 
+be omitted.
+The input only contains valid irreducible fractions, where the 
+numerator and denominator of each fraction will always be in the 
+range [1,10]. If the denominator is 1, it means this fraction is 
+actually an integer in a fraction format defined above.
+The number of given fractions will be in the range [1,10].
+The numerator and denominator of the final result are guaranteed 
+to be valid and in the range of 32-bit int.
 /*
-    Submission Date: 2017-07-15
-    Runtime: 63 ms
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
     Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <stack>
-#include <sstream>
+#include <cctype>
 #include <cassert>
 
 using namespace std;
 
-struct Log {
-    int id;
-    string status;
-    int timestamp;
+typedef long long ll;
+struct Fraction {
+    ll num, den;
 };
 
 class Solution {
 public:
-    vector<int> exclusiveTime(int n, vector<string>& logs) {
-        vector<int> times(n, 0);
-        stack<Log> st;
-        for(string log: logs) {
-            stringstream ss(log);
-            string temp, temp2, temp3;
-            getline(ss, temp, ':');
-            getline(ss, temp2, ':');
-            getline(ss, temp3, ':');
+    ll gcd(ll a, ll b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
 
-            Log item = {stoi(temp), temp2, stoi(temp3)};
-            if(item.status == "start") {
-                st.push(item);
-            } else {
-                assert(st.top().id == item.id);
+    ll lcm(ll a, ll b) {
+        return a*b/gcd(a,b);
+    }
 
-                int time_added = item.timestamp - st.top().timestamp + 1;
-                times[item.id] += item.timestamp - st.top().timestamp + 1;
-                st.pop();
+    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
+    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
+    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
 
-                if(!st.empty()) {
-                    assert(st.top().status == "start");
-                    times[st.top().id] -= time_added;
-                }
+    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
+    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
+    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
+    // (a*d + b*c)/(b*d)
+    Fraction add(Fraction a, Fraction b) {
+        return {a.num*b.den + a.den*b.num, a.den*b.den};
+    }
+
+    Fraction reduce(Fraction a) {
+        int gcd_num_den = gcd(abs(a.num), a.den);
+        return {a.num/gcd_num_den, a.den/gcd_num_den};
+    }
+
+    string fractionAddition(string s) {
+        vector<Fraction> v;
+        int N = s.size();
+        bool is_negative = false;
+        for(int i = 0; i < N;) {
+            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
+            // a number (positive num and is start of string)
+            Fraction fr;
+            is_negative = s[i] == '-';
+
+            if(s[i] == '+' || is_negative) {
+                i++;
+            }
+
+            ll curr = 0;
+            while(isdigit(s[i])) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.num = is_negative ? -curr : curr;
+            // s[i] is the '/' followed by a number so end i where the next operator starts
+            assert(s[i++] == '/');
+
+            curr = 0;
+            while(isdigit(s[i]) && i < N) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.den = curr;
+            v.push_back(fr);
+        }
+
+        Fraction res = v.front();
+        res = reduce(res);
+        for(int i = 1; i < v.size(); i++) {
+            res = add(res, v[i]);
+            res = reduce(res);
+        }
+
+        return to_string(res.num) + "/" + to_string(res.den);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the 
+four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array 
+with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four 
+equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cassert>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    int distSq(vector<int>& a, vector<int>& b) {
+        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
+    }
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        vector<int> dist;
+        vector<vector<int>> v{p1, p2, p3, p4};
+        for(int i = 0; i < 4; i++) {
+            for(int j = i + 1; j < 4; j++) {
+                dist.push_back(distSq(v[i], v[j]));
             }
         }
 
-        return times;
+        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
+        // out of these 6 distances, there are 4 distances which are the side distances (s)
+        // and 2 that are hypotenuse (h)
+        // s^2 + s^2 = h^2
+
+        assert(dist.size() == 6);
+        map<int,int> freq;
+        for(auto e: dist) freq[e]++;
+
+        if(freq.size() != 2) return false;
+        int s = freq.begin() -> first;
+        int h = next(freq.begin(), 1) -> first;
+        return 2*s == h;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double eucl_sq(vector<int>& p1, vector<int>& p2) {
+        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
+    }
+
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        // distance squared
+        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
+
+        sort(dist.begin(), dist.end());
+
+        // should result in 4 equal length sides and two longer sides that are the diagonals 
+        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
+        bool non_zero_sides = dist[0] > 0;
+
+        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
+        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
+        return equal_sides && non_zero_sides && correct_diagonals;
     }
 };
 
@@ -141,32 +297,405 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-637. Average of Levels in Binary Tree
-Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+594. Longest Harmonious Subsequence
+We define a harmonious array is an array where the difference between its maximum value and its minimum 
+value is exactly 1.
+
+Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
+its possible subsequences.
+
+Example 1:
+Input: [1,3,2,2,5,2,3,7]
+Output: 5
+Explanation: The longest harmonious subsequence is [3,2,2,2,3].
+Note: The length of the input array will not exceed 20,000.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 109 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        int max_len = 0;
+        for(int d: nums) {
+            int current = 0;
+            if(freq.find(d) != freq.end()) {
+                current += freq[d];
+                freq[d] += 1;
+            } else {
+                freq[d] = 1;
+            }
+
+            int adj = 0;
+            if(freq.find(d-1) != freq.end()) {
+                adj = max(adj, freq[d-1]);
+            }
+
+            if(freq.find(d+1) != freq.end()) {
+                adj = max(adj, freq[d+1]);
+            }
+
+            if(adj == 0) continue;
+            current += adj + 1;
+            max_len = max(current, max_len);
+        }
+        return max_len;
+    }
+};
+
+int main() {
+    vector<int> v{1,3,2,2,5,2,3,7};
+    Solution s;
+    cout << s.findLHS(v) << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+598. Range Addition II
+Given an m * n matrix M initialized with all 0's and several update operations.
+
+Operations are represented by a 2D array, and each operation is represented by an array with 
+two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
+and 0 <= j < b.
+
+You need to count and return the number of maximum integers in the matrix after performing 
+all the operations.
+
+Example 1:
+Input: 
+m = 3, n = 3
+operations = [[2,2],[3,3]]
+Output: 4
+Explanation: 
+Initially, M = 
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+
+After performing [2,2], M = 
+[[1, 1, 0],
+ [1, 1, 0],
+ [0, 0, 0]]
+
+After performing [3,3], M = 
+[[2, 2, 1],
+ [2, 2, 1],
+ [1, 1, 1]]
+
+So the maximum integer in M is 2, and there are four of it in M. So return 4.
+Note:
+The range of m and n is [1,40000].
+The range of a is [1,m], and the range of b is [1,n].
+The range of operations size won't exceed 10,000.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxCount(int m, int n, vector<vector<int>>& ops) {
+        for(vector<int> op: ops) {
+            m = min(m, op[0]);
+            n = min(n, op[1]);
+        }
+        return m*n;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+599. Minimum Index Sum of Two Lists
+Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
+favorite restaurants represented by strings.
+
+You need to help them find out their common interest with the least list index sum. If there 
+is a choice tie between answers, output all of them with no order requirement. You could assume 
+there always exists an answer.
 
 Example 1:
 Input:
-    3
-   / \
-  9  20
-    /  \
-   15   7
-Output: [3, 14.5, 11]
-Explanation:
-The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
-[3, 14.5, 11].
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
+Output: ["Shogun"]
+Explanation: The only restaurant they both like is "Shogun".
+Example 2:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["KFC", "Shogun", "Burger King"]
+Output: ["Shogun"]
+Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
+index sum 1 (0+1).
 Note:
-The range of node's value is in the range of 32-bit signed integer.
-
+The length of both lists will be in the range of [1, 1000].
+The length of strings in both lists will be in the range of [1, 30].
+The index is starting from 0 to the list length minus 1.
+No duplicates in both lists.
 /*
-    Submission Date: 2017-07-09
-    Runtime: 22 ms
+    Submission Date: 2017-05-29
+    Runtime: 103 ms
     Difficulty: EASY
 */
-
 #include <iostream>
 #include <vector>
-#include <queue>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> m;
+        for(int i = 0; i < list1.size(); i++) {
+            m[list1[i]] = i;
+        }
+        
+        vector<string> res;
+        int min_index_sum = -1;
+        for(int i = 0; i < list2.size(); i++) {
+            string s2 = list2[i];
+            if(m.count(s2)) {
+                int new_sum = i + m[s2];
+                if(min_index_sum == -1) {
+                    min_index_sum = new_sum;
+                    res.push_back(s2);
+                    continue;
+                }
+                
+                if(new_sum == min_index_sum) {
+                    res.push_back(s2);
+                } else if(new_sum < min_index_sum) {
+                    min_index_sum = new_sum;
+                    res.clear();
+                    res.push_back(s2);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
+    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
+    vector<string> t = s.findRestaurant(v1, v2);
+    cout << t.size() << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+604. Design Compressed String Iterator
+Design and implement a data structure for a compressed string iterator. 
+It should support the following operations: next and hasNext.
+
+The given compressed string will be in the form of each letter followed 
+by a positive integer representing the number of this letter existing in 
+the original uncompressed string.
+
+next() - if the original string still has uncompressed characters, return 
+the next letter; Otherwise return a white space.
+hasNext() - Judge whether there is any letter needs to be uncompressed.
+
+Example:
+
+StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
+
+iterator.next(); // return 'L'
+iterator.next(); // return 'e'
+iterator.next(); // return 'e'
+iterator.next(); // return 't'
+iterator.next(); // return 'C'
+iterator.next(); // return 'o'
+iterator.next(); // return 'd'
+iterator.hasNext(); // return true
+iterator.next(); // return 'e'
+iterator.hasNext(); // return false
+iterator.next(); // return ' '
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+class StringIterator {
+vector<pair<char, long long>> v_;
+int index_;
+public:
+    StringIterator(string compressedString) {
+        index_ = 0;
+        int len = compressedString.size();
+        int i = 0;
+        while(i < len) {
+            char c = compressedString[i];
+            i++;
+            string rep = "";
+            while(i < len && isdigit(compressedString[i])) {
+                rep += compressedString[i];
+                i++;
+            }
+            
+            long long times = stoll(rep);
+            // cout << c << ' ' << times << endl;
+            v_.emplace_back(c, times);
+        }
+    }
+    
+    char next() {
+        if(!hasNext()) return ' ';
+        pair<char, long long>& p = v_[index_];
+        p.second--;
+        if(p.second == 0) index_++;
+        return p.first;
+    }
+    
+    bool hasNext() {
+        return index_ < v_.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+605. Can Place Flowers
+Suppose you have a long flowerbed in which some of the plots are planted 
+and some are not. However, flowers cannot be planted in adjacent plots - 
+they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
+empty and 1 means not empty), and a number n, return if n new flowers can be 
+planted in it without violating the no-adjacent-flowers rule.
+
+Example 1:
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+Example 2:
+Input: flowerbed = [1,0,0,0,1], n = 2
+Output: False
+Note:
+The input array won't violate no-adjacent-flowers rule.
+The input array size is in the range of [1, 20000].
+n is a non-negative integer which won't exceed the input array size.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int len = flowerbed.size();
+        vector<int> v;
+
+        // v.push_back(-1);
+        for(int i = 0; i < len; i++) {
+            if(flowerbed[i]) {
+                v.push_back(i);
+            }
+        }
+        // v.push_back(len);
+
+        int v_len = v.size();
+        for(int i = 1; i < v_len; i++) {
+            int num_zeros = v[i] - v[i-1] - 1;
+            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
+            if(num_zeros > 0) {
+                int diff = (num_zeros - 1)/2;
+                n -= diff;
+            }
+        }
+
+        if(v_len) {
+            n -= v[0]/2;
+            // cout << n << endl;
+            n -= (len - v[v_len - 1] - 1)/2;
+            // cout << n << endl;
+        } else {
+            n -= (len+1)/2;
+        }
+
+        // cout << "n" << n << endl;
+        return n <= 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+606. Construct String from Binary Tree
+You need to construct a string consists of parenthesis and integers from a 
+binary tree with the preorder traversing way.
+
+The null node needs to be represented by empty parenthesis pair "()". And you 
+need to omit all the empty parenthesis pairs that don't affect the one-to-one 
+mapping relationship between the string and the original binary tree.
+
+Example 1:
+Input: Binary tree: [1,2,3,4]
+       1
+     /   \
+    2     3
+   /    
+  4     
+
+Output: "1(2(4))(3)"
+
+Explanation: Originallay it needs to be "1(2(4)())(3()())", 
+but you need to omit all the unnecessary empty parenthesis pairs. 
+And it will be "1(2(4))(3)".
+Example 2:
+Input: Binary tree: [1,2,3,null,4]
+       1
+     /   \
+    2     3
+     \  
+      4 
+
+Output: "1(2()(4))(3)"
+
+Explanation: Almost the same as the first example, 
+except we can't omit the first parenthesis pair to break the one-to-one 
+mapping relationship between the input and the output.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
 
 using namespace std;
 
@@ -179,30 +708,131 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<double> averageOfLevels(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        vector<double> res;
+    string tree2str(TreeNode* t) {
+        if(t == NULL) return "";
+        string root = to_string(t -> val);
+        string left = tree2str(t -> left);
+        string right = tree2str(t -> right);
         
-        while(!q.empty()) {
-            int size = q.size();
-            int size1 = 0;
-            double sum = 0;
-            for(int i = 0; i < size; i++) {
-                TreeNode* f = q.front();
-                if(f) {
-                    sum += f -> val;
-                    size1++;
-                    q.push(f -> left);
-                    q.push(f -> right);
+        if(left.empty() && right.empty())
+            return root;
+        if(!left.empty() && right.empty())
+            return root + "(" + left + ")";
+        
+        return root + "(" + left + ")" + "(" + right + ")";
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+609. Find Duplicate File in System
+Given a list of directory info including directory path, and all the files 
+with contents in this directory, you need to find out all the groups of 
+duplicate files in the file system in terms of their paths.
+
+A group of duplicate files consists of at least two files that have exactly 
+the same content.
+
+A single directory info string in the input list has the following format:
+
+"root/d1/d2/.../dm f1.txt(f1_content) f2.txt(f2_content) ... fn.txt(fn_content)"
+
+It means there are n files (f1.txt, f2.txt ... fn.txt with content f1_content, 
+f2_content ... fn_content, respectively) in directory root/d1/d2/.../dm. Note 
+that n >= 1 and m >= 0. If m = 0, it means the directory is just the root 
+directory.
+
+The output is a list of group of duplicate file paths. For each group, it 
+contains all the file paths of the files that have the same content. A 
+file path is a string that has the following format:
+
+"directory_path/file_name.txt"
+
+Example 1:
+Input:
+["root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)", 
+"root 4.txt(efgh)"]
+Output:  
+[["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
+
+Note:
+No order is required for the final output.
+
+You may assume the directory name, file name and file content only has letters 
+and digits, and the length of file content is in the range of [1,50].
+
+The number of files given is in the range of [1,20000].
+
+You may assume no files or directories share the same name in the same directory.
+
+You may assume each given directory info represents a unique directory. Directory 
+path and file info are separated by a single blank space.
+
+Follow-up beyond contest:
+Imagine you are given a real file system, how will you search files? DFS or BFS?
+
+If the file content is very large (GB level), how will you modify your solution?
+
+If you can only read the file by 1kb each time, how will you modify your solution?
+
+What is the time complexity of your modified solution? 
+
+What is the most time-consuming part and memory consuming part of it? 
+
+How to optimize?
+
+How to make sure the duplicated files you find are not false positive?
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+    pair<string, string> getContent(string& s) {
+        int bracket_ind = s.rfind("(") + 1;
+        string content = s.substr(bracket_ind, s.size() - bracket_ind - 1);
+        string filename = s.substr(0, bracket_ind - 1);
+        return make_pair(filename, content);
+    }
+public:
+    vector<vector<string>> findDuplicate(vector<string>& paths) {
+        // key content, value file
+        unordered_map<string, vector<string>> m;
+        for(string path: paths) {
+            stringstream ss(path);
+            string token;
+            string dir = "";
+            while(getline(ss, token, ' ')) {
+                if(dir.empty()) {
+                    dir = token;
+                } else {
+                    string file = token;
+                    pair<string, string> p = getContent(file);
+                    if(m.count(p.second)) {
+                        m[p.second].push_back(dir + "/" + p.first);
+                    } else {
+                        m[p.second] = {dir + "/" + p.first};
+                    }
                 }
-                
-                q.pop();
             }
-            if(size1)
-            res.push_back(sum/size1);
         }
         
+        vector<vector<string>> res;
+        for(pair<string, vector<string>> p: m) {
+            if(p.second.size() > 1) res.push_back(p.second);
+        }
         return res;
     }
 };
@@ -213,496 +843,55 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-638. Shopping Offers
-In LeetCode Store, there are some kinds of items to sell. Each item has a price.
-
-However, there are some special offers, and a special offer consists of one or more different kinds of 
-items with a sale price.
-
-You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
-The job is to output the lowest price you have to pay for exactly certain items as given, where you could
- make optimal use of the special offers.
-
-Each special offer is represented in the form of an array, the last number represents the price you need 
-to pay for this special offer, other numbers represents how many specific items you could get if you buy 
-this offer.
-
-You could use any of special offers as many times as you want.
+611. Valid Triangle Number
+Given an array consists of non-negative integers, your task is to count 
+the number of triplets chosen from the array that can make triangles if we 
+take them as side lengths of a triangle.
 
 Example 1:
-Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
-Output: 14
-Explanation: 
-There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
-In special offer 1, you can pay $5 for 3A and 0B
-In special offer 2, you can pay $10 for 1A and 2B. 
-You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
-Example 2:
-Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
-Output: 11
-Explanation: 
-The price of A is $2, and $3 for B, $4 for C. 
-You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
-You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
-for 1C. 
-You cannot add more items, though only $9 for 2A ,2B and 1C.
-Note:
-There are at most 6 kinds of items, 100 special offers.
-For each item, you need to buy at most 6 of them.
-You are not allowed to buy more items than you want, even if that would lower the overall price.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, int> m;
-public:
-    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
-        string key = "";
-        
-        int N = needs.size();
-        
-        int res = INT_MAX;
-        
-        int count = 0;
-        int price_cost = 0;
-        for(int i = 0; i < N; i++) {
-            key += to_string(needs[i]);
-            count += needs[i] == 0;
-            price_cost += needs[i]*price[i];
-        }
-        
-        if(m.count(key)) return m[key];
-        
-        if(count == N) return 0;
-        
-        res = min(res, price_cost);
-        
-        vector<vector<int>> restore;
-        for(auto it = special.begin(); it != special.end();) {
-            vector<int> sp = *it;
-            
-            bool should_erase = false;
-            for(int i = 0; i < N; i++) {
-                if(sp[i] > needs[i]) {
-                    should_erase = true;
-                    break;
-                }
-            }
-            
-            if(should_erase) {
-                restore.push_back(sp);
-                it = special.erase(it);
-            } else {
-                // everything in sp[i] <= needs[i] so we can take it
-                for(int i = 0; i < N; i++) {
-                    needs[i] -= sp[i];
-                }
-                
-                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
-                for(int i = 0; i < N; i++) {
-                    needs[i] += sp[i];
-                }
-                it++;
-            }
-        }
-        
-        for(auto e: restore) special.push_back(e);
-        return m[key] = res;
-    }
-    
-    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
-        return shoppingOffersHelper(price, special, needs);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-645. Set Mismatch
-The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
-the numbers in the set got duplicated to another number in the set, which results in repetition of one 
-number and loss of another number.
-
-Given an array nums representing the data status of this set after the error. Your task is to firstly 
-find the number occurs twice and then find the number that is missing. Return them in the form of an array.
-
-Example 1:
-Input: nums = [1,2,2,4]
-Output: [2,3]
-Note:
-The given array size will in the range [2, 10000].
-The given array's numbers won't have any order.
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 62 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findErrorNums(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        for(auto num: nums) freq[num]++;
-        
-        int N = nums.size();
-        int duplicate = -1;
-        int missing = -1;
-        for(int i = 1; i <= N; i++) {
-            if(missing != -1 && duplicate != -1) break;
-            if(!freq.count(i)) {
-                missing = i;
-            } else if(freq[i] >= 2) {
-                duplicate = i;
-            }
-        }
-        return {duplicate, missing};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-646. Maximum Length of Pair Chain
-You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
-
-Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
-formed in this fashion.
-
-Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
-pairs. You can select pairs in any order.
-
-Example 1:
-Input: [[1,2], [2,3], [3,4]]
-Output: 2
-Explanation: The longest chain is [1,2] -> [3,4]
-Note:
-The number of given pairs will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 82 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLongestChain(vector<vector<int>>& pairs) {
-        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
-            return v1[1] < v2[1];
-        });
-        
-        vector<vector<int>> res;
-        
-        for(auto p: pairs) {
-            if(res.empty() || res.back()[1] < p[0]) {
-                res.push_back(p);
-            }
-        }
-        
-        return res.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-647. Palindromic Substrings
-Given a string, your task is to count how many palindromic substrings in this string.
-
-The substrings with different start indexes or end indexes are counted as different substrings even 
-they consist of same characters.
-
-Example 1:
-Input: "abc"
+Input: [2,2,3,4]
 Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-Example 2:
-Input: "aaa"
-Output: 6
-Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Explanation:
+Valid combinations are: 
+2,3,4 (using the first 2)
+2,3,4 (using the second 2)
+2,2,3
 Note:
-The input string length won't exceed 1000.
+The length of the given array won't exceed 1000.
+The integers in the given array are in the range of [0, 1000].
 
 /*
-    Submission Date: 2017-07-23
-    Runtime: 3 ms
+    Submission Date: 2017-06-11
+    Runtime: 442 ms
     Difficulty: MEDIUM
 */
 
 #include <iostream>
-#include <algorithm>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 class Solution {
 public:
-    int Manacher(string s) {
-        const char kNullChar = '\0';
-        string str = string(1, kNullChar);
-
-        for(auto c: s) str += string(1, c) + kNullChar;
-
-        string max_str = "";
-        int len = str.size();
-        int right = 0;
-        int center = 0;
-        vector<int> dp(len, 0);
-
-        for(int i = 1; i < len; i++) {
-            int mirr = 2*center - i;
-
-            // i is within right so can take the minimum of the mirror or distance from right
-            if(i < right) {
-                dp[i] = min(right - i, dp[mirr]);
-            }
-
-            // keep expanding around i while it is the same and increment P[i]
-            int left_index = i - (1 + dp[i]);
-            int right_index = i + (1 + dp[i]);
-            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
-                left_index--;
-                right_index++;
-                dp[i]++;
-            }
-
-            // i goes beyond current right so it is the new center
-            if(i + dp[i] > right) {
-                center = i;
-                right = i + dp[i];
-            }
-        }
+    int triangleNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
         
         int count = 0;
+        int len = nums.size();
         for(int i = 0; i < len; i++) {
-            count += ceil((double)dp[i]/2.0);
+            if(nums[i] == 0) continue;
+            for(int j = i + 1; j < len; j++) {
+                int sum = nums[i] + nums[j];
+                vector<int>::iterator it = lower_bound(nums.begin(), nums.end(), sum);
+                
+                int index = it - nums.begin() - 1;
+                count += max(index - j, 0);
+                // cout << index << ' '  << j << ' ' <<count<< endl;
+            }
         }
         return count;
     }
-
-    int countSubstrings(string s) {
-        return Manacher(s);
-    }
-
-    int countSubstrings2(string s) {
-        int res = 0;
-        int N = s.size();
-        int left, right;
-        for(int i = 0; i < N; i++) {
-            res++;
-            
-            // treat as odd
-            left = i - 1;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-            
-            // treat as even
-            left = i;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-        }
-        
-        return res;
-    }
 };
 
 int main() {
@@ -710,270 +899,37 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-648. Replace Words
-In English, we have a concept called root, which can be followed by some other words to form another 
-longer word - let's call this word successor. For example, the root an, followed by other, which can 
-form another word another.
+617. Merge Two Binary Trees
+Given two binary trees and imagine that when you put one of them to cover the 
+other, some nodes of the two trees are overlapped while the others are not.
 
-Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
-in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
-root with the shortest length.
-
-You need to output the sentence after the replacement.
+You need to merge them into a new binary tree. The merge rule is that if two 
+nodes overlap, then sum node values up as the new value of the merged node. 
+Otherwise, the NOT null node will be used as the node of new tree.
 
 Example 1:
-Input: dict = ["cat", "bat", "rat"]
-sentence = "the cattle was rattled by the battery"
-Output: "the cat was rat by the bat"
-Note:
-The input will only have lower-case letters.
-1 <= dict words number <= 1000
-1 <= sentence words number <= 1000
-1 <= root length <= 100
-1 <= sentence words length <= 1000
+Input: 
+    Tree 1                     Tree 2                  
+          1                         2                             
+         / \                       / \                            
+        3   2                     1   3                        
+       /                           \   \                      
+      5                             4   7                  
+Output: 
+Merged tree:
+         3
+        / \
+       4   5
+      / \   \ 
+     5   4   7
+Note: The merging process must start from the root nodes of both trees.
 
 /*
-    Submission Date: 2017-07-23
-    Runtime: 159 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_set>
-#include <set>
-#include <algorithm>
-#include <sstream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        unordered_set<string> ds(dict.begin(), dict.end());
-        set<int> word_size;
-        for(auto ds_e: ds) {
-            word_size.insert(ds_e.size());
-        }
-
-        stringstream ss(sentence);
-        string temp;
-
-        vector<string> res;
-        while(getline(ss, temp, ' ')) {
-            bool found = false;
-            for(auto len: word_size) {
-                if(len > temp.size()) {
-                    res.push_back(temp);
-                    found = true;
-                    break;
-                } else {
-                    if(ds.count(temp.substr(0, len))) {
-                        res.push_back(temp.substr(0, len));
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if(!found) {
-                res.push_back(temp);
-            }
-        }
-
-        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
-            return memo.empty() ? a : memo + " " + a;
-        });
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-649. Dota2 Senate
-In the world of Dota2, there are two parties: the Radiant and the Dire.
-
-The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
-a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
-can exercise one of the two rights:
-
-Ban one senator's right: 
-A senator can make another senator lose all his rights in this and all the following rounds.
-Announce the victory: 
-If this senator found the senators who still have rights to vote are all from the same party, he can announce 
-the victory and make the decision about the change in the game.
-Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
-party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
-
-The round-based procedure starts from the first senator to the last senator in the given order. This 
-procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
-during the procedure.
-
-Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
-which party will finally announce the victory and make the change in the Dota2 game. The output should be 
-Radiant or Dire.
-
-Example 1:
-Input: "RD"
-Output: "Radiant"
-Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights any more since his right has been banned. 
-And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Example 2:
-Input: "RDD"
-Output: "Dire"
-Explanation: 
-The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights anymore since his right has been banned. 
-And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
-And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Note:
-The length of the given string will in the range [1, 10,000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string predictPartyVictory(string senate) {
-        while(!senate.empty()) {
-            for(int i = 0; i < senate.size();) {
-                char curr = senate[i];
-                int j = i;
-                for(; j < senate.size(); j++) {
-                    if(senate[j] != curr) {
-                        break;
-                    }
-                }
-            
-                if(j == senate.size()) {
-                    j = 0;
-                    for(; j < i; j++) {
-                        if(senate[j] != curr) {
-                            break;
-                        }
-                    }
-
-                    if(j == i) {
-                        if(curr == 'R') return "Radiant";
-                        return "Dire";
-                    } else {
-                        senate = senate.substr(0, j) + senate.substr(j + 1);
-                    }
-                } else {
-                    senate = senate.substr(0, j) + senate.substr(j + 1);
-                    i++;
-                }
-            }
-        }
-        return "";
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-650. 2 Keys Keyboard
-Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
-for each step:
-
-Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
-Paste: You can paste the characters which are copied last time.
-Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
-permitted. Output the minimum number of steps to get n 'A'.
-
-Example 1:
-Input: 3
-Output: 3
-Explanation:
-Intitally, we have one character 'A'.
-In step 1, we use Copy All operation.
-In step 2, we use Paste operation to get 'AA'.
-In step 3, we use Paste operation to get 'AAA'.
-Note:
-The n will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <climits>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minSteps(int n) {
-        vector<int> dp(n + 1, INT_MAX);
-        dp[0] = dp[1] = 0;
-
-        for(int i = 1; i <= n; i++) {
-            int cost = dp[i] + 1;
-            int temp = i*2;
-            if(temp > n) break; 
-            while(temp <= n) {
-                dp[temp] = min(dp[temp], ++cost);
-                temp += i;
-            }
-        }
-
-        return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-652. Find Duplicate Subtrees
-Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
-return the root node of any one of them.
-
-Two trees are duplicate if they have the same structure with same node values.
-
-Example 1: 
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-The following are two duplicate subtrees:
-      2
-     /
-    4
-and
-    4
-Therefore, you need to return above trees' root in the form of a list.
-
-/*
-    Submission Date: 2017-07-30
+    Submission Date: 2017-06-11
     Runtime: 45 ms
-    Difficulty: MEDIUM
+    Difficulty: EASY
 */
-
 #include <iostream>
-#include <unordered_map>
-#include <vector>
 
 using namespace std;
 
@@ -985,29 +941,34 @@ struct TreeNode {
 };
 
 class Solution {
-public:
-    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
-        if(root != NULL) {
-            string left = preorder(root -> left, freq, res);
-            string right = preorder(root -> right, freq, res);
-            
-            string str = to_string(root -> val) + " " + left + right;
-            
-            if(freq[str] == 1) res.push_back(root);
-            freq[str]++;
-            return str;
+    TreeNode* mergeTreesHelper(TreeNode* t1, TreeNode* t2) {
+        if(t1 == NULL && t2 == NULL) return NULL;
+        
+        TreeNode* curr = new TreeNode(-1);
+        int new_val = -1;
+        if(t1 != NULL && t2 != NULL) {
+            new_val = t1 -> val + t2 -> val;
+        } else if(t1 != NULL) {
+            new_val = t1 -> val;
         } else {
-            return "null ";
+            new_val = t2 -> val;
         }
+        
+        curr -> val = new_val;
+        
+        TreeNode* left = mergeTreesHelper(t1 ? t1 -> left : NULL, t2 ? t2 -> left : NULL);
+        TreeNode* right = mergeTreesHelper(t1 ? t1 -> right : NULL, t2 ? t2 -> right : NULL);
+        curr -> left = left;
+        curr -> right = right;
+        return curr;
     }
-    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        unordered_map<string, int> freq;
-        vector<TreeNode*> res;
-        preorder(root, freq, res);
-        return res;
+public:
+    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
+        return mergeTreesHelper(t1, t2);
     }
 };
 
 int main() {
+    Solution s;
     return 0;
 }

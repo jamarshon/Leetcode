@@ -1,6 +1,173 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+220. Contains Duplicate III
+Given an array of integers, find out whether there are two distinct indices 
+i and j in the array such that the absolute difference between nums[i] and nums[j] 
+is at most t and the absolute difference between i and j is at most k.
+
+/*
+    Submission Date: 2017-08-07
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <map>
+#include <unordered_map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution2 {
+public:
+    // O(nlogk) maintain window of k and do range search on it
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 0 || t < 0) return false;
+        
+        map<int, int> m;
+        int N = nums.size();
+        for(int i = 0; i < N; i++) {
+            int above = (nums[i] > INT_MAX - t) ? INT_MAX : nums[i] + t;
+            int below = (nums[i] < INT_MIN + t) ? INT_MIN : nums[i] - t;
+            
+            if(above < below) swap(above, below);
+            
+            auto below_it = m.lower_bound(below);
+            auto above_it = m.upper_bound(above);
+            
+            while(below_it != above_it) {
+                if(below_it -> second > 0) return true;
+                below_it++;
+            }
+            
+            m[nums[i]]++;
+            if(i >= k) {
+                m[nums[i-k]]--;
+            }
+        }
+        return false;
+    }
+};
+
+class Solution1 {
+public:
+    // nlogn + check if adjacent numbers are close enough in index
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 0 || t < 0) return false;
+        
+        int N = nums.size();
+        vector<pair<int,int>> v;
+        for(int i = 0; i < N; i++) {
+            v.emplace_back(nums[i], i);
+        }
+        
+        sort(v.begin(), v.end(), [](const pair<int,int>& lhs, const pair<int,int>& rhs){
+            return lhs.first < rhs.first;
+        });
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                if(v[i].first < 0 && v[j].first > INT_MAX + v[i].first) break;
+                
+                int diff = v[j].first - v[i].first;
+                int idx_diff = abs(v[j].second - v[i].second);
+                if(diff > t) break;
+                if(idx_diff <= k) return true;
+            }
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    // numbers 0,1,2 and bucket of 3 they all get put into bucket[1]
+    // since negative numbers are allowed we remap to nums[i] - INT_MIN as bucket 0 should include
+    // INT_MIN, we check adjacent bucket to see if across bucket values work
+    bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+        if(k < 1 || t < 0) return false;
+
+        unordered_map<long, long> m;
+        int N = nums.size();
+        for(int i = 0; i < N; i++) {
+            long remapped_num = (long)nums[i] - INT_MIN;
+            long bucket = remapped_num/((long)t + 1);
+
+            bool another_el_same_bucket = m.count(bucket);
+            bool bucket_below_close_enough = m.count(bucket-1) && remapped_num - m[bucket-1] <= t;
+            bool bucket_above_close_enough = m.count(bucket+1) && m[bucket+1] - remapped_num<= t;
+            if(another_el_same_bucket || bucket_below_close_enough || bucket_above_close_enough) {
+                return true;
+            }
+
+            if(m.size() >= k) {
+                long last_bucket = ((long)nums[i-k] - INT_MIN)/((long) t + 1);
+                m.erase(last_bucket);
+            }
+            
+            m[bucket] = remapped_num;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+221. Maximal Square
+Given a 2D binary matrix filled with 0's and 1's, find the largest square containing only 1's and 
+return its area.
+
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+Return 4.
+
+/*
+    Submission Date: 2017-08-03
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maximalSquare(vector<vector<char>>& matrix) {
+        int M = matrix.size();
+        if(M == 0) return 0;
+        int N = matrix[0].size();
+        vector<vector<int>> dp(M+1, vector<int>(N+1, 0));
+
+        int res = 0;
+        for(int i = M-1; i >= 0; i--) {
+            for(int j = N-1; j >= 0; j--) {
+                if(matrix[i][j] == '0') continue;
+                dp[i][j] = 1 + min(min(dp[i+1][j], dp[i+1][j+1]), dp[i][j+1]);
+                res = max(res, dp[i][j]);
+            }
+        }
+
+        return res*res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 222. Count Complete Tree Nodes
 Given a complete binary tree, count the number of nodes.
 
@@ -812,181 +979,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-230. Kth Smallest Element in a BST
-Given a binary search tree, write a function kthSmallest to find the kth smallest 
-element in it.
-
-Note: 
-You may assume k is always valid, 1 ? k ? BST's total elements.
-
-Follow up:
-What if the BST is modified (insert/delete operations) often and you 
-need to find the kth smallest frequently? How would you optimize the 
-kthSmallest routine?
-
-/*
-    Submission Date: 2017-08-14
-    Runtime: 13 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <cassert>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    bool inorder(TreeNode* root, int& count, int k, int& res) {
-        if(root == NULL) return false;
-        
-        if(inorder(root -> left, count, k, res)) return true;
-        count++;
-        if(count == k) {
-            res = root -> val;
-            return true;
-        }
-        
-        if(inorder(root -> right, count, k, res)) return true;
-        return false;
-    }
-    int kthSmallest(TreeNode* root, int k) {
-        int count = 0, res = 0;
-        inorder(root, count, k, res);
-        return res;
-    }
-};
-
-class Solution2 {
-public:
-    int updateMap(unordered_map<TreeNode*, int>& node_to_num_children, TreeNode* root) {
-        if(node_to_num_children.count(root)) return node_to_num_children[root];
-        int res = 1;
-        res += updateMap(node_to_num_children, root -> left);
-        res += updateMap(node_to_num_children, root -> right);
-        return node_to_num_children[root] = res;
-    }
-
-    int traverse(TreeNode* root, int k, unordered_map<TreeNode*, int>& node_to_num_children) {
-        assert(root != NULL);
-        int left_num = node_to_num_children[root -> left];
-        
-        if(left_num == k - 1) return root -> val;
-
-        if(left_num >= k) {
-            return traverse(root -> left, k, node_to_num_children);
-        } else {
-            return traverse(root -> right, k - 1 - left_num, node_to_num_children);
-        }
-    }
-    int kthSmallest(TreeNode* root, int k) {
-        unordered_map<TreeNode*, int> node_to_num_children{{NULL, 0}};
-        updateMap(node_to_num_children, root);
-        return traverse(root, k, node_to_num_children);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-231. Power of Two
-Given an integer, write a function to determine if it is a power of two.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isPowerOfTwo(int n) {
-        return n > 0 ? (n & (n - 1)) == 0 : false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-232. Implement Queue using Stacks
-Implement the following operations of a queue using stacks.
-
-push(x) -- Push element x to the back of queue.
-pop() -- Removes the element from in front of queue.
-peek() -- Get the front element.
-empty() -- Return whether the queue is empty.
-Notes:
-You must use only standard operations of a stack -- which means 
-only push to top, peek/pop from top, size, and is empty operations 
-are valid.
-Depending on your language, stack may not be supported natively. You 
-may simulate a stack by using a list or deque (double-ended queue), as 
-long as you use only standard operations of a stack.
-You may assume that all operations are valid (for example, no pop or 
-peek operations will be called on an empty queue).
-/*
-    Submission Date: 2017-08-21
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <stack>
-
-using namespace std;
-
-class MyQueue {
-    stack<int> input_, output_;
-public:
-    MyQueue() {}
-
-    void push(int x) {
-        input_.push(x);
-    }
-
-    int pop() {
-        int output_top = peek();
-        output_.pop();
-        return output_top;
-    }
-
-    int peek() {
-        if(output_.empty()) {
-            // reverse input_ stack by taking the top and making it at the bottom of output_
-            while(!input_.empty()) {
-                int input_top = input_.top();
-                output_.push(input_top);
-                input_.pop();
-            }
-        }
-
-        return output_.top();
-    }
-
-    bool empty() {
-        return input_.empty() && output_.empty();
-    }
-};
-
-int main() {
     return 0;
 }

@@ -1,75 +1,28 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-392. Is Subsequence
-Given a string s and a string t, check if s is subsequence of t.
-
-You may assume that there is only lower case English letters in 
-both s and t. t is potentially a very long (length ~= 500,000) string, 
-and s is a short string (<=100).
-
-A subsequence of a string is a new string which is formed from the 
-original string by deleting some (can be none) of the characters 
-without disturbing the relative positions of the remaining characters. 
-(ie, "ace" is a subsequence of "abcde" while "aec" is not).
-
-Example 1:
-s = "abc", t = "ahbgdc"
-
-Return true.
-
-Example 2:
-s = "axc", t = "ahbgdc"
-
-Return false.
+326. Power of Three
+Given an integer, write a function to determine if it is a power of three.
 
 Follow up:
-If there are lots of incoming S, say S1, S2, ... , Sk where k >= 1B, 
-and you want to check one by one to see if T has its subsequence. 
-In this scenario, how would you change your code?
-
+Could you do it without using any loop / recursion?
 /*
-    Submission Date: 2017-08-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
+    Submission Date: 2018-05-02
+    Runtime: 80 ms
+    Difficulty: EASY
 */
-
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    bool isSubsequence(string s, string t) {
-        int s_index = 0, t_index = 0;
-        int s_len = s.size(), t_len = t.size();
-        
-        while(s_index < s_len && t_index < t_len) {
-            if(s[s_index] == t[t_index]) {
-                s_index++;
-            }
-            t_index++;
-        }
-        
-        return s_index == s_len;
-    }
-
-    bool isSubsequence2(string s, string t) {
-        int N = s.size(), M = t.size();
-        vector<vector<bool>> dp(N + 1, vector<bool>(M + 1, false));
-        for(int i = 0; i <= M; i++) dp[0][i] = true;
-    
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                if(s[i-1] == t[j-1]) {
-                    dp[i][j] = dp[i-1][j-1];
-                } else {
-                    dp[i][j] = dp[i][j-1];
-                }
-            }
-        }
-        return dp[N][M];
+    bool isPowerOfThree(int n) {
+        // 1162261467 largest power of 3 that can be represented by int and all it's factors are powers of 3.
+        // a = nq + r where n < r means a % n = r
+        // 3^19 % y => 3^19 = n*y + r
+        // if y == 3^x, then this only true if r == 0 and n == 3^(19-x)
+        return n > 0 && 1162261467 % n == 0;
     }
 };
 
@@ -78,46 +31,65 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-404. Sum of Left Leaves
-Find the sum of all left leaves in a given binary tree.
+328. Odd Even Linked List
+Given a singly linked list, group all odd nodes together followed by the even nodes. 
+Please note here we are talking about the node number and not the value in the nodes.
+
+You should try to do it in place. The program should run in O(1) space complexity 
+and O(nodes) time complexity.
 
 Example:
+Given 1->2->3->4->5->NULL,
+return 1->3->5->2->4->NULL.
 
-    3
-   / \
-  9  20
-    /  \
-   15   7
-
-There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
-
+Note:
+The relative order inside both the even and odd groups should remain as it was in the input. 
+The first node is considered odd, the second node even and so on ...
 /*
-    Submission Date: 2017-08-06
-    Runtime: 6 ms
-    Difficulty: EASY
+    Submission Date: 2018-05-02
+    Runtime: 16 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-struct TreeNode {
+struct ListNode {
     int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
 public:
-    int sumOfLeftLeaves(TreeNode* root) {
-        if(root == NULL) return 0;
-        int res = 0;
-        if(root -> left && root -> left -> left == NULL && root -> left -> right == NULL) {
-            res += root -> left -> val;
+    ListNode* oddEvenList(ListNode* head) {
+        ListNode *first_odd, *first_even;
+        first_odd = first_even = NULL;
+        vector<ListNode*> arr{NULL, NULL};
+        
+        int index = 0;
+        while(head) {
+            ListNode* temp = head;
+            head = head->next;
+            temp->next = NULL;
+            
+            if(index == 0 && first_odd == NULL) {
+                first_odd = temp;
+            } else if(index == 1 && first_even == NULL) {
+                first_even = temp;
+            }
+            
+            if(arr[index] == NULL) arr[index] = temp;
+            else{ arr[index]-> next = temp; arr[index] = temp; }
+            
+            index ^= 1;
         }
         
-        return res + sumOfLeftLeaves(root -> left) + sumOfLeftLeaves(root -> right);
+        if(arr[0]) {
+            arr[0]->next = first_even;
+        }
+        return first_odd;
     }
 };
 
@@ -126,62 +98,66 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-414. Third Maximum Number
-Given a non-empty array of integers, return the third maximum number in this array. 
-If it does not exist, return the maximum number. The time complexity must be in O(n).
+331. Verify Preorder Serialization of a Binary Tree
+One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, 
+we record the node's value. If it is a null node, we record using a sentinel value such as #.
+
+     _9_
+    /   \
+   3     2
+  / \   / \
+ 4   1  #  6
+/ \ / \   / \
+# # # #   # #
+For example, the above binary tree can be serialized to the string "9,3,4,#,#,1,#,#,2,#,6,#,#", 
+where # represents a null node.
+
+Given a string of comma separated values, verify whether it is a correct preorder traversal 
+serialization of a binary tree. Find an algorithm without reconstructing the tree.
+
+Each comma separated value in the string must be either an integer or a character '#' 
+representing null pointer.
+
+You may assume that the input format is always valid, for example it could never contain 
+two consecutive commas such as "1,,3".
 
 Example 1:
-Input: [3, 2, 1]
+"9,3,4,#,#,1,#,#,2,#,6,#,#"
+Return true
 
-Output: 1
-
-Explanation: The third maximum is 1.
 Example 2:
-Input: [1, 2]
+"1,#"
+Return false
 
-Output: 2
-
-Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
 Example 3:
-Input: [2, 2, 3, 1]
-
-Output: 1
-
-Explanation: Note that the third maximum here means the third maximum distinct number.
-Both numbers with value 2 are both considered as second maximum.
-
+"9,#,#,1"
+Return false
 /*
-    Submission Date: 2017-08-06
-    Runtime: 9 ms
-    Difficulty: EASY
+    Submission Date: 2017-03-11
+    Runtime: 6 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_set>
+#include <sstream>
 
 using namespace std;
 
 class Solution {
 public:
-    int thirdMax(vector<int>& nums) {
-        priority_queue<int, vector<int>, greater<int>> min_heap;
-        unordered_set<int> distinct;
-        int max_item = nums.front();
-        for(auto num: nums) {
-            max_item = max(max_item, num);
-            if(distinct.count(num)) continue;
-            min_heap.push(num);
-            distinct.insert(num);
-            if(min_heap.size() > 3) {
-                int to_delete = min_heap.top();
-                distinct.erase(to_delete);
-                min_heap.pop();
+    bool isValidSerialization(string preorder) {
+        int count = 0;
+        stringstream ss(preorder);
+        string temp;
+        while(getline(ss, temp, ',')) {
+            if(count < 0) return false;
+            if(temp == "#") {
+                count--;
+            } else {
+                count++;
             }
         }
         
-        return min_heap.size() == 3 ? min_heap.top() : max_item;
+        return count == -1;
     }
 };
 
@@ -190,105 +166,101 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-433. Minimum Genetic Mutation
-A gene string can be represented by an 8-character long string, with choices from 
-"A", "C", "G", "T".
-
-Suppose we need to investigate about a mutation (mutation from "start" to "end"), 
-where ONE mutation is defined as ONE single character changed in the gene string.
-
-For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
-
-Also, there is a given gene "bank", which records all the valid gene mutations. 
-A gene must be in the bank to make it a valid gene string.
-
-Now, given 3 things - start, end, bank, your task is to determine what is the 
-minimum number of mutations needed to mutate from "start" to "end". If there is no 
-such a mutation, return -1.
+332. Reconstruct Itinerary
+Given a list of airline tickets represented by pairs of departure and arrival airports [from, to], 
+reconstruct the itinerary in order. All of the tickets belong to a man who departs from JFK. Thus, 
+the itinerary must begin with JFK.
 
 Note:
-
-Starting point is assumed to be valid, so it might not be included in the bank.
-If multiple mutations are needed, all mutations during in the sequence must be valid.
-You may assume start and end string is not the same.
+If there are multiple valid itineraries, you should return the itinerary that has the smallest 
+lexical order when read as a single string. For example, the itinerary ["JFK", "LGA"] has a smaller 
+lexical order than ["JFK", "LGB"].
+All airports are represented by three capital letters (IATA code).
+You may assume all tickets form at least one valid itinerary.
 Example 1:
-
-start: "AACCGGTT"
-end:   "AACCGGTA"
-bank: ["AACCGGTA"]
-
-return: 1
+tickets = [["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]
+Return ["JFK", "MUC", "LHR", "SFO", "SJC"].
 Example 2:
-
-start: "AACCGGTT"
-end:   "AAACGGTA"
-bank: ["AACCGGTA", "AACCGCTA", "AAACGGTA"]
-
-return: 2
-Example 3:
-
-start: "AAAAACCC"
-end:   "AACCCCCC"
-bank: ["AAAACCCC", "AAACCCCC", "AACCCCCC"]
-
-return: 3
-
+tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Return ["JFK","ATL","JFK","SFO","ATL","SFO"].
+Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"]. But it is larger in lexical 
+order.
 /*
-    Submission Date: 2017-08-06
-    Runtime: 3 ms
+    Submission Date: 2018-05-02
+    Runtime: 20 ms
     Difficulty: MEDIUM
 */
-
 #include <iostream>
-#include <vector>
-#include <queue>
+#include <cassert>
 #include <unordered_map>
-#include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <map>
+#include <vector>
 
 using namespace std;
 
 class Solution {
-    bool isConnect(string s1, string s2) {
-        int diff_count = 0;
-        for(int i = 0, len = s1.size(); i < len; i++) {
-            diff_count += s1[i] != s2[i];
-        }
-        return diff_count == 1;
-    }
-public:
-    int minMutation(string start, string end, vector<string>& bank) {
-        unordered_map<string, vector<string>> graph;
-
-        bank.push_back(start);
-        int N = bank.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                if(isConnect(bank[i], bank[j])) {
-                    graph[bank[i]].push_back(bank[j]);
-                    graph[bank[j]].push_back(bank[i]);
+public:    
+    // m is unordered key of 'from' with value of ordered key of 'to' with value frequency
+    void recurse(unordered_map<string, map<string,int>>& m, string from, 
+                 const int& tickets_to_use, vector<string>& curr, vector<string>& res) {
+        if(tickets_to_use == 0) {
+            assert(res.empty());
+            res = curr;
+        } else {
+            if (!m.count(from)) return;
+        
+            for(auto& kv : m[from]) {
+                if(kv.second > 0) {
+                    // there is a to for from so try to use it
+                    kv.second--;
+                    curr.push_back(kv.first);
+                    recurse(m, kv.first, tickets_to_use - 1, curr, res);
+                    // if res isn't empty, then a path was found and return it
+                    curr.pop_back();
+                    if(!res.empty()) return;
+                    kv.second++;
+                    
                 }
             }
         }
+    }
+    
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        unordered_map<string, map<string, int>> m;
+        for(auto p: tickets) m[p.first][p.second]++;
+        vector<string> res, curr;
+        curr.push_back("JFK");
+        recurse(m, curr.front(), tickets.size(), curr, res);
+        return res;
+    }
+};
 
-        unordered_set<string> visited;
-        queue<pair<string, int>> q;
-        q.emplace(start, 0);
-        visited.insert(start);
 
-        string curr;
-        int dist;
-        while(!q.empty()) {
-            tie(curr, dist) = q.front();
-            // cout << curr << ' ' << dist << endl;
-            q.pop();
-            if(curr == end) return dist;
-            for(auto neighbor: graph[curr]) {
-                if(visited.count(neighbor)) continue;
-                q.emplace(neighbor, dist + 1);
-                visited.insert(neighbor);
-            }
+class Solution2 {
+public:
+    /*
+    Eulerian path using Hierholzer's algorithm
+    Starting from a vertex, do a dfs. put the vertex in the stack and then loop back outward.
+    */
+    void recurse(unordered_map<string, multiset<string>>& m, string from, vector<string>& stk) {
+        while(!m[from].empty()) {
+            const string& to = *(m[from].begin()); 
+            m[from].erase(m[from].begin());
+            recurse(m, to, stk);
         }
-        return -1;
+
+        stk.push_back(from);
+    }
+    
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        unordered_map<string, multiset<string>> m;
+        for(auto p: tickets) m[p.first].insert(p.second);
+        vector<string> stk;
+        recurse(m, "JFK", stk);
+        reverse(stk.begin(), stk.end());
+        return stk;
     }
 };
 
@@ -297,652 +269,482 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-438. Find All Anagrams in a String
-Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
+334. Increasing Triplet Subsequence
+Given an unsorted array return whether an increasing subsequence of 
+length 3 exists or not in the array.
 
-Strings consists of lowercase English letters only and the length of both strings s and p 
-will not be larger than 20,100.
+Formally the function should:
+Return true if there exists i, j, k 
+such that arr[i] < arr[j] < arr[k] given 0 ≤ i < j < k ≤ n-1 else 
+return false.
+Your algorithm should run in O(n) time complexity and O(1) space 
+complexity.
 
-The order of output does not matter.
+Examples:
+Given [1, 2, 3, 4, 5],
+return true.
 
-Example 1:
-
-Input:
-s: "cbaebabacd" p: "abc"
-
-Output:
-[0, 6]
-
-Explanation:
-The substring with start index = 0 is "cba", which is an anagram of "abc".
-The substring with start index = 6 is "bac", which is an anagram of "abc".
-Example 2:
-
-Input:
-s: "abab" p: "ab"
-
-Output:
-[0, 1, 2]
-
-Explanation:
-The substring with start index = 0 is "ab", which is an anagram of "ab".
-The substring with start index = 1 is "ba", which is an anagram of "ab".
-The substring with start index = 2 is "ab", which is an anagram of "ab".
-
+Given [5, 4, 3, 2, 1],
+return false.
 /*
-    Submission Date: 2017-08-06
-    Runtime: 106 ms
-    Difficulty: EASY
+    Submission Date: 2017-08-26
+    Runtime: 6 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 
 using namespace std;
 
 class Solution {
 public:
-    vector<int> findAnagrams(string s, string p) {
-        vector<int> res;
-        int M = s.size();
-        int N = p.size();
+    /*
+        we have a vector of size 3 where smallest[i] indicates
+        the smallest last element of a sequence of size i
+
+        similar to LIS
+
+        for example if smallest is {1, _, _} and a 2 is found
+        it becomes {1, 2, _} but if a 0 is found it becomes
+        {0, 2, _}. Notice how it stops replacing as soon as finds
+        a smallest[i] <= num. this is to prevent replacing multiple
+        values.
+    */
+    bool increasingTriplet(vector<int>& nums) {
+        vector<int> smallest(3, 0);        
+        int size = 0;
         
-        if(M < N) return res;
-        unordered_map<char, int> freq, curr_freq;
-        
-        for(auto c: p) freq[c]++;
-        
-        for(int i = 0; i < N; i++) curr_freq[s[i]]++;
-        
-        int low = 0;
-        int high = N;
-        while(high <= M) {
-            bool is_match = true;
-            if(curr_freq.size() == freq.size()) {
-                for(auto kv: freq) {
-                    if(curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second) continue;
-                    is_match = false;
+        for(auto num: nums) {
+            bool found_replace = false;
+            for(int i = 0; i < size; i++) {
+                if(num <= smallest[i]) {
+                    smallest[i] = num;
+                    found_replace = true;
                     break;
                 }
-            } else {
-                is_match = false;
             }
             
-            if(is_match) res.push_back(low);
-            if(high == M) break;
-            char to_erase = s[low++];
-            curr_freq[s[high++]]++;
-            if(curr_freq[to_erase] == 1) curr_freq.erase(to_erase);
-            else curr_freq[to_erase]--;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-442. Find All Duplicates in an Array
-Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and 
-others appear once.
-
-Find all the elements that appear twice in this array.
-
-Could you do it without extra space and in O(n) runtime?
-
-Example:
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[2,3]
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 176 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findDuplicates(vector<int>& nums) {
-        int N = nums.size();
-        vector<int> res;
-        for(int i = 0; i < N; i++) {
-            while(nums[i] != nums[nums[i] - 1]) {
-                swap(nums[i], nums[nums[i] - 1]);
-            }
-        }
-    
-        for(int i = 0; i < N; i++) {
-            if(nums[i] != i + 1) {
-                res.push_back(nums[i]);
-            }
-        }
-         
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible increasing 
-subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
-
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
-Note:
-The length of the given array will not exceed 15.
-The range of integer in the given array is [-100,100].
-The given array may contain duplicates, and two equal integers should also be considered 
-as a special case of increasing sequence.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> findSubsequences(const vector<int>& nums) {
-        int N = nums.size();
-        vector<vector<vector<int>>> dp(N);
-        vector<vector<int>> res;
-        set<vector<int>> used;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] >= nums[j]) {
-                    for(auto seq: dp[j]) {
-                        seq.push_back(nums[i]);
-                        dp[i].push_back(seq);
-                    }
-                }
-            }
-            dp[i].push_back({nums[i]});
-        }
-        
-        for(auto vec: dp) {
-            for(auto seq: vec) {
-                if(seq.size() >= 2 && !used.count(seq)) {
-                    res.push_back(seq);
-                    used.insert(seq);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-520. Detect Capital
-Given a word, you need to judge whether the usage of capitals 
-in it is right or not.
-
-We define the usage of capitals in a word to be right when one 
-of the following cases holds:
-
-All letters in this word are capitals, like "USA".
-All letters in this word are not capitals, like "leetcode".
-Only the first letter in this word is capital if it has more than 
-one letter, like "Google".
-Otherwise, we define that this word doesn't use capitals in a 
-right way.
-Example 1:
-Input: "USA"
-Output: True
-Example 2:
-Input: "FlaG"
-Output: False
-Note: The input will be a non-empty word consisting of uppercase 
-and lowercase latin letters.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    bool detectCapitalUse(string word) {
-        int N = word.size();
-        int capital_count = 0, lower_count = 0;
-        for(auto c: word) {
-            capital_count += isupper(c) != 0;
-            lower_count += islower(c) != 0;
-        }
-        
-        return capital_count == N || lower_count == N || 
-            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
-Example 2:
-Input: [0,1,0]
-Output: 2
-Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
-Note: The length of the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-class Solution {
-public:
-    int findMaxLength(vector<int>& nums) {
-        int maxLen = 0;
-        int currentSum = 0;
-        
-        // unordered_map has key to currentSum and value to earliest index seen with that 
-        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
-        // elements between those two indices is zero meaning equal number of 0's and 1's
-        // so finding the smallest index with the same currentSum results in the largest subarray
-        unordered_map<int, int> m = {{0, -1}};
-    
-        for(int i = 0, len = nums.size(); i < len; i++) {
-            if(nums[i] == 0) {
-                currentSum--;
-            } else {
-                currentSum++;
+            if(found_replace) continue;
+            
+            if(size == 0 || smallest[size - 1] < num) {
+                smallest[size++] = num;
             }
             
-            if(m.find(currentSum) == m.end()) {
-                m[currentSum] = i;
-            } else {
-                maxLen = max(maxLen, i - m[currentSum]);
-            }
+            if(size == 3) return true;
         }
         
-        return maxLen;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-536. Construct Binary Tree from String
-You need to construct a binary tree from a string consisting of parenthesis and integers.
-
-The whole input represents a binary tree. It contains an integer followed by zero, 
-one or two pairs of parenthesis. The integer represents the root's value and a pair 
-of parenthesis contains a child binary tree with the same structure.
-
-You always start to construct the left child node of the parent first if it exists.
-
-Example:
-Input: "4(2(3)(1))(6(5))"
-Output: return the tree root node representing the following tree:
-
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-Note:
-There will only be '(', ')', '-' and '0' ~ '9' in the input string.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-539. Minimum Time Difference
-Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
-minutes difference between any two time points in the list.
-
-Example 1:
-Input: ["23:59","00:00"]
-Output: 1
-
-Note:
-The number of time points in the given list is at least 2 and won't exceed 20000.
-The input time is legal and ranges from 00:00 to 23:59.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 43 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <limits.h>
-#include <algorithm>
-
-class Solution {
-public:
-    // Assume time b is larger than a
-    int getDifference(string a, string b) {
-        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
-        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
-        return hours*60 + minutes;
-    }
-
-    int findMinDifference(vector<string>& timePoints) {
-        sort(timePoints.begin(), timePoints.end());
-        int minDiff = INT_MAX;
-        int len = timePoints.size();
-
-        for(int i = 1; i < len; i++) {
-            int diff = getDifference(timePoints[i-1], timePoints[i]);
-            if(diff < minDiff) minDiff = diff;
-        }
-
-        string firstTimePoint = timePoints.front();
-        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
-        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
-        int wrapDiff = getDifference(timePoints.back(), wrap);
-
-        if(wrapDiff < minDiff) minDiff = wrapDiff;
-        return minDiff;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-541. Reverse String II
-Given a string and an integer k, you need to reverse the first k characters for every 2k 
-characters counting from the start of the string. If there are less than k characters left, 
-reverse all of them. If there are less than 2k but greater than or equal to k characters, 
-then reverse the first k characters and left the other as original.
-
-Example:
-Input: s = "abcdefg", k = 2
-Output: "bacdfeg"
-
-Restrictions:
-The string consists of lower English letters only.
-Length of the given string and k will in the range [1, 10000]
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 26 ms
-    Difficulty: EASY
-*/
-
-using namespace std;
-#include <iostream>
-
-class Solution {
-public:
-    string reverseStr(string s, int k) {
-        string finalStr = "";
-        bool reverse = true;
-        int i = 0, len = s.size();
-        while(i < len) {
-            string currentStr = string(1, s[i++]);
-            while(i%k != 0 && i < len) {
-                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
-                i++;
-            }
-            finalStr += currentStr;
-            reverse ^= true;
-        }
-        
-        return finalStr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-565. Array Nesting
-A zero-indexed array A consisting of N different integers is given. The array contains 
-all integers in the range [0, N - 1].
-
-Sets S[K] for 0 <= K < N are defined as follows:
-
-S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
-
-Sets S[K] are finite for each K and should NOT contain duplicates.
-
-Write a function that given an array A consisting of N integers, return the size of 
-the largest set S[K] for this array.
-
-Example 1:
-Input: A = [5,4,0,3,1,6,2]
-Output: 4
-Explanation: 
-A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
-
-One of the longest S[K]:
-S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
-Note:
-N is an integer within the range [1, 20,000].
-The elements of A are all distinct.
-Each element of array A is an integer within the range [0, N-1].
-/*
-    Submission Date: 2017-05-29
-    Runtime: 36 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
-                }
-                max_set = max(current_set, max_set);
-            }
-        }
-        return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
+        return false;
     }
 };
 
 int main() {
     Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
+338. Counting Bits
+Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num 
+calculate the number of 1's in their binary representation and return them as an array.
 
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
+Example:
+For num = 5 you should return [0,1,1,2,1,2].
 
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
+Follow up:
 
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
+It is very easy to come up with a solution with run time O(n*sizeof(integer)). But 
+can you do it in linear time O(n) /possibly in a single pass?
+Space complexity should be O(n).
+Can you do it like a boss? Do it without using any builtin function like 
+__builtin_popcount in c++ or in any other language.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> countBits(int num) {
+        vector<int> res(num + 1, 0);
+
+        for(int i = 1; i <= num; i++) {
+            res[i] = res[i/2] + (i % 2);
+        }
+
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+341. Flatten Nested List Iterator
+Given a nested list of integers, implement an iterator to flatten it.
+
+Each element is either an integer, or a list -- whose elements may also be integers 
+or other lists.
 
 Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
+Given the list [[1,1],2,[1,1]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by next 
+should be: [1,1,2,1,1].
+
+Example 2:
+Given the list [1,[4,[6]]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by 
+next should be: [1,4,6].
+/*
+    Submission Date: 2018-05-02
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <stack>
+#include <vector>
+#include <tuple>
+
+using namespace std;
+
+class NestedInteger {
+  public:
+    // Return true if this NestedInteger holds a single integer, rather than a nested list.
+    bool isInteger() const;
+
+    // Return the single integer that this NestedInteger holds, if it holds a single integer
+    // The result is undefined if this NestedInteger holds a nested list
+    int getInteger() const;
+
+    // Return the nested list that this NestedInteger holds, if it holds a nested list
+    // The result is undefined if this NestedInteger holds a single integer
+    const vector<NestedInteger> &getList() const;
+};
+
+class NestedIterator {
+public:
+    stack<pair<int, const vector<NestedInteger>*>> stk;
+    vector<NestedInteger> cp;
+    NestedIterator(vector<NestedInteger> &nestedList) {
+        cp = nestedList;
+        stk.emplace(0, &cp);
+    }
+    
+    void traverse() {
+        while(!stk.empty()) {
+            int ind;
+            const vector<NestedInteger>* v;
+            tie(ind, v) = stk.top();
+            stk.pop();
+            if(ind < v->size()) {
+                if(v->at(ind).isInteger()) {
+                    stk.emplace(ind, v);
+                    return;
+                } else {
+                    stk.emplace(ind + 1, v);
+                    stk.emplace(0, &(v->at(ind).getList()));
+                }
+            }
+        }    
+    }
+    
+    int next() {
+        traverse();
+        
+        int ind;
+        const vector<NestedInteger>* v;
+        tie(ind, v) = stk.top();
+        stk.pop();
+        stk.emplace(ind + 1, v);
+        
+        return v->at(ind).getInteger();
+    }
+
+    bool hasNext() {
+        traverse();
+        return !stk.empty();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+342. Power of Four
+Given an integer (signed 32 bits), write a function to check 
+whether it is a power of 4.
+
+Example:
+Given num = 16, return true. Given num = 5, return false.
+
+Follow up: Could you solve it without loops/recursion?
+/*
+    Submission Date: 2017-08-21
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPowerOfFour(int x) {
+        // (x & (x-1)) == 0 checks for power of two as it would 
+        // series of zeros with only one 1. so x-1 will AND with nothing
+        // leaving zero
+        // geometric series 1 + 4 + 16 + 64 + 256 -> a = 1, r = 4, n = 5
+        // sum{i = 0 to n-1}(a*r^i = a*(1-r^n/(1-r)
+        // so let x = sum{i = 0 to n-1}((1-4^n)/(1-4))
+        // x = (4^n - 1)/3
+        // 3*x = 4^n - 1 <- thus 4^n - 1 must be a multiple of 3
+        return x > 0 && (x & (x-1)) == 0 && (x-1) % 3 == 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+343. Integer Break
+Given a positive integer n, break it into the sum of at least two positive integers and 
+maximize the product of those integers. Return the maximum product you can get.
+
+For example, given n = 2, return 1 (2 = 1 + 1); given n = 10, return 36 (10 = 3 + 3 + 4).
+
+Note: You may assume that n is not less than 2 and not larger than 58.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<int, int> dp;
+public:
+    int integerBreak(int N) {
+        return integerBreak(N,N);
+    }
+    
+    int integerBreak(int n, int N) {
+        if(dp.count(n)) return dp[n];
+        
+        int res = n == N ? 1 : n;
+        for(int i = 1; i < n; i++) {
+            res = max(res, i*integerBreak(n-i, N));
+        }
+        
+        return dp[n] = res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+344. Reverse String
+Write a function that takes a string as input and returns the string reversed.
+
+Example:
+Given s = "hello", return "olleh".
+/*
+    Submission Date: 2017-03-11
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string reverseString(string s) {
+        int N = s.size();
+        for(int i = 0; i < N/2; i++) {
+            swap(s[i], s[N-i-1]);
+        }
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+345. Reverse Vowels of a String
+Write a function that takes a string as input and reverse only 
+the vowels of a string.
+
+Example 1:
+Given s = "hello", return "holle".
+
+Example 2:
+Given s = "leetcode", return "leotcede".
 
 Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
+The vowels does not include the letter "y".
+
 /*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
+    Submission Date: 2017-08-22
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    string reverseVowels(string s) {
+        unordered_set<char> vowels{'a', 'e', 'i', 'o', 'u'};
+        vector<int> indices;
+        for(int i = 0; i < s.size(); i++) {
+            if(vowels.count(tolower(s[i]))) {
+                indices.push_back(i);
+            }
+        }
+        
+        int N = indices.size();
+        for(int i = 0; i < N/2; i++) {
+            char temp = s[indices[i]];
+            s[indices[i]] = s[indices[N- i - 1]];
+            s[indices[N - i - 1]] = temp;
+        }
+        
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+347. Top K Frequent Elements
+Given a non-empty array of integers, return the k most frequent elements.
+
+For example,
+Given [1,1,1,2,2,3] and k = 2, return [1,2].
+
+Note: 
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 20 ms
     Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int,int> val_to_freq;
+        map<int,vector<int>> freq_to_val;
+        for(auto e: nums) val_to_freq[e]++;
+        for(auto kv: val_to_freq) freq_to_val[kv.second].push_back(kv.first);
+        vector<int> res;
+        for(auto it = freq_to_val.rbegin(); it != freq_to_val.rend(); it++) {
+            for(auto e: it->second) {
+                res.push_back(e);
+                if(res.size() == k) break;
+            }
+            if(res.size() == k) break;
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+349. Intersection of Two Arrays
+Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2].
+
+Note:
+Each element in the result must be unique.
+The result can be in any order.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 8 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        vector<int> res;
+        unordered_set<int> st(nums1.begin(), nums1.end());
+        for(const auto& e: nums2) {
+          if(st.count(e)) {
+            res.push_back(e);
+            st.erase(e);
+          }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+350. Intersection of Two Arrays II
+Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2, 2].
+
+Note:
+Each element in the result should appear as many times as it shows in 
+both arrays.
+The result can be in any order.
+Follow up:
+What if the given array is already sorted? How would you optimize your 
+algorithm?
+What if nums1's size is small compared to nums2's size? Which algorithm 
+is better?
+What if elements of nums2 are stored on disk, and the memory is limited 
+such that you cannot load all elements into the memory at once?
+/*
+    Submission Date: 2017-09-10
+    Runtime: 6 ms
+    Difficulty: EASY
 */
 #include <iostream>
 #include <vector>
@@ -952,42 +754,197 @@ using namespace std;
 
 class Solution {
 public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        vector<int>* smaller = &nums1, *greater = &nums2;
+        if(smaller -> size() > greater -> size()) swap(smaller, greater);
+        
+        unordered_map<int,int> smaller_freq;
+        for(auto n: *smaller) smaller_freq[n]++;
+        
+        vector<int> res;
+        for(auto n: *greater) {
+            if(smaller_freq.count(n) && smaller_freq[n] > 0) {
+                smaller_freq[n]--;
+                res.push_back(n);
             }
         }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
+        
+        return res;
     }
 };
 
 int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+367. Valid Perfect Square
+Given a positive integer num, write a function which returns True if num is a perfect square else False.
+
+Note: Do not use any built-in library function such as sqrt.
+
+Example 1:
+
+Input: 16
+Returns: True
+Example 2:
+
+Input: 14
+Returns: False
+/*
+    Submission Date: 2018-05-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPerfectSquare(int num) {
+      long long low = 1;
+      long long high = num;
+      while(low <= high) {
+        long long mid = low + (high-low)/2;
+        if(mid*mid == num) {
+          return true;
+        } else if(mid*mid < num) {
+          low = mid + 1;
+        } else {
+          high = mid -1;
+        }
+      }
+      return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+368. Largest Divisible Subset
+Given a set of distinct positive integers, find the largest subset 
+such that every pair (Si, Sj) of elements in this subset satisfies: 
+Si % Sj = 0 or Sj % Si = 0.
+
+If there are multiple solutions, return any subset is fine.
+
+Example 1:
+
+nums: [1,2,3]
+
+Result: [1,2] (of course, [1,3] will also be ok)
+Example 2:
+
+nums: [1,2,4,8]
+
+Result: [1,2,4,8]
+/*
+    Submission Date: 2017-08-21
+    Runtime: 33 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        if(nums.empty()) return {};
+        
+        sort(nums.begin(), nums.end());
+        int N = nums.size();
+        
+        vector<int> dp(N, 1), P(N,-1);
+        int max_dp_ind = 0;
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[i] % nums[j] == 0) {
+                    if(dp[j] + 1 > dp[i]) {
+                        dp[i] = dp[j] + 1;
+                        P[i] = j;
+                    }
+                }
+            }
+            
+            if(dp[max_dp_ind] < dp[i]) max_dp_ind = i;
+        }
+        
+        
+        vector<int> res(dp[max_dp_ind]);
+        int index = res.size();
+        for(int i = max_dp_ind; i >= 0; i = P[i]) {
+            res[--index] = nums[i];
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+371. Sum of Two Integers
+Calculate the sum of two integers a and b, but you are not allowed to use the operator + and -.
+
+Example:
+Given a = 1 and b = 2, return 3.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 2 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <bitset>
+
+using namespace std;
+
+class Solution {
+public:
+    int getSum(int a, int b) {
+      // include the sign bit.
+      bitset<32> res(0);
+      bitset<32> aa(a);
+      bitset<32> bb(b);
+
+      int carry = 0;
+      for(int i = 0; i < 32; i++) {
+        int a_d = aa.test(i);
+        int b_d = bb.test(i);
+
+        res.set(i, a_d ^ b_d ^ carry);
+        carry = (a_d && b_d) || (b_d && carry) || (a_d && carry);
+      }
+
+      return res.to_ullong();
+    }
+};
+
+class Solution2 {
+public:
+    int getSum(int a, int b) {
+        int res = 0;
+        int carry = 0;
+        
+        for(int i = 0; i < 32; i++) {
+            const int a_d = (1 << i) & a;
+            const int b_d = (1 << i) & b;
+            res |= a_d ^ b_d ^ carry;
+            carry = ((a_d & b_d) | (b_d & carry) | (a_d & carry)) << 1;
+        } 
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
 }

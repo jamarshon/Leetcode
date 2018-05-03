@@ -25,36 +25,26 @@ using namespace std;
 
 typedef long long ll;
 
-struct Point {
-    int x,y;
-    bool operator==(const Point& other) const {
-        return x == other.x && y == other.y;
-    }
-};
-
-Point FindMissing(vector<Point> listA, vector<Point> listB) {
-    int length = listA.size();
-    int low = 0;
-    int high = length - 1;
-    
-    while(low <= high) {
-        int mid = low + (high - low)/2;
-        if(listA[mid] == listB[mid]) { // [a,..,b, c] [a, ..b, c,d]
-            low = mid + 1;
-        } else { // [a,...b,c] a, x ... 
-            high = mid - 1;
-        }
-    }
-
-    return listB[low];
-}
-
-
 int main() {
-    vector<Point> a{{1,1},{2,2},{3,3},{4,4}},
-                b{{1,1},{2,2},{3,3},{4,4},{5,5}};
-    Point t = FindMissing(a,b);
-    cout << t.x << ' ' << t.y << endl;
+    int n = 129140163;
+    const double& eps = numeric_limits<double>::epsilon();
+    const double& frac = log(n)/log(3);
+    const double& mod_one = fmod(frac, 1.0);
+    printf("%.18f\n", mod_one);
+    printf("%.18f\n", frac);
+    // double a = log(n)/log(3);
+    // double ep = numeric_limits<double>::epsilon();
+    // printf("%.18f\n", round(a));
+    // printf("%.18f\n",  abs(a-round(a)));
+    // printf("%.18f\n",  ep);
+    // printf("%.18f\n",  16*ep);
+    // printf("%.18f\n",   numeric_limits<float>::epsilon());
+    // for(int i = 0; i < 100; i++) {
+        // if(abs(a-round(a)) <= i*ep) {
+            // cout << i << endl;
+            // break;
+        // }
+    // }
 
     return 0;
 }

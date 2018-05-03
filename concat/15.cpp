@@ -1,6 +1,448 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+241. Different Ways to Add Parentheses
+Given a string of numbers and operators, return all possible results from computing all the 
+different possible ways to group numbers and operators. The valid operators are +, - and *.
+
+Example 1
+Input: "2-1-1".
+
+((2-1)-1) = 0
+(2-(1-1)) = 2
+Output: [0, 2]
+
+
+Example 2
+Input: "2*3-4*5"
+
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+Output: [-34, -14, -10, -10, 10]
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <unordered_map>
+#include <functional>
+#include <sstream>
+
+using namespace std;
+
+struct Element {
+    bool is_operator;
+    int value;
+    Element(bool _is_operator, int _value): is_operator(_is_operator), value(_value) {}
+};
+
+struct ETreeNode {
+    Element e;
+    ETreeNode* left, *right;
+    ETreeNode(Element _e): e(_e), left(NULL), right(NULL) {}
+};
+
+class SolutionTree {
+public:
+    ETreeNode* cloneWithOffset(ETreeNode* curr, int offset) {
+        if(curr == NULL) return NULL;
+        Element offset_e = curr -> e;
+        offset_e.value += offset;
+
+        ETreeNode* new_curr = new ETreeNode(offset_e);
+        new_curr -> left = cloneWithOffset(curr -> left, offset);
+        new_curr -> right = cloneWithOffset(curr -> right, offset);
+        return new_curr;
+    }
+
+    void destroyTree(ETreeNode* root) {
+        if(root == NULL) return;
+        destroyTree(root -> left);
+        destroyTree(root -> right);
+        delete root;
+    }
+
+    vector<ETreeNode*> generateTrees(int n) {
+        if(n == 0) return {};
+        vector<vector<ETreeNode*>> dp(n + 1);
+        dp[0] = {NULL};
+
+        for(int len = 1; len <= n; len++) {
+            for(int j = 0; j < len; j++) {
+                vector<ETreeNode*> left_trees = dp[j],
+                                right_trees = dp[len - j - 1];
+                for(auto left_tree: left_trees) {
+                    for(auto right_tree: right_trees) {
+                        ETreeNode* curr = new ETreeNode(Element{true, j});
+                        curr -> left = cloneWithOffset(left_tree, 0);
+                        curr -> right = cloneWithOffset(right_tree, j+1);
+                        dp[len].push_back(curr);
+                    }
+                }
+                
+            }
+        }
+
+        for(int i = 0; i < n; i++) {
+            for(auto tree: dp[i]) destroyTree(tree);
+        }
+        return dp[n];
+    }
+
+    void inorderPlaceValuesAndOperators(ETreeNode* root, vector<Element>& numbers, vector<Element> operators, int& i, int& j){
+        if(root == NULL) return;
+        inorderPlaceValuesAndOperators(root -> left, numbers, operators, i, j);
+        root -> e = operators[i++];
+        if(root -> left == NULL) {
+            root -> left = new ETreeNode(numbers[j++]);
+        }
+
+        if(root -> right) {
+            inorderPlaceValuesAndOperators(root -> right, numbers, operators, i, j);
+        } else {
+            root -> right = new ETreeNode(numbers[j++]);
+        }
+    }
+
+    int evaluateTree(ETreeNode* root) {
+        assert(root != NULL); // should never happen as the numbers are the leafs
+        if(root -> e.is_operator) {
+            if(root -> e.value == '*') {
+                return evaluateTree(root -> left) * evaluateTree(root -> right);
+            } else if(root -> e.value == '+') {
+                return evaluateTree(root -> left) + evaluateTree(root -> right);
+            } else if(root -> e.value == '-'){
+                return evaluateTree(root -> left) - evaluateTree(root -> right);
+            } else {
+                assert(false);
+                return -1;
+            }
+        } else {
+            return root -> e.value;
+        }
+    }
+
+    void preorder(ETreeNode* curr) {
+        if(curr == NULL) {
+            cout << "NULL ";
+        } else {
+            if(curr -> e.is_operator) cout << char(curr -> e.value) << ' ';
+            else cout << (curr -> e.value) << ' ';
+            preorder(curr -> left);
+            preorder(curr -> right);
+        }
+    }
+
+    vector<int> diffWaysToCompute(string input) {
+        int start = 0;
+        int end = 0;
+        int N = input.size();
+
+        vector<Element> operators;
+        vector<Element> numbers;
+        while(end < N) {
+            if(input[end] == '*' || input[end] == '-' || input[end] == '+') {
+                string s = input.substr(start, end - start);
+                if(!s.empty()) {
+                    numbers.emplace_back(false, stoi(s));
+                }
+                operators.emplace_back(true, input[end]);
+                start = end + 1;
+            }
+            end++;
+        }
+
+        string s = input.substr(start, end - start);
+        if(!s.empty()) {
+            numbers.emplace_back(false, stoi(s));
+        }
+
+        vector<ETreeNode*> uniqueTrees = generateTrees(operators.size());
+        vector<int> res;
+        int i,j;
+        for(auto tree: uniqueTrees) {
+            i = j = 0;
+            inorderPlaceValuesAndOperators(tree, numbers, operators, i, j);
+            res.push_back(evaluateTree(tree));
+        }
+        return res;
+    }
+};
+
+
+class SolutionDP {
+    unordered_map<char, function<int(int,int)>> ops_m {
+        {'*', [](const int& a, const int& b){ return a*b; }},
+        {'+', [](const int& a, const int& b){ return a+b; }},
+        {'-', [](const int& a, const int& b){ return a-b; }},
+    };
+public: 
+    vector<int> diffWaysToCompute(string input) {
+        vector<int> nums; // nums will be size N and ops should be size N - 1 but extra added just for convenience
+        vector<char> ops;
+
+        int num;
+        char op;
+        stringstream ss(input + "+");
+
+        while(ss >> num && ss >> op) {
+            nums.push_back(num);
+            ops.push_back(op);
+        }
+
+        int N = nums.size();
+        if(N == 1) return nums;
+
+        /**
+            dp[i][j] is a vector of all possible values from operations from index i to j inclusive where indexes
+            correspond with integers from the nums array
+            e.g. "2*3-4*5" -> nums = [2,3,4,5] and ops = ['*', '-', '*'] dp[2][3] = {20} as 4*5 or ops[2](dp[2][2], dp[3][3])
+
+            dp[i][i] would just be {nums[i]}
+            dp[i][j] would be {op[k](dp[i][k], dp[k+1][j]), ... for all k from [i, j)}
+            final result is just indexes 0 to N-1 or dp[0][N-1]
+        */
+        vector<vector<vector<int>>> dp(N, vector<vector<int>>(N));
+
+        for(int i = N-1; i >= 0; i--) {
+            for(int j = i; j < N; j++) {
+                if(i == j) {
+                    dp[i][j] = {nums[i]};
+                } else {
+                    for(int k = i; k < j; k++) {
+                        vector<int>& left = dp[i][k];
+                        vector<int>& right = dp[k+1][j];
+                        function<int(int,int)> op = ops_m[ops[k]];
+                        for(auto left_el: left) {
+                            for(auto right_el: right) {
+                                dp[i][j].push_back(op(left_el, right_el));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return dp[0][N-1];
+    }
+};
+
+class Solution {
+    unordered_map<string, vector<int>> dp;
+    unordered_map<char, function<int(int,int)>> ops_m {
+        {'*', [](const int& a, const int& b){ return a*b; }},
+        {'+', [](const int& a, const int& b){ return a+b; }},
+        {'-', [](const int& a, const int& b){ return a-b; }},
+    };
+public:
+    vector<int> diffWaysToCompute(string input) {
+        if(dp.count(input)) return dp[input];
+        int N = input.size();
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            if(!isdigit(input[i])) {
+                vector<int> left = diffWaysToCompute(input.substr(0, i));
+                vector<int> right = diffWaysToCompute(input.substr(i + 1));
+                function<int(int, int)> op = ops_m[input[i]];
+                for(auto left_el: left) {
+                    for(auto right_el: right) {
+                        res.push_back(op(left_el, right_el));
+                    }
+                }
+            }
+        }
+        
+        if(res.empty()) res.push_back(stoi(input)); // no operations left
+        return dp[input] = res;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<int> v = s.diffWaysToCompute("2*3-4*5");
+    for(auto e: v) cout << e << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+242. Valid Anagram
+Given two strings s and t, write a function to determine if t is an anagram of s.
+
+For example,
+s = "anagram", t = "nagaram", return true.
+s = "rat", t = "car", return false.
+
+Note:
+You may assume the string contains only lowercase alphabets.
+
+Follow up:
+What if the inputs contain unicode characters? How would you adapt your solution to such case?
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        if(s.size() != t.size()) return false;
+        
+        unordered_map<char, int> s_freq, t_freq;
+        for(int i = 0, len = s.size(); i < len; i++) {
+            s_freq[s[i]]++;
+            t_freq[t[i]]++;
+        }
+        
+        if(s_freq.size() != t_freq.size()) return false;
+        for(auto kv: s_freq) {
+            if(t_freq.count(kv.first) && t_freq[kv.first] == kv.second) continue;
+            return false;
+        }
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+257. Binary Tree Paths
+Given a binary tree, return all root-to-leaf paths.
+
+For example, given the following binary tree:
+
+   1
+ /   \
+2     3
+ \
+  5
+All root-to-leaf paths are:
+
+["1->2->5", "1->3"]
+/*
+    Submission Date: 2017-08-23
+    Runtime: 79 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        if(root == NULL) return {};
+        
+        string curr = to_string(root -> val);
+        vector<string> res;
+        
+        vector<string> left = binaryTreePaths(root -> left);
+        for(auto str: left) res.push_back(curr + "->" + str);
+        
+        vector<string> right = binaryTreePaths(root -> right);
+        for(auto str: right) res.push_back(curr + "->" + str);
+        
+        if(left.empty() && right.empty()) res.push_back(curr);
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+258. Add Digits
+Given a non-negative integer num, repeatedly add all its 
+digits until the result has only one digit.
+
+For example:
+
+Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. 
+Since 2 has only one digit, return it.
+
+Follow up:
+Could you do it without any loop/recursion in O(1) runtime?
+/*
+    Submission Date: 2017-08-25
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+/*
+    digital root problem (single digit) value obtained by an iterative 
+    process of summing digits, on each iteration using the result from 
+    the previous iteration to compute a digit sum
+
+    cyclic around 9
+    ...                 10                  20                  30
+    0 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 
+    ...             40                  50                  60
+    5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
+    ...         70                  80                  90
+    1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
+*/
+class Solution {
+public:
+    int addDigits(int num) {
+        return 1 + (num - 1) % 9;
+    }
+};
+
+class Solution2 {
+public:
+    int addDigits(int num) {
+        if(num == 0) return 0;
+        int num_digits = floor(log10(num)) + 1;
+        if(num_digits == 1) return num;
+        
+        int x = 0;
+        while(num) {
+            x += num % 10;
+            num /= 10;
+        }
+        
+        return addDigits(x);
+    }
+};
+
+int main() {
+    Solution s;
+    for(int i = 0; i < 100; i++) {
+        cout << i << ' ' << s.addDigits(i) << endl;
+    }
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 260. Single Number III
 Given an array of numbers nums, in which exactly two elements 
 appear only once and all the other elements appear exactly twice. 
@@ -497,497 +939,6 @@ public:
         }
 
         return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-282. Expression Add Operators
-Given a string that contains only digits 0-9 and a target value, return all 
-possibilities to add binary operators (not unary) +, -, or * between the digits 
-so they evaluate to the target value.
-
-Examples: 
-"123", 6 -> ["1+2+3", "1*2*3"] 
-"232", 8 -> ["2*3+2", "2+3*2"]
-"105", 5 -> ["1*0+5","10-5"]
-"00", 0 -> ["0+0", "0-0", "0*0"]
-"3456237490", 9191 -> []
-
-/*
-    Submission Date: 2017-08-12
-    Runtime: 59 ms
-    Difficulty: HARD
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void getOperators(string num, int index, int target, 
-                        string curr, int val, 
-                        string curr_product, int product, vector<string>& res) {
-
-        int N = num.size();
-        if(index == N) { // no more numbers to process
-            if(curr.empty()) { 
-                // result just contains multiplication curr="" curr_product="ab*c*de" -> "ab*c*de" 
-                if(product == target) res.push_back(curr_product);
-            } else {
-                // try add/subtract product to current and see if it reaches target
-                // e.g curr = "ab*c*de + f - g*hi" 
-                // curr_product = "jk*lmn*qr" -> "ab*c*de + f - g*hi - jk*lmn*qr" 
-                // or "ab*c*de + f - g*hi + jk*lmn*qr". curr_product could just be one number like "qrs"
-                if(val - product == target) res.push_back(curr + "-" + curr_product);  
-                if(val + product == target) res.push_back(curr + "+" + curr_product);
-            }
-            return;
-        }
-
-        int sub_val = num[index] - '0';
-        for(int i = index + 1; i <= N; i++) {
-            string sub = num.substr(index, i - index);
-
-            // either continue product
-            if(!curr_product.empty()) {
-                getOperators(num, i, target, curr, val, 
-                                        curr_product + "*" + sub, product * sub_val, res);
-            }
-
-            // end product and add or subtract it
-            if(!curr.empty()) {
-                getOperators(num, i, target, curr + "-" + curr_product, val - product, 
-                                        sub, sub_val, res);
-            }
-
-            string new_curr = curr.empty() ? curr_product : curr + "+" + curr_product;
-            getOperators(num, i, target, new_curr, val + product, 
-                                        sub, sub_val, res);
-
-            // cannot process multiple zeros e.g 000 + xyz, 0xy or 000*xy is not valid must be 
-            // single zeros and no leading zeros
-            if(num[index] == '0') break;
-
-            // check for overflow of sub_val
-            int char_val = num[i] - '0';
-            if(sub_val > (INT_MAX - char_val)/10) break; 
-
-            sub_val = sub_val*10 + char_val;
-        }
-    }
-
-    vector<string> addOperators(string num, int target) {
-        vector<string> res;
-        getOperators(num, 0, target, "", 0, "", 0, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-283. Move Zeroes
-Given an array nums, write a function to move all 0's to the end 
-of it while maintaining the relative order of the non-zero elements.
-
-For example, given nums = [0, 1, 0, 3, 12], after calling your 
-function, nums should be [1, 3, 12, 0, 0].
-
-Note:
-You must do this in-place without making a copy of the array.
-Minimize the total number of operations.
-
-/*
-    Submission Date: 2017-08-30
-    Runtime: 16 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void moveZeroes(vector<int>& nums) {
-        int N = nums.size();
-        int read_idx = 0, write_idx = 0;
-        while(read_idx < N) {
-            if(nums[read_idx] != 0) {
-                nums[write_idx] = nums[read_idx];
-                write_idx++;
-            }
-            read_idx++;
-            
-        }
-        
-        while(write_idx < N) nums[write_idx++] = 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-284. Peeking Iterator
-Given an Iterator class interface with methods: next() and hasNext(), 
-design and implement a PeekingIterator that support the peek() 
-operation -- it essentially peek() at the element that will be 
-returned by the next call to next().
-
-Here is an example. Assume that the iterator is initialized to the 
-beginning of the list: [1, 2, 3].
-
-Call next() gets you 1, the first element in the list.
-
-Now you call peek() and it returns 2, the next element. Calling 
-next() after that still return 2.
-
-You call next() the final time and it returns 3, the last element. 
-Calling hasNext() after that should return false.
-
-Follow up: How would you extend your design to be generic and work 
-with all types, not just integer?
-/*
-    Submission Date: 2017-08-30
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cassert>
-
-using namespace std;
-
-// Below is the interface for Iterator, which is already defined for you.
-// **DO NOT** modify the interface for Iterator.
-class Iterator {
-    struct Data;
-    Data* data;
-public:
-    Iterator(const vector<int>& nums);
-    Iterator(const Iterator& iter);
-    virtual ~Iterator();
-    // Returns the next element in the iteration.
-    int next();
-    // Returns true if the iteration has more elements.
-    bool hasNext() const;
-};
-
-
-class PeekingIterator : public Iterator {
-    Iterator* it_;
-public:
-    PeekingIterator(const vector<int>& nums) : Iterator(nums) {
-        // Initialize any member here.
-        // **DO NOT** save a copy of nums and manipulate it directly.
-        // You should only use the Iterator interface methods.
-        it_ = new Iterator(nums);
-    }
-
-    // Returns the next element in the iteration without advancing the iterator.
-    int peek() {
-        assert(hasNext());
-        Iterator* temp = new Iterator(*it_);
-        int res = it_ -> next();
-        delete it_;
-        it_ = temp;
-        return res;
-    }
-
-    // hasNext() and next() should behave the same as in the Iterator interface.
-    // Override them if needed.
-    int next() {
-        assert(hasNext());
-        return it_ -> next();
-    }
-
-    bool hasNext() const {
-        return it_ -> hasNext();
-    }
-};
-
-class PeekingIterator2 : public Iterator {
-    int prev_;
-    bool remaining_;
-    Iterator* it_;
-public:
-    PeekingIterator2(const vector<int>& nums) : Iterator(nums) {
-        // Initialize any member here.
-        // **DO NOT** save a copy of nums and manipulate it directly.
-        // You should only use the Iterator interface methods.
-        it_ = new Iterator(nums);
-        remaining_ = it_ -> hasNext();
-        if(remaining_) {
-            prev_ = it_ -> next();
-        }
-    }
-
-    // Returns the next element in the iteration without advancing the iterator.
-    int peek() {
-        return prev_;
-    }
-
-    // hasNext() and next() should behave the same as in the Iterator interface.
-    // Override them if needed.
-    int next() {
-        int res = prev_;
-        remaining_ = it_ -> hasNext();
-        if(remaining_) prev_ = it_ -> next();
-        return res;
-    }
-
-    bool hasNext() const {
-        return remaining_;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-287. Find the Duplicate Number
-Given an array nums containing n + 1 integers where each integer is 
-between 1 and n (inclusive), prove that at least one duplicate number 
-must exist. Assume that there is only one duplicate number, find the 
-duplicate one.
-
-Note:
-You must not modify the array (assume the array is read only).
-You must use only constant, O(1) extra space.
-Your runtime complexity should be less than O(n^2).
-There is only one duplicate number in the array, but it could be 
-repeated more than once.
-/*
-    Submission Date: 2017-08-30
-    Runtime: 12 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Find beginning of cycle of linked list. nums[i] represents
-        node i has a link to node nums[i]. since nums[i] is [1,n]
-        it means it will always have a link to an element in the 
-        array. there are n+1 numbers and they span from [1,n] so
-        a duplicate must exist eg n = 2 -> 1,2,_ . 
-        pigeonhole principle states that if n items are put into m 
-        containers, with n > m, then at least one container must 
-        contain more than one item. 
-        a cycle will occur as two numbers point to the same index
-        one number going into the cycle and the second completing
-        the cycle e.g [1,3,4,2,2] ->
-        indices 0 -> 1 -> 3 -> 2 -> 4 -> 2
-        values  1 -> 3 -> 2 -> 4 -> 2 -> 4
-        0 can't be the start of the cycle as there is no number
-        going into the cycle (index 0) meaning this method won't work 
-        (the guarantee of nums[i] between [1,n] must exist).
-    */
-    int findDuplicate(vector<int>& nums) {
-        int slow = 0;
-        int fast = 0;
-        
-        do {
-            slow = nums[slow];
-            fast = nums[nums[fast]];
-        } while(slow != fast);
-        
-        slow = 0;
-        while(slow != fast) {
-            slow = nums[slow];
-            fast = nums[fast];
-        }
-        
-        return slow;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-289. Game of Life
-According to the Wikipedia's article: "The Game of Life, also known 
-simply as Life, is a cellular automaton devised by the British 
-mathematician John Horton Conway in 1970."
-
-Given a board with m by n cells, each cell has an initial state live 
-(1) or dead (0). Each cell interacts with its eight neighbors 
-(horizontal, vertical, diagonal) using the following four rules 
-(taken from the above Wikipedia article):
-
-Any live cell with fewer than two live neighbors dies, as if caused 
-by under-population.
-Any live cell with two or three live neighbors lives on to the next 
-generation.
-Any live cell with more than three live neighbors dies, as if by 
-over-population..
-Any dead cell with exactly three live neighbors becomes a live cell, 
-as if by reproduction.
-Write a function to compute the next state (after one update) of the 
-board given its current state.
-
-Follow up: 
-Could you solve it in-place? Remember that the board needs to be 
-updated at the same time: You cannot update some cells first and 
-then use their updated values to update other cells.
-In this question, we represent the board using a 2D array. In 
-principle, the board is infinite, which would cause problems 
-when the active area encroaches the border of the array. How 
-would you address these problems?
-/*
-    Submission Date: 2017-08-30
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    typedef pair<int,int> pii;
-public:
-    int getAdajacent(const vector<vector<int>>& board, int row, int col, int M, int N) {
-        int res = 0;
-        for(int i = -1; i <= 1; i++) {
-            for(int j = -1; j <= 1; j++) {
-                if(i == 0 && j == 0) continue;
-                int x = row + i;
-                int y = col + j;
-                if(0 <= x && x < M && 0 <= y && y < N) {
-                    res += board[x][y] & 1;
-                }
-            }
-        }
-        
-        return res;
-    }
-    void gameOfLife(vector<vector<int>>& board) {
-        if(board.empty()) return;
-        
-        vector<pii> make_live, make_dead;
-        int M = board.size();
-        int N = board[0].size();
-        
-        for(int i = 0; i < M; i++) {
-            for(int j = 0; j < N; j++) {
-                int live = getAdajacent(board, i, j, M, N);
-                if(board[i][j] == 0) {
-                    if(live == 3) make_live.emplace_back(i, j);
-                } else {
-                    if(live < 2 || live > 3) make_dead.emplace_back(i, j);
-                }
-            }
-        }
-        
-        for(auto p: make_dead) board[p.first][p.second] = 0;
-        for(auto p: make_live) board[p.first][p.second] = 1;
-    }
-    
-    void gameOfLife2(vector<vector<int>>& board) {
-        if(board.empty()) return;
-        
-        int M = board.size();
-        int N = board[0].size();
-        
-        /*
-            O(1) space by storing whether to toggle for the next 
-            state in the second bit. 1x means needs to toggle whereas 
-            0x means doesn't need to toggle. Get state of z by (z & 1) 
-            and get whether to toggle by (z >> 1) so next state of
-            z is just (z >> 1) ^ (z & 1)
-        */
-        for(int i = 0; i < M; i++) {
-            for(int j = 0; j < N; j++) {
-                int live = getAdajacent(board, i, j, M, N);
-                if(board[i][j] == 0) {
-                    board[i][j] |= (live == 3) << 1;
-                } else {
-                    board[i][j] |= (live < 2 || live > 3) << 1;
-                }
-            }
-        }
-        
-        for(int i = 0; i < M; i++) {
-            for(int j = 0; j < N; j++) {
-                board[i][j] = (board[i][j] >> 1) ^ (board[i][j] & 1);
-            }
-        }
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-290. Word Pattern
-Given a pattern and a string str, find if str follows the same pattern.
-
-Here follow means a full match, such that there is a bijection between a 
-letter in pattern and a non-empty word in str.
-
-Examples:
-pattern = "abba", str = "dog cat cat dog" should return true.
-pattern = "abba", str = "dog cat cat fish" should return false.
-pattern = "aaaa", str = "dog cat cat dog" should return false.
-pattern = "abba", str = "dog dog dog dog" should return false.
-Notes:
-You may assume pattern contains only lowercase letters, and str contains 
-lowercase letters separated by a single space.
-/*
-    Submission Date: 2017-09-10
-    Runtime: 0 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    bool wordPattern(string pattern, string str) {
-        unordered_map<char,string> letter_to_word;
-        unordered_map<string,char> word_to_letter;
-        
-        stringstream ss(str);
-        string word;
-        
-        int i = 0, N = pattern.size();
-        while(i < N) {
-            ss >> word;
-            if(word.empty()) return false;
-            if(letter_to_word.count(pattern[i]) || word_to_letter.count(word)) {
-                if(word_to_letter[word] != pattern[i] || letter_to_word[pattern[i]] != word) return false;
-            } else {
-                letter_to_word[pattern[i]] = word;
-                word_to_letter[word] = pattern[i];
-            }
-            i++;
-        }
-        
-        bool rem = (bool)(ss >> word);
-        return !rem;
     }
 };
 

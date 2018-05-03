@@ -1,114 +1,56 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-623. Add One Row to Tree
-Given the root of a binary tree, then value v and depth d, you need to add a row of 
-nodes with value v at the given depth d. The root node is at depth 1.
-
-The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
-N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
-subtree root. And N's original left subtree should be the left subtree of the new left 
-subtree root, its original right subtree should be the right subtree of the new right 
-subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
-tree node with value v as the new root of the whole original tree, and the original 
-tree is the new root's left subtree.
+539. Minimum Time Difference
+Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
+minutes difference between any two time points in the list.
 
 Example 1:
-Input: 
-A binary tree as following:
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
+Input: ["23:59","00:00"]
+Output: 1
 
-v = 1
-
-d = 2
-
-Output: 
-       4
-      / \
-     1   1
-    /     \
-   2       6
-  / \     / 
- 3   1   5   
-
-Example 2:
-Input: 
-A binary tree as following:
-      4
-     /   
-    2    
-   / \   
-  3   1    
-
-v = 1
-
-d = 3
-
-Output: 
-      4
-     /   
-    2
-   / \    
-  1   1
- /     \  
-3       1
 Note:
-The given d is in range [1, maximum depth of the given tree + 1].
-The given binary tree has at least one tree node.
+The number of time points in the given list is at least 2 and won't exceed 20000.
+The input time is legal and ranges from 00:00 to 23:59.
 
 /*
-    Submission Date: 2017-06-18
-    Runtime: 19 ms
+    Submission Date: 2017-03-11
+    Runtime: 43 ms
     Difficulty: MEDIUM
 */
 
+using namespace std;
 #include <iostream>
 #include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
+#include <limits.h>
+#include <algorithm>
 
 class Solution {
-    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
-        if(root == NULL) return;
-        if(d == 0) {
-            vec.push_back(root);
-            return;
-        }
-        
-        getRow(root -> left, d - 1, vec);
-        getRow(root -> right, d - 1, vec);
-    }
 public:
-    TreeNode* addOneRow(TreeNode* root, int v, int d) {
-        // get all nodes at depth d - 1
-        vector<TreeNode*> vec;
-        if(d == 1) {
-            TreeNode* new_root = new TreeNode(v);
-            new_root -> left = root;
-            root = new_root;
-        } else {
-            getRow(root, d - 2, vec);
-            for(auto t: vec) {
-                TreeNode* left = t -> left;
-                TreeNode* right = t -> right;
-                t -> left = new TreeNode(v);
-                t -> right = new TreeNode(v);
-                t -> left -> left = left;
-                t -> right -> right = right;
-            }
+    // Assume time b is larger than a
+    int getDifference(string a, string b) {
+        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
+        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
+        return hours*60 + minutes;
+    }
+
+    int findMinDifference(vector<string>& timePoints) {
+        sort(timePoints.begin(), timePoints.end());
+        int minDiff = INT_MAX;
+        int len = timePoints.size();
+
+        for(int i = 1; i < len; i++) {
+            int diff = getDifference(timePoints[i-1], timePoints[i]);
+            if(diff < minDiff) minDiff = diff;
         }
-        return root;
+
+        string firstTimePoint = timePoints.front();
+        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
+        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
+        int wrapDiff = getDifference(timePoints.back(), wrap);
+
+        if(wrapDiff < minDiff) minDiff = wrapDiff;
+        return minDiff;
     }
 };
 
@@ -117,77 +59,109 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-624. Maximum Distance in Arrays
-Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
-integers from two different arrays (each array picks one) and calculate the distance. 
-We define the distance between two integers a and b to be their absolute difference 
-|a-b|. Your task is to find the maximum distance.
+541. Reverse String II
+Given a string and an integer k, you need to reverse the first k characters for every 2k 
+characters counting from the start of the string. If there are less than k characters left, 
+reverse all of them. If there are less than 2k but greater than or equal to k characters, 
+then reverse the first k characters and left the other as original.
+
+Example:
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+
+Restrictions:
+The string consists of lower English letters only.
+Length of the given string and k will in the range [1, 10000]
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 26 ms
+    Difficulty: EASY
+*/
+
+using namespace std;
+#include <iostream>
+
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string finalStr = "";
+        bool reverse = true;
+        int i = 0, len = s.size();
+        while(i < len) {
+            string currentStr = string(1, s[i++]);
+            while(i%k != 0 && i < len) {
+                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
+                i++;
+            }
+            finalStr += currentStr;
+            reverse ^= true;
+        }
+        
+        return finalStr;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+565. Array Nesting
+A zero-indexed array A consisting of N different integers is given. The array contains 
+all integers in the range [0, N - 1].
+
+Sets S[K] for 0 <= K < N are defined as follows:
+
+S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+
+Sets S[K] are finite for each K and should NOT contain duplicates.
+
+Write a function that given an array A consisting of N integers, return the size of 
+the largest set S[K] for this array.
 
 Example 1:
-Input: 
-[[1,2,3],
- [4,5],
- [1,2,3]]
+Input: A = [5,4,0,3,1,6,2]
 Output: 4
 Explanation: 
-One way to reach the maximum distance 4 is to pick 1 in the first or third array 
-and pick 5 in the second array.
+A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
+
+One of the longest S[K]:
+S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
 Note:
-Each given array will have at least 1 number. There will be at least two non-empty arrays.
-The total number of the integers in all the m arrays will be in the range of [2, 10000].
-The integers in the m arrays will be in the range of [-10000, 10000].
-
+N is an integer within the range [1, 20,000].
+The elements of A are all distinct.
+Each element of array A is an integer within the range [0, N-1].
 /*
-    Submission Date: 2017-06-18
-    Runtime: 32 ms
-    Difficulty: EASY
+    Submission Date: 2017-05-29
+    Runtime: 36 ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-struct Start {
-    int index;
-    int first_value;
-};
-
-struct End {
-    int index;
-    int last_value;
-};
-
 class Solution {
 public:
-    int maxDistance(vector<vector<int>>& arrays) {
-        int N = arrays.size();
-        vector<Start> v;
-        vector<End> v2;
+    int arrayNesting(vector<int>& nums) {
+        int N = nums.size();
+        vector<bool> mask(N, true);
+        int max_set = 0;
         for(int i = 0; i < N; i++) {
-            Start e = {i, arrays[i][0]};
-            End e2 = {i, arrays[i].back()};
-            v.push_back(e);
-            v2.push_back(e2);
-        }
-
-        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
-        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
-
-        int max_dist = -1;
-        int max_search = N;
-
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < max_search; j++) {
-                if(v[i].index != v2[j].index) {
-                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
-                    max_search = j;
-                    break;
+            if(mask[i]) { // hasn't been processed
+                int current = i;
+                int current_set = 0;
+                while(true) {
+                    if(current >= N || !mask[current]) break;
+                    mask[current] = false;
+                    current = nums[current];
+                    current_set++;
                 }
+                max_set = max(current_set, max_set);
             }
         }
-        return max_dist;
+        return max_set;
     }
 };
 
@@ -196,22 +170,24 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-628. Maximum Product of Three Numbers
-Given an integer array, find three numbers whose product is maximum and output the maximum product.
+581. Shortest Unsorted Continuous Subarray
+Given an integer array, you need to find one continuous subarray that if you only sort this 
+subarray in ascending order, then the whole array will be sorted in ascending order, too.
 
-Example 1:
-Input: [1,2,3]
-Output: 6
-Example 2:
-Input: [1,2,3,4]
-Output: 24
+You need to find the shortest such subarray and output its length.
+
+Input: [2, 6, 4, 8, 10, 9, 15]
+Output: 5
+Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
+sorted in ascending order.
+
 Note:
-The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
-Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
+Then length of the input array is in range [1, 10,000].
+The input array may contain duplicates, so ascending order here means <=.
 
 /*
-    Submission Date: 2017-07-09
-    Runtime: 79 ms
+    Submission Date: 2017-05-13
+    Runtime: 52 ms
     Difficulty: EASY
 */
 
@@ -223,182 +199,290 @@ using namespace std;
 
 class Solution {
 public:
-    int maximumProduct(vector<int>& nums) {
-        int N = nums.size();
-        
-        if(N < 3) return INT_MIN;
-        
-        sort(nums.begin(), nums.end());
-        
-        // three largest or 1 largest and 2 smallest
-        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
+    int findUnsortedSubarray(vector<int>& nums) {
+            int N = nums.size();
+            vector<int> cpy(N);
+            copy(nums.begin(), nums.end(), cpy.begin());
+            sort(nums.begin(), nums.end());
+
+            int i;
+            for(i = 0; i < N; i++) {
+                if(nums[i] != cpy[i]) break;
+            }
+
+            int j;
+            for(j = N-1; j >= 0; j--) {
+                if(nums[j] != cpy[j]) break;
+            }
+
+        return max(j - i + 1, 0);
     }
 };
 
 int main() {
     Solution s;
+    vector<int> v{2, 6, 4, 8, 10, 9, 15};
+    cout << s.findUnsortedSubarray(v);
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-636. Exclusive Time of Functions
-Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
-find the exclusive time of these functions.
+582. Kill Process
+Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
 
-Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
-another function.
+Each process only has one parent process, but may have one or more children processes. This 
+is just like a tree structure. Only one process has PPID that is 0, which means this process 
+has no parent process. All the PIDs will be distinct positive integers.
 
-A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
-means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
-very end of time 0.
+We use two list of integers to represent a list of processes, where the first list contains 
+PID for each process and the second list contains the corresponding PPID.
 
-Exclusive time of a function is defined as the time spent within this function, the time spent by 
-calling other functions should not be considered as this function's exclusive time. You should 
-return the exclusive time of each function sorted by their function id.
+Now given the two lists, and a PID representing a process you want to kill, return a list 
+of PIDs of processes that will be killed in the end. You should assume that when a process 
+is killed, all its children processes will be killed. No order is required for the final answer.
 
 Example 1:
-Input:
-n = 2
-logs = 
-["0:start:0",
- "1:start:2",
- "1:end:5",
- "0:end:6"]
-Output:[3, 4]
-Explanation:
-Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
-Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
-Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
-So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
-Note:
-Input logs will be sorted by timestamp, NOT log id.
-Your output should be sorted by function id, which means the 0th element of your output corresponds 
-to the exclusive time of function 0.
-Two functions won't start or end at the same time.
-Functions could be called recursively, and will always end.
-1 <= n <= 100
+Input: 
+pid =  [1, 3, 10, 5]
+ppid = [3, 0, 5, 3]
+kill = 5
+Output: [5,10]
+Explanation: 
+           3
+         /   \
+        1     5
+             /
+            10
+Kill 5 will also kill 10.
 
+Note:
+The given kill id is guaranteed to be one of the given PIDs.
+n >= 1.
 /*
-    Submission Date: 2017-07-15
-    Runtime: 63 ms
+    Submission Date: 2017-05-13
+    Runtime: 166 ms
     Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <stack>
-#include <sstream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
+        unordered_map<int, vector<int>> m;
+        int N = pid.size();
+        for(int i = 0; i < N; i++) {
+            int _ppid = ppid[i];
+            int _pid = pid[i];
+
+            if(m.find(_ppid) == m.end()) {
+                m[_ppid] = {_pid};
+            } else {
+                m[_ppid].push_back(_pid);
+            }
+        }
+
+        vector<int> result{kill};
+        int i = 0;
+        while(i < result.size()) {
+            int current = result[i];
+            if(m.find(current) != m.end()) { // non leaf
+                vector<int> children = m[current];
+                for(auto c: children) {
+                    result.push_back(c);
+                }
+            }
+            i++;
+        }
+        return result;
+    }
+};
+
+int main() {
+	Solution s;
+    vector<int> pid{1, 3, 10, 5, 4, 1};
+	vector<int> ppid{3, 0, 5, 3, 10, 5};
+    int kill = 5;
+    vector<int> t = s.killProcess(pid, ppid, kill);
+	for(auto l: t) cout << l << " ";
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+583. Delete Operation for Two Strings
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
+
+Example 1:
+Input: "sea", "eat"
+Output: 2
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
+Note:
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 29 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
+
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
+        }
+        
+        return dp[row - 1][col - 1];
+    }
+};
+
+int main() {
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+592. Fraction Addition and Subtraction
+Given a string representing an expression of fraction addition 
+and subtraction, you need to return the calculation result in string 
+format. The final result should be irreducible fraction. If your final 
+result is an integer, say 2, you need to change it to the format of 
+fraction that has denominator 1. So in this case, 2 should be 
+converted to 2/1.
+
+Example 1:
+Input:"-1/2+1/2"
+Output: "0/1"
+Example 2:
+Input:"-1/2+1/2+1/3"
+Output: "1/3"
+Example 3:
+Input:"1/3-1/2"
+Output: "-1/6"
+Example 4:
+Input:"5/3+1/3"
+Output: "2/1"
+Note:
+The input string only contains '0' to '9', '/', '+' and '-'. 
+So does the output.
+Each fraction (input and output) has format ±numerator/denominator. 
+If the first input fraction or the output is positive, then '+' will 
+be omitted.
+The input only contains valid irreducible fractions, where the 
+numerator and denominator of each fraction will always be in the 
+range [1,10]. If the denominator is 1, it means this fraction is 
+actually an integer in a fraction format defined above.
+The number of given fractions will be in the range [1,10].
+The numerator and denominator of the final result are guaranteed 
+to be valid and in the range of 32-bit int.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
 #include <cassert>
 
 using namespace std;
 
-struct Log {
-    int id;
-    string status;
-    int timestamp;
+typedef long long ll;
+struct Fraction {
+    ll num, den;
 };
 
 class Solution {
 public:
-    vector<int> exclusiveTime(int n, vector<string>& logs) {
-        vector<int> times(n, 0);
-        stack<Log> st;
-        for(string log: logs) {
-            stringstream ss(log);
-            string temp, temp2, temp3;
-            getline(ss, temp, ':');
-            getline(ss, temp2, ':');
-            getline(ss, temp3, ':');
-
-            Log item = {stoi(temp), temp2, stoi(temp3)};
-            if(item.status == "start") {
-                st.push(item);
-            } else {
-                assert(st.top().id == item.id);
-
-                int time_added = item.timestamp - st.top().timestamp + 1;
-                times[item.id] += item.timestamp - st.top().timestamp + 1;
-                st.pop();
-
-                if(!st.empty()) {
-                    assert(st.top().status == "start");
-                    times[st.top().id] -= time_added;
-                }
-            }
-        }
-
-        return times;
+    ll gcd(ll a, ll b) {
+        return b == 0 ? a : gcd(b, a % b);
     }
-};
 
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-637. Average of Levels in Binary Tree
-Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+    ll lcm(ll a, ll b) {
+        return a*b/gcd(a,b);
+    }
 
-Example 1:
-Input:
-    3
-   / \
-  9  20
-    /  \
-   15   7
-Output: [3, 14.5, 11]
-Explanation:
-The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
-[3, 14.5, 11].
-Note:
-The range of node's value is in the range of 32-bit signed integer.
+    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
+    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
+    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
 
-/*
-    Submission Date: 2017-07-09
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
+    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
+    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
+    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
+    // (a*d + b*c)/(b*d)
+    Fraction add(Fraction a, Fraction b) {
+        return {a.num*b.den + a.den*b.num, a.den*b.den};
+    }
 
-#include <iostream>
-#include <vector>
-#include <queue>
+    Fraction reduce(Fraction a) {
+        int gcd_num_den = gcd(abs(a.num), a.den);
+        return {a.num/gcd_num_den, a.den/gcd_num_den};
+    }
 
-using namespace std;
+    string fractionAddition(string s) {
+        vector<Fraction> v;
+        int N = s.size();
+        bool is_negative = false;
+        for(int i = 0; i < N;) {
+            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
+            // a number (positive num and is start of string)
+            Fraction fr;
+            is_negative = s[i] == '-';
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<double> averageOfLevels(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        vector<double> res;
-        
-        while(!q.empty()) {
-            int size = q.size();
-            int size1 = 0;
-            double sum = 0;
-            for(int i = 0; i < size; i++) {
-                TreeNode* f = q.front();
-                if(f) {
-                    sum += f -> val;
-                    size1++;
-                    q.push(f -> left);
-                    q.push(f -> right);
-                }
-                
-                q.pop();
+            if(s[i] == '+' || is_negative) {
+                i++;
             }
-            if(size1)
-            res.push_back(sum/size1);
+
+            ll curr = 0;
+            while(isdigit(s[i])) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.num = is_negative ? -curr : curr;
+            // s[i] is the '/' followed by a number so end i where the next operator starts
+            assert(s[i++] == '/');
+
+            curr = 0;
+            while(isdigit(s[i]) && i < N) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.den = curr;
+            v.push_back(fr);
         }
-        
-        return res;
+
+        Fraction res = v.front();
+        res = reduce(res);
+        for(int i = 1; i < v.size(); i++) {
+            res = add(res, v[i]);
+            res = reduce(res);
+        }
+
+        return to_string(res.num) + "/" + to_string(res.den);
     }
 };
 
@@ -408,413 +492,89 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-638. Shopping Offers
-In LeetCode Store, there are some kinds of items to sell. Each item has a price.
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the 
+four points could construct a square.
 
-However, there are some special offers, and a special offer consists of one or more different kinds of 
-items with a sale price.
+The coordinate (x,y) of a point is represented by an integer array 
+with two integers.
 
-You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
-The job is to output the lowest price you have to pay for exactly certain items as given, where you could
- make optimal use of the special offers.
-
-Each special offer is represented in the form of an array, the last number represents the price you need 
-to pay for this special offer, other numbers represents how many specific items you could get if you buy 
-this offer.
-
-You could use any of special offers as many times as you want.
-
-Example 1:
-Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
-Output: 14
-Explanation: 
-There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
-In special offer 1, you can pay $5 for 3A and 0B
-In special offer 2, you can pay $10 for 1A and 2B. 
-You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
-Example 2:
-Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
-Output: 11
-Explanation: 
-The price of A is $2, and $3 for B, $4 for C. 
-You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
-You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
-for 1C. 
-You cannot add more items, though only $9 for 2A ,2B and 1C.
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
 Note:
-There are at most 6 kinds of items, 100 special offers.
-For each item, you need to buy at most 6 of them.
-You are not allowed to buy more items than you want, even if that would lower the overall price.
 
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four 
+equal angles (90-degree angles).
+Input points have no order.
 /*
-    Submission Date: 2017-07-09
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, int> m;
-public:
-    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
-        string key = "";
-        
-        int N = needs.size();
-        
-        int res = INT_MAX;
-        
-        int count = 0;
-        int price_cost = 0;
-        for(int i = 0; i < N; i++) {
-            key += to_string(needs[i]);
-            count += needs[i] == 0;
-            price_cost += needs[i]*price[i];
-        }
-        
-        if(m.count(key)) return m[key];
-        
-        if(count == N) return 0;
-        
-        res = min(res, price_cost);
-        
-        vector<vector<int>> restore;
-        for(auto it = special.begin(); it != special.end();) {
-            vector<int> sp = *it;
-            
-            bool should_erase = false;
-            for(int i = 0; i < N; i++) {
-                if(sp[i] > needs[i]) {
-                    should_erase = true;
-                    break;
-                }
-            }
-            
-            if(should_erase) {
-                restore.push_back(sp);
-                it = special.erase(it);
-            } else {
-                // everything in sp[i] <= needs[i] so we can take it
-                for(int i = 0; i < N; i++) {
-                    needs[i] -= sp[i];
-                }
-                
-                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
-                for(int i = 0; i < N; i++) {
-                    needs[i] += sp[i];
-                }
-                it++;
-            }
-        }
-        
-        for(auto e: restore) special.push_back(e);
-        return m[key] = res;
-    }
-    
-    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
-        return shoppingOffersHelper(price, special, needs);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-645. Set Mismatch
-The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
-the numbers in the set got duplicated to another number in the set, which results in repetition of one 
-number and loss of another number.
-
-Given an array nums representing the data status of this set after the error. Your task is to firstly 
-find the number occurs twice and then find the number that is missing. Return them in the form of an array.
-
-Example 1:
-Input: nums = [1,2,2,4]
-Output: [2,3]
-Note:
-The given array size will in the range [2, 10000].
-The given array's numbers won't have any order.
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 62 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findErrorNums(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        for(auto num: nums) freq[num]++;
-        
-        int N = nums.size();
-        int duplicate = -1;
-        int missing = -1;
-        for(int i = 1; i <= N; i++) {
-            if(missing != -1 && duplicate != -1) break;
-            if(!freq.count(i)) {
-                missing = i;
-            } else if(freq[i] >= 2) {
-                duplicate = i;
-            }
-        }
-        return {duplicate, missing};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-646. Maximum Length of Pair Chain
-You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
-
-Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
-formed in this fashion.
-
-Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
-pairs. You can select pairs in any order.
-
-Example 1:
-Input: [[1,2], [2,3], [3,4]]
-Output: 2
-Explanation: The longest chain is [1,2] -> [3,4]
-Note:
-The number of given pairs will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 82 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLongestChain(vector<vector<int>>& pairs) {
-        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
-            return v1[1] < v2[1];
-        });
-        
-        vector<vector<int>> res;
-        
-        for(auto p: pairs) {
-            if(res.empty() || res.back()[1] < p[0]) {
-                res.push_back(p);
-            }
-        }
-        
-        return res.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-647. Palindromic Substrings
-Given a string, your task is to count how many palindromic substrings in this string.
-
-The substrings with different start indexes or end indexes are counted as different substrings even 
-they consist of same characters.
-
-Example 1:
-Input: "abc"
-Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-Example 2:
-Input: "aaa"
-Output: 6
-Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
-Note:
-The input string length won't exceed 1000.
-
-/*
-    Submission Date: 2017-07-23
+    Submission Date: 2017-08-23
     Runtime: 3 ms
     Difficulty: MEDIUM
 */
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cassert>
+#include <map>
 
+using namespace std;
+
+class Solution {
+public:
+    int distSq(vector<int>& a, vector<int>& b) {
+        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
+    }
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        vector<int> dist;
+        vector<vector<int>> v{p1, p2, p3, p4};
+        for(int i = 0; i < 4; i++) {
+            for(int j = i + 1; j < 4; j++) {
+                dist.push_back(distSq(v[i], v[j]));
+            }
+        }
+
+        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
+        // out of these 6 distances, there are 4 distances which are the side distances (s)
+        // and 2 that are hypotenuse (h)
+        // s^2 + s^2 = h^2
+
+        assert(dist.size() == 6);
+        map<int,int> freq;
+        for(auto e: dist) freq[e]++;
+
+        if(freq.size() != 2) return false;
+        int s = freq.begin() -> first;
+        int h = next(freq.begin(), 1) -> first;
+        return 2*s == h;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -823,80 +583,23 @@ using namespace std;
 
 class Solution {
 public:
-    int Manacher(string s) {
-        const char kNullChar = '\0';
-        string str = string(1, kNullChar);
-
-        for(auto c: s) str += string(1, c) + kNullChar;
-
-        string max_str = "";
-        int len = str.size();
-        int right = 0;
-        int center = 0;
-        vector<int> dp(len, 0);
-
-        for(int i = 1; i < len; i++) {
-            int mirr = 2*center - i;
-
-            // i is within right so can take the minimum of the mirror or distance from right
-            if(i < right) {
-                dp[i] = min(right - i, dp[mirr]);
-            }
-
-            // keep expanding around i while it is the same and increment P[i]
-            int left_index = i - (1 + dp[i]);
-            int right_index = i + (1 + dp[i]);
-            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
-                left_index--;
-                right_index++;
-                dp[i]++;
-            }
-
-            // i goes beyond current right so it is the new center
-            if(i + dp[i] > right) {
-                center = i;
-                right = i + dp[i];
-            }
-        }
-        
-        int count = 0;
-        for(int i = 0; i < len; i++) {
-            count += ceil((double)dp[i]/2.0);
-        }
-        return count;
+    double eucl_sq(vector<int>& p1, vector<int>& p2) {
+        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
     }
 
-    int countSubstrings(string s) {
-        return Manacher(s);
-    }
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        // distance squared
+        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
 
-    int countSubstrings2(string s) {
-        int res = 0;
-        int N = s.size();
-        int left, right;
-        for(int i = 0; i < N; i++) {
-            res++;
-            
-            // treat as odd
-            left = i - 1;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-            
-            // treat as even
-            left = i;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-        }
-        
-        return res;
+        sort(dist.begin(), dist.end());
+
+        // should result in 4 equal length sides and two longer sides that are the diagonals 
+        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
+        bool non_zero_sides = dist[0] > 0;
+
+        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
+        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
+        return equal_sides && non_zero_sides && correct_diagonals;
     }
 };
 
@@ -905,83 +608,359 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-648. Replace Words
-In English, we have a concept called root, which can be followed by some other words to form another 
-longer word - let's call this word successor. For example, the root an, followed by other, which can 
-form another word another.
+594. Longest Harmonious Subsequence
+We define a harmonious array is an array where the difference between its maximum value and its minimum 
+value is exactly 1.
 
-Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
-in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
-root with the shortest length.
-
-You need to output the sentence after the replacement.
+Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
+its possible subsequences.
 
 Example 1:
-Input: dict = ["cat", "bat", "rat"]
-sentence = "the cattle was rattled by the battery"
-Output: "the cat was rat by the bat"
-Note:
-The input will only have lower-case letters.
-1 <= dict words number <= 1000
-1 <= sentence words number <= 1000
-1 <= root length <= 100
-1 <= sentence words length <= 1000
-
+Input: [1,3,2,2,5,2,3,7]
+Output: 5
+Explanation: The longest harmonious subsequence is [3,2,2,2,3].
+Note: The length of the input array will not exceed 20,000.
 /*
-    Submission Date: 2017-07-23
-    Runtime: 159 ms
-    Difficulty: MEDIUM
+    Submission Date: 2017-05-27
+    Runtime: 109 ms
+    Difficulty: EASY
 */
-
 #include <iostream>
-#include <unordered_set>
-#include <set>
-#include <algorithm>
-#include <sstream>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        unordered_set<string> ds(dict.begin(), dict.end());
-        set<int> word_size;
-        for(auto ds_e: ds) {
-            word_size.insert(ds_e.size());
-        }
-
-        stringstream ss(sentence);
-        string temp;
-
-        vector<string> res;
-        while(getline(ss, temp, ' ')) {
-            bool found = false;
-            for(auto len: word_size) {
-                if(len > temp.size()) {
-                    res.push_back(temp);
-                    found = true;
-                    break;
-                } else {
-                    if(ds.count(temp.substr(0, len))) {
-                        res.push_back(temp.substr(0, len));
-                        found = true;
-                        break;
-                    }
-                }
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        int max_len = 0;
+        for(int d: nums) {
+            int current = 0;
+            if(freq.find(d) != freq.end()) {
+                current += freq[d];
+                freq[d] += 1;
+            } else {
+                freq[d] = 1;
             }
 
-            if(!found) {
-                res.push_back(temp);
+            int adj = 0;
+            if(freq.find(d-1) != freq.end()) {
+                adj = max(adj, freq[d-1]);
             }
-        }
 
-        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
-            return memo.empty() ? a : memo + " " + a;
-        });
+            if(freq.find(d+1) != freq.end()) {
+                adj = max(adj, freq[d+1]);
+            }
+
+            if(adj == 0) continue;
+            current += adj + 1;
+            max_len = max(current, max_len);
+        }
+        return max_len;
     }
 };
 
 int main() {
+    vector<int> v{1,3,2,2,5,2,3,7};
+    Solution s;
+    cout << s.findLHS(v) << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+598. Range Addition II
+Given an m * n matrix M initialized with all 0's and several update operations.
+
+Operations are represented by a 2D array, and each operation is represented by an array with 
+two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
+and 0 <= j < b.
+
+You need to count and return the number of maximum integers in the matrix after performing 
+all the operations.
+
+Example 1:
+Input: 
+m = 3, n = 3
+operations = [[2,2],[3,3]]
+Output: 4
+Explanation: 
+Initially, M = 
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+
+After performing [2,2], M = 
+[[1, 1, 0],
+ [1, 1, 0],
+ [0, 0, 0]]
+
+After performing [3,3], M = 
+[[2, 2, 1],
+ [2, 2, 1],
+ [1, 1, 1]]
+
+So the maximum integer in M is 2, and there are four of it in M. So return 4.
+Note:
+The range of m and n is [1,40000].
+The range of a is [1,m], and the range of b is [1,n].
+The range of operations size won't exceed 10,000.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxCount(int m, int n, vector<vector<int>>& ops) {
+        for(vector<int> op: ops) {
+            m = min(m, op[0]);
+            n = min(n, op[1]);
+        }
+        return m*n;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+599. Minimum Index Sum of Two Lists
+Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
+favorite restaurants represented by strings.
+
+You need to help them find out their common interest with the least list index sum. If there 
+is a choice tie between answers, output all of them with no order requirement. You could assume 
+there always exists an answer.
+
+Example 1:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
+Output: ["Shogun"]
+Explanation: The only restaurant they both like is "Shogun".
+Example 2:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["KFC", "Shogun", "Burger King"]
+Output: ["Shogun"]
+Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
+index sum 1 (0+1).
+Note:
+The length of both lists will be in the range of [1, 1000].
+The length of strings in both lists will be in the range of [1, 30].
+The index is starting from 0 to the list length minus 1.
+No duplicates in both lists.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 103 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> m;
+        for(int i = 0; i < list1.size(); i++) {
+            m[list1[i]] = i;
+        }
+        
+        vector<string> res;
+        int min_index_sum = -1;
+        for(int i = 0; i < list2.size(); i++) {
+            string s2 = list2[i];
+            if(m.count(s2)) {
+                int new_sum = i + m[s2];
+                if(min_index_sum == -1) {
+                    min_index_sum = new_sum;
+                    res.push_back(s2);
+                    continue;
+                }
+                
+                if(new_sum == min_index_sum) {
+                    res.push_back(s2);
+                } else if(new_sum < min_index_sum) {
+                    min_index_sum = new_sum;
+                    res.clear();
+                    res.push_back(s2);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
+    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
+    vector<string> t = s.findRestaurant(v1, v2);
+    cout << t.size() << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+604. Design Compressed String Iterator
+Design and implement a data structure for a compressed string iterator. 
+It should support the following operations: next and hasNext.
+
+The given compressed string will be in the form of each letter followed 
+by a positive integer representing the number of this letter existing in 
+the original uncompressed string.
+
+next() - if the original string still has uncompressed characters, return 
+the next letter; Otherwise return a white space.
+hasNext() - Judge whether there is any letter needs to be uncompressed.
+
+Example:
+
+StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
+
+iterator.next(); // return 'L'
+iterator.next(); // return 'e'
+iterator.next(); // return 'e'
+iterator.next(); // return 't'
+iterator.next(); // return 'C'
+iterator.next(); // return 'o'
+iterator.next(); // return 'd'
+iterator.hasNext(); // return true
+iterator.next(); // return 'e'
+iterator.hasNext(); // return false
+iterator.next(); // return ' '
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+class StringIterator {
+vector<pair<char, long long>> v_;
+int index_;
+public:
+    StringIterator(string compressedString) {
+        index_ = 0;
+        int len = compressedString.size();
+        int i = 0;
+        while(i < len) {
+            char c = compressedString[i];
+            i++;
+            string rep = "";
+            while(i < len && isdigit(compressedString[i])) {
+                rep += compressedString[i];
+                i++;
+            }
+            
+            long long times = stoll(rep);
+            // cout << c << ' ' << times << endl;
+            v_.emplace_back(c, times);
+        }
+    }
+    
+    char next() {
+        if(!hasNext()) return ' ';
+        pair<char, long long>& p = v_[index_];
+        p.second--;
+        if(p.second == 0) index_++;
+        return p.first;
+    }
+    
+    bool hasNext() {
+        return index_ < v_.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+605. Can Place Flowers
+Suppose you have a long flowerbed in which some of the plots are planted 
+and some are not. However, flowers cannot be planted in adjacent plots - 
+they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
+empty and 1 means not empty), and a number n, return if n new flowers can be 
+planted in it without violating the no-adjacent-flowers rule.
+
+Example 1:
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+Example 2:
+Input: flowerbed = [1,0,0,0,1], n = 2
+Output: False
+Note:
+The input array won't violate no-adjacent-flowers rule.
+The input array size is in the range of [1, 20000].
+n is a non-negative integer which won't exceed the input array size.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int len = flowerbed.size();
+        vector<int> v;
+
+        // v.push_back(-1);
+        for(int i = 0; i < len; i++) {
+            if(flowerbed[i]) {
+                v.push_back(i);
+            }
+        }
+        // v.push_back(len);
+
+        int v_len = v.size();
+        for(int i = 1; i < v_len; i++) {
+            int num_zeros = v[i] - v[i-1] - 1;
+            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
+            if(num_zeros > 0) {
+                int diff = (num_zeros - 1)/2;
+                n -= diff;
+            }
+        }
+
+        if(v_len) {
+            n -= v[0]/2;
+            // cout << n << endl;
+            n -= (len - v[v_len - 1] - 1)/2;
+            // cout << n << endl;
+        } else {
+            n -= (len+1)/2;
+        }
+
+        // cout << "n" << n << endl;
+        return n <= 0;
+    }
+};
+
+int main() {
+    Solution s;
     return 0;
 }

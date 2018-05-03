@@ -34,7 +34,7 @@ public:
 
         for(int i = 0; i < N; i++) {
             int same_count = 0;
-            map<tuple<int, int, int>, int> m;
+            map<pair<int, int>, int> m;
 
             for(int j = i; j < N; j++) {
                 if(points[i].x == points[j].x && points[i].y == points[j].y) {
@@ -46,10 +46,9 @@ public:
                 int dy = points[j].y - points[i].y;
 
                 int gcd_dx_dy = gcd(dx, dy);
-                int rem = dx*points[i].y - dy*points[i].x;
 
-                tuple<int, int, int> tp {dx/gcd_dx_dy, dy/gcd_dx_dy, rem/gcd_dx_dy};
-                m[tp]++;
+                pair<int, int> p {dx/gcd_dx_dy, dy/gcd_dx_dy};
+                m[p]++;
             }
 
             for(auto kv: m) max_points = max(kv.second + same_count, max_points);

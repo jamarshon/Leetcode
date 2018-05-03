@@ -1,6 +1,182 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+230. Kth Smallest Element in a BST
+Given a binary search tree, write a function kthSmallest to find the kth smallest 
+element in it.
+
+Note: 
+You may assume k is always valid, 1 ? k ? BST's total elements.
+
+Follow up:
+What if the BST is modified (insert/delete operations) often and you 
+need to find the kth smallest frequently? How would you optimize the 
+kthSmallest routine?
+
+/*
+    Submission Date: 2017-08-14
+    Runtime: 13 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <cassert>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    bool inorder(TreeNode* root, int& count, int k, int& res) {
+        if(root == NULL) return false;
+        
+        if(inorder(root -> left, count, k, res)) return true;
+        count++;
+        if(count == k) {
+            res = root -> val;
+            return true;
+        }
+        
+        if(inorder(root -> right, count, k, res)) return true;
+        return false;
+    }
+    int kthSmallest(TreeNode* root, int k) {
+        int count = 0, res = 0;
+        inorder(root, count, k, res);
+        return res;
+    }
+};
+
+class Solution2 {
+public:
+    int updateMap(unordered_map<TreeNode*, int>& node_to_num_children, TreeNode* root) {
+        if(node_to_num_children.count(root)) return node_to_num_children[root];
+        int res = 1;
+        res += updateMap(node_to_num_children, root -> left);
+        res += updateMap(node_to_num_children, root -> right);
+        return node_to_num_children[root] = res;
+    }
+
+    int traverse(TreeNode* root, int k, unordered_map<TreeNode*, int>& node_to_num_children) {
+        assert(root != NULL);
+        int left_num = node_to_num_children[root -> left];
+        
+        if(left_num == k - 1) return root -> val;
+
+        if(left_num >= k) {
+            return traverse(root -> left, k, node_to_num_children);
+        } else {
+            return traverse(root -> right, k - 1 - left_num, node_to_num_children);
+        }
+    }
+    int kthSmallest(TreeNode* root, int k) {
+        unordered_map<TreeNode*, int> node_to_num_children{{NULL, 0}};
+        updateMap(node_to_num_children, root);
+        return traverse(root, k, node_to_num_children);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+231. Power of Two
+Given an integer, write a function to determine if it is a power of two.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPowerOfTwo(int n) {
+        return n > 0 ? (n & (n - 1)) == 0 : false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+232. Implement Queue using Stacks
+Implement the following operations of a queue using stacks.
+
+push(x) -- Push element x to the back of queue.
+pop() -- Removes the element from in front of queue.
+peek() -- Get the front element.
+empty() -- Return whether the queue is empty.
+Notes:
+You must use only standard operations of a stack -- which means 
+only push to top, peek/pop from top, size, and is empty operations 
+are valid.
+Depending on your language, stack may not be supported natively. You 
+may simulate a stack by using a list or deque (double-ended queue), as 
+long as you use only standard operations of a stack.
+You may assume that all operations are valid (for example, no pop or 
+peek operations will be called on an empty queue).
+/*
+    Submission Date: 2017-08-21
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <stack>
+
+using namespace std;
+
+class MyQueue {
+    stack<int> input_, output_;
+public:
+    MyQueue() {}
+
+    void push(int x) {
+        input_.push(x);
+    }
+
+    int pop() {
+        int output_top = peek();
+        output_.pop();
+        return output_top;
+    }
+
+    int peek() {
+        if(output_.empty()) {
+            // reverse input_ stack by taking the top and making it at the bottom of output_
+            while(!input_.empty()) {
+                int input_top = input_.top();
+                output_.push(input_top);
+                input_.pop();
+            }
+        }
+
+        return output_.top();
+    }
+
+    bool empty() {
+        return input_.empty() && output_.empty();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 233. Number of Digit One
 Given an integer n, count the total number of digit 1 
 appearing in all non-negative integers less than or equal to n.
@@ -300,6 +476,20 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+class Solution2 {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(root == nullptr || root == p || root == q) return root;
+
+        auto* left = lowestCommonAncestor(root->left,p,q);
+        auto* right = lowestCommonAncestor(root->right,p,q);
+
+        if(left && right) return root;
+        else if(left) return left;
+        else return right;
+    }
+};
+
 class Solution {
 public:
     int lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q, TreeNode*& res) {
@@ -555,447 +745,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-241. Different Ways to Add Parentheses
-Given a string of numbers and operators, return all possible results from computing all the 
-different possible ways to group numbers and operators. The valid operators are +, - and *.
-
-Example 1
-Input: "2-1-1".
-
-((2-1)-1) = 0
-(2-(1-1)) = 2
-Output: [0, 2]
-
-
-Example 2
-Input: "2*3-4*5"
-
-(2*(3-(4*5))) = -34
-((2*3)-(4*5)) = -14
-((2*(3-4))*5) = -10
-(2*((3-4)*5)) = -10
-(((2*3)-4)*5) = 10
-Output: [-34, -14, -10, -10, 10]
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <cassert>
-#include <unordered_map>
-#include <functional>
-#include <sstream>
-
-using namespace std;
-
-struct Element {
-    bool is_operator;
-    int value;
-    Element(bool _is_operator, int _value): is_operator(_is_operator), value(_value) {}
-};
-
-struct ETreeNode {
-    Element e;
-    ETreeNode* left, *right;
-    ETreeNode(Element _e): e(_e), left(NULL), right(NULL) {}
-};
-
-class SolutionTree {
-public:
-    ETreeNode* cloneWithOffset(ETreeNode* curr, int offset) {
-        if(curr == NULL) return NULL;
-        Element offset_e = curr -> e;
-        offset_e.value += offset;
-
-        ETreeNode* new_curr = new ETreeNode(offset_e);
-        new_curr -> left = cloneWithOffset(curr -> left, offset);
-        new_curr -> right = cloneWithOffset(curr -> right, offset);
-        return new_curr;
-    }
-
-    void destroyTree(ETreeNode* root) {
-        if(root == NULL) return;
-        destroyTree(root -> left);
-        destroyTree(root -> right);
-        delete root;
-    }
-
-    vector<ETreeNode*> generateTrees(int n) {
-        if(n == 0) return {};
-        vector<vector<ETreeNode*>> dp(n + 1);
-        dp[0] = {NULL};
-
-        for(int len = 1; len <= n; len++) {
-            for(int j = 0; j < len; j++) {
-                vector<ETreeNode*> left_trees = dp[j],
-                                right_trees = dp[len - j - 1];
-                for(auto left_tree: left_trees) {
-                    for(auto right_tree: right_trees) {
-                        ETreeNode* curr = new ETreeNode(Element{true, j});
-                        curr -> left = cloneWithOffset(left_tree, 0);
-                        curr -> right = cloneWithOffset(right_tree, j+1);
-                        dp[len].push_back(curr);
-                    }
-                }
-                
-            }
-        }
-
-        for(int i = 0; i < n; i++) {
-            for(auto tree: dp[i]) destroyTree(tree);
-        }
-        return dp[n];
-    }
-
-    void inorderPlaceValuesAndOperators(ETreeNode* root, vector<Element>& numbers, vector<Element> operators, int& i, int& j){
-        if(root == NULL) return;
-        inorderPlaceValuesAndOperators(root -> left, numbers, operators, i, j);
-        root -> e = operators[i++];
-        if(root -> left == NULL) {
-            root -> left = new ETreeNode(numbers[j++]);
-        }
-
-        if(root -> right) {
-            inorderPlaceValuesAndOperators(root -> right, numbers, operators, i, j);
-        } else {
-            root -> right = new ETreeNode(numbers[j++]);
-        }
-    }
-
-    int evaluateTree(ETreeNode* root) {
-        assert(root != NULL); // should never happen as the numbers are the leafs
-        if(root -> e.is_operator) {
-            if(root -> e.value == '*') {
-                return evaluateTree(root -> left) * evaluateTree(root -> right);
-            } else if(root -> e.value == '+') {
-                return evaluateTree(root -> left) + evaluateTree(root -> right);
-            } else if(root -> e.value == '-'){
-                return evaluateTree(root -> left) - evaluateTree(root -> right);
-            } else {
-                assert(false);
-                return -1;
-            }
-        } else {
-            return root -> e.value;
-        }
-    }
-
-    void preorder(ETreeNode* curr) {
-        if(curr == NULL) {
-            cout << "NULL ";
-        } else {
-            if(curr -> e.is_operator) cout << char(curr -> e.value) << ' ';
-            else cout << (curr -> e.value) << ' ';
-            preorder(curr -> left);
-            preorder(curr -> right);
-        }
-    }
-
-    vector<int> diffWaysToCompute(string input) {
-        int start = 0;
-        int end = 0;
-        int N = input.size();
-
-        vector<Element> operators;
-        vector<Element> numbers;
-        while(end < N) {
-            if(input[end] == '*' || input[end] == '-' || input[end] == '+') {
-                string s = input.substr(start, end - start);
-                if(!s.empty()) {
-                    numbers.emplace_back(false, stoi(s));
-                }
-                operators.emplace_back(true, input[end]);
-                start = end + 1;
-            }
-            end++;
-        }
-
-        string s = input.substr(start, end - start);
-        if(!s.empty()) {
-            numbers.emplace_back(false, stoi(s));
-        }
-
-        vector<ETreeNode*> uniqueTrees = generateTrees(operators.size());
-        vector<int> res;
-        int i,j;
-        for(auto tree: uniqueTrees) {
-            i = j = 0;
-            inorderPlaceValuesAndOperators(tree, numbers, operators, i, j);
-            res.push_back(evaluateTree(tree));
-        }
-        return res;
-    }
-};
-
-
-class SolutionDP {
-    unordered_map<char, function<int(int,int)>> ops_m {
-        {'*', [](const int& a, const int& b){ return a*b; }},
-        {'+', [](const int& a, const int& b){ return a+b; }},
-        {'-', [](const int& a, const int& b){ return a-b; }},
-    };
-public: 
-    vector<int> diffWaysToCompute(string input) {
-        vector<int> nums; // nums will be size N and ops should be size N - 1 but extra added just for convenience
-        vector<char> ops;
-
-        int num;
-        char op;
-        stringstream ss(input + "+");
-
-        while(ss >> num && ss >> op) {
-            nums.push_back(num);
-            ops.push_back(op);
-        }
-
-        int N = nums.size();
-        if(N == 1) return nums;
-
-        /**
-            dp[i][j] is a vector of all possible values from operations from index i to j inclusive where indexes
-            correspond with integers from the nums array
-            e.g. "2*3-4*5" -> nums = [2,3,4,5] and ops = ['*', '-', '*'] dp[2][3] = {20} as 4*5 or ops[2](dp[2][2], dp[3][3])
-
-            dp[i][i] would just be {nums[i]}
-            dp[i][j] would be {op[k](dp[i][k], dp[k+1][j]), ... for all k from [i, j)}
-            final result is just indexes 0 to N-1 or dp[0][N-1]
-        */
-        vector<vector<vector<int>>> dp(N, vector<vector<int>>(N));
-
-        for(int i = N-1; i >= 0; i--) {
-            for(int j = i; j < N; j++) {
-                if(i == j) {
-                    dp[i][j] = {nums[i]};
-                } else {
-                    for(int k = i; k < j; k++) {
-                        vector<int>& left = dp[i][k];
-                        vector<int>& right = dp[k+1][j];
-                        function<int(int,int)> op = ops_m[ops[k]];
-                        for(auto left_el: left) {
-                            for(auto right_el: right) {
-                                dp[i][j].push_back(op(left_el, right_el));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return dp[0][N-1];
-    }
-};
-
-class Solution {
-    unordered_map<string, vector<int>> dp;
-    unordered_map<char, function<int(int,int)>> ops_m {
-        {'*', [](const int& a, const int& b){ return a*b; }},
-        {'+', [](const int& a, const int& b){ return a+b; }},
-        {'-', [](const int& a, const int& b){ return a-b; }},
-    };
-public:
-    vector<int> diffWaysToCompute(string input) {
-        if(dp.count(input)) return dp[input];
-        int N = input.size();
-        vector<int> res;
-        for(int i = 0; i < N; i++) {
-            if(!isdigit(input[i])) {
-                vector<int> left = diffWaysToCompute(input.substr(0, i));
-                vector<int> right = diffWaysToCompute(input.substr(i + 1));
-                function<int(int, int)> op = ops_m[input[i]];
-                for(auto left_el: left) {
-                    for(auto right_el: right) {
-                        res.push_back(op(left_el, right_el));
-                    }
-                }
-            }
-        }
-        
-        if(res.empty()) res.push_back(stoi(input)); // no operations left
-        return dp[input] = res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v = s.diffWaysToCompute("2*3-4*5");
-    for(auto e: v) cout << e << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-242. Valid Anagram
-Given two strings s and t, write a function to determine if t is an anagram of s.
-
-For example,
-s = "anagram", t = "nagaram", return true.
-s = "rat", t = "car", return false.
-
-Note:
-You may assume the string contains only lowercase alphabets.
-
-Follow up:
-What if the inputs contain unicode characters? How would you adapt your solution to such case?
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isAnagram(string s, string t) {
-        if(s.size() != t.size()) return false;
-        
-        unordered_map<char, int> s_freq, t_freq;
-        for(int i = 0, len = s.size(); i < len; i++) {
-            s_freq[s[i]]++;
-            t_freq[t[i]]++;
-        }
-        
-        if(s_freq.size() != t_freq.size()) return false;
-        for(auto kv: s_freq) {
-            if(t_freq.count(kv.first) && t_freq[kv.first] == kv.second) continue;
-            return false;
-        }
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-257. Binary Tree Paths
-Given a binary tree, return all root-to-leaf paths.
-
-For example, given the following binary tree:
-
-   1
- /   \
-2     3
- \
-  5
-All root-to-leaf paths are:
-
-["1->2->5", "1->3"]
-/*
-    Submission Date: 2017-08-23
-    Runtime: 79 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<string> binaryTreePaths(TreeNode* root) {
-        if(root == NULL) return {};
-        
-        string curr = to_string(root -> val);
-        vector<string> res;
-        
-        vector<string> left = binaryTreePaths(root -> left);
-        for(auto str: left) res.push_back(curr + "->" + str);
-        
-        vector<string> right = binaryTreePaths(root -> right);
-        for(auto str: right) res.push_back(curr + "->" + str);
-        
-        if(left.empty() && right.empty()) res.push_back(curr);
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-258. Add Digits
-Given a non-negative integer num, repeatedly add all its 
-digits until the result has only one digit.
-
-For example:
-
-Given num = 38, the process is like: 3 + 8 = 11, 1 + 1 = 2. 
-Since 2 has only one digit, return it.
-
-Follow up:
-Could you do it without any loop/recursion in O(1) runtime?
-/*
-    Submission Date: 2017-08-25
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-/*
-    digital root problem (single digit) value obtained by an iterative 
-    process of summing digits, on each iteration using the result from 
-    the previous iteration to compute a digit sum
-
-    cyclic around 9
-    ...                 10                  20                  30
-    0 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 
-    ...             40                  50                  60
-    5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
-    ...         70                  80                  90
-    1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 
-*/
-class Solution {
-public:
-    int addDigits(int num) {
-        return 1 + (num - 1) % 9;
-    }
-};
-
-class Solution2 {
-public:
-    int addDigits(int num) {
-        if(num == 0) return 0;
-        int num_digits = floor(log10(num)) + 1;
-        if(num_digits == 1) return num;
-        
-        int x = 0;
-        while(num) {
-            x += num % 10;
-            num /= 10;
-        }
-        
-        return addDigits(x);
-    }
-};
-
-int main() {
-    Solution s;
-    for(int i = 0; i < 100; i++) {
-        cout << i << ' ' << s.addDigits(i) << endl;
-    }
     return 0;
 }

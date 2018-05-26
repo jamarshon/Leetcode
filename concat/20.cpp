@@ -1,6 +1,191 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals 
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one 
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than 
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a 
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase 
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    bool detectCapitalUse(string word) {
+        int N = word.size();
+        int capital_count = 0, lower_count = 0;
+        for(auto c: word) {
+            capital_count += isupper(c) != 0;
+            lower_count += islower(c) != 0;
+        }
+        
+        return capital_count == N || lower_count == N || 
+            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+525. Contiguous Array
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example 1:
+Input: [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
+Example 2:
+Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+Note: The length of the given binary array will not exceed 50,000.
+
+/*
+    Submission Date: 2017-04-01
+    Runtime: 162 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int findMaxLength(vector<int>& nums) {
+        int maxLen = 0;
+        int currentSum = 0;
+        
+        // unordered_map has key to currentSum and value to earliest index seen with that 
+        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
+        // elements between those two indices is zero meaning equal number of 0's and 1's
+        // so finding the smallest index with the same currentSum results in the largest subarray
+        unordered_map<int, int> m = {{0, -1}};
+    
+        for(int i = 0, len = nums.size(); i < len; i++) {
+            if(nums[i] == 0) {
+                currentSum--;
+            } else {
+                currentSum++;
+            }
+            
+            if(m.find(currentSum) == m.end()) {
+                m[currentSum] = i;
+            } else {
+                maxLen = max(maxLen, i - m[currentSum]);
+            }
+        }
+        
+        return maxLen;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+536. Construct Binary Tree from String
+You need to construct a binary tree from a string consisting of parenthesis and integers.
+
+The whole input represents a binary tree. It contains an integer followed by zero, 
+one or two pairs of parenthesis. The integer represents the root's value and a pair 
+of parenthesis contains a child binary tree with the same structure.
+
+You always start to construct the left child node of the parent first if it exists.
+
+Example:
+Input: "4(2(3)(1))(6(5))"
+Output: return the tree root node representing the following tree:
+
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+Note:
+There will only be '(', ')', '-' and '0' ~ '9' in the input string.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    TreeNode* str2tree(string s) {
+        int len = s.size();
+        if(len == 0) return NULL;
+
+        int firstBracketIndex = s.find('(');
+        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
+
+        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
+        int count = 1;
+        int offset = firstBracketIndex + 1;
+        int i = offset;
+
+        while(count != 0) {
+            if(s[i] == ')') count--;
+            else if(s[i] == '(') count++;
+            i++;
+        }
+
+        string leftExpression = s.substr(offset, i - 1 - offset);
+        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
+
+        node -> left = str2tree(leftExpression);
+        node -> right = str2tree(rightExpression);
+
+        return node;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 539. Minimum Time Difference
 Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
 minutes difference between any two time points in the list.
@@ -808,159 +993,5 @@ int main() {
     vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
     vector<string> t = s.findRestaurant(v1, v2);
     cout << t.size() << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

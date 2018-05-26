@@ -1,6 +1,132 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+368. Largest Divisible Subset
+Given a set of distinct positive integers, find the largest subset 
+such that every pair (Si, Sj) of elements in this subset satisfies: 
+Si % Sj = 0 or Sj % Si = 0.
+
+If there are multiple solutions, return any subset is fine.
+
+Example 1:
+
+nums: [1,2,3]
+
+Result: [1,2] (of course, [1,3] will also be ok)
+Example 2:
+
+nums: [1,2,4,8]
+
+Result: [1,2,4,8]
+/*
+    Submission Date: 2017-08-21
+    Runtime: 33 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        if(nums.empty()) return {};
+        
+        sort(nums.begin(), nums.end());
+        int N = nums.size();
+        
+        vector<int> dp(N, 1), P(N,-1);
+        int max_dp_ind = 0;
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[i] % nums[j] == 0) {
+                    if(dp[j] + 1 > dp[i]) {
+                        dp[i] = dp[j] + 1;
+                        P[i] = j;
+                    }
+                }
+            }
+            
+            if(dp[max_dp_ind] < dp[i]) max_dp_ind = i;
+        }
+        
+        
+        vector<int> res(dp[max_dp_ind]);
+        int index = res.size();
+        for(int i = max_dp_ind; i >= 0; i = P[i]) {
+            res[--index] = nums[i];
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+371. Sum of Two Integers
+Calculate the sum of two integers a and b, but you are not allowed to use the operator + and -.
+
+Example:
+Given a = 1 and b = 2, return 3.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 2 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <bitset>
+
+using namespace std;
+
+class Solution {
+public:
+    int getSum(int a, int b) {
+      // include the sign bit.
+      bitset<32> res(0);
+      bitset<32> aa(a);
+      bitset<32> bb(b);
+
+      int carry = 0;
+      for(int i = 0; i < 32; i++) {
+        int a_d = aa.test(i);
+        int b_d = bb.test(i);
+
+        res.set(i, a_d ^ b_d ^ carry);
+        carry = (a_d && b_d) || (b_d && carry) || (a_d && carry);
+      }
+
+      return res.to_ullong();
+    }
+};
+
+class Solution2 {
+public:
+    int getSum(int a, int b) {
+        int res = 0;
+        int carry = 0;
+        
+        for(int i = 0; i < 32; i++) {
+            const int a_d = (1 << i) & a;
+            const int b_d = (1 << i) & b;
+            res |= a_d ^ b_d ^ carry;
+            carry = ((a_d & b_d) | (b_d & carry) | (a_d & carry)) << 1;
+        } 
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 373. Find K Pairs with Smallest Sums
 You are given two integer arrays nums1 and nums2 sorted in ascending 
 order and an integer k.
@@ -515,6 +641,60 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+419. Battleships in a Board
+Given an 2D board, count how many battleships are in it. The battleships are represented with 'X's, empty slots are represented with '.'s. 
+You may assume the following rules:
+You receive a valid board, made of only battleships or empty slots.
+Battleships can only be placed horizontally or vertically. In other words, they can only be made of the shape 1xN (1 row, N columns) or Nx1 
+(N rows, 1 column), where N can be of any size.
+At least one horizontal or vertical cell separates between two battleships - there are no adjacent battleships.
+Example:
+X..X
+...X
+...X
+In the above board there are 2 battleships.
+Invalid Example:
+...X
+XXXX
+...X
+This is an invalid board that you will not receive - as battleships will always have a cell separating between them.
+Follow up:
+Could you do it in one-pass, using only O(1) extra memory and without modifying the value of the board?
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/*
+    N by checking if the element to the left and to the top of board[i][j] isn't a 'X'.
+    If there is one then it means it is continuing a ship so it should not be counted.
+*/
+class Solution {
+public:
+    int countBattleships(vector<vector<char>>& board) {
+        if(board.empty()) return 0;
+        int res = 0;
+        for(int i = 0; i < board.size(); i++) {
+            for(int j = 0; j < board[0].size(); j++) {
+                if(board[i][j] == 'X' && (j == 0 || board[i][j-1] != 'X') && (i == 0 || board[i-1][j] != 'X')) {
+                    res++;
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 433. Minimum Genetic Mutation
 A gene string can be represented by an 8-character long string, with choices from 
 "A", "C", "G", "T".
@@ -814,191 +994,6 @@ public:
             }
         }
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-520. Detect Capital
-Given a word, you need to judge whether the usage of capitals 
-in it is right or not.
-
-We define the usage of capitals in a word to be right when one 
-of the following cases holds:
-
-All letters in this word are capitals, like "USA".
-All letters in this word are not capitals, like "leetcode".
-Only the first letter in this word is capital if it has more than 
-one letter, like "Google".
-Otherwise, we define that this word doesn't use capitals in a 
-right way.
-Example 1:
-Input: "USA"
-Output: True
-Example 2:
-Input: "FlaG"
-Output: False
-Note: The input will be a non-empty word consisting of uppercase 
-and lowercase latin letters.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    bool detectCapitalUse(string word) {
-        int N = word.size();
-        int capital_count = 0, lower_count = 0;
-        for(auto c: word) {
-            capital_count += isupper(c) != 0;
-            lower_count += islower(c) != 0;
-        }
-        
-        return capital_count == N || lower_count == N || 
-            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
-Example 2:
-Input: [0,1,0]
-Output: 2
-Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
-Note: The length of the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-class Solution {
-public:
-    int findMaxLength(vector<int>& nums) {
-        int maxLen = 0;
-        int currentSum = 0;
-        
-        // unordered_map has key to currentSum and value to earliest index seen with that 
-        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
-        // elements between those two indices is zero meaning equal number of 0's and 1's
-        // so finding the smallest index with the same currentSum results in the largest subarray
-        unordered_map<int, int> m = {{0, -1}};
-    
-        for(int i = 0, len = nums.size(); i < len; i++) {
-            if(nums[i] == 0) {
-                currentSum--;
-            } else {
-                currentSum++;
-            }
-            
-            if(m.find(currentSum) == m.end()) {
-                m[currentSum] = i;
-            } else {
-                maxLen = max(maxLen, i - m[currentSum]);
-            }
-        }
-        
-        return maxLen;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-536. Construct Binary Tree from String
-You need to construct a binary tree from a string consisting of parenthesis and integers.
-
-The whole input represents a binary tree. It contains an integer followed by zero, 
-one or two pairs of parenthesis. The integer represents the root's value and a pair 
-of parenthesis contains a child binary tree with the same structure.
-
-You always start to construct the left child node of the parent first if it exists.
-
-Example:
-Input: "4(2(3)(1))(6(5))"
-Output: return the tree root node representing the following tree:
-
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-Note:
-There will only be '(', ')', '-' and '0' ~ '9' in the input string.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
     }
 };
 

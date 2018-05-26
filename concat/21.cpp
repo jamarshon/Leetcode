@@ -1,6 +1,160 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+604. Design Compressed String Iterator
+Design and implement a data structure for a compressed string iterator. 
+It should support the following operations: next and hasNext.
+
+The given compressed string will be in the form of each letter followed 
+by a positive integer representing the number of this letter existing in 
+the original uncompressed string.
+
+next() - if the original string still has uncompressed characters, return 
+the next letter; Otherwise return a white space.
+hasNext() - Judge whether there is any letter needs to be uncompressed.
+
+Example:
+
+StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
+
+iterator.next(); // return 'L'
+iterator.next(); // return 'e'
+iterator.next(); // return 'e'
+iterator.next(); // return 't'
+iterator.next(); // return 'C'
+iterator.next(); // return 'o'
+iterator.next(); // return 'd'
+iterator.hasNext(); // return true
+iterator.next(); // return 'e'
+iterator.hasNext(); // return false
+iterator.next(); // return ' '
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+class StringIterator {
+vector<pair<char, long long>> v_;
+int index_;
+public:
+    StringIterator(string compressedString) {
+        index_ = 0;
+        int len = compressedString.size();
+        int i = 0;
+        while(i < len) {
+            char c = compressedString[i];
+            i++;
+            string rep = "";
+            while(i < len && isdigit(compressedString[i])) {
+                rep += compressedString[i];
+                i++;
+            }
+            
+            long long times = stoll(rep);
+            // cout << c << ' ' << times << endl;
+            v_.emplace_back(c, times);
+        }
+    }
+    
+    char next() {
+        if(!hasNext()) return ' ';
+        pair<char, long long>& p = v_[index_];
+        p.second--;
+        if(p.second == 0) index_++;
+        return p.first;
+    }
+    
+    bool hasNext() {
+        return index_ < v_.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+605. Can Place Flowers
+Suppose you have a long flowerbed in which some of the plots are planted 
+and some are not. However, flowers cannot be planted in adjacent plots - 
+they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
+empty and 1 means not empty), and a number n, return if n new flowers can be 
+planted in it without violating the no-adjacent-flowers rule.
+
+Example 1:
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+Example 2:
+Input: flowerbed = [1,0,0,0,1], n = 2
+Output: False
+Note:
+The input array won't violate no-adjacent-flowers rule.
+The input array size is in the range of [1, 20000].
+n is a non-negative integer which won't exceed the input array size.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int len = flowerbed.size();
+        vector<int> v;
+
+        // v.push_back(-1);
+        for(int i = 0; i < len; i++) {
+            if(flowerbed[i]) {
+                v.push_back(i);
+            }
+        }
+        // v.push_back(len);
+
+        int v_len = v.size();
+        for(int i = 1; i < v_len; i++) {
+            int num_zeros = v[i] - v[i-1] - 1;
+            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
+            if(num_zeros > 0) {
+                int diff = (num_zeros - 1)/2;
+                n -= diff;
+            }
+        }
+
+        if(v_len) {
+            n -= v[0]/2;
+            // cout << n << endl;
+            n -= (len - v[v_len - 1] - 1)/2;
+            // cout << n << endl;
+        } else {
+            n -= (len+1)/2;
+        }
+
+        // cout << "n" << n << endl;
+        return n <= 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 606. Construct String from Binary Tree
 You need to construct a string consists of parenthesis and integers from a 
 binary tree with the preorder traversing way.
@@ -841,166 +995,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
-    }
-};
-
-int main() {
     return 0;
 }

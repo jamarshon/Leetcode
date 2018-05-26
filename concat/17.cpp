@@ -1,6 +1,59 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+303. Range Sum Query - Immutable
+Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+
+Example:
+Given nums = [-2, 0, 3, -5, 2, -1]
+
+sumRange(0, 2) -> 1
+sumRange(2, 5) -> -1
+sumRange(0, 5) -> -3
+Note:
+You may assume that the array does not change.
+There are many calls to sumRange function.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 162 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class NumArray {
+    vector<int> dp_;
+public:
+    NumArray(vector<int> nums) {
+        if(nums.empty()) return;
+        
+        int N = nums.size();
+        dp_.resize(N);
+        
+        dp_[0] = nums[0];
+        for(int i = 1; i < N; i++) {
+            dp_[i] = dp_[i-1] + nums[i];
+        }
+    }
+    
+    int sumRange(int i, int j) {
+        return dp_[j] - (i - 1 >= 0 ? dp_[i-1] : 0);
+    }
+};
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(i,j);
+ */
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 304. Range Sum Query 2D - Immutable
 Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper 
 left corner (row1, col1) and lower right corner (row2, col2).
@@ -933,56 +986,6 @@ public:
         vector<int> res;
         for(const auto& e: dp[s1.size()][s2.size()][kk]) res.push_back(e - '0');
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-322. Coin Change
-You are given coins of different denominations and a total amount of money amount. Write a 
-function to compute the fewest number of coins that you need to make up that amount. If that 
-amount of money cannot be made up by any combination of the coins, return -1.
-
-Example 1:
-coins = [1, 2, 5], amount = 11
-return 3 (11 = 5 + 5 + 1)
-
-Example 2:
-coins = [2], amount = 3
-return -1.
-
-Note:
-You may assume that you have an infinite number of each kind of coin.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 23 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    int coinChange(vector<int>& coins, int amount) {
-        int N = coins.size();
-        vector<int> dp(amount + 1, INT_MAX);
-        
-        dp[0] = 0;
-        
-        for(int i = 1; i <= N; i++) {
-            for(int j = 0; j <= amount; j++) {
-                if(j - coins[i-1] >= 0 && dp[j - coins[i-1]] != INT_MAX) { // we can take this coin
-                    dp[j] = min(dp[j - coins[i-1]] + 1, dp[j]);
-                }
-            }
-        }
-        return dp[amount] == INT_MAX ? -1 : dp[amount];
     }
 };
 

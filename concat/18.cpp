@@ -1,6 +1,56 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+322. Coin Change
+You are given coins of different denominations and a total amount of money amount. Write a 
+function to compute the fewest number of coins that you need to make up that amount. If that 
+amount of money cannot be made up by any combination of the coins, return -1.
+
+Example 1:
+coins = [1, 2, 5], amount = 11
+return 3 (11 = 5 + 5 + 1)
+
+Example 2:
+coins = [2], amount = 3
+return -1.
+
+Note:
+You may assume that you have an infinite number of each kind of coin.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 23 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        int N = coins.size();
+        vector<int> dp(amount + 1, INT_MAX);
+        
+        dp[0] = 0;
+        
+        for(int i = 1; i <= N; i++) {
+            for(int j = 0; j <= amount; j++) {
+                if(j - coins[i-1] >= 0 && dp[j - coins[i-1]] != INT_MAX) { // we can take this coin
+                    dp[j] = min(dp[j - coins[i-1]] + 1, dp[j]);
+                }
+            }
+        }
+        return dp[amount] == INT_MAX ? -1 : dp[amount];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 326. Power of Three
 Given an integer, write a function to determine if it is a power of three.
 
@@ -778,6 +828,85 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+354. Russian Doll Envelopes
+You have a number of envelopes with widths and heights given as a pair of integers (w, h). One envelope can 
+fit into another if and only if both the width and height of one envelope is greater than the width and height of the other envelope.
+
+What is the maximum number of envelopes can you Russian doll? (put one inside other)
+
+Example:
+Given envelopes = [[5,4],[6,4],[6,7],[2,3]], the maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+/*
+    Submission Date: 2018-05-24
+    Runtime: 30 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+/*
+    NlogN sort by width and break ties on height
+    For all elements with the same width, apply the changes all at once
+    Similar to LIS where dp[i] is the smallest element of sequence of length i
+*/
+class Solution {
+public:
+    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
+        sort(envelopes.begin(), envelopes.end());
+        vector<int> heights;
+
+        for(int i = 0; i < envelopes.size();) {
+            int start = i;
+            unordered_map<int, int> index_to_new_val;
+            while(i < envelopes.size() && envelopes[i].first == envelopes[start].first) {
+                auto it = lower_bound(heights.begin(), heights.end(), envelopes[i].second);
+                int dist = it - heights.begin();
+                if(!index_to_new_val.count(dist)) index_to_new_val[dist] = envelopes[i].second;
+                i++;
+            }
+
+            for(const auto& kv: index_to_new_val) {
+                if(kv.first < heights.size()) {
+                    heights[kv.first] = kv.second;
+                } else {
+                    heights.push_back(kv.second);
+                }
+            }
+        }
+        return heights.size();
+    }
+};
+
+/*
+    N^2 similar to LIS where dp[i] means the longest sequence ending at element i
+    Requires a sort first as all elements of smaller width should appear first.
+*/
+class Solution2 {
+public:
+    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
+        sort(envelopes.begin(), envelopes.end());
+        vector<int> dp(envelopes.size(), 1);
+        
+        for(int i = 0; i < envelopes.size(); i++) {
+            for(int j = 0; j < i; j++) {
+                if(envelopes[i].first > envelopes[j].first && envelopes[i].second > envelopes[j].second) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+        }
+        return dp.empty() ? 0 : *max_element(dp.begin(), dp.end());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 367. Valid Perfect Square
 Given a positive integer num, write a function which returns True if num is a perfect square else False.
 
@@ -816,132 +945,6 @@ public:
         }
       }
       return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-368. Largest Divisible Subset
-Given a set of distinct positive integers, find the largest subset 
-such that every pair (Si, Sj) of elements in this subset satisfies: 
-Si % Sj = 0 or Sj % Si = 0.
-
-If there are multiple solutions, return any subset is fine.
-
-Example 1:
-
-nums: [1,2,3]
-
-Result: [1,2] (of course, [1,3] will also be ok)
-Example 2:
-
-nums: [1,2,4,8]
-
-Result: [1,2,4,8]
-/*
-    Submission Date: 2017-08-21
-    Runtime: 33 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> largestDivisibleSubset(vector<int>& nums) {
-        if(nums.empty()) return {};
-        
-        sort(nums.begin(), nums.end());
-        int N = nums.size();
-        
-        vector<int> dp(N, 1), P(N,-1);
-        int max_dp_ind = 0;
-        
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] % nums[j] == 0) {
-                    if(dp[j] + 1 > dp[i]) {
-                        dp[i] = dp[j] + 1;
-                        P[i] = j;
-                    }
-                }
-            }
-            
-            if(dp[max_dp_ind] < dp[i]) max_dp_ind = i;
-        }
-        
-        
-        vector<int> res(dp[max_dp_ind]);
-        int index = res.size();
-        for(int i = max_dp_ind; i >= 0; i = P[i]) {
-            res[--index] = nums[i];
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-371. Sum of Two Integers
-Calculate the sum of two integers a and b, but you are not allowed to use the operator + and -.
-
-Example:
-Given a = 1 and b = 2, return 3.
-/*
-    Submission Date: 2018-05-02
-    Runtime: 2 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <bitset>
-
-using namespace std;
-
-class Solution {
-public:
-    int getSum(int a, int b) {
-      // include the sign bit.
-      bitset<32> res(0);
-      bitset<32> aa(a);
-      bitset<32> bb(b);
-
-      int carry = 0;
-      for(int i = 0; i < 32; i++) {
-        int a_d = aa.test(i);
-        int b_d = bb.test(i);
-
-        res.set(i, a_d ^ b_d ^ carry);
-        carry = (a_d && b_d) || (b_d && carry) || (a_d && carry);
-      }
-
-      return res.to_ullong();
-    }
-};
-
-class Solution2 {
-public:
-    int getSum(int a, int b) {
-        int res = 0;
-        int carry = 0;
-        
-        for(int i = 0; i < 32; i++) {
-            const int a_d = (1 << i) & a;
-            const int b_d = (1 << i) & b;
-            res |= a_d ^ b_d ^ carry;
-            carry = ((a_d & b_d) | (b_d & carry) | (a_d & carry)) << 1;
-        } 
-        
-        return res;
     }
 };
 

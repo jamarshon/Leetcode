@@ -148,6 +148,106 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+329. Longest Increasing Path in a Matrix
+Given an integer matrix, find the length of the longest increasing path.
+
+From each cell, you can either move to four directions: left, right, up or down. You may NOT move diagonally 
+or move outside of the boundary (i.e. wrap-around is not allowed).
+
+Example 1:
+
+Input: nums = 
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+] 
+Output: 4 
+Explanation: The longest increasing path is [1, 2, 6, 9].
+Example 2:
+
+Input: nums = 
+[
+  [3,4,5],
+  [3,2,6],
+  [2,2,1]
+] 
+Output: 4 
+Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
+/*
+    Submission Date: 2018-05-26
+    Runtime: 112 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    vector<int> dx_{1,-1,0,0};
+    vector<int> dy_{0,0,1,-1};
+    
+    unordered_map<int, int> dp_;
+public:
+    int id(const int& i, const int& j, const int& M) {
+        return i*M + j;
+    }
+    
+    /*
+         graph has vertex being a cell and the edges to cells strictly greater than it (directed graph)
+         do a dfs on all the neighbors and take the max of this to return
+         use memoization as the longest path for a cell is the same once computed.
+    */
+    int dfs(int curr, const unordered_map<int, vector<int>>& graph) {
+        if(dp_.count(curr)) return dp_[curr];
+        
+        const auto& it = graph.find(curr);
+        if(it == graph.cend()) return dp_[curr] = 1;
+        
+        int res = 0;
+        
+        for(const auto& n: it->second) {
+            res = max(res, dfs(n, graph));
+        }
+        
+        return dp_[curr] = res + 1;
+    }
+    
+    int longestIncreasingPath(vector<vector<int>>& A) {
+        if(A.empty()) return 0;
+        
+        int N = A.size();
+        int M = A[0].size();
+        unordered_map<int, vector<int>> graph;
+        
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                for(int k = 0; k < 4; k++) {
+                    if((0 <= dy_[k] + i && dy_[k] + i < N) && 
+                       (0 <= dx_[k] + j && dx_[k] + j < M) && 
+                        A[i][j] < A[i + dy_[k]][j + dx_[k]]) 
+                        graph[id(i, j, M)].push_back(id(i + dy_[k], j + dx_[k], M));
+                }
+            }
+        }
+        
+        int res = 1;
+        for(const auto& kv: graph) {
+            res = max(res, dfs(kv.first, graph));
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 331. Verify Preorder Serialization of a Binary Tree
 One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, 
 we record the node's value. If it is a null node, we record using a sentinel value such as #.
@@ -389,6 +489,129 @@ public:
 
 int main() {
     Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+336. Palindrome Pairs
+Given a list of unique words, find all pairs of distinct indices (i, j) in the given list, so that the concatenation of the 
+two words, i.e. words[i] + words[j] is a palindrome.
+
+Example 1:
+Given words = ["bat", "tab", "cat"]
+Return [[0, 1], [1, 0]]
+The palindromes are ["battab", "tabbat"]
+Example 2:
+Given words = ["abcd", "dcba", "lls", "s", "sssll"]
+Return [[0, 1], [1, 0], [3, 2], [2, 4]]
+The palindromes are ["dcbaabcd", "abcddcba", "slls", "llssssll"]
+/*
+    Submission Date: 2018-05-28
+    Runtime: 525 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Node {
+    vector<int> palindrome_suffix;
+    int index = -1;
+    vector<Node*> child = vector<Node*>(26, NULL);
+};
+
+class Solution {
+public:
+    /*
+        is_pal O(n)
+        insert O(k^2) 
+        traverse O(k^2)
+
+        For each word[i] in words, place the word in a trie. if the node is the end of the word, set node->index = i
+        for each j from [0, words[i].size()), check if a suffix of [j, words[i].size()) is a palindrome. if it is
+        then store i as palindrome_suffix for that node.
+
+        For each word[i] in words, reverse it and traverse the trie. If the current node is end of a word then check if
+        a suffix of rev(words[i]) is a palindrome.
+
+        'bat' 'abatab'
+        reverse 'abatab', 'bataba' we find 'bat' then check if suffix 'aba' is a palindrome to see 'bat' + 'abatab'
+
+        if rev(words[i]) has a letter not in trie then return
+        once rev(words[i]) has completely been traversed it means either the current node is end of word
+
+        'bat' 'tab'
+        reverse 'tab', 'bat' we find 'bat' return 'bat' + 'tab'
+
+        or there are palindrome suffix
+
+        'bataba' 'tab'
+        'batdd' 'tab'
+        The palindrome suffix of 'aba' and 'dd' means there is 'bataba' + 'tab' and 'batdd' + 'tab'
+    */
+    unordered_map<string, bool> dp_;
+    
+    bool is_pal(const string& s) {
+        if(dp_.count(s)) return dp_[s];
+        int N = s.size();
+        for(int i = 0; i < N/2; i++) {
+            if(s[i] != s[N-i-1]) return dp_[s] = false;
+        }
+        
+        return dp_[s] = true;
+    }
+    
+    
+    void insert(Node* root, const string& s, const int& index) {
+        Node* curr = root;
+        for(int i = 0; i < s.size(); i++) {
+            if(is_pal(s.substr(i))) curr->palindrome_suffix.push_back(index);
+            if(curr->child[s[i] - 'a'] == NULL) curr->child[s[i] - 'a'] = new Node();
+            curr = curr->child[s[i] - 'a'];
+        }
+        curr->index = index;
+    }
+    
+    void traverse(Node* root, const string& s, const int& index, vector<vector<int>>& res) {
+        Node* curr = root;
+        for(int i = 0; i < s.size(); i++) {
+            if(curr->index != -1 && is_pal(s.substr(i))) {
+                res.push_back({curr->index, index});
+            }
+            if(curr->child[s[i] - 'a'] == NULL) {
+                return;
+            }
+            curr = curr->child[s[i] - 'a'];
+        }
+        
+        if(curr->index != -1 && index != curr->index) res.push_back({index, curr->index});
+        
+        for(const auto& e: curr->palindrome_suffix) {
+            if(index == e) continue;
+            res.push_back({e, index});
+        }
+    }
+    
+    vector<vector<int>> palindromePairs(vector<string>& words) {
+        Node* root = new Node();
+        
+        for(int i = 0; i < words.size(); i++) {
+            insert(root, words[i], i);
+        }
+        
+        vector<vector<int>> res;
+        for(int i = 0; i < words.size(); i++) {
+            string s = words[i];
+            reverse(s.begin(), s.end());
+            traverse(root, s, i, res);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -766,185 +989,6 @@ public:
           }
         }
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-350. Intersection of Two Arrays II
-Given two arrays, write a function to compute their intersection.
-
-Example:
-Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2, 2].
-
-Note:
-Each element in the result should appear as many times as it shows in 
-both arrays.
-The result can be in any order.
-Follow up:
-What if the given array is already sorted? How would you optimize your 
-algorithm?
-What if nums1's size is small compared to nums2's size? Which algorithm 
-is better?
-What if elements of nums2 are stored on disk, and the memory is limited 
-such that you cannot load all elements into the memory at once?
-/*
-    Submission Date: 2017-09-10
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
-        vector<int>* smaller = &nums1, *greater = &nums2;
-        if(smaller -> size() > greater -> size()) swap(smaller, greater);
-        
-        unordered_map<int,int> smaller_freq;
-        for(auto n: *smaller) smaller_freq[n]++;
-        
-        vector<int> res;
-        for(auto n: *greater) {
-            if(smaller_freq.count(n) && smaller_freq[n] > 0) {
-                smaller_freq[n]--;
-                res.push_back(n);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-354. Russian Doll Envelopes
-You have a number of envelopes with widths and heights given as a pair of integers (w, h). One envelope can 
-fit into another if and only if both the width and height of one envelope is greater than the width and height of the other envelope.
-
-What is the maximum number of envelopes can you Russian doll? (put one inside other)
-
-Example:
-Given envelopes = [[5,4],[6,4],[6,7],[2,3]], the maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
-/*
-    Submission Date: 2018-05-24
-    Runtime: 30 ms
-    Difficulty: HARD
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-/*
-    NlogN sort by width and break ties on height
-    For all elements with the same width, apply the changes all at once
-    Similar to LIS where dp[i] is the smallest element of sequence of length i
-*/
-class Solution {
-public:
-    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
-        sort(envelopes.begin(), envelopes.end());
-        vector<int> heights;
-
-        for(int i = 0; i < envelopes.size();) {
-            int start = i;
-            unordered_map<int, int> index_to_new_val;
-            while(i < envelopes.size() && envelopes[i].first == envelopes[start].first) {
-                auto it = lower_bound(heights.begin(), heights.end(), envelopes[i].second);
-                int dist = it - heights.begin();
-                if(!index_to_new_val.count(dist)) index_to_new_val[dist] = envelopes[i].second;
-                i++;
-            }
-
-            for(const auto& kv: index_to_new_val) {
-                if(kv.first < heights.size()) {
-                    heights[kv.first] = kv.second;
-                } else {
-                    heights.push_back(kv.second);
-                }
-            }
-        }
-        return heights.size();
-    }
-};
-
-/*
-    N^2 similar to LIS where dp[i] means the longest sequence ending at element i
-    Requires a sort first as all elements of smaller width should appear first.
-*/
-class Solution2 {
-public:
-    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
-        sort(envelopes.begin(), envelopes.end());
-        vector<int> dp(envelopes.size(), 1);
-        
-        for(int i = 0; i < envelopes.size(); i++) {
-            for(int j = 0; j < i; j++) {
-                if(envelopes[i].first > envelopes[j].first && envelopes[i].second > envelopes[j].second) {
-                    dp[i] = max(dp[i], 1 + dp[j]);
-                }
-            }
-        }
-        return dp.empty() ? 0 : *max_element(dp.begin(), dp.end());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-367. Valid Perfect Square
-Given a positive integer num, write a function which returns True if num is a perfect square else False.
-
-Note: Do not use any built-in library function such as sqrt.
-
-Example 1:
-
-Input: 16
-Returns: True
-Example 2:
-
-Input: 14
-Returns: False
-/*
-    Submission Date: 2018-05-02
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isPerfectSquare(int num) {
-      long long low = 1;
-      long long high = num;
-      while(low <= high) {
-        long long mid = low + (high-low)/2;
-        if(mid*mid == num) {
-          return true;
-        } else if(mid*mid < num) {
-          low = mid + 1;
-        } else {
-          high = mid -1;
-        }
-      }
-      return false;
     }
 };
 

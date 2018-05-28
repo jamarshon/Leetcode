@@ -1,6 +1,185 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+350. Intersection of Two Arrays II
+Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2, 2].
+
+Note:
+Each element in the result should appear as many times as it shows in 
+both arrays.
+The result can be in any order.
+Follow up:
+What if the given array is already sorted? How would you optimize your 
+algorithm?
+What if nums1's size is small compared to nums2's size? Which algorithm 
+is better?
+What if elements of nums2 are stored on disk, and the memory is limited 
+such that you cannot load all elements into the memory at once?
+/*
+    Submission Date: 2017-09-10
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        vector<int>* smaller = &nums1, *greater = &nums2;
+        if(smaller -> size() > greater -> size()) swap(smaller, greater);
+        
+        unordered_map<int,int> smaller_freq;
+        for(auto n: *smaller) smaller_freq[n]++;
+        
+        vector<int> res;
+        for(auto n: *greater) {
+            if(smaller_freq.count(n) && smaller_freq[n] > 0) {
+                smaller_freq[n]--;
+                res.push_back(n);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+354. Russian Doll Envelopes
+You have a number of envelopes with widths and heights given as a pair of integers (w, h). One envelope can 
+fit into another if and only if both the width and height of one envelope is greater than the width and height of the other envelope.
+
+What is the maximum number of envelopes can you Russian doll? (put one inside other)
+
+Example:
+Given envelopes = [[5,4],[6,4],[6,7],[2,3]], the maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+/*
+    Submission Date: 2018-05-24
+    Runtime: 30 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+/*
+    NlogN sort by width and break ties on height
+    For all elements with the same width, apply the changes all at once
+    Similar to LIS where dp[i] is the smallest element of sequence of length i
+*/
+class Solution {
+public:
+    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
+        sort(envelopes.begin(), envelopes.end());
+        vector<int> heights;
+
+        for(int i = 0; i < envelopes.size();) {
+            int start = i;
+            unordered_map<int, int> index_to_new_val;
+            while(i < envelopes.size() && envelopes[i].first == envelopes[start].first) {
+                auto it = lower_bound(heights.begin(), heights.end(), envelopes[i].second);
+                int dist = it - heights.begin();
+                if(!index_to_new_val.count(dist)) index_to_new_val[dist] = envelopes[i].second;
+                i++;
+            }
+
+            for(const auto& kv: index_to_new_val) {
+                if(kv.first < heights.size()) {
+                    heights[kv.first] = kv.second;
+                } else {
+                    heights.push_back(kv.second);
+                }
+            }
+        }
+        return heights.size();
+    }
+};
+
+/*
+    N^2 similar to LIS where dp[i] means the longest sequence ending at element i
+    Requires a sort first as all elements of smaller width should appear first.
+*/
+class Solution2 {
+public:
+    int maxEnvelopes(vector<pair<int, int>>& envelopes) {
+        sort(envelopes.begin(), envelopes.end());
+        vector<int> dp(envelopes.size(), 1);
+        
+        for(int i = 0; i < envelopes.size(); i++) {
+            for(int j = 0; j < i; j++) {
+                if(envelopes[i].first > envelopes[j].first && envelopes[i].second > envelopes[j].second) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+        }
+        return dp.empty() ? 0 : *max_element(dp.begin(), dp.end());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+367. Valid Perfect Square
+Given a positive integer num, write a function which returns True if num is a perfect square else False.
+
+Note: Do not use any built-in library function such as sqrt.
+
+Example 1:
+
+Input: 16
+Returns: True
+Example 2:
+
+Input: 14
+Returns: False
+/*
+    Submission Date: 2018-05-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPerfectSquare(int num) {
+      long long low = 1;
+      long long high = num;
+      while(low <= high) {
+        long long mid = low + (high-low)/2;
+        if(mid*mid == num) {
+          return true;
+        } else if(mid*mid < num) {
+          low = mid + 1;
+        } else {
+          high = mid -1;
+        }
+      }
+      return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 368. Largest Divisible Subset
 Given a set of distinct positive integers, find the largest subset 
 such that every pair (Si, Sj) of elements in this subset satisfies: 
@@ -577,6 +756,70 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+405. Convert a Number to Hexadecimal
+Given an integer, write an algorithm to convert it to hexadecimal. For negative integer, two’s complement method is used.
+
+Note:
+
+All letters in hexadecimal (a-f) must be in lowercase.
+The hexadecimal string must not contain extra leading 0s. If the number is zero, it is represented by a single zero character '0'; otherwise, 
+the first character in the hexadecimal string will not be the zero character.
+The given number is guaranteed to fit within the range of a 32-bit signed integer.
+You must not use any method provided by the library which converts/formats the number to hex directly.
+Example 1:
+
+Input:
+26
+
+Output:
+"1a"
+Example 2:
+
+Input:
+-1
+
+Output:
+"ffffffff"
+/*
+    Submission Date: 2018-05-26
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        % 16 gets the last 4 bits. if it is negative then add 16 ie -1 -> 15.
+        >> 4 shifts by 4 bits through sign extending so it is not equivalent to / 16
+        since the last 4 bits are added first the string must be reversed.
+        the last non zero character is the first character in the string so trim it.
+    */
+    char helper(int x){ if(x < 0) x += 16; return (x % 10) + (x < 10 ? '0' : 'a'); }
+    string toHex(int num) {
+        string res = "";
+        int last_non_zero = 0;
+        
+        for(int i = 0; i < 8; i++) {
+            res.push_back(helper(num % 16));
+            num >>= 4;
+            if(res.back() != '0') last_non_zero = i;
+        }
+        
+        res = res.substr(0, last_non_zero + 1);
+        reverse(res.begin(), res.end());
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 414. Third Maximum Number
 Given a non-empty array of integers, return the third maximum number in this array. 
 If it does not exist, return the maximum number. The time complexity must be in O(n).
@@ -683,313 +926,6 @@ public:
             for(int j = 0; j < board[0].size(); j++) {
                 if(board[i][j] == 'X' && (j == 0 || board[i][j-1] != 'X') && (i == 0 || board[i-1][j] != 'X')) {
                     res++;
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-433. Minimum Genetic Mutation
-A gene string can be represented by an 8-character long string, with choices from 
-"A", "C", "G", "T".
-
-Suppose we need to investigate about a mutation (mutation from "start" to "end"), 
-where ONE mutation is defined as ONE single character changed in the gene string.
-
-For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
-
-Also, there is a given gene "bank", which records all the valid gene mutations. 
-A gene must be in the bank to make it a valid gene string.
-
-Now, given 3 things - start, end, bank, your task is to determine what is the 
-minimum number of mutations needed to mutate from "start" to "end". If there is no 
-such a mutation, return -1.
-
-Note:
-
-Starting point is assumed to be valid, so it might not be included in the bank.
-If multiple mutations are needed, all mutations during in the sequence must be valid.
-You may assume start and end string is not the same.
-Example 1:
-
-start: "AACCGGTT"
-end:   "AACCGGTA"
-bank: ["AACCGGTA"]
-
-return: 1
-Example 2:
-
-start: "AACCGGTT"
-end:   "AAACGGTA"
-bank: ["AACCGGTA", "AACCGCTA", "AAACGGTA"]
-
-return: 2
-Example 3:
-
-start: "AAAAACCC"
-end:   "AACCCCCC"
-bank: ["AAAACCCC", "AAACCCCC", "AACCCCCC"]
-
-return: 3
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    bool isConnect(string s1, string s2) {
-        int diff_count = 0;
-        for(int i = 0, len = s1.size(); i < len; i++) {
-            diff_count += s1[i] != s2[i];
-        }
-        return diff_count == 1;
-    }
-public:
-    int minMutation(string start, string end, vector<string>& bank) {
-        unordered_map<string, vector<string>> graph;
-
-        bank.push_back(start);
-        int N = bank.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                if(isConnect(bank[i], bank[j])) {
-                    graph[bank[i]].push_back(bank[j]);
-                    graph[bank[j]].push_back(bank[i]);
-                }
-            }
-        }
-
-        unordered_set<string> visited;
-        queue<pair<string, int>> q;
-        q.emplace(start, 0);
-        visited.insert(start);
-
-        string curr;
-        int dist;
-        while(!q.empty()) {
-            tie(curr, dist) = q.front();
-            // cout << curr << ' ' << dist << endl;
-            q.pop();
-            if(curr == end) return dist;
-            for(auto neighbor: graph[curr]) {
-                if(visited.count(neighbor)) continue;
-                q.emplace(neighbor, dist + 1);
-                visited.insert(neighbor);
-            }
-        }
-        return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-438. Find All Anagrams in a String
-Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
-
-Strings consists of lowercase English letters only and the length of both strings s and p 
-will not be larger than 20,100.
-
-The order of output does not matter.
-
-Example 1:
-
-Input:
-s: "cbaebabacd" p: "abc"
-
-Output:
-[0, 6]
-
-Explanation:
-The substring with start index = 0 is "cba", which is an anagram of "abc".
-The substring with start index = 6 is "bac", which is an anagram of "abc".
-Example 2:
-
-Input:
-s: "abab" p: "ab"
-
-Output:
-[0, 1, 2]
-
-Explanation:
-The substring with start index = 0 is "ab", which is an anagram of "ab".
-The substring with start index = 1 is "ba", which is an anagram of "ab".
-The substring with start index = 2 is "ab", which is an anagram of "ab".
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 106 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findAnagrams(string s, string p) {
-        vector<int> res;
-        int M = s.size();
-        int N = p.size();
-        
-        if(M < N) return res;
-        unordered_map<char, int> freq, curr_freq;
-        
-        for(auto c: p) freq[c]++;
-        
-        for(int i = 0; i < N; i++) curr_freq[s[i]]++;
-        
-        int low = 0;
-        int high = N;
-        while(high <= M) {
-            bool is_match = true;
-            if(curr_freq.size() == freq.size()) {
-                for(auto kv: freq) {
-                    if(curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second) continue;
-                    is_match = false;
-                    break;
-                }
-            } else {
-                is_match = false;
-            }
-            
-            if(is_match) res.push_back(low);
-            if(high == M) break;
-            char to_erase = s[low++];
-            curr_freq[s[high++]]++;
-            if(curr_freq[to_erase] == 1) curr_freq.erase(to_erase);
-            else curr_freq[to_erase]--;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-442. Find All Duplicates in an Array
-Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and 
-others appear once.
-
-Find all the elements that appear twice in this array.
-
-Could you do it without extra space and in O(n) runtime?
-
-Example:
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[2,3]
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 176 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findDuplicates(vector<int>& nums) {
-        int N = nums.size();
-        vector<int> res;
-        for(int i = 0; i < N; i++) {
-            while(nums[i] != nums[nums[i] - 1]) {
-                swap(nums[i], nums[nums[i] - 1]);
-            }
-        }
-    
-        for(int i = 0; i < N; i++) {
-            if(nums[i] != i + 1) {
-                res.push_back(nums[i]);
-            }
-        }
-         
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible increasing 
-subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
-
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
-Note:
-The length of the given array will not exceed 15.
-The range of integer in the given array is [-100,100].
-The given array may contain duplicates, and two equal integers should also be considered 
-as a special case of increasing sequence.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> findSubsequences(const vector<int>& nums) {
-        int N = nums.size();
-        vector<vector<vector<int>>> dp(N);
-        vector<vector<int>> res;
-        set<vector<int>> used;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] >= nums[j]) {
-                    for(auto seq: dp[j]) {
-                        seq.push_back(nums[i]);
-                        dp[i].push_back(seq);
-                    }
-                }
-            }
-            dp[i].push_back({nums[i]});
-        }
-        
-        for(auto vec: dp) {
-            for(auto seq: vec) {
-                if(seq.size() >= 2 && !used.count(seq)) {
-                    res.push_back(seq);
-                    used.insert(seq);
                 }
             }
         }

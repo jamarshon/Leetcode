@@ -1,6 +1,323 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
+public:
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
+        
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
+            }
+        }
+        
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
+            }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
+
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
+
+Example 1:
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
+Note:
+The size of the given array will be in the range [1,1000].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
+            }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
+        }
+        
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+655. Print Binary Tree
+Print a binary tree in an m*n 2D string array following these rules:
+
+The row number m should be equal to the height of the given binary tree.
+The column number n should always be an odd number.
+The root node's value (in string format) should be put in the exactly middle of the 
+first row it can be put. The column and the row where the root node belongs will separate 
+the rest space into two parts (left-bottom part and right-bottom part). You should print the 
+left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
+left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
+none while the other is not, you don't need to print anything for the none subtree but still 
+need to leave the space as large as that for the other subtree. However, if two subtrees are 
+none, then you don't need to leave space for both of them.
+Each unused space should contain an empty string "".
+Print the subtrees following the same rules.
+Example 1:
+Input:
+     1
+    /
+   2
+Output:
+[["", "1", ""],
+ ["2", "", ""]]
+Example 2:
+Input:
+     1
+    / \
+   2   3
+    \
+     4
+Output:
+[["", "", "", "1", "", "", ""],
+ ["", "2", "", "", "", "3", ""],
+ ["", "", "4", "", "", "", ""]]
+Example 3:
+Input:
+      1
+     / \
+    2   5
+   / 
+  3 
+ / 
+4 
+Output:
+
+[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+ ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+ ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+ ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+Note: The height of binary tree is in the range of [1, 10].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int depth(TreeNode* root) {
+        if(root == NULL) return -1;
+        return 1 + max(depth(root -> left), depth(root -> right));
+    }
+    
+    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
+        if(root == NULL) return;
+        if(start >= end) return;
+        if(row >= res.size()) return;
+        
+        string val = to_string(root -> val);
+        int mid = start + (end - start)/2;
+        res[row][mid] = val;
+        
+        populate(root -> left, res, row + 1, start, mid);
+        populate(root -> right, res, row + 1, mid + 1, end);
+    }
+    vector<vector<string>> printTree(TreeNode* root) {
+        // get the maximum depth of the tree
+        int rd = depth(root);
+        int col = (1 << (rd + 1)) - 1; 
+        // the matrix has depth rows and 2^(depth + 1) - 1 columns
+        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
+        populate(root, res, 0, 0, col);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 656. Coin Path
 Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
 and an integer B. The integer B denotes that from any place (suppose the index is i) 
@@ -657,142 +974,6 @@ public:
         int res = INT_MAX;
         for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
         return res + 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
-built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
-the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input: 
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation: 
-The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
-Example 2:
-Input: 
-words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
-Output: "apple"
-Explanation: 
-Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
-Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-    bool is_word;
-    TrieNode* child[26];
-    TrieNode() {
-        is_word = false;
-        for(int i = 0; i < 26; i++) child[i] = NULL;
-    }
-};
-
-class Trie {
-public:
-    TrieNode* root_;
-    
-    /** Initialize your data structure here. */
-    Trie() {
-        root_ = new TrieNode();
-    }
-    
-    /** Inserts a word into the trie. */
-    void insert(string word) {
-        TrieNode* curr = root_;
-        for(auto c: word) {
-            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
-            curr = curr -> child[c - 'a'];
-        }
-        curr -> is_word = true;
-    }
-};
-
-class Solution {
-public:
-    string dfs(TrieNode* node, string letter) {
-        if(node == NULL || !node->is_word) return "";
-        string max_child = "";
-        for(int i = 0; i < 26; i++) {
-            string child = dfs(node -> child[i], string(1, 'a' + i));
-            if(child.size() > max_child.size()) {
-                max_child = child;
-            }
-        }
-        
-        return letter + max_child;
-    }
-    string longestWord(vector<string>& words) {
-        Trie trie;
-        for(const auto& s: words) trie.insert(s);
-        trie.root_ -> is_word = true;
-        return dfs(trie.root_, "");
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-836. Rectangle Overlap
-A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the coordinates of its bottom-left corner, and (x2, y2) are 
-the coordinates of its top-right corner.
-
-Two rectangles overlap if the area of their intersection is positive.  To be clear, two rectangles that only touch at the corner or edges do not overlap.
-
-Given two rectangles, return whether they overlap.
-
-Example 1:
-
-Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
-Output: true
-Example 2:
-
-Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
-Output: false
-Notes:
-
-Both rectangles rec1 and rec2 are lists of 4 integers.
-All coordinates in rectangles will be between -10^9 and 10^9.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool intersects(int a1, int a2, int b1, int b2) {
-        return !(b1 >= a2 || a1 >= b2);
-    }
-    
-    // Check if x intervals intersect and y intervals intersect
-    bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
-        return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
     }
 };
 

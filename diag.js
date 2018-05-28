@@ -1,3 +1,4 @@
+var f1 = function(d) {
 function httpGet(theUrl) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
@@ -50,17 +51,17 @@ b.forEach(x => {
    }
 });
  
-var not_completed_p = parse(not_completed);
-var completed_p = parse(completed);
-var not_attempted_p = parse(not_attempted);
+window.not_completed_p = parse(not_completed);
+window.completed_p = parse(completed);
+window.not_attempted_p = parse(not_attempted);
  
-var diag = `not_completed = ${not_completed_p.length},\ncompleted = ${completed_p.length},\nnot_attempted = ${not_attempted_p.length}`;
+var diag = `not_completed = ${window.not_completed_p.length},\ncompleted = ${window.completed_p.length},\nnot_attempted = ${window.not_attempted_p.length}`;
 console.log(diag);
 
 var c_dict = {};
-for(var i = 0; i < completed_p.length; i++) c_dict[completed_p[i].id] = true;
+for(var i = 0; i < window.completed_p.length; i++) c_dict[window.completed_p[i].id] = true;
 
-var d = [];
+// var d = [];
 var d_dict = {};
 d = d.map(x => parseInt(x.slice(0, x.indexOf('.'))));
 for(var i = 0; i < d.length; i++) d_dict[d[i]] = true;
@@ -74,3 +75,6 @@ console.log("not saved");
 for(var k in c_dict) {
     if(typeof d_dict[k] === 'undefined') console.log(k);
 }
+};
+
+f1(d)

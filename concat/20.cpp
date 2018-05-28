@@ -1,6 +1,313 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+433. Minimum Genetic Mutation
+A gene string can be represented by an 8-character long string, with choices from 
+"A", "C", "G", "T".
+
+Suppose we need to investigate about a mutation (mutation from "start" to "end"), 
+where ONE mutation is defined as ONE single character changed in the gene string.
+
+For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
+
+Also, there is a given gene "bank", which records all the valid gene mutations. 
+A gene must be in the bank to make it a valid gene string.
+
+Now, given 3 things - start, end, bank, your task is to determine what is the 
+minimum number of mutations needed to mutate from "start" to "end". If there is no 
+such a mutation, return -1.
+
+Note:
+
+Starting point is assumed to be valid, so it might not be included in the bank.
+If multiple mutations are needed, all mutations during in the sequence must be valid.
+You may assume start and end string is not the same.
+Example 1:
+
+start: "AACCGGTT"
+end:   "AACCGGTA"
+bank: ["AACCGGTA"]
+
+return: 1
+Example 2:
+
+start: "AACCGGTT"
+end:   "AAACGGTA"
+bank: ["AACCGGTA", "AACCGCTA", "AAACGGTA"]
+
+return: 2
+Example 3:
+
+start: "AAAAACCC"
+end:   "AACCCCCC"
+bank: ["AAAACCCC", "AAACCCCC", "AACCCCCC"]
+
+return: 3
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+    bool isConnect(string s1, string s2) {
+        int diff_count = 0;
+        for(int i = 0, len = s1.size(); i < len; i++) {
+            diff_count += s1[i] != s2[i];
+        }
+        return diff_count == 1;
+    }
+public:
+    int minMutation(string start, string end, vector<string>& bank) {
+        unordered_map<string, vector<string>> graph;
+
+        bank.push_back(start);
+        int N = bank.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                if(isConnect(bank[i], bank[j])) {
+                    graph[bank[i]].push_back(bank[j]);
+                    graph[bank[j]].push_back(bank[i]);
+                }
+            }
+        }
+
+        unordered_set<string> visited;
+        queue<pair<string, int>> q;
+        q.emplace(start, 0);
+        visited.insert(start);
+
+        string curr;
+        int dist;
+        while(!q.empty()) {
+            tie(curr, dist) = q.front();
+            // cout << curr << ' ' << dist << endl;
+            q.pop();
+            if(curr == end) return dist;
+            for(auto neighbor: graph[curr]) {
+                if(visited.count(neighbor)) continue;
+                q.emplace(neighbor, dist + 1);
+                visited.insert(neighbor);
+            }
+        }
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+438. Find All Anagrams in a String
+Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both strings s and p 
+will not be larger than 20,100.
+
+The order of output does not matter.
+
+Example 1:
+
+Input:
+s: "cbaebabacd" p: "abc"
+
+Output:
+[0, 6]
+
+Explanation:
+The substring with start index = 0 is "cba", which is an anagram of "abc".
+The substring with start index = 6 is "bac", which is an anagram of "abc".
+Example 2:
+
+Input:
+s: "abab" p: "ab"
+
+Output:
+[0, 1, 2]
+
+Explanation:
+The substring with start index = 0 is "ab", which is an anagram of "ab".
+The substring with start index = 1 is "ba", which is an anagram of "ab".
+The substring with start index = 2 is "ab", which is an anagram of "ab".
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 106 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> res;
+        int M = s.size();
+        int N = p.size();
+        
+        if(M < N) return res;
+        unordered_map<char, int> freq, curr_freq;
+        
+        for(auto c: p) freq[c]++;
+        
+        for(int i = 0; i < N; i++) curr_freq[s[i]]++;
+        
+        int low = 0;
+        int high = N;
+        while(high <= M) {
+            bool is_match = true;
+            if(curr_freq.size() == freq.size()) {
+                for(auto kv: freq) {
+                    if(curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second) continue;
+                    is_match = false;
+                    break;
+                }
+            } else {
+                is_match = false;
+            }
+            
+            if(is_match) res.push_back(low);
+            if(high == M) break;
+            char to_erase = s[low++];
+            curr_freq[s[high++]]++;
+            if(curr_freq[to_erase] == 1) curr_freq.erase(to_erase);
+            else curr_freq[to_erase]--;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+442. Find All Duplicates in an Array
+Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and 
+others appear once.
+
+Find all the elements that appear twice in this array.
+
+Could you do it without extra space and in O(n) runtime?
+
+Example:
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[2,3]
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 176 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDuplicates(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            while(nums[i] != nums[nums[i] - 1]) {
+                swap(nums[i], nums[nums[i] - 1]);
+            }
+        }
+    
+        for(int i = 0; i < N; i++) {
+            if(nums[i] != i + 1) {
+                res.push_back(nums[i]);
+            }
+        }
+         
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+491. Increasing Subsequences
+Given an integer array, your task is to find all the different possible increasing 
+subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
+
+Example:
+Input: [4, 6, 7, 7]
+Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
+Note:
+The length of the given array will not exceed 15.
+The range of integer in the given array is [-100,100].
+The given array may contain duplicates, and two equal integers should also be considered 
+as a special case of increasing sequence.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 286 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> findSubsequences(const vector<int>& nums) {
+        int N = nums.size();
+        vector<vector<vector<int>>> dp(N);
+        vector<vector<int>> res;
+        set<vector<int>> used;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[i] >= nums[j]) {
+                    for(auto seq: dp[j]) {
+                        seq.push_back(nums[i]);
+                        dp[i].push_back(seq);
+                    }
+                }
+            }
+            dp[i].push_back({nums[i]});
+        }
+        
+        for(auto vec: dp) {
+            for(auto seq: vec) {
+                if(seq.size() >= 2 && !used.count(seq)) {
+                    res.push_back(seq);
+                    used.insert(seq);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 520. Detect Capital
 Given a word, you need to judge whether the usage of capitals 
 in it is right or not.
@@ -673,325 +980,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the 
-four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array 
-with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four 
-equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cassert>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    int distSq(vector<int>& a, vector<int>& b) {
-        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
-    }
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        vector<int> dist;
-        vector<vector<int>> v{p1, p2, p3, p4};
-        for(int i = 0; i < 4; i++) {
-            for(int j = i + 1; j < 4; j++) {
-                dist.push_back(distSq(v[i], v[j]));
-            }
-        }
-
-        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
-        // out of these 6 distances, there are 4 distances which are the side distances (s)
-        // and 2 that are hypotenuse (h)
-        // s^2 + s^2 = h^2
-
-        assert(dist.size() == 6);
-        map<int,int> freq;
-        for(auto e: dist) freq[e]++;
-
-        if(freq.size() != 2) return false;
-        int s = freq.begin() -> first;
-        int h = next(freq.begin(), 1) -> first;
-        return 2*s == h;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double eucl_sq(vector<int>& p1, vector<int>& p2) {
-        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-    }
-
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        // distance squared
-        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
-
-        sort(dist.begin(), dist.end());
-
-        // should result in 4 equal length sides and two longer sides that are the diagonals 
-        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-        bool non_zero_sides = dist[0] > 0;
-
-        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
-        return equal_sides && non_zero_sides && correct_diagonals;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-594. Longest Harmonious Subsequence
-We define a harmonious array is an array where the difference between its maximum value and its minimum 
-value is exactly 1.
-
-Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
-its possible subsequences.
-
-Example 1:
-Input: [1,3,2,2,5,2,3,7]
-Output: 5
-Explanation: The longest harmonious subsequence is [3,2,2,2,3].
-Note: The length of the input array will not exceed 20,000.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 109 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLHS(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        int max_len = 0;
-        for(int d: nums) {
-            int current = 0;
-            if(freq.find(d) != freq.end()) {
-                current += freq[d];
-                freq[d] += 1;
-            } else {
-                freq[d] = 1;
-            }
-
-            int adj = 0;
-            if(freq.find(d-1) != freq.end()) {
-                adj = max(adj, freq[d-1]);
-            }
-
-            if(freq.find(d+1) != freq.end()) {
-                adj = max(adj, freq[d+1]);
-            }
-
-            if(adj == 0) continue;
-            current += adj + 1;
-            max_len = max(current, max_len);
-        }
-        return max_len;
-    }
-};
-
-int main() {
-    vector<int> v{1,3,2,2,5,2,3,7};
-    Solution s;
-    cout << s.findLHS(v) << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-598. Range Addition II
-Given an m * n matrix M initialized with all 0's and several update operations.
-
-Operations are represented by a 2D array, and each operation is represented by an array with 
-two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
-and 0 <= j < b.
-
-You need to count and return the number of maximum integers in the matrix after performing 
-all the operations.
-
-Example 1:
-Input: 
-m = 3, n = 3
-operations = [[2,2],[3,3]]
-Output: 4
-Explanation: 
-Initially, M = 
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-
-After performing [2,2], M = 
-[[1, 1, 0],
- [1, 1, 0],
- [0, 0, 0]]
-
-After performing [3,3], M = 
-[[2, 2, 1],
- [2, 2, 1],
- [1, 1, 1]]
-
-So the maximum integer in M is 2, and there are four of it in M. So return 4.
-Note:
-The range of m and n is [1,40000].
-The range of a is [1,m], and the range of b is [1,n].
-The range of operations size won't exceed 10,000.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxCount(int m, int n, vector<vector<int>>& ops) {
-        for(vector<int> op: ops) {
-            m = min(m, op[0]);
-            n = min(n, op[1]);
-        }
-        return m*n;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
-favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index sum. If there 
-is a choice tie between answers, output all of them with no order requirement. You could assume 
-there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
-index sum 1 (0+1).
-Note:
-The length of both lists will be in the range of [1, 1000].
-The length of strings in both lists will be in the range of [1, 30].
-The index is starting from 0 to the list length minus 1.
-No duplicates in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-        unordered_map<string, int> m;
-        for(int i = 0; i < list1.size(); i++) {
-            m[list1[i]] = i;
-        }
-        
-        vector<string> res;
-        int min_index_sum = -1;
-        for(int i = 0; i < list2.size(); i++) {
-            string s2 = list2[i];
-            if(m.count(s2)) {
-                int new_sum = i + m[s2];
-                if(min_index_sum == -1) {
-                    min_index_sum = new_sum;
-                    res.push_back(s2);
-                    continue;
-                }
-                
-                if(new_sum == min_index_sum) {
-                    res.push_back(s2);
-                } else if(new_sum < min_index_sum) {
-                    min_index_sum = new_sum;
-                    res.clear();
-                    res.push_back(s2);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
-    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
-    vector<string> t = s.findRestaurant(v1, v2);
-    cout << t.size() << endl;
     return 0;
 }

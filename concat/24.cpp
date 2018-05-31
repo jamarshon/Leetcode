@@ -188,6 +188,54 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+657. Judge Route Circle
+Initially, there is a Robot at position (0, 0). Given a sequence of its moves, judge if this robot makes 
+a circle, which means it moves back to the original place.
+
+The move sequence is represented by a string. And each move is represent by a character. The valid robot moves are 
+R (Right), L (Left), U (Up) and D (down). The output should be true or false representing whether the robot makes a circle.
+
+Example 1:
+Input: "UD"
+Output: true
+Example 2:
+Input: "LL"
+Output: false
+/*
+    Submission Date: 2018-05-31
+    Runtime: 43 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    unordered_map<char, vector<int>> m_{
+        {'U', {0,1}},
+        {'D', {0,-1}},
+        {'L', {-1,0}},
+        {'R', {1,0}},
+    };
+public:
+    bool judgeCircle(string moves) {
+        int x = 0;
+        int y = 0;
+        for(const auto& c: moves) {
+            x += m_[c][0];
+            y += m_[c][1];
+        }
+        return x == 0 && y == 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 662. Maximum Width of Binary Tree
 Given a binary tree, write a function to get the maximum width of the 
 given tree. The width of a tree is the maximum width among all levels. 
@@ -754,6 +802,60 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+728. Self Dividing Numbers
+A self-dividing number is a number that is divisible by every digit it contains.
+
+For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0, and 128 % 8 == 0.
+
+Also, a self-dividing number is not allowed to contain the digit zero.
+
+Given a lower and upper number bound, output a list of every possible self dividing number, including the bounds if possible.
+
+Example 1:
+Input: 
+left = 1, right = 22
+Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
+Note:
+
+The boundaries of each input argument are 1 <= left <= right <= 10000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> selfDividingNumbers(int left, int right) {
+        vector<int> res;
+        
+        for(int i = left; i <= right; i++) {
+            int x = i;
+            bool can_use = true;
+            while(x) {
+                if(x % 10 == 0 || i % (x % 10) != 0) {
+                    can_use = false;
+                    break;
+                }
+                x /= 10;
+            }
+            
+            if(can_use) res.push_back(i);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 771. Jewels and Stones
 You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
 Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
@@ -853,53 +955,6 @@ public:
             comb.insert(curr);
         }
         return comb.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-836. Rectangle Overlap
-A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the coordinates of its bottom-left corner, and (x2, y2) are 
-the coordinates of its top-right corner.
-
-Two rectangles overlap if the area of their intersection is positive.  To be clear, two rectangles that only touch at the corner or edges do not overlap.
-
-Given two rectangles, return whether they overlap.
-
-Example 1:
-
-Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
-Output: true
-Example 2:
-
-Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
-Output: false
-Notes:
-
-Both rectangles rec1 and rec2 are lists of 4 integers.
-All coordinates in rectangles will be between -10^9 and 10^9.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool intersects(int a1, int a2, int b1, int b2) {
-        return !(b1 >= a2 || a1 >= b2);
-    }
-    
-    // Check if x intervals intersect and y intervals intersect
-    bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
-        return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
     }
 };
 

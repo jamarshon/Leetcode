@@ -1,6 +1,143 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+345. Reverse Vowels of a String
+Write a function that takes a string as input and reverse only 
+the vowels of a string.
+
+Example 1:
+Given s = "hello", return "holle".
+
+Example 2:
+Given s = "leetcode", return "leotcede".
+
+Note:
+The vowels does not include the letter "y".
+
+/*
+    Submission Date: 2017-08-22
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    string reverseVowels(string s) {
+        unordered_set<char> vowels{'a', 'e', 'i', 'o', 'u'};
+        vector<int> indices;
+        for(int i = 0; i < s.size(); i++) {
+            if(vowels.count(tolower(s[i]))) {
+                indices.push_back(i);
+            }
+        }
+        
+        int N = indices.size();
+        for(int i = 0; i < N/2; i++) {
+            char temp = s[indices[i]];
+            s[indices[i]] = s[indices[N- i - 1]];
+            s[indices[N - i - 1]] = temp;
+        }
+        
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+347. Top K Frequent Elements
+Given a non-empty array of integers, return the k most frequent elements.
+
+For example,
+Given [1,1,1,2,2,3] and k = 2, return [1,2].
+
+Note: 
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 20 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int,int> val_to_freq;
+        map<int,vector<int>> freq_to_val;
+        for(auto e: nums) val_to_freq[e]++;
+        for(auto kv: val_to_freq) freq_to_val[kv.second].push_back(kv.first);
+        vector<int> res;
+        for(auto it = freq_to_val.rbegin(); it != freq_to_val.rend(); it++) {
+            for(auto e: it->second) {
+                res.push_back(e);
+                if(res.size() == k) break;
+            }
+            if(res.size() == k) break;
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+349. Intersection of Two Arrays
+Given two arrays, write a function to compute their intersection.
+
+Example:
+Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2].
+
+Note:
+Each element in the result must be unique.
+The result can be in any order.
+/*
+    Submission Date: 2018-05-02
+    Runtime: 8 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        vector<int> res;
+        unordered_set<int> st(nums1.begin(), nums1.end());
+        for(const auto& e: nums2) {
+          if(st.count(e)) {
+            res.push_back(e);
+            st.erase(e);
+          }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 350. Intersection of Two Arrays II
 Given two arrays, write a function to compute their intersection.
 
@@ -126,6 +263,52 @@ public:
             }
         }
         return dp.empty() ? 0 : *max_element(dp.begin(), dp.end());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+357. Count Numbers with Unique Digits
+Given a non-negative integer n, count all numbers with unique digits, x, where 0 ≤ x < 10n.
+
+Example:
+Given n = 2, return 91. (The answer should be the total numbers in the range of 0 ≤ x < 100, excluding [11,22,33,44,55,66,77,88,99])
+/*
+    Submission Date: 2018-05-30
+    Runtime: 2 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        let dp[n] denote a number with n digits (no leading zeros) that is completely unique
+        dp[0] = 1           {0}
+        dp[1] = 9           {1, 2, 3, 4, 5, 6, 8, 9}
+        dp[2] = 9*dp[1]     for each number in dp[1], there are 9 numbers to choose from that are not in dp[1].
+                            e.g. for dp[1] element 1, there is {10, 12, 13, 14, 15, 16, 17, 18, 19}
+        dp[3] = 8*dp[2]     for each number in dp[2], there are 8 numbers to choose from that are not in dp[2]
+                            e.g. for dp[2] element 12, there is {120, 123, 124, 125, 126, 127, 128, 129}
+        ...
+        dp[i] = min(9, 9 - i + 2)*dp[i-1]
+        
+        the result of length n is just the sum of dp[i] from [0, n]
+    */
+    int countNumbersWithUniqueDigits(int n) {
+        int prev = 1;
+        int res = 1;
+        for(int i = 1; i <= min(10, n); i++) {
+            prev *= min(9, 9 - i + 2);
+            res += prev;
+        }
+
+        return res;
     }
 };
 
@@ -441,6 +624,213 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+376. Wiggle Subsequence
+A sequence of numbers is called a wiggle sequence if the differences between successive numbers strictly alternate between 
+positive and negative. The first difference (if one exists) may be either positive or negative. A sequence with fewer than 
+two elements is trivially a wiggle sequence.
+
+For example, [1,7,4,9,2,5] is a wiggle sequence because the differences (6,-3,5,-7,3) are alternately positive and negative. 
+In contrast, [1,4,7,2,5] and [1,7,4,5,5] are not wiggle sequences, the first because its first two differences are positive 
+and the second because its last difference is zero.
+
+Given a sequence of integers, return the length of the longest subsequence that is a wiggle sequence. A subsequence is 
+obtained by deleting some number of elements (eventually, also zero) from the original sequence, leaving the remaining elements in their original order.
+
+Examples:
+Input: [1,7,4,9,2,5]
+Output: 6
+The entire sequence is a wiggle sequence.
+
+Input: [1,17,5,10,13,15,10,5,16,8]
+Output: 7
+There are several subsequences that achieve this length. One is [1,17,10,13,10,16,8].
+
+Input: [1,2,3,4,5,6,7,8,9]
+Output: 2
+Follow up:
+Can you do it in O(n) time?
+/*
+    Submission Date: 2018-05-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        suppose the number we have is right after <, if we meet a smaller element then just add it to stack
+        else if the element is larger than we pop back and add this larger element as it will give a wider
+        range of numbers that can follow it
+        the same logic applies to >, where if a smaller element is seen just pop back and add it to stack
+    */
+    int wiggleMaxLength(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        vector<int> stk1{nums[0]}, stk2{nums[0]};
+        for(int i = 1; i < nums.size(); i++) {
+            if((stk1.size() % 2 == 0 && stk1.back() <= nums[i]) || 
+               (stk1.size() % 2 == 1 && stk1.back() >= nums[i])) {
+                stk1.pop_back();
+            }
+            
+            if((stk2.size() % 2 == 1 && stk2.back() <= nums[i]) || 
+               (stk2.size() % 2 == 0 && stk2.back() >= nums[i])) {
+                stk2.pop_back();
+            }
+            
+            stk1.push_back(nums[i]);
+            stk2.push_back(nums[i]);
+        }
+        
+        return max(stk1.size(), stk2.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+378. Kth Smallest Element in a Sorted Matrix
+Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
+
+Note that it is the kth smallest element in the sorted order, not the kth distinct element.
+
+Example:
+
+matrix = [
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+],
+k = 8,
+
+return 13.
+Note: 
+You may assume k is always valid, 1 ≤ k ≤ n2.
+/*
+    Submission Date: 2018-05-30
+    Runtime: 38 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+class Solution2 {
+public:
+    bool Get(const vector<vector<int>>& matrix, int num, int N, int M, int k) {
+        int i = 0;
+        int j = M-1;
+        int curr = 0;
+        
+        int occurences = 0;
+        
+        while(i < N && j >= 0) {
+            if(matrix[i][j] > num) {
+                j--;
+            } else {
+                int temp = j;
+                while(temp >= 0 && matrix[i][temp] == num) temp--;
+                i++;
+                curr += temp + 1;
+                occurences += j - temp;
+            }
+        }
+        
+        return curr < k && k <= curr + occurences;
+    }
+
+    // for each element in the array, count the number of elements smaller than it
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                if(Get(matrix, matrix[i][j], N, M, k)) {
+                    return matrix[i][j];
+                }
+            }
+        }
+        
+        return -1;
+    }
+};
+
+struct Item {
+    int i, j, val;
+    Item(const int& _i, const int& _j, const int& _val): i(_i), j(_j), val(_val) {}
+    bool operator>(const Item& rhs) const {
+        return val > rhs.val;
+    }
+};
+
+class Solution3 {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        priority_queue<Item, vector<Item>, greater<Item>> min_heap;
+        for(int j = 0; j < M; j++) {
+            min_heap.emplace(0, j, matrix[0][j]);
+        }
+        
+        for(int i = 0; i < k - 1; i++) { // remove k- 1 elements to get the kth element
+            Item smallest = min_heap.top();
+            min_heap.pop();
+            if(smallest.i + 1 < N) {
+                smallest.i++;
+                smallest.val = matrix[smallest.i][smallest.j];
+                min_heap.push(smallest);
+            }
+        }
+        
+        return min_heap.top().val;
+    }
+};
+
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        // matrix[i][j] >= matrix[k][l] for all k > i && l > j
+        int low = matrix[0][0];
+        int high = matrix[M-1][M-1];
+        
+        while(low <= high) {
+            int mid = low + (high-low)/2;
+            int num_smaller_than_mid = 0;
+            // get the number of elements that are <= mid.
+            // suppose the two elements in the array are 10 x 1, 10 x 2 and 10 x 3
+            // if k == 15, mid = 2 and num_smaller_than_mid are 10, 20, 30 return low
+            // gets the number larger than k
+            for(int j = M-1, i = 0; i < N; i++) {
+                while(j >= 0 && matrix[i][j] > mid) j--;
+                num_smaller_than_mid += j + 1;
+            }
+            
+            if(num_smaller_than_mid >= k) high = mid - 1; // too many elements
+            else low = mid + 1; // too little elements
+        }
+        
+        return low;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 383. Ransom Note
 Given an arbitrary ransom note string and another string containing letters from all the magazines, 
 write a function that will return true if the ransom note can be constructed from the magazines ; 
@@ -576,363 +966,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-389. Find the Difference
-Given two strings s and t which consist of only lowercase letters.
-
-String t is generated by random shuffling string s and then add one more letter at a random position.
-
-Find the letter that was added in t.
-
-Example:
-
-Input:
-s = "abcd"
-t = "abcde"
-
-Output:
-e
-
-Explanation:
-'e' is the letter that was added.
-/*
-    Submission Date: 2018-05-02
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    char findTheDifference(string s, string t) {
-        unordered_map<char,int> m;
-        for(auto e: s) m[e]++;
-        for(auto e: t) {
-          if(m.count(e)) {
-            if(m[e] == 0) return e;
-            m[e]--;
-          } else {
-            return e;
-          }
-        }
-        return '\0';
-    }
-};
-
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-392. Is Subsequence
-Given a string s and a string t, check if s is subsequence of t.
-
-You may assume that there is only lower case English letters in 
-both s and t. t is potentially a very long (length ~= 500,000) string, 
-and s is a short string (<=100).
-
-A subsequence of a string is a new string which is formed from the 
-original string by deleting some (can be none) of the characters 
-without disturbing the relative positions of the remaining characters. 
-(ie, "ace" is a subsequence of "abcde" while "aec" is not).
-
-Example 1:
-s = "abc", t = "ahbgdc"
-
-Return true.
-
-Example 2:
-s = "axc", t = "ahbgdc"
-
-Return false.
-
-Follow up:
-If there are lots of incoming S, say S1, S2, ... , Sk where k >= 1B, 
-and you want to check one by one to see if T has its subsequence. 
-In this scenario, how would you change your code?
-
-/*
-    Submission Date: 2017-08-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isSubsequence(string s, string t) {
-        int s_index = 0, t_index = 0;
-        int s_len = s.size(), t_len = t.size();
-        
-        while(s_index < s_len && t_index < t_len) {
-            if(s[s_index] == t[t_index]) {
-                s_index++;
-            }
-            t_index++;
-        }
-        
-        return s_index == s_len;
-    }
-
-    bool isSubsequence2(string s, string t) {
-        int N = s.size(), M = t.size();
-        vector<vector<bool>> dp(N + 1, vector<bool>(M + 1, false));
-        for(int i = 0; i <= M; i++) dp[0][i] = true;
-    
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                if(s[i-1] == t[j-1]) {
-                    dp[i][j] = dp[i-1][j-1];
-                } else {
-                    dp[i][j] = dp[i][j-1];
-                }
-            }
-        }
-        return dp[N][M];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-404. Sum of Left Leaves
-Find the sum of all left leaves in a given binary tree.
-
-Example:
-
-    3
-   / \
-  9  20
-    /  \
-   15   7
-
-There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int sumOfLeftLeaves(TreeNode* root) {
-        if(root == NULL) return 0;
-        int res = 0;
-        if(root -> left && root -> left -> left == NULL && root -> left -> right == NULL) {
-            res += root -> left -> val;
-        }
-        
-        return res + sumOfLeftLeaves(root -> left) + sumOfLeftLeaves(root -> right);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-405. Convert a Number to Hexadecimal
-Given an integer, write an algorithm to convert it to hexadecimal. For negative integer, two’s complement method is used.
-
-Note:
-
-All letters in hexadecimal (a-f) must be in lowercase.
-The hexadecimal string must not contain extra leading 0s. If the number is zero, it is represented by a single zero character '0'; otherwise, 
-the first character in the hexadecimal string will not be the zero character.
-The given number is guaranteed to fit within the range of a 32-bit signed integer.
-You must not use any method provided by the library which converts/formats the number to hex directly.
-Example 1:
-
-Input:
-26
-
-Output:
-"1a"
-Example 2:
-
-Input:
--1
-
-Output:
-"ffffffff"
-/*
-    Submission Date: 2018-05-26
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        % 16 gets the last 4 bits. if it is negative then add 16 ie -1 -> 15.
-        >> 4 shifts by 4 bits through sign extending so it is not equivalent to / 16
-        since the last 4 bits are added first the string must be reversed.
-        the last non zero character is the first character in the string so trim it.
-    */
-    char helper(int x){ if(x < 0) x += 16; return (x % 10) + (x < 10 ? '0' : 'a'); }
-    string toHex(int num) {
-        string res = "";
-        int last_non_zero = 0;
-        
-        for(int i = 0; i < 8; i++) {
-            res.push_back(helper(num % 16));
-            num >>= 4;
-            if(res.back() != '0') last_non_zero = i;
-        }
-        
-        res = res.substr(0, last_non_zero + 1);
-        reverse(res.begin(), res.end());
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-414. Third Maximum Number
-Given a non-empty array of integers, return the third maximum number in this array. 
-If it does not exist, return the maximum number. The time complexity must be in O(n).
-
-Example 1:
-Input: [3, 2, 1]
-
-Output: 1
-
-Explanation: The third maximum is 1.
-Example 2:
-Input: [1, 2]
-
-Output: 2
-
-Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
-Example 3:
-Input: [2, 2, 3, 1]
-
-Output: 1
-
-Explanation: Note that the third maximum here means the third maximum distinct number.
-Both numbers with value 2 are both considered as second maximum.
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int thirdMax(vector<int>& nums) {
-        priority_queue<int, vector<int>, greater<int>> min_heap;
-        unordered_set<int> distinct;
-        int max_item = nums.front();
-        for(auto num: nums) {
-            max_item = max(max_item, num);
-            if(distinct.count(num)) continue;
-            min_heap.push(num);
-            distinct.insert(num);
-            if(min_heap.size() > 3) {
-                int to_delete = min_heap.top();
-                distinct.erase(to_delete);
-                min_heap.pop();
-            }
-        }
-        
-        return min_heap.size() == 3 ? min_heap.top() : max_item;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-419. Battleships in a Board
-Given an 2D board, count how many battleships are in it. The battleships are represented with 'X's, empty slots are represented with '.'s. 
-You may assume the following rules:
-You receive a valid board, made of only battleships or empty slots.
-Battleships can only be placed horizontally or vertically. In other words, they can only be made of the shape 1xN (1 row, N columns) or Nx1 
-(N rows, 1 column), where N can be of any size.
-At least one horizontal or vertical cell separates between two battleships - there are no adjacent battleships.
-Example:
-X..X
-...X
-...X
-In the above board there are 2 battleships.
-Invalid Example:
-...X
-XXXX
-...X
-This is an invalid board that you will not receive - as battleships will always have a cell separating between them.
-Follow up:
-Could you do it in one-pass, using only O(1) extra memory and without modifying the value of the board?
-/*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-/*
-    N by checking if the element to the left and to the top of board[i][j] isn't a 'X'.
-    If there is one then it means it is continuing a ship so it should not be counted.
-*/
-class Solution {
-public:
-    int countBattleships(vector<vector<char>>& board) {
-        if(board.empty()) return 0;
-        int res = 0;
-        for(int i = 0; i < board.size(); i++) {
-            for(int j = 0; j < board[0].size(); j++) {
-                if(board[i][j] == 'X' && (j == 0 || board[i][j-1] != 'X') && (i == 0 || board[i-1][j] != 'X')) {
-                    res++;
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
     return 0;
 }

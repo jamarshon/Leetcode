@@ -30,7 +30,34 @@ struct Compare {
     bool operator()(const int& left, const int& right) const { return left < right; }
 };
 
+
+double my_root(int x, double epsilon=1e-9) {
+    if(x < 0) return -1;
+    double xn = 0;
+    double xn_plus_1 = x;
+    while(abs(xn - xn_plus_1) >= epsilon) {
+        xn = xn_plus_1;
+        xn_plus_1 = (xn + x/xn)/2.0;
+    } 
+
+    return xn_plus_1;
+}
+
+void isqrt(int x){
+    int xn = 0;
+    int xn_plus_1 = x;
+    while(abs(xn - xn_plus_1) > 1) {
+        xn = xn_plus_1;
+        xn_plus_1 = (xn + x/xn)/2;
+    } 
+
+}
+
 int main() {
+    vector<int> v;
+    sort(v.begin(), v.end(), Compare());
+    priority_queue<int,vector<int>, greater<int>> pq;
+    priority_queue<int,vector<int>, Compare> pq2;
     return 0;
 }
 

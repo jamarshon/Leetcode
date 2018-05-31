@@ -14,7 +14,7 @@ var main_url = 'https://leetcode.com/problems/'
 var parse = function(arr) {
     var res = arr.reduce((memo, x) => {
         var row = {
-            id: x.stat.question_id, 
+            id: x.stat.frontend_question_id, 
             name: x.stat.question__title,
             url: main_url + x.stat.question__title_slug + '/'
         };

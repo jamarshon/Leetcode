@@ -1,6 +1,688 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+640. Solve the Equation
+Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
+only '+', '-' operation, the variable x and its coefficient.
+
+If there is no solution for the equation, return "No solution".
+
+If there are infinite solutions for the equation, return "Infinite solutions".
+
+If there is exactly one solution for the equation, we ensure that the value of x is an integer.
+
+Example 1:
+Input: "x+5-3+x=6+x-2"
+Output: "x=2"
+Example 2:
+Input: "x=x"
+Output: "Infinite solutions"
+Example 3:
+Input: "2x=x"
+Output: "x=0"
+Example 4:
+Input: "2x+3x-6x=x+2"
+Output: "x=-1"
+Example 5:
+Input: "x=x+2"
+Output: "No solution"
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<long long, long long> getCount(string s) {
+        long long x_count = 0;
+        long long c_count = 0;
+        for(int i = 0; i < s.size();) {
+            string prev = "";
+            bool seen_number = false;
+            bool end_x = false;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    prev += s[i];
+                    seen_number = true;
+                    i++;
+                } else if(s[i] == '+' || s[i] == '-') {
+                    if(!seen_number) {
+                        prev += s[i];
+                        i++;
+                    } else {
+                        break;
+                    }
+                } else if(s[i] == 'x') {
+                    end_x = true;
+                    i++;
+                    break;
+                }
+            }
+
+            if(end_x) {
+                if(prev == "+") x_count++;
+                else if(prev == "-") x_count--;
+                else if(prev == "") x_count++;
+                else x_count += stoll(prev);
+            } else {
+                if(prev == "+") c_count++;
+                else if(prev == "-") c_count--;
+                else if(prev == "") c_count++;
+                else c_count += stoll(prev);
+            }
+        }
+
+        return {x_count, c_count};
+    }
+    string solveEquation(string equation) {
+        // put all the x on the left side and all the numbers on the right side
+        string s = equation;
+        string inf = "Infinite solutions";
+        string none = "No solution";
+
+        int eq_ind = s.find("=");
+        if(eq_ind == string::npos) return none;
+
+        string left = s.substr(0, eq_ind);
+        string right = s.substr(eq_ind + 1);
+
+        
+        long long x_count1, c_count1;
+        tie(x_count1, c_count1) = getCount(left);
+
+        long long x_count2, c_count2;
+        tie(x_count2, c_count2) = getCount(right);
+
+        long long left_x_count = x_count1 - x_count2;
+        long long right_c_count = c_count2 - c_count1;
+
+        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
+
+        return "x=" + to_string(right_c_count/left_x_count);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+643. Maximum Average Subarray I
+Given an array consisting of n integers, find the contiguous subarray of given length k that 
+has the maximum average value. And you need to output the maximum average value.
+
+Example 1:
+Input: [1,12,-5,-6,50,3], k = 4
+Output: 12.75
+Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
+Note:
+1 <= k <= n <= 30,000.
+Elements of the given array will be in the range [-10,000, 10,000].
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 199 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double findMaxAverage(vector<int>& nums, int k) {
+        int sum = 0;
+        int max_average = INT_MIN;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i < k) {
+                sum += nums[i];
+            } else {
+                if(i == k) max_average = max(max_average, sum);
+                sum = sum - nums[i - k] + nums[i];
+                max_average = max(max_average, sum);
+            }
+        }
+        if(k == nums.size()) return (double)sum/k;
+        return (double)max_average/k;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+645. Set Mismatch
+The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
+the numbers in the set got duplicated to another number in the set, which results in repetition of one 
+number and loss of another number.
+
+Given an array nums representing the data status of this set after the error. Your task is to firstly 
+find the number occurs twice and then find the number that is missing. Return them in the form of an array.
+
+Example 1:
+Input: nums = [1,2,2,4]
+Output: [2,3]
+Note:
+The given array size will in the range [2, 10000].
+The given array's numbers won't have any order.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 62 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findErrorNums(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for(auto num: nums) freq[num]++;
+        
+        int N = nums.size();
+        int duplicate = -1;
+        int missing = -1;
+        for(int i = 1; i <= N; i++) {
+            if(missing != -1 && duplicate != -1) break;
+            if(!freq.count(i)) {
+                missing = i;
+            } else if(freq[i] >= 2) {
+                duplicate = i;
+            }
+        }
+        return {duplicate, missing};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+646. Maximum Length of Pair Chain
+You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
+
+Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
+formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
+pairs. You can select pairs in any order.
+
+Example 1:
+Input: [[1,2], [2,3], [3,4]]
+Output: 2
+Explanation: The longest chain is [1,2] -> [3,4]
+Note:
+The number of given pairs will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 82 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
+            return v1[1] < v2[1];
+        });
+        
+        vector<vector<int>> res;
+        
+        for(auto p: pairs) {
+            if(res.empty() || res.back()[1] < p[0]) {
+                res.push_back(p);
+            }
+        }
+        
+        return res.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+647. Palindromic Substrings
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even 
+they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Note:
+The input string length won't exceed 1000.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int Manacher(string s) {
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+
+        for(auto c: s) str += string(1, c) + kNullChar;
+
+        string max_str = "";
+        int len = str.size();
+        int right = 0;
+        int center = 0;
+        vector<int> dp(len, 0);
+
+        for(int i = 1; i < len; i++) {
+            int mirr = 2*center - i;
+
+            // i is within right so can take the minimum of the mirror or distance from right
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirr]);
+            }
+
+            // keep expanding around i while it is the same and increment P[i]
+            int left_index = i - (1 + dp[i]);
+            int right_index = i + (1 + dp[i]);
+            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
+                left_index--;
+                right_index++;
+                dp[i]++;
+            }
+
+            // i goes beyond current right so it is the new center
+            if(i + dp[i] > right) {
+                center = i;
+                right = i + dp[i];
+            }
+        }
+        
+        int count = 0;
+        for(int i = 0; i < len; i++) {
+            count += ceil((double)dp[i]/2.0);
+        }
+        return count;
+    }
+
+    int countSubstrings(string s) {
+        return Manacher(s);
+    }
+
+    int countSubstrings2(string s) {
+        int res = 0;
+        int N = s.size();
+        int left, right;
+        for(int i = 0; i < N; i++) {
+            res++;
+            
+            // treat as odd
+            left = i - 1;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+            
+            // treat as even
+            left = i;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+648. Replace Words
+In English, we have a concept called root, which can be followed by some other words to form another 
+longer word - let's call this word successor. For example, the root an, followed by other, which can 
+form another word another.
+
+Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
+in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
+root with the shortest length.
+
+You need to output the sentence after the replacement.
+
+Example 1:
+Input: dict = ["cat", "bat", "rat"]
+sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+Note:
+The input will only have lower-case letters.
+1 <= dict words number <= 1000
+1 <= sentence words number <= 1000
+1 <= root length <= 100
+1 <= sentence words length <= 1000
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 159 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    string replaceWords(vector<string>& dict, string sentence) {
+        unordered_set<string> ds(dict.begin(), dict.end());
+        set<int> word_size;
+        for(auto ds_e: ds) {
+            word_size.insert(ds_e.size());
+        }
+
+        stringstream ss(sentence);
+        string temp;
+
+        vector<string> res;
+        while(getline(ss, temp, ' ')) {
+            bool found = false;
+            for(auto len: word_size) {
+                if(len > temp.size()) {
+                    res.push_back(temp);
+                    found = true;
+                    break;
+                } else {
+                    if(ds.count(temp.substr(0, len))) {
+                        res.push_back(temp.substr(0, len));
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!found) {
+                res.push_back(temp);
+            }
+        }
+
+        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
+            return memo.empty() ? a : memo + " " + a;
+        });
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+649. Dota2 Senate
+In the world of Dota2, there are two parties: the Radiant and the Dire.
+
+The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
+a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
+can exercise one of the two rights:
+
+Ban one senator's right: 
+A senator can make another senator lose all his rights in this and all the following rounds.
+Announce the victory: 
+If this senator found the senators who still have rights to vote are all from the same party, he can announce 
+the victory and make the decision about the change in the game.
+Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
+party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
+
+The round-based procedure starts from the first senator to the last senator in the given order. This 
+procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
+during the procedure.
+
+Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
+which party will finally announce the victory and make the change in the Dota2 game. The output should be 
+Radiant or Dire.
+
+Example 1:
+Input: "RD"
+Output: "Radiant"
+Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights any more since his right has been banned. 
+And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Example 2:
+Input: "RDD"
+Output: "Dire"
+Explanation: 
+The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights anymore since his right has been banned. 
+And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
+And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Note:
+The length of the given string will in the range [1, 10,000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        while(!senate.empty()) {
+            for(int i = 0; i < senate.size();) {
+                char curr = senate[i];
+                int j = i;
+                for(; j < senate.size(); j++) {
+                    if(senate[j] != curr) {
+                        break;
+                    }
+                }
+            
+                if(j == senate.size()) {
+                    j = 0;
+                    for(; j < i; j++) {
+                        if(senate[j] != curr) {
+                            break;
+                        }
+                    }
+
+                    if(j == i) {
+                        if(curr == 'R') return "Radiant";
+                        return "Dire";
+                    } else {
+                        senate = senate.substr(0, j) + senate.substr(j + 1);
+                    }
+                } else {
+                    senate = senate.substr(0, j) + senate.substr(j + 1);
+                    i++;
+                }
+            }
+        }
+        return "";
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+650. 2 Keys Keyboard
+Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
+for each step:
+
+Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
+Paste: You can paste the characters which are copied last time.
+Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
+permitted. Output the minimum number of steps to get n 'A'.
+
+Example 1:
+Input: 3
+Output: 3
+Explanation:
+Intitally, we have one character 'A'.
+In step 1, we use Copy All operation.
+In step 2, we use Paste operation to get 'AA'.
+In step 3, we use Paste operation to get 'AAA'.
+Note:
+The n will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <climits>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minSteps(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = dp[1] = 0;
+
+        for(int i = 1; i <= n; i++) {
+            int cost = dp[i] + 1;
+            int temp = i*2;
+            if(temp > n) break; 
+            while(temp <= n) {
+                dp[temp] = min(dp[temp], ++cost);
+                temp += i;
+            }
+        }
+
+        return dp[n];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+652. Find Duplicate Subtrees
+Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
+return the root node of any one of them.
+
+Two trees are duplicate if they have the same structure with same node values.
+
+Example 1: 
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+The following are two duplicate subtrees:
+      2
+     /
+    4
+and
+    4
+Therefore, you need to return above trees' root in the form of a list.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 45 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
+        if(root != NULL) {
+            string left = preorder(root -> left, freq, res);
+            string right = preorder(root -> right, freq, res);
+            
+            string str = to_string(root -> val) + " " + left + right;
+            
+            if(freq[str] == 1) res.push_back(root);
+            freq[str]++;
+            return str;
+        } else {
+            return "null ";
+        }
+    }
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        unordered_map<string, int> freq;
+        vector<TreeNode*> res;
+        preorder(root, freq, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 653. Two Sum IV - Input is a BST
 Given a Binary Search Tree and a target number, return true if there exist two 
 elements in the BST such that their sum is equal to the given target.
@@ -310,670 +992,6 @@ public:
         vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
         populate(root, res, 0, 0, col);
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-656. Coin Path
-Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
-and an integer B. The integer B denotes that from any place (suppose the index is i) 
-in the array A, you can jump to any one of the place in the array A indexed i+1, i+2, …, 
-i+B if this place can be jumped to. Also, if you step on the index i, you have to pay Ai 
-coins. If Ai is -1, it means you can’t jump to the place indexed i in the array.
-
-Now, you start from the place indexed 1 in the array A, and your aim is to reach the place 
-indexed N using the minimum coins. You need to return the path of indexes (starting from 1 to N) 
-in the array you should take to get to the place indexed N using minimum coins.
-
-If there are multiple paths with the same cost, return the lexicographically smallest such path.
-
-If it's not possible to reach the place indexed N then you need to return an empty array.
-
-Example 1:
-Input: [1,2,4,-1,2], 2
-Output: [1,3,5]
-Example 2:
-Input: [1,2,4,-1,2], 1
-Output: []
-Note:
-Path Pa1, Pa2, ..., Pan is lexicographically smaller than Pb1, Pb2, ..., Pbm, if and only if at 
-the first i where Pai and Pbi differ, Pai < Pbi; when no such i exists, then n < m.
-A1 >= 0. A2, ..., AN (if exist) will in the range of [-1, 100].
-Length of A is in the range of [1, 1000].
-B is in the range of [1, 100].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 12 ms
-    Difficulty: HARD
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <climits>
-
-using namespace std;
-
-struct Compare {
-    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) const {
-        return (lhs.first == rhs.first) ? (lhs.second < rhs.second) : (lhs.first < rhs.first);
-    }
-};
-
-class Solution2 {
-public:
-    vector<vector<int>> createPath(int curr, unordered_map<int, vector<int>>& parent) {
-        if(curr == 0) return {{}};
-
-        vector<vector<int>> res;
-        for(auto prev: parent[curr]) {
-            vector<vector<int>> path = createPath(prev, parent);
-            for(auto p: path) {
-                p.push_back(curr);
-                res.push_back(p);
-            }
-        }
-
-        return res;
-    }
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        
-        // id is index, pair weight, to
-        vector<vector<pair<int, int>>> graph(N + 1);
-        
-        graph[0] = {{A[0], 1}};
-        for(int i = 0; i < N; i++) {
-            if(A[i] == -1) continue;
-            for(int j = 1; j <= B; j++) {
-                if(i + j >= N) break;
-                if(A[i + j] == -1) continue;
-                // connect vertex i with vertex i + j by weight A[i + j]
-                graph[i + 1].emplace_back(A[i + j], i + 1 + j);
-            }
-        }
-        
-        unordered_map<int, vector<int>> parent;
-        set<pair<int, int>, Compare> edges_to_process;
-        unordered_map<int, int> min_distance;
-        
-        for(int i = 1; i <= N; i++) {
-            edges_to_process.emplace(INT_MAX, i);
-            min_distance[i] = INT_MAX;
-        }
-        
-        edges_to_process.emplace(0, 0);
-        min_distance[0] = 0;
-        parent[0] = {0};
-
-        while(!edges_to_process.empty()) {
-            // Minimum weight edge
-            pair<int,int> min_edge = *edges_to_process.begin();
-            edges_to_process.erase(edges_to_process.begin());
-
-            int current_vertex = min_edge.second;
-            int current_weight = min_edge.first;
-
-            if(current_weight == INT_MAX) break;
-
-            vector<pair<int,int>> neighbors = graph[current_vertex];
-            for(pair<int,int> neighbor: neighbors) {
-                auto edge_set_it = edges_to_process.find({min_distance[neighbor.second], neighbor.second});
-                // done processing already
-                if(edge_set_it == edges_to_process.end()) continue;
-
-                // found a smaller distance
-                if(current_weight + neighbor.first <= min_distance[neighbor.second]) {
-                    if(current_weight + neighbor.first == min_distance[neighbor.second]) {
-                        parent[neighbor.second].push_back(current_vertex);
-                    } else {
-                        min_distance[neighbor.second] = current_weight + neighbor.first;
-                        parent[neighbor.second].push_back(current_vertex);
-                        edges_to_process.erase(edge_set_it);
-                        edges_to_process.emplace(min_distance[neighbor.second], neighbor.second);
-                    }
-                }
-            }
-        }
-            
-        if(min_distance[N] == INT_MAX) return {};
-
-        vector<vector<int>> v = createPath(N, parent);
-        return *min_element(v.begin(), v.end(), [](const vector<int>& lhs, const vector<int>& rhs){
-            int M = lhs.size();
-            int N = rhs.size();
-            for(int i = 0; i < min(M,N); i++) {
-                if(lhs[i] != rhs[i]) return lhs[i] < rhs[i];
-            }
-            return M < N;
-        });
-    }
-};
-
-class Solution {
-public:
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        if(N == 0 || A[N-1] == -1) return {};
-        // dp[i] represents cost of i to N-1
-        vector<int> dp(N, INT_MAX), to(N, -1);
-        
-        dp[N-1] = A[N-1];
-        for(int i = N-2; i >= 0; i--) {
-            if(A[i] == -1) continue;
-            // if we try smaller jumps first, don't need to worry about lexicographical order
-            // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
-            // Clearly, when k = n-1, it is true because there is only 1 possible path, which is [n]. 
-            // When k = i and i < n-1, we search for an index j, which has smallest cost or 
-            // smallest j if the same cost. If there are >= 2 paths having the same minimum cost, 
-            // for example,
-            // P = [k+1, j+1, ..., n]
-            // Q = [k+1, m+1, ..., n] (m > j)
-            // The path P with smaller index j is always the lexicographically smaller path.
-            // So the argument is true by induction.
-            for(int j = 1; j <= B && i + j < N; j++) { 
-                if(dp[i + j] == INT_MAX) continue;
-                // cost of taking this jump is smaller
-                if(A[i] + dp[i + j] < dp[i]) {
-                    dp[i] = A[i] + dp[i + j];
-                    to[i] = i + j;
-                }
-            }
-        }
-        
-        vector<int> res;
-        if(dp[0] == INT_MAX) return res; // no path to the end
-
-        for(int i = 0; i >= 0; i = to[i])
-            res.push_back(i + 1);
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{1,2,4,-1,2};
-    s.cheapestJump(v, 2);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-662. Maximum Width of Binary Tree
-Given a binary tree, write a function to get the maximum width of the 
-given tree. The width of a tree is the maximum width among all levels. 
-The binary tree has the same structure as a full binary tree, but some 
-nodes are null.
-
-The width of one level is defined as the length between the end-nodes 
-(the leftmost and right most non-null nodes in the level, where the null 
-nodes between the end-nodes are also counted into the length calculation.
-
-Example 1:
-Input: 
-
-           1
-         /   \
-        3     2
-       / \     \  
-      5   3     9 
-
-Output: 4
-Explanation: The maximum width existing in the third level with the 
-length 4 (5,3,null,9).
-Example 2:
-Input: 
-
-          1
-         /  
-        3    
-       / \       
-      5   3     
-
-Output: 2
-Explanation: The maximum width existing in the third level with the 
-length 2 (5,3).
-Example 3:
-Input: 
-
-          1
-         / \
-        3   2 
-       /        
-      5      
-
-Output: 2
-Explanation: The maximum width existing in the second level with the 
-length 2 (3,2).
-Example 4:
-Input: 
-
-          1
-         / \
-        3   2
-       /     \  
-      5       9 
-     /         \
-    6           7
-Output: 8
-Explanation:The maximum width existing in the fourth level with the 
-length 8 (6,null,null,null,null,null,null,7).
-
-
-Note: Answer will in the range of 32-bit signed integer.
-/*
-    Submission Date: 2017-08-21
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-#include <tuple>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int widthOfBinaryTree(TreeNode* root) {
-        queue<pair<TreeNode*,int>> q;
-        q.emplace(root, 0);
-        
-        int res = 0;
-        
-        TreeNode* front;
-        int index;
-        
-        while(!q.empty()) {
-            int q_size = q.size();
-            int first_non_null = -1;
-            for(int i = 0; i < q_size; i++) {
-                tie(front, index) = q.front();
-                q.pop();
-                if(front) {
-                    q.emplace(front -> left, index*2);
-                    q.emplace(front -> right, index*2 + 1);
-                    if(first_non_null == -1) first_non_null = index;
-                    res = max(res, index - first_non_null + 1);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-676. Implement Magic Dictionary
-
-Implement a magic directory with buildDict, and search methods.
-
-For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
-
-For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
-character in this word, the modified word is in the dictionary you just built.
-
-Example 1:
-Input: buildDict(["hello", "leetcode"]), Output: Null
-Input: search("hello"), Output: False
-Input: search("hhllo"), Output: True
-Input: search("hell"), Output: False
-Input: search("leetcoded"), Output: False
-Note:
-You may assume that all the inputs are consist of lowercase letters a-z.
-For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
-Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
-across multiple test cases. Please see here for more details.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class MagicDictionary {
-public:
-    /** Initialize your data structure here. */
-    unordered_map<string, vector<pair<char, int>>> m_;
-    MagicDictionary() {
-        
-    }
-    
-    /** Build a dictionary through a list of words */
-    void buildDict(vector<string> dict) {
-        /*
-            N words of size K O(Nk^2)
-            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
-        */
-        m_.clear();
-        for(const auto& s: dict) {
-            for(int i = 0; i < s.size(); i++) {
-                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
-            }
-        }
-        
-    }
-    
-    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
-    bool search(string s) {
-        // O(k^2*M) where M is size of vector for a key in m_
-        for(int i = 0; i < s.size(); i++) {
-            const auto& key = s.substr(0,i) + s.substr(i+1);
-            if(!m_.count(key)) continue;
-            for(const auto& p: m_[key]) {
-                // looking for same index different letter
-                if(p.second == i && p.first != s[i]) return true;
-            }
-        }
-        return false;
-    }
-};
-
-/**
- * Your MagicDictionary object will be instantiated and called as such:
- * MagicDictionary obj = new MagicDictionary();
- * obj.buildDict(dict);
- * bool param_2 = obj.search(word);
- */
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-687. Longest Univalue Path
-Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
-
-Note: The length of path between two nodes is represented by the number of edges between them.
-
-Example 1:
-
-Input:
-
-              5
-             / \
-            4   5
-           / \   \
-          1   1   5
-Output:
-
-2
-Example 2:
-
-Input:
-
-              1
-             / \
-            4   5
-           / \   \
-          4   4   5
-Output:
-
-2
-Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 112 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-        N by returning the longest path that starts from this node where a path is straight down where all
-        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
-        value as this node.
-        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
-        and right have the same value as this node as it means there is a path for the left and a path for
-        the right which creates a upside down v shape.
-    */
-    int solve(TreeNode* root, int& res) {
-        if(!root) return 0;
-        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
-        int pos_res = 1;
-        int longest_path_starting_at_node = 0;
-        
-        if(root->left && root->left->val == root->val) {
-            pos_res += longest_path_starting_at_child[0];
-            longest_path_starting_at_node = longest_path_starting_at_child[0];
-        }
-        if(root->right && root->right->val == root->val) {
-            pos_res += longest_path_starting_at_child[1];
-            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
-        }
-
-        res = max(res, pos_res);
-        return 1 + longest_path_starting_at_node;
-    }
-
-    int longestUnivaluePath(TreeNode* root) {
-        int res = 1;
-        solve(root, res);
-        return res - 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-692. Top K Frequent Words
-Given a non-empty list of words, return the k most frequent elements.
-
-Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
-with the lower alphabetical order comes first.
-
-Example 1:
-Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
-Output: ["i", "love"]
-Explanation: "i" and "love" are the two most frequent words.
-    Note that "i" comes before "love" due to a lower alphabetical order.
-Example 2:
-Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
-Output: ["the", "is", "sunny", "day"]
-Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
-    with the number of occurrence being 4, 3, 2 and 1 respectively.
-Note:
-You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
-Input words contain only lowercase letters.
-Follow up:
-Try to solve it in O(n log k) time and O(n) extra space.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> topKFrequent(vector<string>& words, int k) {
-        unordered_map<string,int> freq_map;
-        for(auto e: words) freq_map[e]++;
-        
-        map<int, vector<string>> grouped_map;
-        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
-        
-        vector<string> res;
-        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
-            sort(it->second.begin(), it->second.end());
-            for(auto e: it->second) {
-                res.push_back(e);
-                if(res.size() == k) break;
-            }
-            if(res.size() == k) break;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-696. Count Binary Substrings
-Give a string s, count the number of non-empty (contiguous) substrings that have the same number of 0's and 1's, 
-and all the 0's and all the 1's in these substrings are grouped consecutively.
-
-Substrings that occur multiple times are counted the number of times they occur.
-
-Example 1:
-Input: "00110011"
-Output: 6
-Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's: "0011", "01", "1100", "10", "0011", and "01".
-
-Notice that some of these substrings repeat and are counted the number of times they occur.
-
-Also, "00110011" is not a valid substring because all the 0's (and 1's) are not grouped together.
-Example 2:
-Input: "10101"
-Output: 4
-Explanation: There are 4 substrings: "10", "01", "10", "01" that have equal number of consecutive 1's and 0's.
-Note:
-
-s.length will be between 1 and 50,000.
-s will only consist of "0" or "1" characters.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        suppose there is prev_cnt which is the number of repeated characters before index i that is
-        different than s[i].
-        Find how many s[i] repeats e.g. if it repeats from [i,j)
-        The number of times s[i] repeats (j-i) and the number of times previous character repeated (prev_cnt)
-        and the minimum between these two is the number of times that the substrings can have the same
-        number of characters from both characters.
-        e.g
-        3 4
-        000 1111
-        min(3,4) = 3
-        000 111, 00 11, 0 1
-    */
-    int countBinarySubstrings(string s) {
-        int res = 0;
-        int N = s.size();
-        int prev_cnt = 0;
-        for(int i = 0; i < N;) {
-            int start = i;
-            while(i < N && s[i] == s[start]) i++;
-            res += min(prev_cnt, i - start);
-            prev_cnt = i - start;
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-697. Degree of an Array
-Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
-
-Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
-
-Example 1:
-Input: [1, 2, 2, 3, 1]
-Output: 2
-Explanation: 
-The input array has a degree of 2 because both elements 1 and 2 appear twice.
-Of the subarrays that have the same degree:
-[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
-The shortest length is 2. So return 2.
-Example 2:
-Input: [1,2,2,3,1,4,2]
-Output: 6
-Note:
-
-nums.length will be between 1 and 50,000.
-nums[i] will be an integer between 0 and 49,999.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 59 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
-        then store the first seen and last seen index.
-        Loop through the first seen and last seen indicies to find the shortest one.
-    */
-    int findShortestSubArray(vector<int>& nums) {
-        unordered_map<int,int> val_to_freq;
-        int max_freq = 0;
-        for(const auto& n: nums) {
-            val_to_freq[n]++;
-            max_freq = max(max_freq, val_to_freq[n]);
-        }
-        
-        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
-        for(int i = 0; i < nums.size(); i++) {
-            if(val_to_freq[nums[i]] != max_freq) continue;
-            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
-            val_to_seen_boundaries[nums[i]].second = i;
-        }
-        
-        int res = INT_MAX;
-        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
-        return res + 1;
     }
 };
 

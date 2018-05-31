@@ -248,6 +248,72 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+330. Patching Array
+Given a sorted positive integer array nums and an integer n, add/patch elements to the array such that any number in range [1, n] 
+inclusive can be formed by the sum of some elements in the array. Return the minimum number of patches required.
+
+Example 1:
+
+Input: nums = [1,3], n = 6
+Output: 1 
+Explanation:
+Combinations of nums are [1], [3], [1,3], which form possible sums of: 1, 3, 4.
+Now if we add/patch 2 to nums, the combinations are: [1], [2], [3], [1,3], [2,3], [1,2,3].
+Possible sums are 1, 2, 3, 4, 5, 6, which now covers the range [1, 6].
+So we only need 1 patch.
+Example 2:
+
+Input: nums = [1,5,10], n = 20
+Output: 2
+Explanation: The two patches can be [2, 4].
+Example 3:
+
+Input: nums = [1,2,2], n = 5
+Output: 0
+/*
+    Submission Date: 2018-05-30
+    Runtime: 9 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        suppose furthest is the sum of all elements before nums[i], then 
+        if furthest >= nums[i] - 1, it means we can include this element and furthest += nums[i]
+        else furthest is too small so we can add furthest + 1 (res increases as element is added)
+        meaning furthest = 2*furthest + 1 and keep doing this until furthest >= nums[i] - 1
+    */
+    int minPatches(vector<int>& nums, int n) {
+        int res = 0;
+        int furthest = 0;
+        for(const auto& x: nums) {
+            if(furthest >= n) break;
+            while(x > furthest + 1 && furthest < n) {
+                furthest = (furthest <= (INT_MAX-1)/2) ? furthest*2 + 1 : INT_MAX;
+                res++;
+            }
+            furthest += x;
+        }
+        
+        while(n > furthest) {
+            furthest = (furthest <= (INT_MAX-1)/2) ? furthest*2 + 1 : INT_MAX;
+            res++;
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 331. Verify Preorder Serialization of a Binary Tree
 One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, 
 we record the node's value. If it is a null node, we record using a sentinel value such as #.
@@ -616,6 +682,78 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+337. House Robber III
+The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the "root." 
+Besides the root, each house has one and only one parent house. After a tour, the smart thief realized that "all houses in this place 
+forms a binary tree". It will automatically contact the police if two directly-linked houses were broken into on the same night.
+
+Determine the maximum amount of money the thief can rob tonight without alerting the police.
+
+Example 1:
+     3
+    / \
+   2   3
+    \   \ 
+     3   1
+Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+Example 2:
+     3
+    / \
+   4   5
+  / \   \ 
+ 1   3   1
+Maximum amount of money the thief can rob = 4 + 5 = 9.
+/*
+    Submission Date: 2018-05-30
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+        if we use the node, then the maximium value is node's val + rob(root->left's children) + rob(root->right's children)
+        if we dont use the node, then maximum value is rob(root->left) + rob(root->right)
+        Take the max of use node and not using node
+    */
+    unordered_map<TreeNode*, int> dp_;
+    int rob(TreeNode* root) {
+        if(root == NULL) return 0;
+        if(dp_.count(root)) return dp_[root];
+        
+        int use_node = root->val;
+        int not_use_node = 0;
+        
+        if(root -> left) {
+            use_node += rob(root->left->left) + rob(root->left->right);
+            not_use_node += rob(root->left);
+        }
+        
+        if(root -> right) {
+            use_node += rob(root->right->left) + rob(root->right->right);
+            not_use_node += rob(root->right);
+        }
+        
+        return dp_[root] = max(use_node, not_use_node);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 338. Counting Bits
 Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num 
 calculate the number of 1's in their binary representation and return them as an array.
@@ -852,143 +990,6 @@ public:
             swap(s[i], s[N-i-1]);
         }
         return s;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-345. Reverse Vowels of a String
-Write a function that takes a string as input and reverse only 
-the vowels of a string.
-
-Example 1:
-Given s = "hello", return "holle".
-
-Example 2:
-Given s = "leetcode", return "leotcede".
-
-Note:
-The vowels does not include the letter "y".
-
-/*
-    Submission Date: 2017-08-22
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cctype>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    string reverseVowels(string s) {
-        unordered_set<char> vowels{'a', 'e', 'i', 'o', 'u'};
-        vector<int> indices;
-        for(int i = 0; i < s.size(); i++) {
-            if(vowels.count(tolower(s[i]))) {
-                indices.push_back(i);
-            }
-        }
-        
-        int N = indices.size();
-        for(int i = 0; i < N/2; i++) {
-            char temp = s[indices[i]];
-            s[indices[i]] = s[indices[N- i - 1]];
-            s[indices[N - i - 1]] = temp;
-        }
-        
-        return s;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-347. Top K Frequent Elements
-Given a non-empty array of integers, return the k most frequent elements.
-
-For example,
-Given [1,1,1,2,2,3] and k = 2, return [1,2].
-
-Note: 
-You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
-Your algorithm's time complexity must be better than O(n log n), where n is the array's size.
-/*
-    Submission Date: 2018-05-02
-    Runtime: 20 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> topKFrequent(vector<int>& nums, int k) {
-        unordered_map<int,int> val_to_freq;
-        map<int,vector<int>> freq_to_val;
-        for(auto e: nums) val_to_freq[e]++;
-        for(auto kv: val_to_freq) freq_to_val[kv.second].push_back(kv.first);
-        vector<int> res;
-        for(auto it = freq_to_val.rbegin(); it != freq_to_val.rend(); it++) {
-            for(auto e: it->second) {
-                res.push_back(e);
-                if(res.size() == k) break;
-            }
-            if(res.size() == k) break;
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-349. Intersection of Two Arrays
-Given two arrays, write a function to compute their intersection.
-
-Example:
-Given nums1 = [1, 2, 2, 1], nums2 = [2, 2], return [2].
-
-Note:
-Each element in the result must be unique.
-The result can be in any order.
-/*
-    Submission Date: 2018-05-02
-    Runtime: 8 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
-        vector<int> res;
-        unordered_set<int> st(nums1.begin(), nums1.end());
-        for(const auto& e: nums2) {
-          if(st.count(e)) {
-            res.push_back(e);
-            st.erase(e);
-          }
-        }
-        return res;
     }
 };
 

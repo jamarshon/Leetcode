@@ -1,6 +1,408 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+628. Maximum Product of Three Numbers
+Given an integer array, find three numbers whose product is maximum and output the maximum product.
+
+Example 1:
+Input: [1,2,3]
+Output: 6
+Example 2:
+Input: [1,2,3,4]
+Output: 24
+Note:
+The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
+Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 79 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int maximumProduct(vector<int>& nums) {
+        int N = nums.size();
+        
+        if(N < 3) return INT_MIN;
+        
+        sort(nums.begin(), nums.end());
+        
+        // three largest or 1 largest and 2 smallest
+        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+633. Sum of Square Numbers
+Given a non-negative integer c, your task is to decide whether there're two integers a and b such that a2 + b2 = c.
+
+Example 1:
+Input: 5
+Output: True
+Explanation: 1 * 1 + 2 * 2 = 5
+Example 2:
+Input: 3
+Output: False
+/*
+    Submission Date: 2018-05-30
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+/*
+    use newton's method to find roots where xn_plus_1 = (xn + x/xn)/2
+*/
+class Solution2 {
+    bool is_square(int x){
+        if(x < 0) return -1;
+        int xn = 0;
+        int xn_plus_1 = x;
+        while(abs(xn - xn_plus_1) > 1) {
+            xn = xn_plus_1;
+            xn_plus_1 = (xn + x/xn)/2;
+        } 
+
+        return xn*xn == x || xn_plus_1*xn_plus_1 == x;
+    }
+    
+public:
+    bool judgeSquareSum(int c) {
+        for(int i = 0; i <= sqrt(c); i++) {
+            if(is_square(c - i*i)) return true;
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    /*
+        two pointers. if a^2 + b^2 > c then increasing a will not help so decrease b
+        if it is < c then decreasing b will not help so increase a
+    */
+    bool judgeSquareSum(int c) {
+        int low = 0;
+        int high = sqrt(c);
+        while(low <= high) {
+            int x = low * low + high * high;
+            if(x == c) return true;
+            if(x < c) {
+                low++;
+            } else {
+                high--;
+            }
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+636. Exclusive Time of Functions
+Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
+find the exclusive time of these functions.
+
+Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
+another function.
+
+A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
+means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
+very end of time 0.
+
+Exclusive time of a function is defined as the time spent within this function, the time spent by 
+calling other functions should not be considered as this function's exclusive time. You should 
+return the exclusive time of each function sorted by their function id.
+
+Example 1:
+Input:
+n = 2
+logs = 
+["0:start:0",
+ "1:start:2",
+ "1:end:5",
+ "0:end:6"]
+Output:[3, 4]
+Explanation:
+Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
+Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
+Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
+So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
+Note:
+Input logs will be sorted by timestamp, NOT log id.
+Your output should be sorted by function id, which means the 0th element of your output corresponds 
+to the exclusive time of function 0.
+Two functions won't start or end at the same time.
+Functions could be called recursively, and will always end.
+1 <= n <= 100
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 63 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <sstream>
+#include <cassert>
+
+using namespace std;
+
+struct Log {
+    int id;
+    string status;
+    int timestamp;
+};
+
+class Solution {
+public:
+    vector<int> exclusiveTime(int n, vector<string>& logs) {
+        vector<int> times(n, 0);
+        stack<Log> st;
+        for(string log: logs) {
+            stringstream ss(log);
+            string temp, temp2, temp3;
+            getline(ss, temp, ':');
+            getline(ss, temp2, ':');
+            getline(ss, temp3, ':');
+
+            Log item = {stoi(temp), temp2, stoi(temp3)};
+            if(item.status == "start") {
+                st.push(item);
+            } else {
+                assert(st.top().id == item.id);
+
+                int time_added = item.timestamp - st.top().timestamp + 1;
+                times[item.id] += item.timestamp - st.top().timestamp + 1;
+                st.pop();
+
+                if(!st.empty()) {
+                    assert(st.top().status == "start");
+                    times[st.top().id] -= time_added;
+                }
+            }
+        }
+
+        return times;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+637. Average of Levels in Binary Tree
+Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+
+Example 1:
+Input:
+    3
+   / \
+  9  20
+    /  \
+   15   7
+Output: [3, 14.5, 11]
+Explanation:
+The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
+[3, 14.5, 11].
+Note:
+The range of node's value is in the range of 32-bit signed integer.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 22 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<double> averageOfLevels(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        vector<double> res;
+        
+        while(!q.empty()) {
+            int size = q.size();
+            int size1 = 0;
+            double sum = 0;
+            for(int i = 0; i < size; i++) {
+                TreeNode* f = q.front();
+                if(f) {
+                    sum += f -> val;
+                    size1++;
+                    q.push(f -> left);
+                    q.push(f -> right);
+                }
+                
+                q.pop();
+            }
+            if(size1)
+            res.push_back(sum/size1);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+638. Shopping Offers
+In LeetCode Store, there are some kinds of items to sell. Each item has a price.
+
+However, there are some special offers, and a special offer consists of one or more different kinds of 
+items with a sale price.
+
+You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
+The job is to output the lowest price you have to pay for exactly certain items as given, where you could
+ make optimal use of the special offers.
+
+Each special offer is represented in the form of an array, the last number represents the price you need 
+to pay for this special offer, other numbers represents how many specific items you could get if you buy 
+this offer.
+
+You could use any of special offers as many times as you want.
+
+Example 1:
+Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
+Output: 14
+Explanation: 
+There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
+In special offer 1, you can pay $5 for 3A and 0B
+In special offer 2, you can pay $10 for 1A and 2B. 
+You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
+Example 2:
+Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
+Output: 11
+Explanation: 
+The price of A is $2, and $3 for B, $4 for C. 
+You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
+You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
+for 1C. 
+You cannot add more items, though only $9 for 2A ,2B and 1C.
+Note:
+There are at most 6 kinds of items, 100 special offers.
+For each item, you need to buy at most 6 of them.
+You are not allowed to buy more items than you want, even if that would lower the overall price.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, int> m;
+public:
+    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+        string key = "";
+        
+        int N = needs.size();
+        
+        int res = INT_MAX;
+        
+        int count = 0;
+        int price_cost = 0;
+        for(int i = 0; i < N; i++) {
+            key += to_string(needs[i]);
+            count += needs[i] == 0;
+            price_cost += needs[i]*price[i];
+        }
+        
+        if(m.count(key)) return m[key];
+        
+        if(count == N) return 0;
+        
+        res = min(res, price_cost);
+        
+        vector<vector<int>> restore;
+        for(auto it = special.begin(); it != special.end();) {
+            vector<int> sp = *it;
+            
+            bool should_erase = false;
+            for(int i = 0; i < N; i++) {
+                if(sp[i] > needs[i]) {
+                    should_erase = true;
+                    break;
+                }
+            }
+            
+            if(should_erase) {
+                restore.push_back(sp);
+                it = special.erase(it);
+            } else {
+                // everything in sp[i] <= needs[i] so we can take it
+                for(int i = 0; i < N; i++) {
+                    needs[i] -= sp[i];
+                }
+                
+                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
+                for(int i = 0; i < N; i++) {
+                    needs[i] += sp[i];
+                }
+                it++;
+            }
+        }
+        
+        for(auto e: restore) special.push_back(e);
+        return m[key] = res;
+    }
+    
+    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
+        return shoppingOffersHelper(price, special, needs);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 640. Solve the Equation
 Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
 only '+', '-' operation, the variable x and its coefficient.
@@ -548,450 +950,6 @@ public:
             }
         }
         return "";
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-650. 2 Keys Keyboard
-Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
-for each step:
-
-Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
-Paste: You can paste the characters which are copied last time.
-Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
-permitted. Output the minimum number of steps to get n 'A'.
-
-Example 1:
-Input: 3
-Output: 3
-Explanation:
-Intitally, we have one character 'A'.
-In step 1, we use Copy All operation.
-In step 2, we use Paste operation to get 'AA'.
-In step 3, we use Paste operation to get 'AAA'.
-Note:
-The n will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <climits>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minSteps(int n) {
-        vector<int> dp(n + 1, INT_MAX);
-        dp[0] = dp[1] = 0;
-
-        for(int i = 1; i <= n; i++) {
-            int cost = dp[i] + 1;
-            int temp = i*2;
-            if(temp > n) break; 
-            while(temp <= n) {
-                dp[temp] = min(dp[temp], ++cost);
-                temp += i;
-            }
-        }
-
-        return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-652. Find Duplicate Subtrees
-Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
-return the root node of any one of them.
-
-Two trees are duplicate if they have the same structure with same node values.
-
-Example 1: 
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-The following are two duplicate subtrees:
-      2
-     /
-    4
-and
-    4
-Therefore, you need to return above trees' root in the form of a list.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 45 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
-        if(root != NULL) {
-            string left = preorder(root -> left, freq, res);
-            string right = preorder(root -> right, freq, res);
-            
-            string str = to_string(root -> val) + " " + left + right;
-            
-            if(freq[str] == 1) res.push_back(root);
-            freq[str]++;
-            return str;
-        } else {
-            return "null ";
-        }
-    }
-    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        unordered_map<string, int> freq;
-        vector<TreeNode*> res;
-        preorder(root, freq, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-653. Two Sum IV - Input is a BST
-Given a Binary Search Tree and a target number, return true if there exist two 
-elements in the BST such that their sum is equal to the given target.
-
-Example 1:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 9
-
-Output: True
-Example 2:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 28
-
-Output: False
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-    unordered_map<int, vector<TreeNode*>> visited;
-public:
-    bool findTarget(TreeNode* root, int k) {
-        if(root == NULL) return false;
-        int target = k - (root -> val);
-        
-        if(visited.count(target)) {
-            for(auto l: visited[target]) {
-                if(l != root) return true;
-            }
-        }
-        
-        TreeNode* curr = root;
-        while(curr) {
-            if(curr != root && curr -> val == target) return true;
-            visited[curr -> val].push_back(curr);
-            if(curr -> val > target) {
-                curr = curr -> right;
-            } else {
-                curr = curr -> left;
-            }
-        }
-        
-        return findTarget(root -> left, k) || findTarget(root -> right, k);
-    }
-};
-
-class Solution {
-public:
-    void inorder(TreeNode* curr, vector<int>& res) {
-        if(curr == NULL) return;
-        inorder(curr -> left, res);
-        res.push_back(curr -> val);
-        inorder(curr -> right, res);
-    }
-    bool findTarget(TreeNode* root, int k) {
-        vector<int> sorted_arr;
-        inorder(root, sorted_arr);
-        int low = 0;
-        int high = sorted_arr.size() - 1;
-        
-        while(low < high) {
-            int sum = sorted_arr[low] + sorted_arr[high];
-            if(sum == k) return true;
-            if(sum < k) low++;
-            else high--;
-        }
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-654. Maximum Binary Tree
-Given an integer array with no duplicates. A maximum tree building on this array is defined as 
-follow:
-
-The root is the maximum number in the array.
-The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
-number.
-The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
-number.
-Construct the maximum tree by the given array and output the root node of this tree.
-
-Example 1:
-Input: [3,2,1,6,0,5]
-Output: return the tree root node representing the following tree:
-
-      6
-    /   \
-   3     5
-    \    / 
-     2  0   
-       \
-        1
-Note:
-The size of the given array will be in the range [1,1000].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        int N = nums.size();
-        
-        int top = -1;
-        vector<int> st(N, 0);
-        vector<int> T(N, 0);
-        for(int i = 0; i < N; i++) {
-            int temp_top = top;
-            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
-                temp_top--;
-            }
-            
-            if(temp_top != -1) T[i] = st[temp_top];
-            
-            if(temp_top < top) {
-                T[st[temp_top + 1]] = i;
-            }
-            st[++temp_top] = i;
-            top = temp_top;
-        }
-        
-        T[st[0]] = -1;
-        
-        TreeNode* nodes[N];
-        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
-        
-        TreeNode* root;
-        for(int i = 0; i < N; i++) {
-            int parent_ind = T[i];
-            if(parent_ind == -1) root = nodes[i];
-            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
-            else nodes[parent_ind] -> right = nodes[i];
-        }
-        
-        return root;
-    }
-};
-
-class Solution {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        vector<TreeNode*> stk;
-        for(auto num: nums) {
-            TreeNode* curr = new TreeNode(num);
-            TreeNode* left = NULL;
-            while(!stk.empty() && stk.back() -> val < num) {
-                left = stk.back();
-                stk.pop_back();
-            }
-
-            curr -> left = left;
-            if(!stk.empty()) {
-                stk.back() -> right = curr;
-            }
-            stk.push_back(curr);
-        }
-        return stk.front();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-655. Print Binary Tree
-Print a binary tree in an m*n 2D string array following these rules:
-
-The row number m should be equal to the height of the given binary tree.
-The column number n should always be an odd number.
-The root node's value (in string format) should be put in the exactly middle of the 
-first row it can be put. The column and the row where the root node belongs will separate 
-the rest space into two parts (left-bottom part and right-bottom part). You should print the 
-left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
-left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
-none while the other is not, you don't need to print anything for the none subtree but still 
-need to leave the space as large as that for the other subtree. However, if two subtrees are 
-none, then you don't need to leave space for both of them.
-Each unused space should contain an empty string "".
-Print the subtrees following the same rules.
-Example 1:
-Input:
-     1
-    /
-   2
-Output:
-[["", "1", ""],
- ["2", "", ""]]
-Example 2:
-Input:
-     1
-    / \
-   2   3
-    \
-     4
-Output:
-[["", "", "", "1", "", "", ""],
- ["", "2", "", "", "", "3", ""],
- ["", "", "4", "", "", "", ""]]
-Example 3:
-Input:
-      1
-     / \
-    2   5
-   / 
-  3 
- / 
-4 
-Output:
-
-[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
- ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
- ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
- ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
-Note: The height of binary tree is in the range of [1, 10].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int depth(TreeNode* root) {
-        if(root == NULL) return -1;
-        return 1 + max(depth(root -> left), depth(root -> right));
-    }
-    
-    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
-        if(root == NULL) return;
-        if(start >= end) return;
-        if(row >= res.size()) return;
-        
-        string val = to_string(root -> val);
-        int mid = start + (end - start)/2;
-        res[row][mid] = val;
-        
-        populate(root -> left, res, row + 1, start, mid);
-        populate(root -> right, res, row + 1, mid + 1, end);
-    }
-    vector<vector<string>> printTree(TreeNode* root) {
-        // get the maximum depth of the tree
-        int rd = depth(root);
-        int col = (1 << (rd + 1)) - 1; 
-        // the matrix has depth rows and 2^(depth + 1) - 1 columns
-        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
-        populate(root, res, 0, 0, col);
-        return res;
     }
 };
 

@@ -1,6 +1,450 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+650. 2 Keys Keyboard
+Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
+for each step:
+
+Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
+Paste: You can paste the characters which are copied last time.
+Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
+permitted. Output the minimum number of steps to get n 'A'.
+
+Example 1:
+Input: 3
+Output: 3
+Explanation:
+Intitally, we have one character 'A'.
+In step 1, we use Copy All operation.
+In step 2, we use Paste operation to get 'AA'.
+In step 3, we use Paste operation to get 'AAA'.
+Note:
+The n will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <climits>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minSteps(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = dp[1] = 0;
+
+        for(int i = 1; i <= n; i++) {
+            int cost = dp[i] + 1;
+            int temp = i*2;
+            if(temp > n) break; 
+            while(temp <= n) {
+                dp[temp] = min(dp[temp], ++cost);
+                temp += i;
+            }
+        }
+
+        return dp[n];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+652. Find Duplicate Subtrees
+Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
+return the root node of any one of them.
+
+Two trees are duplicate if they have the same structure with same node values.
+
+Example 1: 
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+The following are two duplicate subtrees:
+      2
+     /
+    4
+and
+    4
+Therefore, you need to return above trees' root in the form of a list.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 45 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
+        if(root != NULL) {
+            string left = preorder(root -> left, freq, res);
+            string right = preorder(root -> right, freq, res);
+            
+            string str = to_string(root -> val) + " " + left + right;
+            
+            if(freq[str] == 1) res.push_back(root);
+            freq[str]++;
+            return str;
+        } else {
+            return "null ";
+        }
+    }
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        unordered_map<string, int> freq;
+        vector<TreeNode*> res;
+        preorder(root, freq, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
+public:
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
+        
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
+            }
+        }
+        
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
+            }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
+
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
+
+Example 1:
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
+Note:
+The size of the given array will be in the range [1,1000].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
+            }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
+        }
+        
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+655. Print Binary Tree
+Print a binary tree in an m*n 2D string array following these rules:
+
+The row number m should be equal to the height of the given binary tree.
+The column number n should always be an odd number.
+The root node's value (in string format) should be put in the exactly middle of the 
+first row it can be put. The column and the row where the root node belongs will separate 
+the rest space into two parts (left-bottom part and right-bottom part). You should print the 
+left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
+left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
+none while the other is not, you don't need to print anything for the none subtree but still 
+need to leave the space as large as that for the other subtree. However, if two subtrees are 
+none, then you don't need to leave space for both of them.
+Each unused space should contain an empty string "".
+Print the subtrees following the same rules.
+Example 1:
+Input:
+     1
+    /
+   2
+Output:
+[["", "1", ""],
+ ["2", "", ""]]
+Example 2:
+Input:
+     1
+    / \
+   2   3
+    \
+     4
+Output:
+[["", "", "", "1", "", "", ""],
+ ["", "2", "", "", "", "3", ""],
+ ["", "", "4", "", "", "", ""]]
+Example 3:
+Input:
+      1
+     / \
+    2   5
+   / 
+  3 
+ / 
+4 
+Output:
+
+[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+ ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+ ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+ ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+Note: The height of binary tree is in the range of [1, 10].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int depth(TreeNode* root) {
+        if(root == NULL) return -1;
+        return 1 + max(depth(root -> left), depth(root -> right));
+    }
+    
+    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
+        if(root == NULL) return;
+        if(start >= end) return;
+        if(row >= res.size()) return;
+        
+        string val = to_string(root -> val);
+        int mid = start + (end - start)/2;
+        res[row][mid] = val;
+        
+        populate(root -> left, res, row + 1, start, mid);
+        populate(root -> right, res, row + 1, mid + 1, end);
+    }
+    vector<vector<string>> printTree(TreeNode* root) {
+        // get the maximum depth of the tree
+        int rd = depth(root);
+        int col = (1 << (rd + 1)) - 1; 
+        // the matrix has depth rows and 2^(depth + 1) - 1 columns
+        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
+        populate(root, res, 0, 0, col);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 656. Coin Path
 Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
 and an integer B. The integer B denotes that from any place (suppose the index is i) 
@@ -351,6 +795,83 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+669. Trim a Binary Search Tree
+Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
+[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+
+Example 1:
+Input: 
+    1
+   / \
+  0   2
+
+  L = 1
+  R = 2
+
+Output: 
+    1
+      \
+       2
+Example 2:
+Input: 
+    3
+   / \
+  0   4
+   \
+    2
+   /
+  1
+
+  L = 1
+  R = 3
+
+Output: 
+      3
+     / 
+   2   
+  /
+ 1
+/*
+    Submission Date: 2018-05-31
+    Runtime: 18 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    if node val is within bounds, than return node with left and right subtrees trimmed
+    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
+    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
+    */
+    TreeNode* trimBST(TreeNode* root, int L, int R) {
+        if(root == NULL) return NULL;
+        if(root->val > R) {
+            return trimBST(root->left, L, R);
+        } else if(root-> val < L) {
+            return trimBST(root->right, L, R);
+        } else {
+            root->left = trimBST(root->left, L, R);
+            root->right = trimBST(root->right, L, R);
+            return root;
+        }
+    }
+};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 676. Implement Magic Dictionary
 
 Implement a magic directory with buildDict, and search methods.
@@ -426,537 +947,6 @@ public:
  * obj.buildDict(dict);
  * bool param_2 = obj.search(word);
  */
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-687. Longest Univalue Path
-Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
-
-Note: The length of path between two nodes is represented by the number of edges between them.
-
-Example 1:
-
-Input:
-
-              5
-             / \
-            4   5
-           / \   \
-          1   1   5
-Output:
-
-2
-Example 2:
-
-Input:
-
-              1
-             / \
-            4   5
-           / \   \
-          4   4   5
-Output:
-
-2
-Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 112 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-        N by returning the longest path that starts from this node where a path is straight down where all
-        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
-        value as this node.
-        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
-        and right have the same value as this node as it means there is a path for the left and a path for
-        the right which creates a upside down v shape.
-    */
-    int solve(TreeNode* root, int& res) {
-        if(!root) return 0;
-        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
-        int pos_res = 1;
-        int longest_path_starting_at_node = 0;
-        
-        if(root->left && root->left->val == root->val) {
-            pos_res += longest_path_starting_at_child[0];
-            longest_path_starting_at_node = longest_path_starting_at_child[0];
-        }
-        if(root->right && root->right->val == root->val) {
-            pos_res += longest_path_starting_at_child[1];
-            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
-        }
-
-        res = max(res, pos_res);
-        return 1 + longest_path_starting_at_node;
-    }
-
-    int longestUnivaluePath(TreeNode* root) {
-        int res = 1;
-        solve(root, res);
-        return res - 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-692. Top K Frequent Words
-Given a non-empty list of words, return the k most frequent elements.
-
-Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
-with the lower alphabetical order comes first.
-
-Example 1:
-Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
-Output: ["i", "love"]
-Explanation: "i" and "love" are the two most frequent words.
-    Note that "i" comes before "love" due to a lower alphabetical order.
-Example 2:
-Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
-Output: ["the", "is", "sunny", "day"]
-Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
-    with the number of occurrence being 4, 3, 2 and 1 respectively.
-Note:
-You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
-Input words contain only lowercase letters.
-Follow up:
-Try to solve it in O(n log k) time and O(n) extra space.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> topKFrequent(vector<string>& words, int k) {
-        unordered_map<string,int> freq_map;
-        for(auto e: words) freq_map[e]++;
-        
-        map<int, vector<string>> grouped_map;
-        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
-        
-        vector<string> res;
-        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
-            sort(it->second.begin(), it->second.end());
-            for(auto e: it->second) {
-                res.push_back(e);
-                if(res.size() == k) break;
-            }
-            if(res.size() == k) break;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-696. Count Binary Substrings
-Give a string s, count the number of non-empty (contiguous) substrings that have the same number of 0's and 1's, 
-and all the 0's and all the 1's in these substrings are grouped consecutively.
-
-Substrings that occur multiple times are counted the number of times they occur.
-
-Example 1:
-Input: "00110011"
-Output: 6
-Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's: "0011", "01", "1100", "10", "0011", and "01".
-
-Notice that some of these substrings repeat and are counted the number of times they occur.
-
-Also, "00110011" is not a valid substring because all the 0's (and 1's) are not grouped together.
-Example 2:
-Input: "10101"
-Output: 4
-Explanation: There are 4 substrings: "10", "01", "10", "01" that have equal number of consecutive 1's and 0's.
-Note:
-
-s.length will be between 1 and 50,000.
-s will only consist of "0" or "1" characters.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        suppose there is prev_cnt which is the number of repeated characters before index i that is
-        different than s[i].
-        Find how many s[i] repeats e.g. if it repeats from [i,j)
-        The number of times s[i] repeats (j-i) and the number of times previous character repeated (prev_cnt)
-        and the minimum between these two is the number of times that the substrings can have the same
-        number of characters from both characters.
-        e.g
-        3 4
-        000 1111
-        min(3,4) = 3
-        000 111, 00 11, 0 1
-    */
-    int countBinarySubstrings(string s) {
-        int res = 0;
-        int N = s.size();
-        int prev_cnt = 0;
-        for(int i = 0; i < N;) {
-            int start = i;
-            while(i < N && s[i] == s[start]) i++;
-            res += min(prev_cnt, i - start);
-            prev_cnt = i - start;
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-697. Degree of an Array
-Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
-
-Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
-
-Example 1:
-Input: [1, 2, 2, 3, 1]
-Output: 2
-Explanation: 
-The input array has a degree of 2 because both elements 1 and 2 appear twice.
-Of the subarrays that have the same degree:
-[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
-The shortest length is 2. So return 2.
-Example 2:
-Input: [1,2,2,3,1,4,2]
-Output: 6
-Note:
-
-nums.length will be between 1 and 50,000.
-nums[i] will be an integer between 0 and 49,999.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 59 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
-        then store the first seen and last seen index.
-        Loop through the first seen and last seen indicies to find the shortest one.
-    */
-    int findShortestSubArray(vector<int>& nums) {
-        unordered_map<int,int> val_to_freq;
-        int max_freq = 0;
-        for(const auto& n: nums) {
-            val_to_freq[n]++;
-            max_freq = max(max_freq, val_to_freq[n]);
-        }
-        
-        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
-        for(int i = 0; i < nums.size(); i++) {
-            if(val_to_freq[nums[i]] != max_freq) continue;
-            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
-            val_to_seen_boundaries[nums[i]].second = i;
-        }
-        
-        int res = INT_MAX;
-        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
-        return res + 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
-built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
-the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input: 
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation: 
-The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
-Example 2:
-Input: 
-words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
-Output: "apple"
-Explanation: 
-Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
-Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-    bool is_word;
-    TrieNode* child[26];
-    TrieNode() {
-        is_word = false;
-        for(int i = 0; i < 26; i++) child[i] = NULL;
-    }
-};
-
-class Trie {
-public:
-    TrieNode* root_;
-    
-    /** Initialize your data structure here. */
-    Trie() {
-        root_ = new TrieNode();
-    }
-    
-    /** Inserts a word into the trie. */
-    void insert(string word) {
-        TrieNode* curr = root_;
-        for(auto c: word) {
-            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
-            curr = curr -> child[c - 'a'];
-        }
-        curr -> is_word = true;
-    }
-};
-
-class Solution {
-public:
-    string dfs(TrieNode* node, string letter) {
-        if(node == NULL || !node->is_word) return "";
-        string max_child = "";
-        for(int i = 0; i < 26; i++) {
-            string child = dfs(node -> child[i], string(1, 'a' + i));
-            if(child.size() > max_child.size()) {
-                max_child = child;
-            }
-        }
-        
-        return letter + max_child;
-    }
-    string longestWord(vector<string>& words) {
-        Trie trie;
-        for(const auto& s: words) trie.insert(s);
-        trie.root_ -> is_word = true;
-        return dfs(trie.root_, "");
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-728. Self Dividing Numbers
-A self-dividing number is a number that is divisible by every digit it contains.
-
-For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0, and 128 % 8 == 0.
-
-Also, a self-dividing number is not allowed to contain the digit zero.
-
-Given a lower and upper number bound, output a list of every possible self dividing number, including the bounds if possible.
-
-Example 1:
-Input: 
-left = 1, right = 22
-Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
-Note:
-
-The boundaries of each input argument are 1 <= left <= right <= 10000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> selfDividingNumbers(int left, int right) {
-        vector<int> res;
-        
-        for(int i = left; i <= right; i++) {
-            int x = i;
-            bool can_use = true;
-            while(x) {
-                if(x % 10 == 0 || i % (x % 10) != 0) {
-                    can_use = false;
-                    break;
-                }
-                x /= 10;
-            }
-            
-            if(can_use) res.push_back(i);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
-Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
-is considered a different type of stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int numJewelsInStones(string J, string S) {
-        unordered_set<char> jewels(J.begin(), J.end());
-        int res = 0;
-        for(const auto& stone: S) res += jewels.count(stone);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-804. Unique Morse Code Words
-International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
-follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
-
-For convenience, the full table for the 26 letters of the English alphabet is given below:
-
-[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
-Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
-For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
-such a concatenation, the transformation of a word.
-
-Return the number of different transformations among all words we have.
-
-Example:
-Input: words = ["gin", "zen", "gig", "msg"]
-Output: 2
-Explanation: 
-The transformation of each word is:
-"gin" -> "--...-."
-"zen" -> "--...-."
-"gig" -> "--...--."
-"msg" -> "--...--."
-
-There are 2 different transformations, "--...-." and "--...--.".
- 
-
-Note:
-
-The length of words will be at most 100.
-Each words[i] will have length in range [1, 12].
-words[i] will only consist of lowercase letters.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
-public:
-    int uniqueMorseRepresentations(vector<string>& words) {
-        unordered_set<string> comb;
-        for(const auto& s: words) {
-            string curr = "";
-            for(const auto& c: s) {
-                curr += morse_[c - 'a'];
-            }
-            comb.insert(curr);
-        }
-        return comb.size();
-    }
-};
 
 int main() {
     return 0;

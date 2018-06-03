@@ -54,10 +54,16 @@ void isqrt(int x){
 }
 
 int main() {
-    vector<int> v;
-    sort(v.begin(), v.end(), Compare());
-    priority_queue<int,vector<int>, greater<int>> pq;
-    priority_queue<int,vector<int>, Compare> pq2;
+    for(int i = 0; i < 8; i++) {
+        int N = rand() % 10;
+        cout << '"';
+        for(int k = 0; k < N; k++) {
+            char c = 'a' + (rand() % 3);
+            cout << c;
+        }
+        cout << '"';
+        cout << endl;
+    }
     return 0;
 }
 

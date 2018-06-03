@@ -1,6 +1,255 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+496. Next Greater Element I
+You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. Find all the next greater numbers for 
+nums1's elements in the corresponding places of nums2.
+
+The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. If it does not exist, output -1 for this number.
+
+Example 1:
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
+Output: [-1,3,-1]
+Explanation:
+    For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
+    For number 1 in the first array, the next greater number for it in the second array is 3.
+    For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
+Example 2:
+Input: nums1 = [2,4], nums2 = [1,2,3,4].
+Output: [3,-1]
+Explanation:
+    For number 2 in the first array, the next greater number for it in the second array is 3.
+    For number 4 in the first array, there is no next greater number for it in the second array, so output -1.
+Note:
+All elements in nums1 and nums2 are unique.
+The length of both nums1 and nums2 would not exceed 1000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 11 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <stack>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        For a stack of decreasing number, if there is a number x encountered.
+        All the numbers in the stack that x is greater than will have their return value to be x
+        and x is placed in the stack. This means there is no number in the stack that is less than x
+        eg [1,3,4,2,3]
+         []     1 => [1]
+         [1]    3 => [3]    update greater(1) = 3
+         [3]    4 => [4]    update greater(3) = 4
+         [4]    2 => [4,2]
+         [4,2]  3 => [4,3]  update greater(2) = 3
+    */
+    vector<int> nextGreaterElement(vector<int>& findNums, vector<int>& nums) {
+        if(nums.empty()) return {};
+        
+        int N = findNums.size();
+        // decreasing numbers
+        stack<int> stk;
+        
+        unordered_map<int,int> val_to_greater_val;
+        for(const auto& x: nums) {
+            while(!stk.empty() && stk.top() < x) {
+                val_to_greater_val[stk.top()] = x;
+                stk.pop();
+            }
+            
+            stk.push(x);
+        }
+        
+        vector<int> res;
+        for(const auto& x: findNums) {
+            res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+500. Keyboard Row
+Given a List of words, return the words that can be typed using letters of alphabet on only one row's of American keyboard like the image below.
+
+
+American keyboard
+
+
+Example 1:
+Input: ["Hello", "Alaska", "Dad", "Peace"]
+Output: ["Alaska", "Dad"]
+Note:
+You may use one character in the keyboard more than once.
+You may assume the input string will only contain letters of alphabet.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    // Have a map of character to row. Loop through each string and check if all the characters come from the same row.
+    vector<string> findWords(vector<string>& words) {
+        vector<string> v{"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+        unordered_map<char, int> m;
+
+        for(int i = 0; i < v.size(); i++) {
+            for(const auto& c: v[i]) m[c] = i;
+        }
+
+        vector<string> res;
+        for(const auto& s: words) {
+            int ind = -1;
+            bool can_add = true;
+            for(const auto& c: s) {
+                if(ind == -1) ind = m[tolower(c)];
+                if(m[tolower(c)] != ind) {
+                    can_add = false;
+                    break;
+                }
+            }
+
+            if(can_add) res.push_back(s);
+        }
+
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals 
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one 
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than 
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a 
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase 
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    bool detectCapitalUse(string word) {
+        int N = word.size();
+        int capital_count = 0, lower_count = 0;
+        for(auto c: word) {
+            capital_count += isupper(c) != 0;
+            lower_count += islower(c) != 0;
+        }
+        
+        return capital_count == N || lower_count == N || 
+            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+525. Contiguous Array
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example 1:
+Input: [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
+Example 2:
+Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+Note: The length of the given binary array will not exceed 50,000.
+
+/*
+    Submission Date: 2017-04-01
+    Runtime: 162 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int findMaxLength(vector<int>& nums) {
+        int maxLen = 0;
+        int currentSum = 0;
+        
+        // unordered_map has key to currentSum and value to earliest index seen with that 
+        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
+        // elements between those two indices is zero meaning equal number of 0's and 1's
+        // so finding the smallest index with the same currentSum results in the largest subarray
+        unordered_map<int, int> m = {{0, -1}};
+    
+        for(int i = 0, len = nums.size(); i < len; i++) {
+            if(nums[i] == 0) {
+                currentSum--;
+            } else {
+                currentSum++;
+            }
+            
+            if(m.find(currentSum) == m.end()) {
+                m[currentSum] = i;
+            } else {
+                maxLen = max(maxLen, i - m[currentSum]);
+            }
+        }
+        
+        return maxLen;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 536. Construct Binary Tree from String
 You need to construct a binary tree from a string consisting of parenthesis and integers.
 
@@ -180,6 +429,44 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+557. Reverse Words in a String III
+Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+
+Example 1:
+Input: "Let's take LeetCode contest"
+Output: "s'teL ekat edoCteeL tsetnoc"
+Note: In the string, each word is separated by single space and there will not be any extra space in the string.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    // from index 'start', find a space and reverse everything between start and space. change start to space + 1.
+    string reverseWords(string s) {
+        int start = 0;
+        while(s.find(' ', start) != string::npos) {
+            int space_ind = s.find(' ', start);
+            reverse(s.begin() + start, s.begin() + space_ind);
+            start = space_ind + 1;
+        }
+            
+        reverse(s.begin() + start, s.end());
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 561. Array Partition I
 Given an array of 2n integers, your task is to group these integers into n pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) 
 which makes sum of min(ai, bi) for all i from 1 to n as large as possible.
@@ -277,6 +564,129 @@ public:
             }
         }
         return max_set;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+566. Reshape the Matrix
+In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
+
+You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
+the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example 1:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+Output: 
+[[1,2,3,4]]
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+Example 2:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 2, c = 4
+Output: 
+[[1,2],
+ [3,4]]
+Explanation:
+There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
+Note:
+The height and width of the given matrix is in range [1, 100].
+The given r and c are all positive.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+        if(nums.empty()) return {};
+        int N = nums.size();
+        int M = nums[0].size();
+        
+        // cannot gain or lose elements
+        if(N*M != r*c) return nums;
+        
+        vector<vector<int>> res(r, vector<int>(c));
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < r; i++) {
+            for(int j = 0; j < c; j++) {
+                res[i][j] = nums[y][x];
+                x++;
+                if(x == M) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+575. Distribute Candies
+Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
+Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
+sister. Return the maximum number of kinds of candies the sister could gain.
+Example 1:
+Input: candies = [1,1,2,2,3,3]
+Output: 3
+Explanation:
+There are three different kinds of candies (1, 2 and 3), and two candies for each kind.
+Optimal distribution: The sister has candies [1,2,3] and the brother has candies [1,2,3], too. 
+The sister has three different kinds of candies. 
+Example 2:
+Input: candies = [1,1,2,3]
+Output: 2
+Explanation: For example, the sister has candies [2,3] and the brother has candies [1,1]. 
+The sister has two different kinds of candies, the brother has only one kind of candies. 
+Note:
+
+The length of the given array is in range [2, 10,000], and will be even.
+The number in given array is in range [-100,000, 100,000].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 247 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    // Count the number of distinct candies. Return the min of this and the max size of the array which is candies.size()/2.
+    int distributeCandies(vector<int>& candies) {
+        unordered_set<int> st(candies.begin(), candies.end());
+        return min(candies.size()/2, st.size());
     }
 };
 
@@ -603,405 +1013,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double eucl_sq(vector<int>& p1, vector<int>& p2) {
-        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-    }
-
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        // distance squared
-        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
-
-        sort(dist.begin(), dist.end());
-
-        // should result in 4 equal length sides and two longer sides that are the diagonals 
-        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-        bool non_zero_sides = dist[0] > 0;
-
-        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
-        return equal_sides && non_zero_sides && correct_diagonals;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the 
-four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array 
-with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four 
-equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cassert>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    int distSq(vector<int>& a, vector<int>& b) {
-        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
-    }
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        vector<int> dist;
-        vector<vector<int>> v{p1, p2, p3, p4};
-        for(int i = 0; i < 4; i++) {
-            for(int j = i + 1; j < 4; j++) {
-                dist.push_back(distSq(v[i], v[j]));
-            }
-        }
-
-        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
-        // out of these 6 distances, there are 4 distances which are the side distances (s)
-        // and 2 that are hypotenuse (h)
-        // s^2 + s^2 = h^2
-
-        assert(dist.size() == 6);
-        map<int,int> freq;
-        for(auto e: dist) freq[e]++;
-
-        if(freq.size() != 2) return false;
-        int s = freq.begin() -> first;
-        int h = next(freq.begin(), 1) -> first;
-        return 2*s == h;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-594. Longest Harmonious Subsequence
-We define a harmonious array is an array where the difference between its maximum value and its minimum 
-value is exactly 1.
-
-Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
-its possible subsequences.
-
-Example 1:
-Input: [1,3,2,2,5,2,3,7]
-Output: 5
-Explanation: The longest harmonious subsequence is [3,2,2,2,3].
-Note: The length of the input array will not exceed 20,000.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 109 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLHS(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        int max_len = 0;
-        for(int d: nums) {
-            int current = 0;
-            if(freq.find(d) != freq.end()) {
-                current += freq[d];
-                freq[d] += 1;
-            } else {
-                freq[d] = 1;
-            }
-
-            int adj = 0;
-            if(freq.find(d-1) != freq.end()) {
-                adj = max(adj, freq[d-1]);
-            }
-
-            if(freq.find(d+1) != freq.end()) {
-                adj = max(adj, freq[d+1]);
-            }
-
-            if(adj == 0) continue;
-            current += adj + 1;
-            max_len = max(current, max_len);
-        }
-        return max_len;
-    }
-};
-
-int main() {
-    vector<int> v{1,3,2,2,5,2,3,7};
-    Solution s;
-    cout << s.findLHS(v) << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-598. Range Addition II
-Given an m * n matrix M initialized with all 0's and several update operations.
-
-Operations are represented by a 2D array, and each operation is represented by an array with 
-two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
-and 0 <= j < b.
-
-You need to count and return the number of maximum integers in the matrix after performing 
-all the operations.
-
-Example 1:
-Input: 
-m = 3, n = 3
-operations = [[2,2],[3,3]]
-Output: 4
-Explanation: 
-Initially, M = 
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-
-After performing [2,2], M = 
-[[1, 1, 0],
- [1, 1, 0],
- [0, 0, 0]]
-
-After performing [3,3], M = 
-[[2, 2, 1],
- [2, 2, 1],
- [1, 1, 1]]
-
-So the maximum integer in M is 2, and there are four of it in M. So return 4.
-Note:
-The range of m and n is [1,40000].
-The range of a is [1,m], and the range of b is [1,n].
-The range of operations size won't exceed 10,000.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxCount(int m, int n, vector<vector<int>>& ops) {
-        for(vector<int> op: ops) {
-            m = min(m, op[0]);
-            n = min(n, op[1]);
-        }
-        return m*n;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
-favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index sum. If there 
-is a choice tie between answers, output all of them with no order requirement. You could assume 
-there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
-index sum 1 (0+1).
-Note:
-The length of both lists will be in the range of [1, 1000].
-The length of strings in both lists will be in the range of [1, 30].
-The index is starting from 0 to the list length minus 1.
-No duplicates in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-        unordered_map<string, int> m;
-        for(int i = 0; i < list1.size(); i++) {
-            m[list1[i]] = i;
-        }
-        
-        vector<string> res;
-        int min_index_sum = -1;
-        for(int i = 0; i < list2.size(); i++) {
-            string s2 = list2[i];
-            if(m.count(s2)) {
-                int new_sum = i + m[s2];
-                if(min_index_sum == -1) {
-                    min_index_sum = new_sum;
-                    res.push_back(s2);
-                    continue;
-                }
-                
-                if(new_sum == min_index_sum) {
-                    res.push_back(s2);
-                } else if(new_sum < min_index_sum) {
-                    min_index_sum = new_sum;
-                    res.clear();
-                    res.push_back(s2);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
-    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
-    vector<string> t = s.findRestaurant(v1, v2);
-    cout << t.size() << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
     return 0;
 }

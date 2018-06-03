@@ -24,8 +24,16 @@ fs.writeFile('done.txt', message, function(err){
 	if(err) throw err;
 });
 
-message = JSON.stringify(to_do, null, 4);
-fs.writeFile('to_do.txt', message, function(err){
+fs.readFile('diag.js', 'utf8', function(err, data) {
+  if (err) throw err;
+  var paste = 'var d = ' + message + '; \n' + data;
+  fs.writeFile('paste.txt', paste, function(err){
+    if(err) throw err;
+  });
+});
+
+var to_do_message = JSON.stringify(to_do, null, 4);
+fs.writeFile('to_do.txt', to_do_message, function(err){
 	if(err) throw err;
 });
 

@@ -940,54 +940,39 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible increasing 
-subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
+485. Max Consecutive Ones
+Given a binary array, find the maximum number of consecutive 1s in this array.
 
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
+Example 1:
+Input: [1,1,0,1,1,1]
+Output: 3
+Explanation: The first two digits or the last three digits are consecutive 1s.
+    The maximum number of consecutive 1s is 3.
 Note:
-The length of the given array will not exceed 15.
-The range of integer in the given array is [-100,100].
-The given array may contain duplicates, and two equal integers should also be considered 
-as a special case of increasing sequence.
+
+The input array will only contain 0 and 1.
+The length of input array is a positive integer and will not exceed 10,000
 /*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
+    Submission Date: 2018-06-03
+    Runtime: 37 ms
+    Difficulty: EASY
 */
 #include <iostream>
 #include <vector>
-#include <set>
 
 using namespace std;
 
 class Solution {
 public:
-    vector<vector<int>> findSubsequences(const vector<int>& nums) {
-        int N = nums.size();
-        vector<vector<vector<int>>> dp(N);
-        vector<vector<int>> res;
-        set<vector<int>> used;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] >= nums[j]) {
-                    for(auto seq: dp[j]) {
-                        seq.push_back(nums[i]);
-                        dp[i].push_back(seq);
-                    }
-                }
-            }
-            dp[i].push_back({nums[i]});
-        }
-        
-        for(auto vec: dp) {
-            for(auto seq: vec) {
-                if(seq.size() >= 2 && !used.count(seq)) {
-                    res.push_back(seq);
-                    used.insert(seq);
-                }
+    int findMaxConsecutiveOnes(vector<int>& nums) {
+        int curr = 0;
+        int res = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            if(nums[i] == 1) {
+                curr++;
+                res = max(res, curr);
+            } else {
+                curr = 0;
             }
         }
         return res;

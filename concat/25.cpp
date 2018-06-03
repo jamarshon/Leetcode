@@ -1,6 +1,121 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+662. Maximum Width of Binary Tree
+Given a binary tree, write a function to get the maximum width of the 
+given tree. The width of a tree is the maximum width among all levels. 
+The binary tree has the same structure as a full binary tree, but some 
+nodes are null.
+
+The width of one level is defined as the length between the end-nodes 
+(the leftmost and right most non-null nodes in the level, where the null 
+nodes between the end-nodes are also counted into the length calculation.
+
+Example 1:
+Input: 
+
+           1
+         /   \
+        3     2
+       / \     \  
+      5   3     9 
+
+Output: 4
+Explanation: The maximum width existing in the third level with the 
+length 4 (5,3,null,9).
+Example 2:
+Input: 
+
+          1
+         /  
+        3    
+       / \       
+      5   3     
+
+Output: 2
+Explanation: The maximum width existing in the third level with the 
+length 2 (5,3).
+Example 3:
+Input: 
+
+          1
+         / \
+        3   2 
+       /        
+      5      
+
+Output: 2
+Explanation: The maximum width existing in the second level with the 
+length 2 (3,2).
+Example 4:
+Input: 
+
+          1
+         / \
+        3   2
+       /     \  
+      5       9 
+     /         \
+    6           7
+Output: 8
+Explanation:The maximum width existing in the fourth level with the 
+length 8 (6,null,null,null,null,null,null,7).
+
+
+Note: Answer will in the range of 32-bit signed integer.
+/*
+    Submission Date: 2017-08-21
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+#include <tuple>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int widthOfBinaryTree(TreeNode* root) {
+        queue<pair<TreeNode*,int>> q;
+        q.emplace(root, 0);
+        
+        int res = 0;
+        
+        TreeNode* front;
+        int index;
+        
+        while(!q.empty()) {
+            int q_size = q.size();
+            int first_non_null = -1;
+            for(int i = 0; i < q_size; i++) {
+                tie(front, index) = q.front();
+                q.pop();
+                if(front) {
+                    q.emplace(front -> left, index*2);
+                    q.emplace(front -> right, index*2 + 1);
+                    if(first_non_null == -1) first_non_null = index;
+                    res = max(res, index - first_non_null + 1);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 669. Trim a Binary Search Tree
 Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
 [L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
@@ -471,6 +586,75 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+695. Max Area of Island
+Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's (representing land) 
+connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
+
+Example 1:
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Given the above grid, return 6. Note the answer is not 11, because the island must be connected 4-directionally.
+Example 2:
+[[0,0,0,0,0,0,0,0]]
+Given the above grid, return 0.
+Note: The length of each dimension in the given grid does not exceed 50.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    int dx[4] = {1,-1,0,0};
+    int dy[4] = {0,0,-1,1};
+public:
+    int dfs(vector<vector<int>>& grid, int i, int j, int N, int M) {
+        grid[i][j] = 0;
+        
+        int res = 1;
+        for(int k = 0; k < 4; k++) {
+            int new_x = j + dx[k];
+            int new_y = i + dy[k];
+            if((0 <= new_x && new_x < M) && (0 <= new_y && new_y < N) && grid[new_y][new_x] == 1) {
+                res += dfs(grid, new_y, new_x, N, M);
+            }
+        }
+        return res;
+    }
+    
+    int maxAreaOfIsland(vector<vector<int>>& grid) {
+        if(grid.empty()) return 0;
+        int N = grid.size();
+        int M = grid[0].size();
+        int res = 0;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                if(grid[i][j] == 1) {
+                    res = max(res, dfs(grid, i, j, N, M));
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 696. Count Binary Substrings
 Give a string s, count the number of non-empty (contiguous) substrings that have the same number of 0's and 1's, 
 and all the 0's and all the 1's in these substrings are grouped consecutively.
@@ -816,173 +1000,6 @@ public:
             res += primes.count(bits);
         }
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-766. Toeplitz Matrix
-A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
-
-Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
- 
-
-Example 1:
-
-Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
-Output: True
-Explanation:
-1234
-5123
-9512
-
-In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each 
-diagonal all elements are the same, so the answer is True.
-Example 2:
-
-Input: matrix = [[1,2],[2,2]]
-Output: False
-Explanation:
-The diagonal "[1, 2]" has different elements.
-Note:
-
-matrix will be a 2D array of integers.
-matrix will have a number of rows and columns in range [1, 20].
-matrix[i][j] will be integers in range [0, 99].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isToeplitzMatrix(vector<vector<int>>& matrix) {
-        if(matrix.empty()) return true;
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        for(int i = 1; i < N; i++) {
-            for(int j = 1; j < M; j++) {
-                if(matrix[i][j] != matrix[i-1][j-1]) return false;
-            }
-        }
-        
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
-Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
-is considered a different type of stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int numJewelsInStones(string J, string S) {
-        unordered_set<char> jewels(J.begin(), J.end());
-        int res = 0;
-        for(const auto& stone: S) res += jewels.count(stone);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-804. Unique Morse Code Words
-International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
-follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
-
-For convenience, the full table for the 26 letters of the English alphabet is given below:
-
-[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
-Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
-For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
-such a concatenation, the transformation of a word.
-
-Return the number of different transformations among all words we have.
-
-Example:
-Input: words = ["gin", "zen", "gig", "msg"]
-Output: 2
-Explanation: 
-The transformation of each word is:
-"gin" -> "--...-."
-"zen" -> "--...-."
-"gig" -> "--...--."
-"msg" -> "--...--."
-
-There are 2 different transformations, "--...-." and "--...--.".
- 
-
-Note:
-
-The length of words will be at most 100.
-Each words[i] will have length in range [1, 12].
-words[i] will only consist of lowercase letters.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
-public:
-    int uniqueMorseRepresentations(vector<string>& words) {
-        unordered_set<string> comb;
-        for(const auto& s: words) {
-            string curr = "";
-            for(const auto& c: s) {
-                curr += morse_[c - 'a'];
-            }
-            comb.insert(curr);
-        }
-        return comb.size();
     }
 };
 

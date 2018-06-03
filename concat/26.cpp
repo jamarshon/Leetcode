@@ -1,6 +1,237 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+766. Toeplitz Matrix
+A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
+
+Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
+ 
+
+Example 1:
+
+Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
+Output: True
+Explanation:
+1234
+5123
+9512
+
+In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each 
+diagonal all elements are the same, so the answer is True.
+Example 2:
+
+Input: matrix = [[1,2],[2,2]]
+Output: False
+Explanation:
+The diagonal "[1, 2]" has different elements.
+Note:
+
+matrix will be a 2D array of integers.
+matrix will have a number of rows and columns in range [1, 20].
+matrix[i][j] will be integers in range [0, 99].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 22 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isToeplitzMatrix(vector<vector<int>>& matrix) {
+        if(matrix.empty()) return true;
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        for(int i = 1; i < N; i++) {
+            for(int j = 1; j < M; j++) {
+                if(matrix[i][j] != matrix[i-1][j-1]) return false;
+            }
+        }
+        
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+771. Jewels and Stones
+You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
+Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
+
+The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
+is considered a different type of stone from "A".
+
+Example 1:
+
+Input: J = "aA", S = "aAAbbbb"
+Output: 3
+Example 2:
+
+Input: J = "z", S = "ZZ"
+Output: 0
+Note:
+
+S and J will consist of letters and have length at most 50.
+The characters in J are distinct.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int numJewelsInStones(string J, string S) {
+        unordered_set<char> jewels(J.begin(), J.end());
+        int res = 0;
+        for(const auto& stone: S) res += jewels.count(stone);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+784. Letter Case Permutation
+Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
+Return a list of all possible strings we could create.
+
+Examples:
+Input: S = "a1b2"
+Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
+
+Input: S = "3z4"
+Output: ["3z4", "3Z4"]
+
+Input: S = "12345"
+Output: ["12345"]
+Note:
+
+S will be a string with length at most 12.
+S will consist only of letters or digits.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, vector<string>> dp_;
+public:
+    /*
+     find the first alphabetical letter. get the vector for the remaining string
+     add prefix with the letter lower case and upper case to each element from the vector
+    */
+    vector<string> letterCasePermutation(string S) {
+        if(dp_.count(S)) return dp_[S];
+        
+        int N = S.size();
+        int i = 0;
+        for(; i < N; i++) {
+            if(isalpha(S[i])) break;
+        }
+        
+        if(i >= N) return { S };
+        vector<string> rem = letterCasePermutation(S.substr(i + 1));
+        int M = rem.size();
+        rem.reserve(2*M);
+        
+        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
+        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
+        for(int j = 0; j < M; j++) {
+            rem.push_back(s2 + rem[j]);
+            rem[j] = s1 + rem[j];
+        }
+        return rem;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+804. Unique Morse Code Words
+International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
+follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
+
+For convenience, the full table for the 26 letters of the English alphabet is given below:
+
+[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
+Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
+For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
+such a concatenation, the transformation of a word.
+
+Return the number of different transformations among all words we have.
+
+Example:
+Input: words = ["gin", "zen", "gig", "msg"]
+Output: 2
+Explanation: 
+The transformation of each word is:
+"gin" -> "--...-."
+"zen" -> "--...-."
+"gig" -> "--...--."
+"msg" -> "--...--."
+
+There are 2 different transformations, "--...-." and "--...--.".
+ 
+
+Note:
+
+The length of words will be at most 100.
+Each words[i] will have length in range [1, 12].
+words[i] will only consist of lowercase letters.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
+public:
+    int uniqueMorseRepresentations(vector<string>& words) {
+        unordered_set<string> comb;
+        for(const auto& s: words) {
+            string curr = "";
+            for(const auto& c: s) {
+                curr += morse_[c - 'a'];
+            }
+            comb.insert(curr);
+        }
+        return comb.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 806. Number of Lines To Write String
 We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
 and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
@@ -145,6 +376,65 @@ public:
         }
         
         return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+812. Largest Triangle Area
+You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2
+Explanation: 
+The five points are show in the figure below. The red triangle is the largest.
+
+Notes:
+
+3 <= points.length <= 50.
+No points will be duplicated.
+ -50 <= points[i][j] <= 50.
+Answers within 10^-6 of the true value will be accepted as correct.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        int res = 0;
+        int N = points.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                for(int k = j + 1; k < N; k++) {
+                    /*
+                    given points (a,b), (c,d), (e,f)
+                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
+                    cross product of A and B is 
+                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
+                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
+                    magnitude of A cross B is area of parallelogram so divide by half
+                    */
+                    int c_minus_a = points[j][0] - points[i][0];
+                    int d_minus_b = points[j][1] - points[i][1];
+                    int e_minus_a = points[k][0] - points[i][0];
+                    int f_minus_b = points[k][1] - points[i][1];
+                    
+                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
+                }
+            }
+        }
+        return res/2.0;
     }
 };
 
@@ -374,6 +664,68 @@ public:
     // Check if x intervals intersect and y intervals intersect
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
         return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+844. Backspace String Compare
+Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
+
+Example 1:
+
+Input: S = "ab#c", T = "ad#c"
+Output: true
+Explanation: Both S and T become "ac".
+Example 2:
+
+Input: S = "ab##", T = "c#d#"
+Output: true
+Explanation: Both S and T become "".
+Example 3:
+
+Input: S = "a##c", T = "#a#c"
+Output: true
+Explanation: Both S and T become "c".
+Example 4:
+
+Input: S = "a#c", T = "b"
+Output: false
+Explanation: S becomes "c" while T becomes "b".
+ 
+
+Note:
+
+1 <= S.length <= 200
+1 <= T.length <= 200
+S and T only contain lowercase letters and '#' characters.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string eval(string s) {
+        string res = "";
+        for(const auto& c: s) {
+            if(c == '#') {
+                if(!res.empty()) res.pop_back();
+            } else {
+                res.push_back(c);
+            }
+        }
+        return res;
+    }
+    bool backspaceCompare(string S, string T) {
+        return eval(S) == eval(T);
     }
 };
 

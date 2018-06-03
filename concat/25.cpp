@@ -1,6 +1,164 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+669. Trim a Binary Search Tree
+Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
+[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+
+Example 1:
+Input: 
+    1
+   / \
+  0   2
+
+  L = 1
+  R = 2
+
+Output: 
+    1
+      \
+       2
+Example 2:
+Input: 
+    3
+   / \
+  0   4
+   \
+    2
+   /
+  1
+
+  L = 1
+  R = 3
+
+Output: 
+      3
+     / 
+   2   
+  /
+ 1
+/*
+    Submission Date: 2018-05-31
+    Runtime: 18 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    if node val is within bounds, than return node with left and right subtrees trimmed
+    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
+    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
+    */
+    TreeNode* trimBST(TreeNode* root, int L, int R) {
+        if(root == NULL) return NULL;
+        if(root->val > R) {
+            return trimBST(root->left, L, R);
+        } else if(root-> val < L) {
+            return trimBST(root->right, L, R);
+        } else {
+            root->left = trimBST(root->left, L, R);
+            root->right = trimBST(root->right, L, R);
+            return root;
+        }
+    }
+};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+676. Implement Magic Dictionary
+
+Implement a magic directory with buildDict, and search methods.
+
+For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
+
+For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
+character in this word, the modified word is in the dictionary you just built.
+
+Example 1:
+Input: buildDict(["hello", "leetcode"]), Output: Null
+Input: search("hello"), Output: False
+Input: search("hhllo"), Output: True
+Input: search("hell"), Output: False
+Input: search("leetcoded"), Output: False
+Note:
+You may assume that all the inputs are consist of lowercase letters a-z.
+For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
+Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
+across multiple test cases. Please see here for more details.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class MagicDictionary {
+public:
+    /** Initialize your data structure here. */
+    unordered_map<string, vector<pair<char, int>>> m_;
+    MagicDictionary() {
+        
+    }
+    
+    /** Build a dictionary through a list of words */
+    void buildDict(vector<string> dict) {
+        /*
+            N words of size K O(Nk^2)
+            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
+        */
+        m_.clear();
+        for(const auto& s: dict) {
+            for(int i = 0; i < s.size(); i++) {
+                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
+            }
+        }
+        
+    }
+    
+    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
+    bool search(string s) {
+        // O(k^2*M) where M is size of vector for a key in m_
+        for(int i = 0; i < s.size(); i++) {
+            const auto& key = s.substr(0,i) + s.substr(i+1);
+            if(!m_.count(key)) continue;
+            for(const auto& p: m_[key]) {
+                // looking for same index different letter
+                if(p.second == i && p.first != s[i]) return true;
+            }
+        }
+        return false;
+    }
+};
+
+/**
+ * Your MagicDictionary object will be instantiated and called as such:
+ * MagicDictionary obj = new MagicDictionary();
+ * obj.buildDict(dict);
+ * bool param_2 = obj.search(word);
+ */
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 682. Baseball Game
 You're now a baseball game point recorder.
 
@@ -587,6 +745,85 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+762. Prime Number of Set Bits in Binary Representation
+Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
+their binary representation.
+
+(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
+10101 which has 3 set bits. Also, 1 is not a prime.)
+
+Example 1:
+
+Input: L = 6, R = 10
+Output: 4
+Explanation:
+6 -> 110 (2 set bits, 2 is prime)
+7 -> 111 (3 set bits, 3 is prime)
+9 -> 1001 (2 set bits , 2 is prime)
+10->1010 (2 set bits , 2 is prime)
+Example 2:
+
+Input: L = 10, R = 15
+Output: 5
+Explanation:
+10 -> 1010 (2 set bits, 2 is prime)
+11 -> 1011 (3 set bits, 3 is prime)
+12 -> 1100 (2 set bits, 2 is prime)
+13 -> 1101 (3 set bits, 3 is prime)
+14 -> 1110 (3 set bits, 3 is prime)
+15 -> 1111 (4 set bits, 4 is not prime)
+Note:
+
+L, R will be integers L <= R in the range [1, 10^6].
+R - L will be at most 10000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 105 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    int numbits(int x) {
+        int res = 0;
+        while(x) {
+            x &= (x-1);
+            res++;
+        }
+        return res;
+    }
+public:
+    /*
+        the number of bits for a number i = number of bits for i/2 + the last bit of i
+        e.g 10101 = number of bits for 1010 + last bit which is 1
+    */
+    int countPrimeSetBits(int L, int R) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        unordered_map<int,int> n_to_bits;
+        int res = 0;
+        for(int i = L; i <= R; i++) {
+            int bits;
+            if(n_to_bits.count(i)) {
+                bits = n_to_bits[i/2] + (i % 2);
+            } else {
+                bits = numbits(i);
+            }
+            n_to_bits[i] = bits;
+            res += primes.count(bits);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 766. Toeplitz Matrix
 A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
 
@@ -746,218 +983,6 @@ public:
             comb.insert(curr);
         }
         return comb.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-806. Number of Lines To Write String
-We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
-and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
-an array widths, an array where widths[0] is the width of 'a', widths[1] is the width of 'b', ..., and widths[25] is the width of 'z'.
-
-Now answer two questions: how many lines have at least one character from S, and what is the width used by the last such line? 
-Return your answer as an integer list of length 2.
-
-Example :
-Input: 
-widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "abcdefghijklmnopqrstuvwxyz"
-Output: [3, 60]
-Explanation: 
-All letters have the same length of 10. To write all 26 letters,
-we need two full lines and one line with 60 units.
-Example :
-Input: 
-widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "bbbcccdddaaa"
-Output: [2, 4]
-Explanation: 
-All letters except 'a' have the same length of 10, and 
-"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
-For the last 'a', it is written on the second line because
-there is only 2 units left in the first line.
-So the answer is 2 lines, plus 4 units in the second line.
- 
-Note:
-
-The length of S will be in the range [1, 1000].
-S will only contain lowercase letters.
-widths is an array of length 26.
-widths[i] will be in the range of [2, 10].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> numberOfLines(vector<int>& widths, string S) {
-        int current_len = 0;
-        int num_lines = 0;
-        for(const auto& c: S) {
-            if(current_len + widths[c - 'a'] > 100) {
-                num_lines++;
-                current_len = 0;
-            }
-            current_len += widths[c - 'a'];
-        }
-        return {num_lines+1, current_len};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-811. Subdomain Visit Count
-A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
-at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
-"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
-
-Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
-followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
-
-We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
-input, and in any order), that explicitly counts the number of visits to each subdomain.
-
-Example 1:
-Input: 
-["9001 discuss.leetcode.com"]
-Output: 
-["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
-Explanation: 
-We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
-So they will all be visited 9001 times.
-
-Example 2:
-Input: 
-["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
-Output: 
-["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
-Explanation: 
-We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
-we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
-
-Notes:
-
-The length of cpdomains will not exceed 100. 
-The length of each domain name will not exceed 100.
-Each address will have either 1 or 2 "." characters.
-The input count in any count-paired domain will not exceed 10000.
-The answer output can be returned in any order.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> subdomainVisits(vector<string>& cpdomains) {
-        unordered_map<string, int> domain_to_count;
-        for(const auto& s: cpdomains) {
-            int num = 0;
-            int i = 0;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    num = num * 10 + (s[i] - '0');
-                } else {
-                    break;
-                }
-                i++;
-            }
-            
-            string domain = s.substr(i + 1);
-            while(domain.find('.') != string::npos) {
-                domain_to_count[domain] += num;
-                domain = domain.substr(domain.find('.') + 1);
-            }
-            
-            domain_to_count[domain] += num;
-        }
-        
-        vector<string> res;
-        for(const auto& kv: domain_to_count) {
-            res.push_back(to_string(kv.second) + " " + kv.first);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-821. Shortest Distance to a Character
-Given a string S and a character C, return an array of integers representing the shortest distance from the character C in the string.
-
-Example 1:
-
-Input: S = "loveleetcode", C = 'e'
-Output: [3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0]
- 
-
-Note:
-
-S string length is in [1, 10000].
-C is a single character, and guaranteed to be in string S.
-All letters in S and C are lowercase.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    keep track of last seen C and use that as the distance
-    then do it from the back and take the min of this value with the previous value
-    */
-    vector<int> shortestToChar(string S, char C) {
-        int N = S.size();
-        vector<int> res(N, INT_MAX);
-        
-        int last_C_forward = -1;
-        int last_C_backward = -1;
-        for(int i = 0; i < N; i++) {
-            if(S[i] == C) last_C_forward = i;
-            if(S[N-i-1] == C) last_C_backward = N-i-1;
-            
-            if(last_C_forward >= 0) {
-                res[i] = min(res[i], i - last_C_forward);
-            }
-            
-            if(last_C_backward >= 0) {
-                res[N-i-1] = min(res[N-i-1], last_C_backward - (N-i-1));
-            }
-            
-        }
-        
-        return res;
     }
 };
 

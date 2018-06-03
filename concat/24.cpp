@@ -1,6 +1,182 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+648. Replace Words
+In English, we have a concept called root, which can be followed by some other words to form another 
+longer word - let's call this word successor. For example, the root an, followed by other, which can 
+form another word another.
+
+Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
+in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
+root with the shortest length.
+
+You need to output the sentence after the replacement.
+
+Example 1:
+Input: dict = ["cat", "bat", "rat"]
+sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+Note:
+The input will only have lower-case letters.
+1 <= dict words number <= 1000
+1 <= sentence words number <= 1000
+1 <= root length <= 100
+1 <= sentence words length <= 1000
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 159 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    string replaceWords(vector<string>& dict, string sentence) {
+        unordered_set<string> ds(dict.begin(), dict.end());
+        set<int> word_size;
+        for(auto ds_e: ds) {
+            word_size.insert(ds_e.size());
+        }
+
+        stringstream ss(sentence);
+        string temp;
+
+        vector<string> res;
+        while(getline(ss, temp, ' ')) {
+            bool found = false;
+            for(auto len: word_size) {
+                if(len > temp.size()) {
+                    res.push_back(temp);
+                    found = true;
+                    break;
+                } else {
+                    if(ds.count(temp.substr(0, len))) {
+                        res.push_back(temp.substr(0, len));
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!found) {
+                res.push_back(temp);
+            }
+        }
+
+        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
+            return memo.empty() ? a : memo + " " + a;
+        });
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+649. Dota2 Senate
+In the world of Dota2, there are two parties: the Radiant and the Dire.
+
+The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
+a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
+can exercise one of the two rights:
+
+Ban one senator's right: 
+A senator can make another senator lose all his rights in this and all the following rounds.
+Announce the victory: 
+If this senator found the senators who still have rights to vote are all from the same party, he can announce 
+the victory and make the decision about the change in the game.
+Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
+party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
+
+The round-based procedure starts from the first senator to the last senator in the given order. This 
+procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
+during the procedure.
+
+Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
+which party will finally announce the victory and make the change in the Dota2 game. The output should be 
+Radiant or Dire.
+
+Example 1:
+Input: "RD"
+Output: "Radiant"
+Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights any more since his right has been banned. 
+And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Example 2:
+Input: "RDD"
+Output: "Dire"
+Explanation: 
+The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights anymore since his right has been banned. 
+And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
+And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Note:
+The length of the given string will in the range [1, 10,000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        while(!senate.empty()) {
+            for(int i = 0; i < senate.size();) {
+                char curr = senate[i];
+                int j = i;
+                for(; j < senate.size(); j++) {
+                    if(senate[j] != curr) {
+                        break;
+                    }
+                }
+            
+                if(j == senate.size()) {
+                    j = 0;
+                    for(; j < i; j++) {
+                        if(senate[j] != curr) {
+                            break;
+                        }
+                    }
+
+                    if(j == i) {
+                        if(curr == 'R') return "Radiant";
+                        return "Dire";
+                    } else {
+                        senate = senate.substr(0, j) + senate.substr(j + 1);
+                    }
+                } else {
+                    senate = senate.substr(0, j) + senate.substr(j + 1);
+                    i++;
+                }
+            }
+        }
+        return "";
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 650. 2 Keys Keyboard
 Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
 for each step:
@@ -791,163 +967,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-669. Trim a Binary Search Tree
-Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
-[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
-
-Example 1:
-Input: 
-    1
-   / \
-  0   2
-
-  L = 1
-  R = 2
-
-Output: 
-    1
-      \
-       2
-Example 2:
-Input: 
-    3
-   / \
-  0   4
-   \
-    2
-   /
-  1
-
-  L = 1
-  R = 3
-
-Output: 
-      3
-     / 
-   2   
-  /
- 1
-/*
-    Submission Date: 2018-05-31
-    Runtime: 18 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    if node val is within bounds, than return node with left and right subtrees trimmed
-    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
-    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
-    */
-    TreeNode* trimBST(TreeNode* root, int L, int R) {
-        if(root == NULL) return NULL;
-        if(root->val > R) {
-            return trimBST(root->left, L, R);
-        } else if(root-> val < L) {
-            return trimBST(root->right, L, R);
-        } else {
-            root->left = trimBST(root->left, L, R);
-            root->right = trimBST(root->right, L, R);
-            return root;
-        }
-    }
-};
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-676. Implement Magic Dictionary
-
-Implement a magic directory with buildDict, and search methods.
-
-For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
-
-For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
-character in this word, the modified word is in the dictionary you just built.
-
-Example 1:
-Input: buildDict(["hello", "leetcode"]), Output: Null
-Input: search("hello"), Output: False
-Input: search("hhllo"), Output: True
-Input: search("hell"), Output: False
-Input: search("leetcoded"), Output: False
-Note:
-You may assume that all the inputs are consist of lowercase letters a-z.
-For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
-Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
-across multiple test cases. Please see here for more details.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class MagicDictionary {
-public:
-    /** Initialize your data structure here. */
-    unordered_map<string, vector<pair<char, int>>> m_;
-    MagicDictionary() {
-        
-    }
-    
-    /** Build a dictionary through a list of words */
-    void buildDict(vector<string> dict) {
-        /*
-            N words of size K O(Nk^2)
-            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
-        */
-        m_.clear();
-        for(const auto& s: dict) {
-            for(int i = 0; i < s.size(); i++) {
-                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
-            }
-        }
-        
-    }
-    
-    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
-    bool search(string s) {
-        // O(k^2*M) where M is size of vector for a key in m_
-        for(int i = 0; i < s.size(); i++) {
-            const auto& key = s.substr(0,i) + s.substr(i+1);
-            if(!m_.count(key)) continue;
-            for(const auto& p: m_[key]) {
-                // looking for same index different letter
-                if(p.second == i && p.first != s[i]) return true;
-            }
-        }
-        return false;
-    }
-};
-
-/**
- * Your MagicDictionary object will be instantiated and called as such:
- * MagicDictionary obj = new MagicDictionary();
- * obj.buildDict(dict);
- * bool param_2 = obj.search(word);
- */
-
-int main() {
     return 0;
 }

@@ -191,6 +191,59 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+521. Longest Uncommon Subsequence I
+Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
+The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
+should not be any subsequence of the other strings.
+
+A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
+order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
+
+The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
+uncommon subsequence doesn't exist, return -1.
+
+Example 1:
+Input: "aba", "cdc"
+Output: 3
+Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
+because "aba" is a subsequence of "aba", 
+but not a subsequence of any other strings in the group of two strings. 
+Note:
+
+Both strings' lengths will not exceed 100.
+Only letters from a ~ z will appear in input strings.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
+      what is the longest ss_A that is not ss_B and vice versa
+
+      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
+      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
+      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
+      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
+      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
+    */
+    int findLUSlength(string a, string b) {
+        if(a == b) return -1;
+        return max(a.size(), b.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 525. Contiguous Array
 Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
 
@@ -650,6 +703,86 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+567. Permutation in String
+Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
+one of the first string's permutations is the substring of the second string.
+Example 1:
+Input:s1 = "ab" s2 = "eidbaooo"
+Output:True
+Explanation: s2 contains one permutation of s1 ("ba").
+Example 2:
+Input:s1= "ab" s2 = "eidboaoo"
+Output: False
+Note:
+The input strings only contain lower case letters.
+The length of both given strings is in range [1, 10,000].
+/*
+    Submission Date: 2018-06-02
+    Runtime: 18 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    frequency map of s1 with variable to_use as global to check if everything equals 0
+    use sliding window where everything in a window is a valid character and does not 
+    exceed the frequency map limit for certain character
+    for a new character, if it exceeds the limit or its not a valid character than keep
+    moving front (restoring freq map). if it is not a valid character, the map will be
+    restored and to_do = original
+    Check if character is valid, if it is use it else move front so that it is not
+    included
+    */
+    bool checkInclusion(string s1, string s2) {
+        vector<int> freq(26 , 0);
+        unordered_set<char> letters(s1.begin(), s1.end());
+        for(const auto& c: s1) freq[c - 'a']++;
+        
+        int front = 0;
+        int back = 0;
+        
+        int N = s2.size();
+        int to_use = s1.size();
+        
+        while(back < N) {
+            if(to_use == 0) return true;
+            // slide the front until the letter is removed
+            int back_val = s2[back] - 'a';
+            while(front < back && freq[back_val] == 0) {
+                freq[s2[front] - 'a']++;
+                front++;
+                to_use++;
+            }
+            
+            /* if the back letter is in s1, decrease the frequency and to_use
+                else it means front == back as freq[s2[back]] == 0 so increase front 
+                to not include this letter
+            */
+            if(letters.count(s2[back])) {
+                freq[back_val]--;
+                to_use--;
+            } else {
+                front++;
+            }
+            
+            back++;
+        }
+        
+        return to_use == 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 575. Distribute Candies
 Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
 Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
@@ -834,184 +967,4 @@ int main() {
     vector<int> t = s.killProcess(pid, ppid, kill);
 	for(auto l: t) cout << l << " ";
 	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to 
-make word1 and word2 the same, where in each step you can delete one character in either string.
-
-Example 1:
-Input: "sea", "eat"
-Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
-Note:
-The length of given words won't exceed 500.
-Characters in given words can only be lower-case letters.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minDistance(string word1, string word2) {
-        int row = word2.size() + 1;
-        int col = word1.size() + 1;
-        int dp[501][501];
-        for(int i = 0; i < row; i++) dp[i][0] = i;
-        for(int i = 0; i < col; i++) dp[0][i] = i;
-
-        for(int i = 1; i < row; i++) {
-            for(int j = 1; j < col; j++) {
-                if(word2[i - 1] == word1[j - 1]) {
-                    dp[i][j] = dp[i - 1][j - 1];
-                } else {
-                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
-                }
-            }
-        }
-        
-        return dp[row - 1][col - 1];
-    }
-};
-
-int main() {
-	Solution s;
-    cout << s.minDistance("sea", "eat");
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-592. Fraction Addition and Subtraction
-Given a string representing an expression of fraction addition 
-and subtraction, you need to return the calculation result in string 
-format. The final result should be irreducible fraction. If your final 
-result is an integer, say 2, you need to change it to the format of 
-fraction that has denominator 1. So in this case, 2 should be 
-converted to 2/1.
-
-Example 1:
-Input:"-1/2+1/2"
-Output: "0/1"
-Example 2:
-Input:"-1/2+1/2+1/3"
-Output: "1/3"
-Example 3:
-Input:"1/3-1/2"
-Output: "-1/6"
-Example 4:
-Input:"5/3+1/3"
-Output: "2/1"
-Note:
-The input string only contains '0' to '9', '/', '+' and '-'. 
-So does the output.
-Each fraction (input and output) has format ±numerator/denominator. 
-If the first input fraction or the output is positive, then '+' will 
-be omitted.
-The input only contains valid irreducible fractions, where the 
-numerator and denominator of each fraction will always be in the 
-range [1,10]. If the denominator is 1, it means this fraction is 
-actually an integer in a fraction format defined above.
-The number of given fractions will be in the range [1,10].
-The numerator and denominator of the final result are guaranteed 
-to be valid and in the range of 32-bit int.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <cassert>
-
-using namespace std;
-
-typedef long long ll;
-struct Fraction {
-    ll num, den;
-};
-
-class Solution {
-public:
-    ll gcd(ll a, ll b) {
-        return b == 0 ? a : gcd(b, a % b);
-    }
-
-    ll lcm(ll a, ll b) {
-        return a*b/gcd(a,b);
-    }
-
-    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
-    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
-    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
-
-    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
-    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
-    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
-    // (a*d + b*c)/(b*d)
-    Fraction add(Fraction a, Fraction b) {
-        return {a.num*b.den + a.den*b.num, a.den*b.den};
-    }
-
-    Fraction reduce(Fraction a) {
-        int gcd_num_den = gcd(abs(a.num), a.den);
-        return {a.num/gcd_num_den, a.den/gcd_num_den};
-    }
-
-    string fractionAddition(string s) {
-        vector<Fraction> v;
-        int N = s.size();
-        bool is_negative = false;
-        for(int i = 0; i < N;) {
-            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
-            // a number (positive num and is start of string)
-            Fraction fr;
-            is_negative = s[i] == '-';
-
-            if(s[i] == '+' || is_negative) {
-                i++;
-            }
-
-            ll curr = 0;
-            while(isdigit(s[i])) {
-                curr = curr*10 + (s[i] - '0');
-                i++;
-            }
-
-            fr.num = is_negative ? -curr : curr;
-            // s[i] is the '/' followed by a number so end i where the next operator starts
-            assert(s[i++] == '/');
-
-            curr = 0;
-            while(isdigit(s[i]) && i < N) {
-                curr = curr*10 + (s[i] - '0');
-                i++;
-            }
-
-            fr.den = curr;
-            v.push_back(fr);
-        }
-
-        Fraction res = v.front();
-        res = reduce(res);
-        for(int i = 1; i < v.size(); i++) {
-            res = add(res, v[i]);
-            res = reduce(res);
-        }
-
-        return to_string(res.num) + "/" + to_string(res.den);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
 }

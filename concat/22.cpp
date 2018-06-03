@@ -1,6 +1,186 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+583. Delete Operation for Two Strings
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
+
+Example 1:
+Input: "sea", "eat"
+Output: 2
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
+Note:
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 29 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
+
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
+        }
+        
+        return dp[row - 1][col - 1];
+    }
+};
+
+int main() {
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+592. Fraction Addition and Subtraction
+Given a string representing an expression of fraction addition 
+and subtraction, you need to return the calculation result in string 
+format. The final result should be irreducible fraction. If your final 
+result is an integer, say 2, you need to change it to the format of 
+fraction that has denominator 1. So in this case, 2 should be 
+converted to 2/1.
+
+Example 1:
+Input:"-1/2+1/2"
+Output: "0/1"
+Example 2:
+Input:"-1/2+1/2+1/3"
+Output: "1/3"
+Example 3:
+Input:"1/3-1/2"
+Output: "-1/6"
+Example 4:
+Input:"5/3+1/3"
+Output: "2/1"
+Note:
+The input string only contains '0' to '9', '/', '+' and '-'. 
+So does the output.
+Each fraction (input and output) has format ±numerator/denominator. 
+If the first input fraction or the output is positive, then '+' will 
+be omitted.
+The input only contains valid irreducible fractions, where the 
+numerator and denominator of each fraction will always be in the 
+range [1,10]. If the denominator is 1, it means this fraction is 
+actually an integer in a fraction format defined above.
+The number of given fractions will be in the range [1,10].
+The numerator and denominator of the final result are guaranteed 
+to be valid and in the range of 32-bit int.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <cassert>
+
+using namespace std;
+
+typedef long long ll;
+struct Fraction {
+    ll num, den;
+};
+
+class Solution {
+public:
+    ll gcd(ll a, ll b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
+
+    ll lcm(ll a, ll b) {
+        return a*b/gcd(a,b);
+    }
+
+    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
+    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
+    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
+
+    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
+    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
+    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
+    // (a*d + b*c)/(b*d)
+    Fraction add(Fraction a, Fraction b) {
+        return {a.num*b.den + a.den*b.num, a.den*b.den};
+    }
+
+    Fraction reduce(Fraction a) {
+        int gcd_num_den = gcd(abs(a.num), a.den);
+        return {a.num/gcd_num_den, a.den/gcd_num_den};
+    }
+
+    string fractionAddition(string s) {
+        vector<Fraction> v;
+        int N = s.size();
+        bool is_negative = false;
+        for(int i = 0; i < N;) {
+            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
+            // a number (positive num and is start of string)
+            Fraction fr;
+            is_negative = s[i] == '-';
+
+            if(s[i] == '+' || is_negative) {
+                i++;
+            }
+
+            ll curr = 0;
+            while(isdigit(s[i])) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.num = is_negative ? -curr : curr;
+            // s[i] is the '/' followed by a number so end i where the next operator starts
+            assert(s[i++] == '/');
+
+            curr = 0;
+            while(isdigit(s[i]) && i < N) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.den = curr;
+            v.push_back(fr);
+        }
+
+        Fraction res = v.front();
+        res = reduce(res);
+        for(int i = 1; i < v.size(); i++) {
+            res = add(res, v[i]);
+            res = reduce(res);
+        }
+
+        return to_string(res.num) + "/" + to_string(res.den);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 593. Valid Square
 Given the coordinates of four points in 2D space, return whether the 
 four points could construct a square.
@@ -790,200 +970,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-623. Add One Row to Tree
-Given the root of a binary tree, then value v and depth d, you need to add a row of 
-nodes with value v at the given depth d. The root node is at depth 1.
-
-The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
-N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
-subtree root. And N's original left subtree should be the left subtree of the new left 
-subtree root, its original right subtree should be the right subtree of the new right 
-subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
-tree node with value v as the new root of the whole original tree, and the original 
-tree is the new root's left subtree.
-
-Example 1:
-Input: 
-A binary tree as following:
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-v = 1
-
-d = 2
-
-Output: 
-       4
-      / \
-     1   1
-    /     \
-   2       6
-  / \     / 
- 3   1   5   
-
-Example 2:
-Input: 
-A binary tree as following:
-      4
-     /   
-    2    
-   / \   
-  3   1    
-
-v = 1
-
-d = 3
-
-Output: 
-      4
-     /   
-    2
-   / \    
-  1   1
- /     \  
-3       1
-Note:
-The given d is in range [1, maximum depth of the given tree + 1].
-The given binary tree has at least one tree node.
-
-/*
-    Submission Date: 2017-06-18
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
-        if(root == NULL) return;
-        if(d == 0) {
-            vec.push_back(root);
-            return;
-        }
-        
-        getRow(root -> left, d - 1, vec);
-        getRow(root -> right, d - 1, vec);
-    }
-public:
-    TreeNode* addOneRow(TreeNode* root, int v, int d) {
-        // get all nodes at depth d - 1
-        vector<TreeNode*> vec;
-        if(d == 1) {
-            TreeNode* new_root = new TreeNode(v);
-            new_root -> left = root;
-            root = new_root;
-        } else {
-            getRow(root, d - 2, vec);
-            for(auto t: vec) {
-                TreeNode* left = t -> left;
-                TreeNode* right = t -> right;
-                t -> left = new TreeNode(v);
-                t -> right = new TreeNode(v);
-                t -> left -> left = left;
-                t -> right -> right = right;
-            }
-        }
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-624. Maximum Distance in Arrays
-Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
-integers from two different arrays (each array picks one) and calculate the distance. 
-We define the distance between two integers a and b to be their absolute difference 
-|a-b|. Your task is to find the maximum distance.
-
-Example 1:
-Input: 
-[[1,2,3],
- [4,5],
- [1,2,3]]
-Output: 4
-Explanation: 
-One way to reach the maximum distance 4 is to pick 1 in the first or third array 
-and pick 5 in the second array.
-Note:
-Each given array will have at least 1 number. There will be at least two non-empty arrays.
-The total number of the integers in all the m arrays will be in the range of [2, 10000].
-The integers in the m arrays will be in the range of [-10000, 10000].
-
-/*
-    Submission Date: 2017-06-18
-    Runtime: 32 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-struct Start {
-    int index;
-    int first_value;
-};
-
-struct End {
-    int index;
-    int last_value;
-};
-
-class Solution {
-public:
-    int maxDistance(vector<vector<int>>& arrays) {
-        int N = arrays.size();
-        vector<Start> v;
-        vector<End> v2;
-        for(int i = 0; i < N; i++) {
-            Start e = {i, arrays[i][0]};
-            End e2 = {i, arrays[i].back()};
-            v.push_back(e);
-            v2.push_back(e2);
-        }
-
-        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
-        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
-
-        int max_dist = -1;
-        int max_search = N;
-
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < max_search; j++) {
-                if(v[i].index != v2[j].index) {
-                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
-                    max_search = j;
-                    break;
-                }
-            }
-        }
-        return max_dist;
-    }
-};
-
-int main() {
     return 0;
 }

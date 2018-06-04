@@ -449,6 +449,70 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+690. Employee Importance
+You are given a data structure of employee information, which includes the employee's unique id, 
+his importance value and his direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
+importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
+[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
+employee and all his subordinates.
+
+Example 1:
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
+So the total importance value of employee 1 is 5 + 3 + 3 = 11.
+Note:
+One employee has at most one direct leader and may have several subordinates.
+The maximum number of employees won't exceed 2000.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 135 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Employee {
+public:
+    // It's the unique ID of each node.
+    // unique id of this employee
+    int id;
+    // the importance value of this employee
+    int importance;
+    // the id of direct subordinates
+    vector<int> subordinates;
+};
+
+class Solution {
+public:
+    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
+        int res = employees[id_to_ind[id]]->importance;
+        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
+            res += dfs(e, id_to_ind, employees);
+        return res;
+    }
+
+    int getImportance(vector<Employee*> employees, int id) {
+        unordered_map<int, int> id_to_ind;
+        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
+        
+        return dfs(id, id_to_ind, employees);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 692. Top K Frequent Words
 Given a non-empty list of words, return the k most frequent elements.
 
@@ -920,85 +984,6 @@ public:
             if(can_use) res.push_back(i);
         }
         
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-762. Prime Number of Set Bits in Binary Representation
-Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
-their binary representation.
-
-(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
-10101 which has 3 set bits. Also, 1 is not a prime.)
-
-Example 1:
-
-Input: L = 6, R = 10
-Output: 4
-Explanation:
-6 -> 110 (2 set bits, 2 is prime)
-7 -> 111 (3 set bits, 3 is prime)
-9 -> 1001 (2 set bits , 2 is prime)
-10->1010 (2 set bits , 2 is prime)
-Example 2:
-
-Input: L = 10, R = 15
-Output: 5
-Explanation:
-10 -> 1010 (2 set bits, 2 is prime)
-11 -> 1011 (3 set bits, 3 is prime)
-12 -> 1100 (2 set bits, 2 is prime)
-13 -> 1101 (3 set bits, 3 is prime)
-14 -> 1110 (3 set bits, 3 is prime)
-15 -> 1111 (4 set bits, 4 is not prime)
-Note:
-
-L, R will be integers L <= R in the range [1, 10^6].
-R - L will be at most 10000.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 105 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    int numbits(int x) {
-        int res = 0;
-        while(x) {
-            x &= (x-1);
-            res++;
-        }
-        return res;
-    }
-public:
-    /*
-        the number of bits for a number i = number of bits for i/2 + the last bit of i
-        e.g 10101 = number of bits for 1010 + last bit which is 1
-    */
-    int countPrimeSetBits(int L, int R) {
-        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-        unordered_map<int,int> n_to_bits;
-        int res = 0;
-        for(int i = L; i <= R; i++) {
-            int bits;
-            if(n_to_bits.count(i)) {
-                bits = n_to_bits[i/2] + (i % 2);
-            } else {
-                bits = numbits(i);
-            }
-            n_to_bits[i] = bits;
-            res += primes.count(bits);
-        }
         return res;
     }
 };

@@ -1,3 +1,4 @@
+#include <bitset>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -25,85 +26,43 @@ using namespace std;
 
 typedef long long ll;
 
-// you can use includes, for example:
-// #include <algorithm>
-
-// you can write to stdout for debugging purposes, e.g.
-// cout << "this is a debug message" << endl;
-
-#include <queue>
-
-struct TreeNode {
-    int val;
-    vector<TreeNode*> children;
-    TreeNode(int x) : val(x) {}
+struct Compare {
+    bool operator()(const int& left, const int& right) const { return left < right; }
 };
 
-void preorder(TreeNode* root) {
-    if(root == NULL) {
-        cout << "null" << endl;
-        return;
-    }
-    cout << (root -> val) << endl;
-    for(auto c: root -> children) preorder(c);
+
+double my_root(int x, double epsilon=1e-9) {
+    if(x < 0) return -1;
+    double xn = 0;
+    double xn_plus_1 = x;
+    while(abs(xn - xn_plus_1) >= epsilon) {
+        xn = xn_plus_1;
+        xn_plus_1 = (xn + x/xn)/2.0;
+    } 
+
+    return xn_plus_1;
 }
 
-int longestChain(TreeNode* root, int x) {
-    if(root == NULL) return 0;
-    if(root -> val == x) {
-        int child_chain = 0;
-        for(auto c: root -> children) child_chain = max(child_chain, longestChain(c, x));
-        return 1 + child_chain;
-    }
-    
-    return 0;
+void isqrt(int x){
+    int xn = 0;
+    int xn_plus_1 = x;
+    while(abs(xn - xn_plus_1) > 1) {
+        xn = xn_plus_1;
+        xn_plus_1 = (xn + x/xn)/2;
+    } 
+
 }
 
-/*
-longest path of root with val of x is either the longest path in each of its
-sub trees or the two longest chain of its subtrees that connect with root and 
-have the value of x
-*/
-typedef priority_queue<int> MaxHeap;
-int longestPath(TreeNode* root) {
-    if(root == NULL) return 0;
-    int res = 1;
-    for(auto c: root -> children) res = max(res, longestPath(c));
-    
-    int x = root -> val;
-    MaxHeap max_heap;
-    for(auto c: root -> children) max_heap.push(longestChain(c, x));
-    
-    int M = max_heap.size();
-    for(int i = 0; i < min(2, M); i++) {
-        res += max_heap.top();
-        max_heap.pop();
+bool isprime(int x) {
+    if(x < 2) return false;
+    for(int i = 2; i <= sqrt(x); i++) {
+        if(x % i == 0) return false;
     }
-    
-    return res;
-}
-
-int solution(vector<int> &A, vector<int> &E) {
-    // write your code in C++14 (g++ 6.2.0)
-    vector<TreeNode*> nodes;
-    for(auto e: A) nodes.push_back(new TreeNode(e));
-    
-    for(int i = 0; i < E.size(); i += 2) {
-        int from = E[i] - 1;
-        int to = E[i + 1] - 1;
-        nodes[from] -> children.push_back(nodes[to]);
-    }
-    
-    TreeNode* root = nodes[0];
-    // preorder(root);
-    int longest_path_nodes = longestPath(root);
-    return longest_path_nodes - 1;
+    return true;
 }
 
 int main() {
-    vector<int> a,b;
-    a = {1,1,1,2,2};
-    b = {1,2,1,3,2,4,2,5};
-    cout << solution(a,b) << endl;
     return 0;
 }
+
+

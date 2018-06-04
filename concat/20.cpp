@@ -788,6 +788,51 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+448. Find All Numbers Disappeared in an Array
+Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
+
+Find all the elements of [1, n] inclusive that do not appear in this array.
+
+Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
+
+Example:
+
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[5,6]
+/*
+    Submission Date: 2018-06-04
+    Runtime: 155 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++) {
+            while(nums[nums[i]-1] != nums[i]) swap(nums[nums[i]-1], nums[i]);
+        }
+        
+        vector<int> res;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i + 1 != nums[i]) res.push_back(i+1);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 461. Hamming Distance
 The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
 
@@ -932,50 +977,6 @@ public:
     // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
     int findComplement(int num) {
         return ~num & ((1 << (int)log2(num) + 1) - 1);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-485. Max Consecutive Ones
-Given a binary array, find the maximum number of consecutive 1s in this array.
-
-Example 1:
-Input: [1,1,0,1,1,1]
-Output: 3
-Explanation: The first two digits or the last three digits are consecutive 1s.
-    The maximum number of consecutive 1s is 3.
-Note:
-
-The input array will only contain 0 and 1.
-The length of input array is a positive integer and will not exceed 10,000
-/*
-    Submission Date: 2018-06-03
-    Runtime: 37 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findMaxConsecutiveOnes(vector<int>& nums) {
-        int curr = 0;
-        int res = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            if(nums[i] == 1) {
-                curr++;
-                res = max(res, curr);
-            } else {
-                curr = 0;
-            }
-        }
-        return res;
     }
 };
 

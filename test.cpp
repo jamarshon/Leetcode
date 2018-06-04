@@ -61,53 +61,8 @@ bool isprime(int x) {
     return true;
 }
 
-class Solution {
-    int numbits(int x) {
-        int res = 0;
-        while(x) {
-            x &= (x-1);
-            res++;
-        }
-        return res;
-    }
-
-    int hibit(unsigned int n) {
-        n |= (n >>  1);
-        n |= (n >>  2);
-        n |= (n >>  4);
-        n |= (n >>  8);
-        n |= (n >> 16);
-        return n - (n >> 1);
-    }
-public:
-    int countPrimeSetBits(int L, int R) {
-        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-        unordered_map<int, int> n_to_bits;
-        int res = 0;
-        for(int i = L; i <= R; i++) {
-            int bits;
-            if(n_to_bits.count(i/2)) {
-                if( n_to_bits[i/2] + 1 != numbits(i)) {
-                    cout << i << ' ' << (bitset<32>(i).to_string()) << ' ' << n_to_bits[i/2] << ' ' << numbits(i) << endl;
-                }
-            }
-            if(false && n_to_bits.count(i/2)) {
-                bits = n_to_bits[i/2] + 1;
-            } else {
-                bits = numbits(i);
-            }
-            
-            n_to_bits[i] = bits;
-            res += primes.count(bits);
-        }
-        return res;
-    }
-};
 int main() {
-    Solution s;
-    s.countPrimeSetBits(66, 137);
     return 0;
 }
-
 
 

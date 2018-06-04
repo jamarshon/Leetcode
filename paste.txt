@@ -367,6 +367,7 @@ var d = [
     "766. Toeplitz Matrix",
     "771. Jewels and Stones",
     "784. Letter Case Permutation",
+    "788. Rotated Digits",
     "796. Rotate String",
     "804. Unique Morse Code Words",
     "806. Number of Lines To Write String",

@@ -26,42 +26,70 @@ using namespace std;
 
 typedef long long ll;
 
-struct Compare {
-    bool operator()(const int& left, const int& right) const { return left < right; }
-};
 
+/*
+An integer whose base-ten representation consists only of zero and one is called a  "zero-one".
 
-double my_root(int x, double epsilon=1e-9) {
-    if(x < 0) return -1;
-    double xn = 0;
-    double xn_plus_1 = x;
-    while(abs(xn - xn_plus_1) >= epsilon) {
-        xn = xn_plus_1;
-        xn_plus_1 = (xn + x/xn)/2.0;
-    } 
+ 
 
-    return xn_plus_1;
-}
+Given an arbitrary integer N, find the string S that represents smallest positive "zero-one"  integer which is a multiple of N.  (It is mathematically guaranteed that every N has at least one S).
 
-void isqrt(int x){
-    int xn = 0;
-    int xn_plus_1 = x;
-    while(abs(xn - xn_plus_1) > 1) {
-        xn = xn_plus_1;
-        xn_plus_1 = (xn + x/xn)/2;
-    } 
+ 
 
-}
+Input Format
+One integer, N.
 
-bool isprime(int x) {
-    if(x < 2) return false;
-    for(int i = 2; i <= sqrt(x); i++) {
-        if(x % i == 0) return false;
+ 
+
+Output Format
+Type cast the integer S to a string and return that string.
+
+ 
+
+Constraint:
+0 < N < 100,000
+S should be a zero-one integer as defined above. 
+There should not be any leading zeros.
+
+ 
+
+Sample Input:
+4
+
+Sample Output:
+100
+ */
+typedef long long ll;
+string Zero_One(int num) {
+    unordered_set<ll> visited;
+    queue<pair<string,ll>> q;
+    
+    q.emplace("1", 1);
+    visited.insert(1);
+    
+    string s;
+    ll state;
+    while(!q.empty()) {
+        tie(s, state) = q.front();
+        q.pop();
+        
+        if(state == 0) return s;
+        if(!visited.count((state * 10) % num)) {
+            q.emplace(s + "0", (state * 10) % num);
+            visited.insert(q.back().second);
+        }
+        if(!visited.count((state * 10 + 1) % num)) {
+            q.emplace(s + "1", (state * 10 + 1) % num);
+            visited.insert(q.back().second);
+        }
     }
-    return true;
+    
+    return "";
 }
 
 int main() {
+    long long x = 111111111111111111111111111111111111111111111;
+    cout << x << endl;
     return 0;
 }
 

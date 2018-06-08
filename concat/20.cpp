@@ -833,53 +833,80 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-461. Hamming Distance
-The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
-
-Given two integers x and y, calculate the Hamming distance.
-
-Note:
-0 ≤ x, y < 2^31.
+453. Minimum Moves to Equal Array Elements
+Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
+where a move is incrementing n - 1 elements by 1.
 
 Example:
 
-Input: x = 1, y = 4
+Input:
+[1,2,3]
 
-Output: 2
+Output:
+3
 
 Explanation:
-1   (0 0 0 1)
-4   (0 1 0 0)
-       ↑   ↑
+Only three moves are needed (remember each move increments two elements):
 
-The above arrows point to positions where the corresponding bits are different.
+[1,2,3]  =>  [2,3,3]  =>  [3,4,3]  =>  [4,4,4]
 /*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
+    Submission Date: 2018-06-07
+    Runtime: 51 ms
     Difficulty: EASY
 */
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
 class Solution {
 public:
-    int hammingDistance(int x, int y) {
+    /*
+    increasing everything besides a number is equivalent to decreasing the number by 1
+    so if all the numbers have to be decreased to equal the same
+    value, then they should all be decreased until it reaches the smallest element in 
+    the array
+    
+    e.g 1 4 7
+    the 4 needs to be decreased 3 times and the 7 decreased 6 times to get 
+    (4-1) + (7-1) = 9
+    
+    or
+    
+    let an array be A = {A[0], A[1], A[2], ... A[N]} and Z = {Z[0], Z[1], Z[2], Z[N]}
+    where Z[i] means the number of rows where the element at i is zero then if x is
+    the final value which all the elements equal to then
+    
+    A[0] + Z[1] + Z[2] + ... + Z[N] = x
+    Z[0] + A[1] + Z[2] + ... + Z[N] = x
+    Z[0] + Z[1] + A[2] + ... + Z[N] = x
+    ...
+    
+    subtracting one row from another gets
+    Z[0] - Z[1] + A[1] - A[0] = 0
+    Z[1] - Z[0] = A[1] - A[0]
+    
+    let Z[0] = 0, 
+    Z[i] = A[i] - A[i-1] + Z[i-1]
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + Z[i-2])
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + Z[i-3]))
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + .... -A[1] + (A[1] - A[0] + Z[0])))
+        ...
+        = A[i] + (A[i-1] - A[i-1]) + (A[i-2] - A[i-2]) + .... (A[1] - A[1]) - A[0]
+        = A[i] - A[0]
+    
+    The result is number of rows or sum Z[i] from i = [0, N]
+    Z[i] must be >= 0 as number of rows can't be negative. to minimize then
+    A[i] - A[0] should have A[0] as large as possible with having A[i] become < 0
+    so A[0] should be the smallest in the array as A[min_ind] - A[min_ind] >= 0
+    */
+    int minMoves(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        int min_el = *min_element(nums.begin(), nums.end());
         int res = 0;
-        while(x && y) {
-            res += (x % 2) != (y % 2); // check if last bit are different
-            x /= 2;
-            y /= 2;
-        }
-        
-        while(x) {
-            x &= (x-1); // y is all zeros so just count number of ones in x
-            res++;
-        }
-        
-        while(y) {
-            y &= (y-1); // x is all zeros so just count number of ones in y
-            res++;
+        for(int i = 0; i < nums.size(); i++) {
+            res += nums[i] - min_el;
         }
         
         return res;
@@ -891,92 +918,59 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-463. Island Perimeter
-You are given a map in form of a two-dimensional integer grid where 1 represents land and 0 represents water. 
-Grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, and 
-there is exactly one island (i.e., one or more connected land cells). The island doesn't have "lakes" (water inside that isn't 
-connected to the water around the island). One cell is a square with side length 1. The grid is rectangular, width and height 
-don't exceed 100. Determine the perimeter of the island.
+455. Assign Cookies
+Assume you are an awesome parent and want to give your children some cookies. But, you should give 
+each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that 
+the child will be content with; and each cookie j has a size sj. If sj >= gi, we can assign the cookie j to the 
+child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.
 
-Example:
+Note:
+You may assume the greed factor is always positive. 
+You cannot assign more than one cookie to one child.
 
-[[0,1,0,0],
- [1,1,1,0],
- [0,1,0,0],
- [1,1,0,0]]
+Example 1:
+Input: [1,2,3], [1,1]
 
-Answer: 16
-Explanation: The perimeter is the 16 yellow stripes in the image below:
+Output: 1
 
+Explanation: You have 3 children and 2 cookies. The greed factors of 3 children are 1, 2, 3. 
+And even though you have 2 cookies, since their size is both 1, you could only make the child whose greed factor is 1 content.
+You need to output 1.
+Example 2:
+Input: [1,2], [1,2,3]
+
+Output: 2
+
+Explanation: You have 2 children and 3 cookies. The greed factors of 2 children are 1, 2. 
+You have 3 cookies and their sizes are big enough to gratify all of the children, 
+You need to output 2.
 /*
-    Submission Date: 2018-05-31
-    Runtime: 245 ms
+    Submission Date: 2018-06-08
+    Runtime: 42 ms
     Difficulty: EASY
 */
 #include <iostream>
+#include <algorithm>
 #include <vector>
 
 using namespace std;
 
 class Solution {
-    int dx[4] = {1,-1,0,0};
-    int dy[4] = {0,0,-1,1};
 public:
-    int islandPerimeter(vector<vector<int>>& grid) {
+    int findContentChildren(vector<int>& g, vector<int>& s) {
         int res = 0;
-        for(int i = 0; i < grid.size(); i++) {
-            for(int j = 0; j < grid[0].size(); j++) {
-                if(grid[i][j] == 0) continue;
-                for(int k = 0; k < 4; k++) {
-                    int new_x = dx[k] + j;
-                    int new_y = dy[k] + i;
-                    // if out of bounds or is a zero element, add one
-                    if(new_x < 0 || new_x >= grid[0].size() || new_y < 0 || new_y >= grid.size() || 
-                       grid[new_y][new_x] == 0) {
-                        res++;
-                    }
-                }
-                
-            }
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        
+        int j = 0;
+        for(int i = 0; i < g.size(); i++) {
+            while(j < s.size() && g[i] > s[j]) j++;
+            if(j >= s.size()) break;
+            j++;
+            res++;
         }
+        
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-476. Number Complement
-Given a positive integer, output its complement number. The complement strategy is to flip the bits of its binary representation.
-
-Note:
-The given integer is guaranteed to fit within the range of a 32-bit signed integer.
-You could assume no leading zero bit in the integer’s binary representation.
-Example 1:
-Input: 5
-Output: 2
-Explanation: The binary representation of 5 is 101 (no leading zero bits), and its complement is 010. So you need to output 2.
-Example 2:
-Input: 1
-Output: 0
-Explanation: The binary representation of 1 is 1 (no leading zero bits), and its complement is 0. So you need to output 0.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
-    int findComplement(int num) {
-        return ~num & ((1 << (int)log2(num) + 1) - 1);
     }
 };
 

@@ -1,6 +1,435 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+561. Array Partition I
+Given an array of 2n integers, your task is to group these integers into n pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) 
+which makes sum of min(ai, bi) for all i from 1 to n as large as possible.
+
+Example 1:
+Input: [1,4,3,2]
+
+Output: 4
+Explanation: n is 2, and the maximum sum of pairs is 4 = min(1, 2) + min(3, 4).
+Note:
+n is a positive integer, which is in the range of [1, 10000].
+All the integers in the array will be in the range of [-10000, 10000].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 85 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+     for a pair ai and bi where bi is not used, it means bi should be the smallest element > ai
+     in order to maximize the rest of the result
+    */
+    int arrayPairSum(vector<int>& nums) {
+        int res = 0;
+        sort(nums.begin(), nums.end());
+        for(int i = 0; i < nums.size(); i+= 2) res += nums[i];
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+563. Binary Tree Tilt
+Given a binary tree, return the tilt of the whole tree.
+
+The tilt of a tree node is defined as the absolute difference between the sum of all left subtree node values and 
+the sum of all right subtree node values. Null node has tilt 0.
+
+The tilt of the whole tree is defined as the sum of all nodes' tilt.
+
+Example:
+Input: 
+         1
+       /   \
+      2     3
+Output: 1
+Explanation: 
+Tilt of node 2 : 0
+Tilt of node 3 : 0
+Tilt of node 1 : |2-3| = 1
+Tilt of binary tree : 0 + 0 + 1 = 1
+Note:
+
+The sum of node values in any subtree won't exceed the range of 32-bit integer.
+All the tilt values won't exceed the range of 32-bit integer.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    returns the sum of subtree with node as root
+    */
+    int help(TreeNode* node, int& res) {
+        if(node == NULL) return 0;
+        int left = help(node->left, res);
+        int right = help(node->right, res);
+        res += abs(left - right);
+        return node->val + left + right;
+    }
+    
+    int findTilt(TreeNode* root) {
+        int res = 0;
+        help(root, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+565. Array Nesting
+A zero-indexed array A consisting of N different integers is given. The array contains 
+all integers in the range [0, N - 1].
+
+Sets S[K] for 0 <= K < N are defined as follows:
+
+S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+
+Sets S[K] are finite for each K and should NOT contain duplicates.
+
+Write a function that given an array A consisting of N integers, return the size of 
+the largest set S[K] for this array.
+
+Example 1:
+Input: A = [5,4,0,3,1,6,2]
+Output: 4
+Explanation: 
+A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
+
+One of the longest S[K]:
+S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
+Note:
+N is an integer within the range [1, 20,000].
+The elements of A are all distinct.
+Each element of array A is an integer within the range [0, N-1].
+/*
+    Submission Date: 2017-05-29
+    Runtime: 36 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int arrayNesting(vector<int>& nums) {
+        int N = nums.size();
+        vector<bool> mask(N, true);
+        int max_set = 0;
+        for(int i = 0; i < N; i++) {
+            if(mask[i]) { // hasn't been processed
+                int current = i;
+                int current_set = 0;
+                while(true) {
+                    if(current >= N || !mask[current]) break;
+                    mask[current] = false;
+                    current = nums[current];
+                    current_set++;
+                }
+                max_set = max(current_set, max_set);
+            }
+        }
+        return max_set;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+566. Reshape the Matrix
+In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
+
+You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
+the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example 1:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+Output: 
+[[1,2,3,4]]
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+Example 2:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 2, c = 4
+Output: 
+[[1,2],
+ [3,4]]
+Explanation:
+There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
+Note:
+The height and width of the given matrix is in range [1, 100].
+The given r and c are all positive.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+        if(nums.empty()) return {};
+        int N = nums.size();
+        int M = nums[0].size();
+        
+        // cannot gain or lose elements
+        if(N*M != r*c) return nums;
+        
+        vector<vector<int>> res(r, vector<int>(c));
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < r; i++) {
+            for(int j = 0; j < c; j++) {
+                res[i][j] = nums[y][x];
+                x++;
+                if(x == M) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+567. Permutation in String
+Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
+one of the first string's permutations is the substring of the second string.
+Example 1:
+Input:s1 = "ab" s2 = "eidbaooo"
+Output:True
+Explanation: s2 contains one permutation of s1 ("ba").
+Example 2:
+Input:s1= "ab" s2 = "eidboaoo"
+Output: False
+Note:
+The input strings only contain lower case letters.
+The length of both given strings is in range [1, 10,000].
+/*
+    Submission Date: 2018-06-02
+    Runtime: 18 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    frequency map of s1 with variable to_use as global to check if everything equals 0
+    use sliding window where everything in a window is a valid character and does not 
+    exceed the frequency map limit for certain character
+    for a new character, if it exceeds the limit or its not a valid character than keep
+    moving front (restoring freq map). if it is not a valid character, the map will be
+    restored and to_do = original
+    Check if character is valid, if it is use it else move front so that it is not
+    included
+    */
+    bool checkInclusion(string s1, string s2) {
+        vector<int> freq(26 , 0);
+        unordered_set<char> letters(s1.begin(), s1.end());
+        for(const auto& c: s1) freq[c - 'a']++;
+        
+        int front = 0;
+        int back = 0;
+        
+        int N = s2.size();
+        int to_use = s1.size();
+        
+        while(back < N) {
+            if(to_use == 0) return true;
+            // slide the front until the letter is removed
+            int back_val = s2[back] - 'a';
+            while(front < back && freq[back_val] == 0) {
+                freq[s2[front] - 'a']++;
+                front++;
+                to_use++;
+            }
+            
+            /* if the back letter is in s1, decrease the frequency and to_use
+                else it means front == back as freq[s2[back]] == 0 so increase front 
+                to not include this letter
+            */
+            if(letters.count(s2[back])) {
+                freq[back_val]--;
+                to_use--;
+            } else {
+                front++;
+            }
+            
+            back++;
+        }
+        
+        return to_use == 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+575. Distribute Candies
+Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
+Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
+sister. Return the maximum number of kinds of candies the sister could gain.
+Example 1:
+Input: candies = [1,1,2,2,3,3]
+Output: 3
+Explanation:
+There are three different kinds of candies (1, 2 and 3), and two candies for each kind.
+Optimal distribution: The sister has candies [1,2,3] and the brother has candies [1,2,3], too. 
+The sister has three different kinds of candies. 
+Example 2:
+Input: candies = [1,1,2,3]
+Output: 2
+Explanation: For example, the sister has candies [2,3] and the brother has candies [1,1]. 
+The sister has two different kinds of candies, the brother has only one kind of candies. 
+Note:
+
+The length of the given array is in range [2, 10,000], and will be even.
+The number in given array is in range [-100,000, 100,000].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 247 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    // Count the number of distinct candies. Return the min of this and the max size of the array which is candies.size()/2.
+    int distributeCandies(vector<int>& candies) {
+        unordered_set<int> st(candies.begin(), candies.end());
+        return min(candies.size()/2, st.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+581. Shortest Unsorted Continuous Subarray
+Given an integer array, you need to find one continuous subarray that if you only sort this 
+subarray in ascending order, then the whole array will be sorted in ascending order, too.
+
+You need to find the shortest such subarray and output its length.
+
+Input: [2, 6, 4, 8, 10, 9, 15]
+Output: 5
+Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
+sorted in ascending order.
+
+Note:
+Then length of the input array is in range [1, 10,000].
+The input array may contain duplicates, so ascending order here means <=.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 52 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int findUnsortedSubarray(vector<int>& nums) {
+            int N = nums.size();
+            vector<int> cpy(N);
+            copy(nums.begin(), nums.end(), cpy.begin());
+            sort(nums.begin(), nums.end());
+
+            int i;
+            for(i = 0; i < N; i++) {
+                if(nums[i] != cpy[i]) break;
+            }
+
+            int j;
+            for(j = N-1; j >= 0; j--) {
+                if(nums[j] != cpy[j]) break;
+            }
+
+        return max(j - i + 1, 0);
+    }
+};
+
+int main() {
+    Solution s;
+    vector<int> v{2, 6, 4, 8, 10, 9, 15};
+    cout << s.findUnsortedSubarray(v);
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 582. Kill Process
 Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
 
@@ -582,403 +1011,5 @@ int main() {
     vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
     vector<string> t = s.findRestaurant(v1, v2);
     cout << t.size() << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-606. Construct String from Binary Tree
-You need to construct a string consists of parenthesis and integers from a 
-binary tree with the preorder traversing way.
-
-The null node needs to be represented by empty parenthesis pair "()". And you 
-need to omit all the empty parenthesis pairs that don't affect the one-to-one 
-mapping relationship between the string and the original binary tree.
-
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
-
-Output: "1(2(4))(3)"
-
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
-
-Output: "1(2()(4))(3)"
-
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one 
-mapping relationship between the input and the output.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string tree2str(TreeNode* t) {
-        if(t == NULL) return "";
-        string root = to_string(t -> val);
-        string left = tree2str(t -> left);
-        string right = tree2str(t -> right);
-        
-        if(left.empty() && right.empty())
-            return root;
-        if(!left.empty() && right.empty())
-            return root + "(" + left + ")";
-        
-        return root + "(" + left + ")" + "(" + right + ")";
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-609. Find Duplicate File in System
-Given a list of directory info including directory path, and all the files 
-with contents in this directory, you need to find out all the groups of 
-duplicate files in the file system in terms of their paths.
-
-A group of duplicate files consists of at least two files that have exactly 
-the same content.
-
-A single directory info string in the input list has the following format:
-
-"root/d1/d2/.../dm f1.txt(f1_content) f2.txt(f2_content) ... fn.txt(fn_content)"
-
-It means there are n files (f1.txt, f2.txt ... fn.txt with content f1_content, 
-f2_content ... fn_content, respectively) in directory root/d1/d2/.../dm. Note 
-that n >= 1 and m >= 0. If m = 0, it means the directory is just the root 
-directory.
-
-The output is a list of group of duplicate file paths. For each group, it 
-contains all the file paths of the files that have the same content. A 
-file path is a string that has the following format:
-
-"directory_path/file_name.txt"
-
-Example 1:
-Input:
-["root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)", 
-"root 4.txt(efgh)"]
-Output:  
-[["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
-
-Note:
-No order is required for the final output.
-
-You may assume the directory name, file name and file content only has letters 
-and digits, and the length of file content is in the range of [1,50].
-
-The number of files given is in the range of [1,20000].
-
-You may assume no files or directories share the same name in the same directory.
-
-You may assume each given directory info represents a unique directory. Directory 
-path and file info are separated by a single blank space.
-
-Follow-up beyond contest:
-Imagine you are given a real file system, how will you search files? DFS or BFS?
-
-If the file content is very large (GB level), how will you modify your solution?
-
-If you can only read the file by 1kb each time, how will you modify your solution?
-
-What is the time complexity of your modified solution? 
-
-What is the most time-consuming part and memory consuming part of it? 
-
-How to optimize?
-
-How to make sure the duplicated files you find are not false positive?
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
-    pair<string, string> getContent(string& s) {
-        int bracket_ind = s.rfind("(") + 1;
-        string content = s.substr(bracket_ind, s.size() - bracket_ind - 1);
-        string filename = s.substr(0, bracket_ind - 1);
-        return make_pair(filename, content);
-    }
-public:
-    vector<vector<string>> findDuplicate(vector<string>& paths) {
-        // key content, value file
-        unordered_map<string, vector<string>> m;
-        for(string path: paths) {
-            stringstream ss(path);
-            string token;
-            string dir = "";
-            while(getline(ss, token, ' ')) {
-                if(dir.empty()) {
-                    dir = token;
-                } else {
-                    string file = token;
-                    pair<string, string> p = getContent(file);
-                    if(m.count(p.second)) {
-                        m[p.second].push_back(dir + "/" + p.first);
-                    } else {
-                        m[p.second] = {dir + "/" + p.first};
-                    }
-                }
-            }
-        }
-        
-        vector<vector<string>> res;
-        for(pair<string, vector<string>> p: m) {
-            if(p.second.size() > 1) res.push_back(p.second);
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-611. Valid Triangle Number
-Given an array consists of non-negative integers, your task is to count 
-the number of triplets chosen from the array that can make triangles if we 
-take them as side lengths of a triangle.
-
-Example 1:
-Input: [2,2,3,4]
-Output: 3
-Explanation:
-Valid combinations are: 
-2,3,4 (using the first 2)
-2,3,4 (using the second 2)
-2,2,3
-Note:
-The length of the given array won't exceed 1000.
-The integers in the given array are in the range of [0, 1000].
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 442 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int triangleNumber(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
-        
-        int count = 0;
-        int len = nums.size();
-        for(int i = 0; i < len; i++) {
-            if(nums[i] == 0) continue;
-            for(int j = i + 1; j < len; j++) {
-                int sum = nums[i] + nums[j];
-                vector<int>::iterator it = lower_bound(nums.begin(), nums.end(), sum);
-                
-                int index = it - nums.begin() - 1;
-                count += max(index - j, 0);
-                // cout << index << ' '  << j << ' ' <<count<< endl;
-            }
-        }
-        return count;
-    }
-};
-
-int main() {
     return 0;
 }

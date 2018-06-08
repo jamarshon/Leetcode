@@ -13,6 +13,7 @@ N is a positive integer and won't exceed 10,000.
 All the scores of athletes are guaranteed to be unique.
 /*
     Submission Date: 2018-06-08
+    Runtime: 24 ms
     Difficulty: EASY
 */
 #include <iostream>

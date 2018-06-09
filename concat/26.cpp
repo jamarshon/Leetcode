@@ -1,6 +1,212 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+671. Second Minimum Node In a Binary Tree
+Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in 
+this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes.
+
+Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
+
+If no such second minimum value exists, output -1 instead.
+
+Example 1:
+Input: 
+    2
+   / \
+  2   5
+     / \
+    5   7
+
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+Example 2:
+Input: 
+    2
+   / \
+  2   2
+
+Output: -1
+Explanation: The smallest value is 2, but there isn't any second smallest value.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    bfs that once reaches a different node->val than root->val will stop putting that node's
+    children. result is the minimum of all these first encountered different node-> val
+    */
+    int findSecondMinimumValue(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        int res = INT_MAX;
+        bool seen_others = false;
+        
+        while(!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
+            if(node->val == root->val) {
+                if(node->left) q.push(node->left);
+                if(node->right) q.push(node->right);
+            } else {
+                // found node that does not equal root->val, no need to go deeper as they will be >= node->val
+                res = min(res, node->val);
+                seen_others = true;
+            }
+        }
+        
+        return seen_others ? res : -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+674. Longest Continuous Increasing Subsequence
+Given an unsorted array of integers, find the length of longest continuous increasing subsequence (subarray).
+
+Example 1:
+Input: [1,3,5,4,7]
+Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
+Even though [1,3,5,7] is also an increasing subsequence, it's not a continuous one where 5 and 7 are separated by 4. 
+Example 2:
+Input: [2,2,2,2,2]
+Output: 1
+Explanation: The longest continuous increasing subsequence is [2], its length is 1. 
+Note: Length of the array will not exceed 10,000.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 14 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        
+        int res = 1;
+        int pos_res = 1;
+        for(int i = 1; i < nums.size(); i++) {
+            if(nums[i] > nums[i-1]) {
+                pos_res++;
+            } else {
+                pos_res = 1;
+            }
+            res = max(res, pos_res);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+676. Implement Magic Dictionary
+
+Implement a magic directory with buildDict, and search methods.
+
+For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
+
+For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
+character in this word, the modified word is in the dictionary you just built.
+
+Example 1:
+Input: buildDict(["hello", "leetcode"]), Output: Null
+Input: search("hello"), Output: False
+Input: search("hhllo"), Output: True
+Input: search("hell"), Output: False
+Input: search("leetcoded"), Output: False
+Note:
+You may assume that all the inputs are consist of lowercase letters a-z.
+For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
+Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
+across multiple test cases. Please see here for more details.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class MagicDictionary {
+public:
+    /** Initialize your data structure here. */
+    unordered_map<string, vector<pair<char, int>>> m_;
+    MagicDictionary() {
+        
+    }
+    
+    /** Build a dictionary through a list of words */
+    void buildDict(vector<string> dict) {
+        /*
+            N words of size K O(Nk^2)
+            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
+        */
+        m_.clear();
+        for(const auto& s: dict) {
+            for(int i = 0; i < s.size(); i++) {
+                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
+            }
+        }
+        
+    }
+    
+    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
+    bool search(string s) {
+        // O(k^2*M) where M is size of vector for a key in m_
+        for(int i = 0; i < s.size(); i++) {
+            const auto& key = s.substr(0,i) + s.substr(i+1);
+            if(!m_.count(key)) continue;
+            for(const auto& p: m_[key]) {
+                // looking for same index different letter
+                if(p.second == i && p.first != s[i]) return true;
+            }
+        }
+        return false;
+    }
+};
+
+/**
+ * Your MagicDictionary object will be instantiated and called as such:
+ * MagicDictionary obj = new MagicDictionary();
+ * obj.buildDict(dict);
+ * bool param_2 = obj.search(word);
+ */
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 682. Baseball Game
 You're now a baseball game point recorder.
 
@@ -770,226 +976,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-733. Flood Fill
-An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
-
-Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, 
-"flood fill" the image.
-
-To perform a "flood fill", consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color 
-as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), 
-and so on. Replace the color of all of the aforementioned pixels with the newColor.
-
-At the end, return the modified image.
-
-Example 1:
-Input: 
-image = [[1,1,1],[1,1,0],[1,0,1]]
-sr = 1, sc = 1, newColor = 2
-Output: [[2,2,2],[2,2,0],[2,0,1]]
-Explanation: 
-From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected 
-by a path of the same color as the starting pixel are colored with the new color.
-Note the bottom corner is not colored 2, because it is not 4-directionally connected
-to the starting pixel.
-Note:
-
-The length of image and image[0] will be in the range [1, 50].
-The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc < image[0].length.
-The value of each color in image[i][j] and newColor will be an integer in [0, 65535].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 57 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    int dx[4] = {1, -1, 0, 0};
-    int dy[4] = {0, 0, 1, -1};
-public:
-    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor) {
-        if(image.empty()) return {};
-        queue<pair<int,int>> q;
-        unordered_set<string> visited;
-        
-        int N = image.size();
-        int M = image[0].size();
-        int original_color = image[sr][sc];
-        
-        q.emplace(sr, sc);
-        visited.insert(to_string(sr) + "," + to_string(sc));
-        while(!q.empty()) {
-            pair<int,int> p = q.front();
-            q.pop();
-            image[p.first][p.second] = newColor;
-            
-            for(int k = 0; k < 4; k++) {
-                int new_row = p.first + dy[k];
-                int new_col = p.second + dx[k];
-                if(0 <= new_row && new_row < N && 0 <= new_col && new_col < M && image[new_row][new_col] == original_color) {
-                    string key = to_string(new_row) + "," + to_string(new_col);
-                    if(!visited.count(key)) {
-                        q.emplace(new_row, new_col);
-                        visited.insert(key);
-                    }
-                }
-            }
-        }
-        
-        return image;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-762. Prime Number of Set Bits in Binary Representation
-Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
-their binary representation.
-
-(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
-10101 which has 3 set bits. Also, 1 is not a prime.)
-
-Example 1:
-
-Input: L = 6, R = 10
-Output: 4
-Explanation:
-6 -> 110 (2 set bits, 2 is prime)
-7 -> 111 (3 set bits, 3 is prime)
-9 -> 1001 (2 set bits , 2 is prime)
-10->1010 (2 set bits , 2 is prime)
-Example 2:
-
-Input: L = 10, R = 15
-Output: 5
-Explanation:
-10 -> 1010 (2 set bits, 2 is prime)
-11 -> 1011 (3 set bits, 3 is prime)
-12 -> 1100 (2 set bits, 2 is prime)
-13 -> 1101 (3 set bits, 3 is prime)
-14 -> 1110 (3 set bits, 3 is prime)
-15 -> 1111 (4 set bits, 4 is not prime)
-Note:
-
-L, R will be integers L <= R in the range [1, 10^6].
-R - L will be at most 10000.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 105 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    int numbits(int x) {
-        int res = 0;
-        while(x) {
-            x &= (x-1);
-            res++;
-        }
-        return res;
-    }
-public:
-    /*
-        the number of bits for a number i = number of bits for i/2 + the last bit of i
-        e.g 10101 = number of bits for 1010 + last bit which is 1
-    */
-    int countPrimeSetBits(int L, int R) {
-        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-        unordered_map<int,int> n_to_bits;
-        int res = 0;
-        for(int i = L; i <= R; i++) {
-            int bits;
-            if(n_to_bits.count(i)) {
-                bits = n_to_bits[i/2] + (i % 2);
-            } else {
-                bits = numbits(i);
-            }
-            n_to_bits[i] = bits;
-            res += primes.count(bits);
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-766. Toeplitz Matrix
-A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
-
-Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
- 
-
-Example 1:
-
-Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
-Output: True
-Explanation:
-1234
-5123
-9512
-
-In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each 
-diagonal all elements are the same, so the answer is True.
-Example 2:
-
-Input: matrix = [[1,2],[2,2]]
-Output: False
-Explanation:
-The diagonal "[1, 2]" has different elements.
-Note:
-
-matrix will be a 2D array of integers.
-matrix will have a number of rows and columns in range [1, 20].
-matrix[i][j] will be integers in range [0, 99].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isToeplitzMatrix(vector<vector<int>>& matrix) {
-        if(matrix.empty()) return true;
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        for(int i = 1; i < N; i++) {
-            for(int j = 1; j < M; j++) {
-                if(matrix[i][j] != matrix[i-1][j-1]) return false;
-            }
-        }
-        
-        return true;
     }
 };
 

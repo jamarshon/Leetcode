@@ -1,6 +1,245 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+633. Sum of Square Numbers
+Given a non-negative integer c, your task is to decide whether there're two integers a and b such that a2 + b2 = c.
+
+Example 1:
+Input: 5
+Output: True
+Explanation: 1 * 1 + 2 * 2 = 5
+Example 2:
+Input: 3
+Output: False
+/*
+    Submission Date: 2018-05-30
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+/*
+    use newton's method to find roots where xn_plus_1 = (xn + x/xn)/2
+*/
+class Solution2 {
+    bool is_square(int x){
+        if(x < 0) return -1;
+        int xn = 0;
+        int xn_plus_1 = x;
+        while(abs(xn - xn_plus_1) > 1) {
+            xn = xn_plus_1;
+            xn_plus_1 = (xn + x/xn)/2;
+        } 
+
+        return xn*xn == x || xn_plus_1*xn_plus_1 == x;
+    }
+    
+public:
+    bool judgeSquareSum(int c) {
+        for(int i = 0; i <= sqrt(c); i++) {
+            if(is_square(c - i*i)) return true;
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    /*
+        two pointers. if a^2 + b^2 > c then increasing a will not help so decrease b
+        if it is < c then decreasing b will not help so increase a
+    */
+    bool judgeSquareSum(int c) {
+        int low = 0;
+        int high = sqrt(c);
+        while(low <= high) {
+            int x = low * low + high * high;
+            if(x == c) return true;
+            if(x < c) {
+                low++;
+            } else {
+                high--;
+            }
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+636. Exclusive Time of Functions
+Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
+find the exclusive time of these functions.
+
+Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
+another function.
+
+A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
+means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
+very end of time 0.
+
+Exclusive time of a function is defined as the time spent within this function, the time spent by 
+calling other functions should not be considered as this function's exclusive time. You should 
+return the exclusive time of each function sorted by their function id.
+
+Example 1:
+Input:
+n = 2
+logs = 
+["0:start:0",
+ "1:start:2",
+ "1:end:5",
+ "0:end:6"]
+Output:[3, 4]
+Explanation:
+Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
+Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
+Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
+So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
+Note:
+Input logs will be sorted by timestamp, NOT log id.
+Your output should be sorted by function id, which means the 0th element of your output corresponds 
+to the exclusive time of function 0.
+Two functions won't start or end at the same time.
+Functions could be called recursively, and will always end.
+1 <= n <= 100
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 63 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <sstream>
+#include <cassert>
+
+using namespace std;
+
+struct Log {
+    int id;
+    string status;
+    int timestamp;
+};
+
+class Solution {
+public:
+    vector<int> exclusiveTime(int n, vector<string>& logs) {
+        vector<int> times(n, 0);
+        stack<Log> st;
+        for(string log: logs) {
+            stringstream ss(log);
+            string temp, temp2, temp3;
+            getline(ss, temp, ':');
+            getline(ss, temp2, ':');
+            getline(ss, temp3, ':');
+
+            Log item = {stoi(temp), temp2, stoi(temp3)};
+            if(item.status == "start") {
+                st.push(item);
+            } else {
+                assert(st.top().id == item.id);
+
+                int time_added = item.timestamp - st.top().timestamp + 1;
+                times[item.id] += item.timestamp - st.top().timestamp + 1;
+                st.pop();
+
+                if(!st.empty()) {
+                    assert(st.top().status == "start");
+                    times[st.top().id] -= time_added;
+                }
+            }
+        }
+
+        return times;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+637. Average of Levels in Binary Tree
+Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
+
+Example 1:
+Input:
+    3
+   / \
+  9  20
+    /  \
+   15   7
+Output: [3, 14.5, 11]
+Explanation:
+The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
+[3, 14.5, 11].
+Note:
+The range of node's value is in the range of 32-bit signed integer.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 22 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<double> averageOfLevels(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        vector<double> res;
+        
+        while(!q.empty()) {
+            int size = q.size();
+            int size1 = 0;
+            double sum = 0;
+            for(int i = 0; i < size; i++) {
+                TreeNode* f = q.front();
+                if(f) {
+                    sum += f -> val;
+                    size1++;
+                    q.push(f -> left);
+                    q.push(f -> right);
+                }
+                
+                q.pop();
+            }
+            if(size1)
+            res.push_back(sum/size1);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 638. Shopping Offers
 In LeetCode Store, there are some kinds of items to sell. Each item has a price.
 
@@ -723,179 +962,6 @@ public:
         }
 
         return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-652. Find Duplicate Subtrees
-Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
-return the root node of any one of them.
-
-Two trees are duplicate if they have the same structure with same node values.
-
-Example 1: 
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-The following are two duplicate subtrees:
-      2
-     /
-    4
-and
-    4
-Therefore, you need to return above trees' root in the form of a list.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 45 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
-        if(root != NULL) {
-            string left = preorder(root -> left, freq, res);
-            string right = preorder(root -> right, freq, res);
-            
-            string str = to_string(root -> val) + " " + left + right;
-            
-            if(freq[str] == 1) res.push_back(root);
-            freq[str]++;
-            return str;
-        } else {
-            return "null ";
-        }
-    }
-    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        unordered_map<string, int> freq;
-        vector<TreeNode*> res;
-        preorder(root, freq, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-653. Two Sum IV - Input is a BST
-Given a Binary Search Tree and a target number, return true if there exist two 
-elements in the BST such that their sum is equal to the given target.
-
-Example 1:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 9
-
-Output: True
-Example 2:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 28
-
-Output: False
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-    unordered_map<int, vector<TreeNode*>> visited;
-public:
-    bool findTarget(TreeNode* root, int k) {
-        if(root == NULL) return false;
-        int target = k - (root -> val);
-        
-        if(visited.count(target)) {
-            for(auto l: visited[target]) {
-                if(l != root) return true;
-            }
-        }
-        
-        TreeNode* curr = root;
-        while(curr) {
-            if(curr != root && curr -> val == target) return true;
-            visited[curr -> val].push_back(curr);
-            if(curr -> val > target) {
-                curr = curr -> right;
-            } else {
-                curr = curr -> left;
-            }
-        }
-        
-        return findTarget(root -> left, k) || findTarget(root -> right, k);
-    }
-};
-
-class Solution {
-public:
-    void inorder(TreeNode* curr, vector<int>& res) {
-        if(curr == NULL) return;
-        inorder(curr -> left, res);
-        res.push_back(curr -> val);
-        inorder(curr -> right, res);
-    }
-    bool findTarget(TreeNode* root, int k) {
-        vector<int> sorted_arr;
-        inorder(root, sorted_arr);
-        int low = 0;
-        int high = sorted_arr.size() - 1;
-        
-        while(low < high) {
-            int sum = sorted_arr[low] + sorted_arr[high];
-            if(sum == k) return true;
-            if(sum < k) low++;
-            else high--;
-        }
-        return false;
     }
 };
 

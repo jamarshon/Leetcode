@@ -1,6 +1,179 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+652. Find Duplicate Subtrees
+Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
+return the root node of any one of them.
+
+Two trees are duplicate if they have the same structure with same node values.
+
+Example 1: 
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+The following are two duplicate subtrees:
+      2
+     /
+    4
+and
+    4
+Therefore, you need to return above trees' root in the form of a list.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 45 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
+        if(root != NULL) {
+            string left = preorder(root -> left, freq, res);
+            string right = preorder(root -> right, freq, res);
+            
+            string str = to_string(root -> val) + " " + left + right;
+            
+            if(freq[str] == 1) res.push_back(root);
+            freq[str]++;
+            return str;
+        } else {
+            return "null ";
+        }
+    }
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        unordered_map<string, int> freq;
+        vector<TreeNode*> res;
+        preorder(root, freq, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
+public:
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
+        
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
+            }
+        }
+        
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
+            }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 654. Maximum Binary Tree
 Given an integer array with no duplicates. A maximum tree building on this array is defined as 
 follow:
@@ -450,6 +623,77 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+661. Image Smoother
+Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
+scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
+less than 8 surrounding cells, then use as many as you can.
+
+Example 1:
+Input:
+[[1,1,1],
+ [1,0,1],
+ [1,1,1]]
+Output:
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+Explanation:
+For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
+For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
+For the point (1,1): floor(8/9) = floor(0.88888889) = 0
+Note:
+The value in the given matrix is in the range of [0, 255].
+The length and width of the given matrix are in the range of [1, 150].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 178 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
+        int sum = 0;
+        int points = 0;
+        for(int k = -1; k <= 1; k++) {
+            for(int l = -1; l <= 1; l++) {
+                int new_i = i + k;
+                int new_j = j + l;
+                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
+                    points++;
+                    sum += A[new_i][new_j];
+                }
+            }
+        }
+        
+        return sum/points;
+    }
+    
+    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
+        if(A.empty()) return A;
+        int N = A.size();
+        int M = A[0].size();
+        
+        vector<vector<int>> res(N, vector<int>(M));
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                res[i][j] = help(A, i, j, N, M);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 662. Maximum Width of Binary Tree
 Given a binary tree, write a function to get the maximum width of the 
 given tree. The width of a tree is the maximum width among all levels. 
@@ -717,245 +961,6 @@ public:
  * obj.buildDict(dict);
  * bool param_2 = obj.search(word);
  */
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-682. Baseball Game
-You're now a baseball game point recorder.
-
-Given a list of strings, each string can be one of the 4 following types:
-
-Integer (one round's score): Directly represents the number of points you get in this round.
-"+" (one round's score): Represents that the points you get in this round are the sum of the last two valid round's points.
-"D" (one round's score): Represents that the points you get in this round are the doubled data of the last valid round's points.
-"C" (an operation, which isn't a round's score): Represents the last valid round's points you get were invalid and should be removed.
-Each round's operation is permanent and could have an impact on the round before and the round after.
-
-You need to return the sum of the points you could get in all the rounds.
-
-Example 1:
-Input: ["5","2","C","D","+"]
-Output: 30
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get 2 points. The sum is: 7.
-Operation 1: The round 2's data was invalid. The sum is: 5.  
-Round 3: You could get 10 points (the round 2's data has been removed). The sum is: 15.
-Round 4: You could get 5 + 10 = 15 points. The sum is: 30.
-Example 2:
-Input: ["5","-2","4","C","D","9","+","+"]
-Output: 27
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get -2 points. The sum is: 3.
-Round 3: You could get 4 points. The sum is: 7.
-Operation 1: The round 3's data is invalid. The sum is: 3.  
-Round 4: You could get -4 points (the round 3's data has been removed). The sum is: -1.
-Round 5: You could get 9 points. The sum is: 8.
-Round 6: You could get -4 + 9 = 5 points. The sum is 13.
-Round 7: You could get 9 + 5 = 14 points. The sum is 27.
-Note:
-The size of the input list will be between 1 and 1000.
-Every integer represented in the list will be between -30000 and 30000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cassert>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    let stk be all the valid round points. if it is a number just add it as a round and increment res by the amount
-    if it is a "+", take the last two rounds add add them up. put the sum as a round and increment res by the amount
-    if it is a "D", take the last round, multiply it by two and add it as a around and increment res by the amount
-    if it is a "C", take the last round and decrease res by the amount as well as pop that round off.
-    */
-    int calPoints(vector<string>& ops) {
-        int res = 0; 
-        vector<int> stk;
-        for(const auto& s: ops) {
-            int stk_size = stk.size();
-            if(s == "+") {
-                assert(stk_size >= 2);
-                stk.push_back(stk[stk_size-1] + stk[stk_size-2]);
-                res += stk.back();
-            } else if(s == "D") {
-                assert(stk_size >= 1);
-                stk.push_back(stk[stk_size-1] * 2);
-                res += stk.back();
-            } else if(s == "C") {
-                res -= stk.back();
-                stk.pop_back();
-            } else { // a number
-                stk.push_back(stoi(s));
-                res += stk.back();
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-687. Longest Univalue Path
-Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
-
-Note: The length of path between two nodes is represented by the number of edges between them.
-
-Example 1:
-
-Input:
-
-              5
-             / \
-            4   5
-           / \   \
-          1   1   5
-Output:
-
-2
-Example 2:
-
-Input:
-
-              1
-             / \
-            4   5
-           / \   \
-          4   4   5
-Output:
-
-2
-Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 112 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-        N by returning the longest path that starts from this node where a path is straight down where all
-        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
-        value as this node.
-        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
-        and right have the same value as this node as it means there is a path for the left and a path for
-        the right which creates a upside down v shape.
-    */
-    int solve(TreeNode* root, int& res) {
-        if(!root) return 0;
-        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
-        int pos_res = 1;
-        int longest_path_starting_at_node = 0;
-        
-        if(root->left && root->left->val == root->val) {
-            pos_res += longest_path_starting_at_child[0];
-            longest_path_starting_at_node = longest_path_starting_at_child[0];
-        }
-        if(root->right && root->right->val == root->val) {
-            pos_res += longest_path_starting_at_child[1];
-            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
-        }
-
-        res = max(res, pos_res);
-        return 1 + longest_path_starting_at_node;
-    }
-
-    int longestUnivaluePath(TreeNode* root) {
-        int res = 1;
-        solve(root, res);
-        return res - 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-690. Employee Importance
-You are given a data structure of employee information, which includes the employee's unique id, 
-his importance value and his direct subordinates' id.
-
-For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
-importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
-[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
-
-Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
-employee and all his subordinates.
-
-Example 1:
-Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
-Output: 11
-Explanation:
-Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
-So the total importance value of employee 1 is 5 + 3 + 3 = 11.
-Note:
-One employee has at most one direct leader and may have several subordinates.
-The maximum number of employees won't exceed 2000.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 135 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Employee {
-public:
-    // It's the unique ID of each node.
-    // unique id of this employee
-    int id;
-    // the importance value of this employee
-    int importance;
-    // the id of direct subordinates
-    vector<int> subordinates;
-};
-
-class Solution {
-public:
-    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
-        int res = employees[id_to_ind[id]]->importance;
-        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
-            res += dfs(e, id_to_ind, employees);
-        return res;
-    }
-
-    int getImportance(vector<Employee*> employees, int id) {
-        unordered_map<int, int> id_to_ind;
-        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
-        
-        return dfs(id, id_to_ind, employees);
-    }
-};
 
 int main() {
     return 0;

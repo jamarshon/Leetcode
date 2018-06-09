@@ -1,6 +1,245 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+682. Baseball Game
+You're now a baseball game point recorder.
+
+Given a list of strings, each string can be one of the 4 following types:
+
+Integer (one round's score): Directly represents the number of points you get in this round.
+"+" (one round's score): Represents that the points you get in this round are the sum of the last two valid round's points.
+"D" (one round's score): Represents that the points you get in this round are the doubled data of the last valid round's points.
+"C" (an operation, which isn't a round's score): Represents the last valid round's points you get were invalid and should be removed.
+Each round's operation is permanent and could have an impact on the round before and the round after.
+
+You need to return the sum of the points you could get in all the rounds.
+
+Example 1:
+Input: ["5","2","C","D","+"]
+Output: 30
+Explanation: 
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get 2 points. The sum is: 7.
+Operation 1: The round 2's data was invalid. The sum is: 5.  
+Round 3: You could get 10 points (the round 2's data has been removed). The sum is: 15.
+Round 4: You could get 5 + 10 = 15 points. The sum is: 30.
+Example 2:
+Input: ["5","-2","4","C","D","9","+","+"]
+Output: 27
+Explanation: 
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get -2 points. The sum is: 3.
+Round 3: You could get 4 points. The sum is: 7.
+Operation 1: The round 3's data is invalid. The sum is: 3.  
+Round 4: You could get -4 points (the round 3's data has been removed). The sum is: -1.
+Round 5: You could get 9 points. The sum is: 8.
+Round 6: You could get -4 + 9 = 5 points. The sum is 13.
+Round 7: You could get 9 + 5 = 14 points. The sum is 27.
+Note:
+The size of the input list will be between 1 and 1000.
+Every integer represented in the list will be between -30000 and 30000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cassert>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    let stk be all the valid round points. if it is a number just add it as a round and increment res by the amount
+    if it is a "+", take the last two rounds add add them up. put the sum as a round and increment res by the amount
+    if it is a "D", take the last round, multiply it by two and add it as a around and increment res by the amount
+    if it is a "C", take the last round and decrease res by the amount as well as pop that round off.
+    */
+    int calPoints(vector<string>& ops) {
+        int res = 0; 
+        vector<int> stk;
+        for(const auto& s: ops) {
+            int stk_size = stk.size();
+            if(s == "+") {
+                assert(stk_size >= 2);
+                stk.push_back(stk[stk_size-1] + stk[stk_size-2]);
+                res += stk.back();
+            } else if(s == "D") {
+                assert(stk_size >= 1);
+                stk.push_back(stk[stk_size-1] * 2);
+                res += stk.back();
+            } else if(s == "C") {
+                res -= stk.back();
+                stk.pop_back();
+            } else { // a number
+                stk.push_back(stoi(s));
+                res += stk.back();
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+687. Longest Univalue Path
+Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
+
+Note: The length of path between two nodes is represented by the number of edges between them.
+
+Example 1:
+
+Input:
+
+              5
+             / \
+            4   5
+           / \   \
+          1   1   5
+Output:
+
+2
+Example 2:
+
+Input:
+
+              1
+             / \
+            4   5
+           / \   \
+          4   4   5
+Output:
+
+2
+Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 112 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+        N by returning the longest path that starts from this node where a path is straight down where all
+        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
+        value as this node.
+        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
+        and right have the same value as this node as it means there is a path for the left and a path for
+        the right which creates a upside down v shape.
+    */
+    int solve(TreeNode* root, int& res) {
+        if(!root) return 0;
+        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
+        int pos_res = 1;
+        int longest_path_starting_at_node = 0;
+        
+        if(root->left && root->left->val == root->val) {
+            pos_res += longest_path_starting_at_child[0];
+            longest_path_starting_at_node = longest_path_starting_at_child[0];
+        }
+        if(root->right && root->right->val == root->val) {
+            pos_res += longest_path_starting_at_child[1];
+            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
+        }
+
+        res = max(res, pos_res);
+        return 1 + longest_path_starting_at_node;
+    }
+
+    int longestUnivaluePath(TreeNode* root) {
+        int res = 1;
+        solve(root, res);
+        return res - 1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+690. Employee Importance
+You are given a data structure of employee information, which includes the employee's unique id, 
+his importance value and his direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
+importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
+[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
+employee and all his subordinates.
+
+Example 1:
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
+So the total importance value of employee 1 is 5 + 3 + 3 = 11.
+Note:
+One employee has at most one direct leader and may have several subordinates.
+The maximum number of employees won't exceed 2000.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 135 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Employee {
+public:
+    // It's the unique ID of each node.
+    // unique id of this employee
+    int id;
+    // the importance value of this employee
+    int importance;
+    // the id of direct subordinates
+    vector<int> subordinates;
+};
+
+class Solution {
+public:
+    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
+        int res = employees[id_to_ind[id]]->importance;
+        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
+            res += dfs(e, id_to_ind, employees);
+        return res;
+    }
+
+    int getImportance(vector<Employee*> employees, int id) {
+        unordered_map<int, int> id_to_ind;
+        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
+        
+        return dfs(id, id_to_ind, employees);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 692. Top K Frequent Words
 Given a non-empty list of words, return the k most frequent elements.
 
@@ -751,245 +990,6 @@ public:
         }
         
         return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
-Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
-is considered a different type of stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int numJewelsInStones(string J, string S) {
-        unordered_set<char> jewels(J.begin(), J.end());
-        int res = 0;
-        for(const auto& stone: S) res += jewels.count(stone);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-783. Minimum Distance Between BST Nodes
-Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
-values of any two different nodes in the tree.
-
-Example :
-
-Input: root = [4,2,6,1,3,null,null]
-Output: 1
-Explanation:
-Note that root is a TreeNode object, not an array.
-
-The given tree [4,2,6,1,3,null,null] is represented by the following diagram:
-
-          4
-        /   \
-      2      6
-     / \    
-    1   3  
-
-while the minimum difference in this tree is 1, it occurs between node 1 and node 2, also between node 3 and node 2.
-Note:
-
-The size of the BST will be between 2 and 100.
-The BST is always valid, each node's value is an integer, and each node's value is different.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <climits>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    inorder traversal keeping tracking of prev
-    */
-    void help(TreeNode* root, int& res, int& prev) {
-        if(root == NULL) return;
-        help(root->left, res, prev);
-        if(prev != INT_MAX) {
-            res = min(res, root->val - prev);
-        }
-        
-        prev = root->val;
-        help(root->right, res, prev);
-    }
-    
-    int minDiffInBST(TreeNode* root) {
-        int res = INT_MAX, prev = INT_MAX;
-        help(root, res, prev);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-784. Letter Case Permutation
-Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
-Return a list of all possible strings we could create.
-
-Examples:
-Input: S = "a1b2"
-Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
-
-Input: S = "3z4"
-Output: ["3z4", "3Z4"]
-
-Input: S = "12345"
-Output: ["12345"]
-Note:
-
-S will be a string with length at most 12.
-S will consist only of letters or digits.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, vector<string>> dp_;
-public:
-    /*
-     find the first alphabetical letter. get the vector for the remaining string
-     add prefix with the letter lower case and upper case to each element from the vector
-    */
-    vector<string> letterCasePermutation(string S) {
-        if(dp_.count(S)) return dp_[S];
-        
-        int N = S.size();
-        int i = 0;
-        for(; i < N; i++) {
-            if(isalpha(S[i])) break;
-        }
-        
-        if(i >= N) return { S };
-        vector<string> rem = letterCasePermutation(S.substr(i + 1));
-        int M = rem.size();
-        rem.reserve(2*M);
-        
-        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
-        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
-        for(int j = 0; j < M; j++) {
-            rem.push_back(s2 + rem[j]);
-            rem[j] = s1 + rem[j];
-        }
-        return rem;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-788. Rotated Digits
-X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
-Each digit must be rotated - we cannot choose to leave it alone.
-
-A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
-6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
-
-Now given a positive number N, how many numbers X from 1 to N are good?
-
-Example:
-Input: 10
-Output: 4
-Explanation: 
-There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
-Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
-Note:
-
-N  will be in range [1, 10000].
-/*
-    Submission Date: 2018-06-04
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
-    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
-    without the last number and rot[i % 10] gets the rotated version of the last number
-    of i
-    */
-    int rotatedDigits(int N) {
-        vector<int> dp(N + 1, -1);
-        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
-                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
-        int res = 0;
-        for(int i = 1; i <= N; i++) {
-            if(!rot.count(i % 10)) continue;
-            if(i < 10) {
-                dp[i] = rot[i];
-                res += dp[i] != i;
-            } else {
-                if(dp[i/10] == -1) continue;
-                dp[i] = dp[i/10] * 10 + rot[i % 10];
-                res += dp[i] != i;
-            }
-        }
-        return res;
     }
 };
 

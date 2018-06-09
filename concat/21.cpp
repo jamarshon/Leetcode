@@ -1,6 +1,152 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+453. Minimum Moves to Equal Array Elements
+Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
+where a move is incrementing n - 1 elements by 1.
+
+Example:
+
+Input:
+[1,2,3]
+
+Output:
+3
+
+Explanation:
+Only three moves are needed (remember each move increments two elements):
+
+[1,2,3]  =>  [2,3,3]  =>  [3,4,3]  =>  [4,4,4]
+/*
+    Submission Date: 2018-06-07
+    Runtime: 51 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    increasing everything besides a number is equivalent to decreasing the number by 1
+    so if all the numbers have to be decreased to equal the same
+    value, then they should all be decreased until it reaches the smallest element in 
+    the array
+    
+    e.g 1 4 7
+    the 4 needs to be decreased 3 times and the 7 decreased 6 times to get 
+    (4-1) + (7-1) = 9
+    
+    or
+    
+    let an array be A = {A[0], A[1], A[2], ... A[N]} and Z = {Z[0], Z[1], Z[2], Z[N]}
+    where Z[i] means the number of rows where the element at i is zero then if x is
+    the final value which all the elements equal to then
+    
+    A[0] + Z[1] + Z[2] + ... + Z[N] = x
+    Z[0] + A[1] + Z[2] + ... + Z[N] = x
+    Z[0] + Z[1] + A[2] + ... + Z[N] = x
+    ...
+    
+    subtracting one row from another gets
+    Z[0] - Z[1] + A[1] - A[0] = 0
+    Z[1] - Z[0] = A[1] - A[0]
+    
+    let Z[0] = 0, 
+    Z[i] = A[i] - A[i-1] + Z[i-1]
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + Z[i-2])
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + Z[i-3]))
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + .... -A[1] + (A[1] - A[0] + Z[0])))
+        ...
+        = A[i] + (A[i-1] - A[i-1]) + (A[i-2] - A[i-2]) + .... (A[1] - A[1]) - A[0]
+        = A[i] - A[0]
+    
+    The result is number of rows or sum Z[i] from i = [0, N]
+    Z[i] must be >= 0 as number of rows can't be negative. to minimize then
+    A[i] - A[0] should have A[0] as large as possible with having A[i] become < 0
+    so A[0] should be the smallest in the array as A[min_ind] - A[min_ind] >= 0
+    */
+    int minMoves(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        int min_el = *min_element(nums.begin(), nums.end());
+        int res = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            res += nums[i] - min_el;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+455. Assign Cookies
+Assume you are an awesome parent and want to give your children some cookies. But, you should give 
+each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that 
+the child will be content with; and each cookie j has a size sj. If sj >= gi, we can assign the cookie j to the 
+child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.
+
+Note:
+You may assume the greed factor is always positive. 
+You cannot assign more than one cookie to one child.
+
+Example 1:
+Input: [1,2,3], [1,1]
+
+Output: 1
+
+Explanation: You have 3 children and 2 cookies. The greed factors of 3 children are 1, 2, 3. 
+And even though you have 2 cookies, since their size is both 1, you could only make the child whose greed factor is 1 content.
+You need to output 1.
+Example 2:
+Input: [1,2], [1,2,3]
+
+Output: 2
+
+Explanation: You have 2 children and 3 cookies. The greed factors of 2 children are 1, 2. 
+You have 3 cookies and their sizes are big enough to gratify all of the children, 
+You need to output 2.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 42 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        int res = 0;
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        
+        int j = 0;
+        for(int i = 0; i < g.size(); i++) {
+            while(j < s.size() && g[i] > s[j]) j++;
+            if(j >= s.size()) break;
+            j++;
+            res++;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 461. Hamming Distance
 The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
 
@@ -812,205 +958,6 @@ public:
         node -> right = str2tree(rightExpression);
 
         return node;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-538. Convert BST to Greater Tree
-Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
-original key plus sum of all keys greater than the original key in BST.
-
-Example:
-
-Input: The root of a Binary Search Tree like this:
-              5
-            /   \
-           2     13
-
-Output: The root of a Greater Tree like this:
-             18
-            /   \
-          20     13
-/*
-    Submission Date: 2018-06-07
-    Runtime:  ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    reverse inorder traversal with curr storing the sum of all elements greater than current node
-    */
-    void help(TreeNode* node, int& curr) {
-        if(node == NULL) return;
-        help(node->right, curr);
-        node->val += curr;
-        curr = node->val;
-        help(node->left, curr);
-    }
-    TreeNode* convertBST(TreeNode* root) {
-        int curr = 0;
-        help(root, curr);
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-539. Minimum Time Difference
-Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
-minutes difference between any two time points in the list.
-
-Example 1:
-Input: ["23:59","00:00"]
-Output: 1
-
-Note:
-The number of time points in the given list is at least 2 and won't exceed 20000.
-The input time is legal and ranges from 00:00 to 23:59.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 43 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <limits.h>
-#include <algorithm>
-
-class Solution {
-public:
-    // Assume time b is larger than a
-    int getDifference(string a, string b) {
-        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
-        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
-        return hours*60 + minutes;
-    }
-
-    int findMinDifference(vector<string>& timePoints) {
-        sort(timePoints.begin(), timePoints.end());
-        int minDiff = INT_MAX;
-        int len = timePoints.size();
-
-        for(int i = 1; i < len; i++) {
-            int diff = getDifference(timePoints[i-1], timePoints[i]);
-            if(diff < minDiff) minDiff = diff;
-        }
-
-        string firstTimePoint = timePoints.front();
-        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
-        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
-        int wrapDiff = getDifference(timePoints.back(), wrap);
-
-        if(wrapDiff < minDiff) minDiff = wrapDiff;
-        return minDiff;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-541. Reverse String II
-Given a string and an integer k, you need to reverse the first k characters for every 2k 
-characters counting from the start of the string. If there are less than k characters left, 
-reverse all of them. If there are less than 2k but greater than or equal to k characters, 
-then reverse the first k characters and left the other as original.
-
-Example:
-Input: s = "abcdefg", k = 2
-Output: "bacdfeg"
-
-Restrictions:
-The string consists of lower English letters only.
-Length of the given string and k will in the range [1, 10000]
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 26 ms
-    Difficulty: EASY
-*/
-
-using namespace std;
-#include <iostream>
-
-class Solution {
-public:
-    string reverseStr(string s, int k) {
-        string finalStr = "";
-        bool reverse = true;
-        int i = 0, len = s.size();
-        while(i < len) {
-            string currentStr = string(1, s[i++]);
-            while(i%k != 0 && i < len) {
-                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
-                i++;
-            }
-            finalStr += currentStr;
-            reverse ^= true;
-        }
-        
-        return finalStr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-557. Reverse Words in a String III
-Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
-
-Example 1:
-Input: "Let's take LeetCode contest"
-Output: "s'teL ekat edoCteeL tsetnoc"
-Note: In the string, each word is separated by single space and there will not be any extra space in the string.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    // from index 'start', find a space and reverse everything between start and space. change start to space + 1.
-    string reverseWords(string s) {
-        int start = 0;
-        while(s.find(' ', start) != string::npos) {
-            int space_ind = s.find(' ', start);
-            reverse(s.begin() + start, s.begin() + space_ind);
-            start = space_ind + 1;
-        }
-            
-        reverse(s.begin() + start, s.end());
-        return s;
     }
 };
 

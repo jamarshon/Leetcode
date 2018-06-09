@@ -1,6 +1,275 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the 
+four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array 
+with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four 
+equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cassert>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    int distSq(vector<int>& a, vector<int>& b) {
+        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
+    }
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        vector<int> dist;
+        vector<vector<int>> v{p1, p2, p3, p4};
+        for(int i = 0; i < 4; i++) {
+            for(int j = i + 1; j < 4; j++) {
+                dist.push_back(distSq(v[i], v[j]));
+            }
+        }
+
+        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
+        // out of these 6 distances, there are 4 distances which are the side distances (s)
+        // and 2 that are hypotenuse (h)
+        // s^2 + s^2 = h^2
+
+        assert(dist.size() == 6);
+        map<int,int> freq;
+        for(auto e: dist) freq[e]++;
+
+        if(freq.size() != 2) return false;
+        int s = freq.begin() -> first;
+        int h = next(freq.begin(), 1) -> first;
+        return 2*s == h;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+594. Longest Harmonious Subsequence
+We define a harmonious array is an array where the difference between its maximum value and its minimum 
+value is exactly 1.
+
+Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
+its possible subsequences.
+
+Example 1:
+Input: [1,3,2,2,5,2,3,7]
+Output: 5
+Explanation: The longest harmonious subsequence is [3,2,2,2,3].
+Note: The length of the input array will not exceed 20,000.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 109 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        int max_len = 0;
+        for(int d: nums) {
+            int current = 0;
+            if(freq.find(d) != freq.end()) {
+                current += freq[d];
+                freq[d] += 1;
+            } else {
+                freq[d] = 1;
+            }
+
+            int adj = 0;
+            if(freq.find(d-1) != freq.end()) {
+                adj = max(adj, freq[d-1]);
+            }
+
+            if(freq.find(d+1) != freq.end()) {
+                adj = max(adj, freq[d+1]);
+            }
+
+            if(adj == 0) continue;
+            current += adj + 1;
+            max_len = max(current, max_len);
+        }
+        return max_len;
+    }
+};
+
+int main() {
+    vector<int> v{1,3,2,2,5,2,3,7};
+    Solution s;
+    cout << s.findLHS(v) << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+598. Range Addition II
+Given an m * n matrix M initialized with all 0's and several update operations.
+
+Operations are represented by a 2D array, and each operation is represented by an array with 
+two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
+and 0 <= j < b.
+
+You need to count and return the number of maximum integers in the matrix after performing 
+all the operations.
+
+Example 1:
+Input: 
+m = 3, n = 3
+operations = [[2,2],[3,3]]
+Output: 4
+Explanation: 
+Initially, M = 
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+
+After performing [2,2], M = 
+[[1, 1, 0],
+ [1, 1, 0],
+ [0, 0, 0]]
+
+After performing [3,3], M = 
+[[2, 2, 1],
+ [2, 2, 1],
+ [1, 1, 1]]
+
+So the maximum integer in M is 2, and there are four of it in M. So return 4.
+Note:
+The range of m and n is [1,40000].
+The range of a is [1,m], and the range of b is [1,n].
+The range of operations size won't exceed 10,000.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxCount(int m, int n, vector<vector<int>>& ops) {
+        for(vector<int> op: ops) {
+            m = min(m, op[0]);
+            n = min(n, op[1]);
+        }
+        return m*n;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+599. Minimum Index Sum of Two Lists
+Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
+favorite restaurants represented by strings.
+
+You need to help them find out their common interest with the least list index sum. If there 
+is a choice tie between answers, output all of them with no order requirement. You could assume 
+there always exists an answer.
+
+Example 1:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
+Output: ["Shogun"]
+Explanation: The only restaurant they both like is "Shogun".
+Example 2:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["KFC", "Shogun", "Burger King"]
+Output: ["Shogun"]
+Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
+index sum 1 (0+1).
+Note:
+The length of both lists will be in the range of [1, 1000].
+The length of strings in both lists will be in the range of [1, 30].
+The index is starting from 0 to the list length minus 1.
+No duplicates in both lists.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 103 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> m;
+        for(int i = 0; i < list1.size(); i++) {
+            m[list1[i]] = i;
+        }
+        
+        vector<string> res;
+        int min_index_sum = -1;
+        for(int i = 0; i < list2.size(); i++) {
+            string s2 = list2[i];
+            if(m.count(s2)) {
+                int new_sum = i + m[s2];
+                if(min_index_sum == -1) {
+                    min_index_sum = new_sum;
+                    res.push_back(s2);
+                    continue;
+                }
+                
+                if(new_sum == min_index_sum) {
+                    res.push_back(s2);
+                } else if(new_sum < min_index_sum) {
+                    min_index_sum = new_sum;
+                    res.clear();
+                    res.push_back(s2);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
+    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
+    vector<string> t = s.findRestaurant(v1, v2);
+    cout << t.size() << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 604. Design Compressed String Iterator
 Design and implement a data structure for a compressed string iterator. 
 It should support the following operations: next and hasNext.
@@ -705,245 +974,6 @@ public:
         
         // three largest or 1 largest and 2 smallest
         return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-633. Sum of Square Numbers
-Given a non-negative integer c, your task is to decide whether there're two integers a and b such that a2 + b2 = c.
-
-Example 1:
-Input: 5
-Output: True
-Explanation: 1 * 1 + 2 * 2 = 5
-Example 2:
-Input: 3
-Output: False
-/*
-    Submission Date: 2018-05-30
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-/*
-    use newton's method to find roots where xn_plus_1 = (xn + x/xn)/2
-*/
-class Solution2 {
-    bool is_square(int x){
-        if(x < 0) return -1;
-        int xn = 0;
-        int xn_plus_1 = x;
-        while(abs(xn - xn_plus_1) > 1) {
-            xn = xn_plus_1;
-            xn_plus_1 = (xn + x/xn)/2;
-        } 
-
-        return xn*xn == x || xn_plus_1*xn_plus_1 == x;
-    }
-    
-public:
-    bool judgeSquareSum(int c) {
-        for(int i = 0; i <= sqrt(c); i++) {
-            if(is_square(c - i*i)) return true;
-        }
-        return false;
-    }
-};
-
-class Solution {
-public:
-    /*
-        two pointers. if a^2 + b^2 > c then increasing a will not help so decrease b
-        if it is < c then decreasing b will not help so increase a
-    */
-    bool judgeSquareSum(int c) {
-        int low = 0;
-        int high = sqrt(c);
-        while(low <= high) {
-            int x = low * low + high * high;
-            if(x == c) return true;
-            if(x < c) {
-                low++;
-            } else {
-                high--;
-            }
-        }
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-636. Exclusive Time of Functions
-Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
-find the exclusive time of these functions.
-
-Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
-another function.
-
-A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
-means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
-very end of time 0.
-
-Exclusive time of a function is defined as the time spent within this function, the time spent by 
-calling other functions should not be considered as this function's exclusive time. You should 
-return the exclusive time of each function sorted by their function id.
-
-Example 1:
-Input:
-n = 2
-logs = 
-["0:start:0",
- "1:start:2",
- "1:end:5",
- "0:end:6"]
-Output:[3, 4]
-Explanation:
-Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
-Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
-Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
-So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
-Note:
-Input logs will be sorted by timestamp, NOT log id.
-Your output should be sorted by function id, which means the 0th element of your output corresponds 
-to the exclusive time of function 0.
-Two functions won't start or end at the same time.
-Functions could be called recursively, and will always end.
-1 <= n <= 100
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 63 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <sstream>
-#include <cassert>
-
-using namespace std;
-
-struct Log {
-    int id;
-    string status;
-    int timestamp;
-};
-
-class Solution {
-public:
-    vector<int> exclusiveTime(int n, vector<string>& logs) {
-        vector<int> times(n, 0);
-        stack<Log> st;
-        for(string log: logs) {
-            stringstream ss(log);
-            string temp, temp2, temp3;
-            getline(ss, temp, ':');
-            getline(ss, temp2, ':');
-            getline(ss, temp3, ':');
-
-            Log item = {stoi(temp), temp2, stoi(temp3)};
-            if(item.status == "start") {
-                st.push(item);
-            } else {
-                assert(st.top().id == item.id);
-
-                int time_added = item.timestamp - st.top().timestamp + 1;
-                times[item.id] += item.timestamp - st.top().timestamp + 1;
-                st.pop();
-
-                if(!st.empty()) {
-                    assert(st.top().status == "start");
-                    times[st.top().id] -= time_added;
-                }
-            }
-        }
-
-        return times;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-637. Average of Levels in Binary Tree
-Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
-
-Example 1:
-Input:
-    3
-   / \
-  9  20
-    /  \
-   15   7
-Output: [3, 14.5, 11]
-Explanation:
-The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
-[3, 14.5, 11].
-Note:
-The range of node's value is in the range of 32-bit signed integer.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<double> averageOfLevels(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        vector<double> res;
-        
-        while(!q.empty()) {
-            int size = q.size();
-            int size1 = 0;
-            double sum = 0;
-            for(int i = 0; i < size; i++) {
-                TreeNode* f = q.front();
-                if(f) {
-                    sum += f -> val;
-                    size1++;
-                    q.push(f -> left);
-                    q.push(f -> right);
-                }
-                
-                q.pop();
-            }
-            if(size1)
-            res.push_back(sum/size1);
-        }
-        
-        return res;
     }
 };
 

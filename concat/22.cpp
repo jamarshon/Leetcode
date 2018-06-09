@@ -1,6 +1,262 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+538. Convert BST to Greater Tree
+Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
+original key plus sum of all keys greater than the original key in BST.
+
+Example:
+
+Input: The root of a Binary Search Tree like this:
+              5
+            /   \
+           2     13
+
+Output: The root of a Greater Tree like this:
+             18
+            /   \
+          20     13
+/*
+    Submission Date: 2018-06-07
+    Runtime:  ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    reverse inorder traversal with curr storing the sum of all elements greater than current node
+    */
+    void help(TreeNode* node, int& curr) {
+        if(node == NULL) return;
+        help(node->right, curr);
+        node->val += curr;
+        curr = node->val;
+        help(node->left, curr);
+    }
+    TreeNode* convertBST(TreeNode* root) {
+        int curr = 0;
+        help(root, curr);
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+539. Minimum Time Difference
+Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
+minutes difference between any two time points in the list.
+
+Example 1:
+Input: ["23:59","00:00"]
+Output: 1
+
+Note:
+The number of time points in the given list is at least 2 and won't exceed 20000.
+The input time is legal and ranges from 00:00 to 23:59.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 43 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <limits.h>
+#include <algorithm>
+
+class Solution {
+public:
+    // Assume time b is larger than a
+    int getDifference(string a, string b) {
+        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
+        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
+        return hours*60 + minutes;
+    }
+
+    int findMinDifference(vector<string>& timePoints) {
+        sort(timePoints.begin(), timePoints.end());
+        int minDiff = INT_MAX;
+        int len = timePoints.size();
+
+        for(int i = 1; i < len; i++) {
+            int diff = getDifference(timePoints[i-1], timePoints[i]);
+            if(diff < minDiff) minDiff = diff;
+        }
+
+        string firstTimePoint = timePoints.front();
+        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
+        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
+        int wrapDiff = getDifference(timePoints.back(), wrap);
+
+        if(wrapDiff < minDiff) minDiff = wrapDiff;
+        return minDiff;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+541. Reverse String II
+Given a string and an integer k, you need to reverse the first k characters for every 2k 
+characters counting from the start of the string. If there are less than k characters left, 
+reverse all of them. If there are less than 2k but greater than or equal to k characters, 
+then reverse the first k characters and left the other as original.
+
+Example:
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+
+Restrictions:
+The string consists of lower English letters only.
+Length of the given string and k will in the range [1, 10000]
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 26 ms
+    Difficulty: EASY
+*/
+
+using namespace std;
+#include <iostream>
+
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string finalStr = "";
+        bool reverse = true;
+        int i = 0, len = s.size();
+        while(i < len) {
+            string currentStr = string(1, s[i++]);
+            while(i%k != 0 && i < len) {
+                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
+                i++;
+            }
+            finalStr += currentStr;
+            reverse ^= true;
+        }
+        
+        return finalStr;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+543. Diameter of Binary Tree
+Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary 
+tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+
+Example:
+Given a binary tree 
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
+
+Note: The length of path between two nodes is represented by the number of edges between them.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    returns the height of a node so height(root) = 1 + max(height(left), height(right))
+    res can be updated to 2 + height(left) + height(right) as the longest path in the left
+    and right go through this node.
+    */
+    int help(TreeNode* root, int& res) {
+        if(root == NULL) return -1;
+        int left = help(root->left, res);
+        int right = help(root->right, res);
+        res = max(res, 2 + left + right);
+        return 1 + max(left, right);
+    }
+    
+    int diameterOfBinaryTree(TreeNode* root) {
+        int res = 0;
+        help(root, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+557. Reverse Words in a String III
+Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+
+Example 1:
+Input: "Let's take LeetCode contest"
+Output: "s'teL ekat edoCteeL tsetnoc"
+Note: In the string, each word is separated by single space and there will not be any extra space in the string.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    // from index 'start', find a space and reverse everything between start and space. change start to space + 1.
+    string reverseWords(string s) {
+        int start = 0;
+        while(s.find(' ', start) != string::npos) {
+            int space_ind = s.find(' ', start);
+            reverse(s.begin() + start, s.begin() + space_ind);
+            start = space_ind + 1;
+        }
+            
+        reverse(s.begin() + start, s.end());
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 561. Array Partition I
 Given an array of 2n integers, your task is to group these integers into n pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) 
 which makes sum of min(ai, bi) for all i from 1 to n as large as possible.
@@ -742,274 +998,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the 
-four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array 
-with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four 
-equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cassert>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    int distSq(vector<int>& a, vector<int>& b) {
-        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
-    }
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        vector<int> dist;
-        vector<vector<int>> v{p1, p2, p3, p4};
-        for(int i = 0; i < 4; i++) {
-            for(int j = i + 1; j < 4; j++) {
-                dist.push_back(distSq(v[i], v[j]));
-            }
-        }
-
-        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
-        // out of these 6 distances, there are 4 distances which are the side distances (s)
-        // and 2 that are hypotenuse (h)
-        // s^2 + s^2 = h^2
-
-        assert(dist.size() == 6);
-        map<int,int> freq;
-        for(auto e: dist) freq[e]++;
-
-        if(freq.size() != 2) return false;
-        int s = freq.begin() -> first;
-        int h = next(freq.begin(), 1) -> first;
-        return 2*s == h;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-594. Longest Harmonious Subsequence
-We define a harmonious array is an array where the difference between its maximum value and its minimum 
-value is exactly 1.
-
-Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
-its possible subsequences.
-
-Example 1:
-Input: [1,3,2,2,5,2,3,7]
-Output: 5
-Explanation: The longest harmonious subsequence is [3,2,2,2,3].
-Note: The length of the input array will not exceed 20,000.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 109 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLHS(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        int max_len = 0;
-        for(int d: nums) {
-            int current = 0;
-            if(freq.find(d) != freq.end()) {
-                current += freq[d];
-                freq[d] += 1;
-            } else {
-                freq[d] = 1;
-            }
-
-            int adj = 0;
-            if(freq.find(d-1) != freq.end()) {
-                adj = max(adj, freq[d-1]);
-            }
-
-            if(freq.find(d+1) != freq.end()) {
-                adj = max(adj, freq[d+1]);
-            }
-
-            if(adj == 0) continue;
-            current += adj + 1;
-            max_len = max(current, max_len);
-        }
-        return max_len;
-    }
-};
-
-int main() {
-    vector<int> v{1,3,2,2,5,2,3,7};
-    Solution s;
-    cout << s.findLHS(v) << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-598. Range Addition II
-Given an m * n matrix M initialized with all 0's and several update operations.
-
-Operations are represented by a 2D array, and each operation is represented by an array with 
-two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
-and 0 <= j < b.
-
-You need to count and return the number of maximum integers in the matrix after performing 
-all the operations.
-
-Example 1:
-Input: 
-m = 3, n = 3
-operations = [[2,2],[3,3]]
-Output: 4
-Explanation: 
-Initially, M = 
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-
-After performing [2,2], M = 
-[[1, 1, 0],
- [1, 1, 0],
- [0, 0, 0]]
-
-After performing [3,3], M = 
-[[2, 2, 1],
- [2, 2, 1],
- [1, 1, 1]]
-
-So the maximum integer in M is 2, and there are four of it in M. So return 4.
-Note:
-The range of m and n is [1,40000].
-The range of a is [1,m], and the range of b is [1,n].
-The range of operations size won't exceed 10,000.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxCount(int m, int n, vector<vector<int>>& ops) {
-        for(vector<int> op: ops) {
-            m = min(m, op[0]);
-            n = min(n, op[1]);
-        }
-        return m*n;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
-favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index sum. If there 
-is a choice tie between answers, output all of them with no order requirement. You could assume 
-there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
-index sum 1 (0+1).
-Note:
-The length of both lists will be in the range of [1, 1000].
-The length of strings in both lists will be in the range of [1, 30].
-The index is starting from 0 to the list length minus 1.
-No duplicates in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-        unordered_map<string, int> m;
-        for(int i = 0; i < list1.size(); i++) {
-            m[list1[i]] = i;
-        }
-        
-        vector<string> res;
-        int min_index_sum = -1;
-        for(int i = 0; i < list2.size(); i++) {
-            string s2 = list2[i];
-            if(m.count(s2)) {
-                int new_sum = i + m[s2];
-                if(min_index_sum == -1) {
-                    min_index_sum = new_sum;
-                    res.push_back(s2);
-                    continue;
-                }
-                
-                if(new_sum == min_index_sum) {
-                    res.push_back(s2);
-                } else if(new_sum < min_index_sum) {
-                    min_index_sum = new_sum;
-                    res.clear();
-                    res.push_back(s2);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
-    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
-    vector<string> t = s.findRestaurant(v1, v2);
-    cout << t.size() << endl;
     return 0;
 }

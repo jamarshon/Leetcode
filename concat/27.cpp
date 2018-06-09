@@ -203,6 +203,74 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+747. Largest Number At Least Twice of Others
+In a given integer array nums, there is always exactly one largest element.
+
+Find whether the largest element in the array is at least twice as much as every other number in the array.
+
+If it is, return the index of the largest element, otherwise return -1.
+
+Example 1:
+
+Input: nums = [3, 6, 1, 0]
+Output: 1
+Explanation: 6 is the largest integer, and for every other number in the array x,
+6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
+ 
+
+Example 2:
+
+Input: nums = [1, 2, 3, 4]
+Output: -1
+Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
+ 
+
+Note:
+
+nums will have a length in the range [1, 50].
+Every nums[i] will be an integer in the range [0, 99].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    priority queue minheap to get the 2 largest element along with their index
+    compare if the largest element is > second largest element * 2 then return index of largest element
+    else -1
+    */
+    typedef pair<int,int> pii;
+    int dominantIndex(vector<int>& nums) {
+        if(nums.empty()) return -1;
+        
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        for(int i = 0; i < nums.size(); i++) {
+            pq.emplace(nums[i], i);
+            if(pq.size() > 2) pq.pop();
+        }
+        
+        int top_ind = pq.top().second;
+        pq.pop();
+        
+        if(pq.empty()) return top_ind;
+        
+        return nums[top_ind] > nums[pq.top().second]/2 ? -1 : pq.top().second;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 762. Prime Number of Set Bits in Binary Representation
 Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
 their binary representation.
@@ -887,77 +955,6 @@ public:
             }
         }
         return res/2.0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-819. Most Common Word
-Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
-It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
-
-Words in the list of banned words are given in lowercase, and free of punctuation.  Words in the paragraph are not case sensitive.  
-The answer is in lowercase.
-
-Example:
-Input: 
-paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
-banned = ["hit"]
-Output: "ball"
-Explanation: 
-"hit" occurs 3 times, but it is a banned word.
-"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
-Note that words in the paragraph are not case sensitive,
-that punctuation is ignored (even if adjacent to words, such as "ball,"), 
-and that "hit" isn't the answer even though it occurs more because it is banned.
- 
-
-Note:
-
-1 <= paragraph.length <= 1000.
-1 <= banned.length <= 100.
-1 <= banned[i].length <= 10.
-The answer is unique, and written in lowercase (even if its occurrences in paragraph may have uppercase symbols, and 
-even if it is a proper noun.)
-paragraph only consists of letters, spaces, or the punctuation symbols !?',;.
-Different words in paragraph are always separated by a space.
-There are no hyphens or hyphenated words.
-Words only consist of letters, never apostrophes or other punctuation symbols.
-/*
-    Submission Date: 2018-06-04
-    Runtime:  ms
-    Difficulty: 
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
-public:
-    string mostCommonWord(string paragraph, vector<string>& banned) {
-        unordered_set<string> banned_set(banned.begin(), banned.end());
-        unordered_map<string,int> freq;
-        
-        stringstream ss(paragraph);
-        string temp;
-        
-        string res = "";
-        while(getline(ss, temp, ' ')) {
-            for(int i = 0; i < temp.size(); i++) temp[i] = tolower(temp[i]);
-            while(!temp.empty() && !isalpha(temp.back())) temp.pop_back();
-            if(banned_set.count(temp)) continue;
-            freq[temp]++;
-            if(res.empty() || freq[res] < freq[temp]) res = temp;
-        }
-        
-        return res;
     }
 };
 

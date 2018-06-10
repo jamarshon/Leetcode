@@ -1,6 +1,295 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+647. Palindromic Substrings
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even 
+they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Note:
+The input string length won't exceed 1000.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int Manacher(string s) {
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+
+        for(auto c: s) str += string(1, c) + kNullChar;
+
+        string max_str = "";
+        int len = str.size();
+        int right = 0;
+        int center = 0;
+        vector<int> dp(len, 0);
+
+        for(int i = 1; i < len; i++) {
+            int mirr = 2*center - i;
+
+            // i is within right so can take the minimum of the mirror or distance from right
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirr]);
+            }
+
+            // keep expanding around i while it is the same and increment P[i]
+            int left_index = i - (1 + dp[i]);
+            int right_index = i + (1 + dp[i]);
+            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
+                left_index--;
+                right_index++;
+                dp[i]++;
+            }
+
+            // i goes beyond current right so it is the new center
+            if(i + dp[i] > right) {
+                center = i;
+                right = i + dp[i];
+            }
+        }
+        
+        int count = 0;
+        for(int i = 0; i < len; i++) {
+            count += ceil((double)dp[i]/2.0);
+        }
+        return count;
+    }
+
+    int countSubstrings(string s) {
+        return Manacher(s);
+    }
+
+    int countSubstrings2(string s) {
+        int res = 0;
+        int N = s.size();
+        int left, right;
+        for(int i = 0; i < N; i++) {
+            res++;
+            
+            // treat as odd
+            left = i - 1;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+            
+            // treat as even
+            left = i;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+648. Replace Words
+In English, we have a concept called root, which can be followed by some other words to form another 
+longer word - let's call this word successor. For example, the root an, followed by other, which can 
+form another word another.
+
+Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
+in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
+root with the shortest length.
+
+You need to output the sentence after the replacement.
+
+Example 1:
+Input: dict = ["cat", "bat", "rat"]
+sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+Note:
+The input will only have lower-case letters.
+1 <= dict words number <= 1000
+1 <= sentence words number <= 1000
+1 <= root length <= 100
+1 <= sentence words length <= 1000
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 159 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    string replaceWords(vector<string>& dict, string sentence) {
+        unordered_set<string> ds(dict.begin(), dict.end());
+        set<int> word_size;
+        for(auto ds_e: ds) {
+            word_size.insert(ds_e.size());
+        }
+
+        stringstream ss(sentence);
+        string temp;
+
+        vector<string> res;
+        while(getline(ss, temp, ' ')) {
+            bool found = false;
+            for(auto len: word_size) {
+                if(len > temp.size()) {
+                    res.push_back(temp);
+                    found = true;
+                    break;
+                } else {
+                    if(ds.count(temp.substr(0, len))) {
+                        res.push_back(temp.substr(0, len));
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!found) {
+                res.push_back(temp);
+            }
+        }
+
+        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
+            return memo.empty() ? a : memo + " " + a;
+        });
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+649. Dota2 Senate
+In the world of Dota2, there are two parties: the Radiant and the Dire.
+
+The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
+a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
+can exercise one of the two rights:
+
+Ban one senator's right: 
+A senator can make another senator lose all his rights in this and all the following rounds.
+Announce the victory: 
+If this senator found the senators who still have rights to vote are all from the same party, he can announce 
+the victory and make the decision about the change in the game.
+Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
+party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
+
+The round-based procedure starts from the first senator to the last senator in the given order. This 
+procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
+during the procedure.
+
+Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
+which party will finally announce the victory and make the change in the Dota2 game. The output should be 
+Radiant or Dire.
+
+Example 1:
+Input: "RD"
+Output: "Radiant"
+Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights any more since his right has been banned. 
+And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Example 2:
+Input: "RDD"
+Output: "Dire"
+Explanation: 
+The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights anymore since his right has been banned. 
+And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
+And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Note:
+The length of the given string will in the range [1, 10,000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        while(!senate.empty()) {
+            for(int i = 0; i < senate.size();) {
+                char curr = senate[i];
+                int j = i;
+                for(; j < senate.size(); j++) {
+                    if(senate[j] != curr) {
+                        break;
+                    }
+                }
+            
+                if(j == senate.size()) {
+                    j = 0;
+                    for(; j < i; j++) {
+                        if(senate[j] != curr) {
+                            break;
+                        }
+                    }
+
+                    if(j == i) {
+                        if(curr == 'R') return "Radiant";
+                        return "Dire";
+                    } else {
+                        senate = senate.substr(0, j) + senate.substr(j + 1);
+                    }
+                } else {
+                    senate = senate.substr(0, j) + senate.substr(j + 1);
+                    i++;
+                }
+            }
+        }
+        return "";
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 650. 2 Keys Keyboard
 Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
 for each step:
@@ -675,269 +964,6 @@ public:
     }
 };
 
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-661. Image Smoother
-Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
-scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
-less than 8 surrounding cells, then use as many as you can.
-
-Example 1:
-Input:
-[[1,1,1],
- [1,0,1],
- [1,1,1]]
-Output:
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-Explanation:
-For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
-For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
-For the point (1,1): floor(8/9) = floor(0.88888889) = 0
-Note:
-The value in the given matrix is in the range of [0, 255].
-The length and width of the given matrix are in the range of [1, 150].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 178 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
-        int sum = 0;
-        int points = 0;
-        for(int k = -1; k <= 1; k++) {
-            for(int l = -1; l <= 1; l++) {
-                int new_i = i + k;
-                int new_j = j + l;
-                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
-                    points++;
-                    sum += A[new_i][new_j];
-                }
-            }
-        }
-        
-        return sum/points;
-    }
-    
-    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
-        if(A.empty()) return A;
-        int N = A.size();
-        int M = A[0].size();
-        
-        vector<vector<int>> res(N, vector<int>(M));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[i][j] = help(A, i, j, N, M);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-662. Maximum Width of Binary Tree
-Given a binary tree, write a function to get the maximum width of the 
-given tree. The width of a tree is the maximum width among all levels. 
-The binary tree has the same structure as a full binary tree, but some 
-nodes are null.
-
-The width of one level is defined as the length between the end-nodes 
-(the leftmost and right most non-null nodes in the level, where the null 
-nodes between the end-nodes are also counted into the length calculation.
-
-Example 1:
-Input: 
-
-           1
-         /   \
-        3     2
-       / \     \  
-      5   3     9 
-
-Output: 4
-Explanation: The maximum width existing in the third level with the 
-length 4 (5,3,null,9).
-Example 2:
-Input: 
-
-          1
-         /  
-        3    
-       / \       
-      5   3     
-
-Output: 2
-Explanation: The maximum width existing in the third level with the 
-length 2 (5,3).
-Example 3:
-Input: 
-
-          1
-         / \
-        3   2 
-       /        
-      5      
-
-Output: 2
-Explanation: The maximum width existing in the second level with the 
-length 2 (3,2).
-Example 4:
-Input: 
-
-          1
-         / \
-        3   2
-       /     \  
-      5       9 
-     /         \
-    6           7
-Output: 8
-Explanation:The maximum width existing in the fourth level with the 
-length 8 (6,null,null,null,null,null,null,7).
-
-
-Note: Answer will in the range of 32-bit signed integer.
-/*
-    Submission Date: 2017-08-21
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-#include <tuple>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int widthOfBinaryTree(TreeNode* root) {
-        queue<pair<TreeNode*,int>> q;
-        q.emplace(root, 0);
-        
-        int res = 0;
-        
-        TreeNode* front;
-        int index;
-        
-        while(!q.empty()) {
-            int q_size = q.size();
-            int first_non_null = -1;
-            for(int i = 0; i < q_size; i++) {
-                tie(front, index) = q.front();
-                q.pop();
-                if(front) {
-                    q.emplace(front -> left, index*2);
-                    q.emplace(front -> right, index*2 + 1);
-                    if(first_non_null == -1) first_non_null = index;
-                    res = max(res, index - first_non_null + 1);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-669. Trim a Binary Search Tree
-Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
-[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
-
-Example 1:
-Input: 
-    1
-   / \
-  0   2
-
-  L = 1
-  R = 2
-
-Output: 
-    1
-      \
-       2
-Example 2:
-Input: 
-    3
-   / \
-  0   4
-   \
-    2
-   /
-  1
-
-  L = 1
-  R = 3
-
-Output: 
-      3
-     / 
-   2   
-  /
- 1
-/*
-    Submission Date: 2018-05-31
-    Runtime: 18 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    if node val is within bounds, than return node with left and right subtrees trimmed
-    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
-    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
-    */
-    TreeNode* trimBST(TreeNode* root, int L, int R) {
-        if(root == NULL) return NULL;
-        if(root->val > R) {
-            return trimBST(root->left, L, R);
-        } else if(root-> val < L) {
-            return trimBST(root->right, L, R);
-        } else {
-            root->left = trimBST(root->left, L, R);
-            root->right = trimBST(root->right, L, R);
-            return root;
-        }
-    }
-};
 int main() {
     return 0;
 }

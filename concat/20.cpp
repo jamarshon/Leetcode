@@ -763,6 +763,97 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+437. Path Sum III
+You are given a binary tree in which each node contains an integer value.
+
+Find the number of paths that sum to a given value.
+
+The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
+
+The tree has no more than 1,000 nodes and the values are in the range -1,000,000 to 1,000,000.
+
+Example:
+
+root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
+
+      10
+     /  \
+    5   -3
+   / \    \
+  3   2   11
+ / \   \
+3  -2   1
+
+Return 3. The paths that sum to 8 are:
+
+1.  5 -> 3
+2.  5 -> 2 -> 1
+3. -3 -> 11
+/*
+    Submission Date: 2018-06-09
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    returns path sums from this root down (not necessarily reach leaf)
+    this is {root->val, 
+            root->val + l for all l from f(root->left),
+            root->val + r for all r from f(root->left),
+            }
+    first one meets terminate the path here, second one means this extends a left path
+    and the last one extends a right path
+    check if any of the new paths equal sum to increase res
+    */
+    vector<int> help(TreeNode* root, int sum, int& res) {
+        if(root == NULL) return {};
+        vector<int> left = help(root->left, sum, res);
+        vector<int> right = help(root->right, sum, res);
+        
+        if(root->val == sum) res++;
+        
+        vector<int> paths;
+        paths.reserve(1 + left.size() + right.size());
+        paths.push_back(root->val);
+        
+        for(const auto& l: left) {
+            paths.push_back(root->val + l);
+            if(paths.back() == sum) res++;
+        }
+        
+        for(const auto& r: right) {
+            paths.push_back(root->val + r);
+            if(paths.back() == sum) res++;
+        }
+        
+        return paths;
+    }
+    
+    int pathSum(TreeNode* root, int sum) {
+        int res = 0;
+        help(root, sum, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 438. Find All Anagrams in a String
 Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
 
@@ -895,114 +986,6 @@ public:
             }
         }
          
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-447. Number of Boomerangs
-Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) 
-such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
-
-Find the number of boomerangs. You may assume that n will be at most 500 and coordinates of points are all in the range [-10000, 10000] (inclusive).
-
-Example:
-Input:
-[[0,0],[1,0],[2,0]]
-
-Output:
-2
-
-Explanation:
-The two boomerangs are [[1,0],[0,0],[2,0]] and [[1,0],[2,0],[0,0]]
-/*
-    Submission Date: 2018-06-08
-    Runtime: 284 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    int numberOfBoomerangs(vector<pair<int, int>>& points) {
-        int res = 0;
-        int N = points.size();
-        
-        for(int i = 0; i < N; i++) {
-            /*
-            From this point find the distance of all points from this point.
-            if there are m points that are at the same distance from this point,
-            if m is less than 2 then it can't be used else it is permutation without
-            repetition which is n!/(n-r)! = m!/(m-2)! = m*(m-1)
-            */
-            unordered_map<int, int> dist_sq_m;
-            for(int j = 0; j < N; j++) {
-                if(j == i) continue;
-                int dist_sq = pow(points[i].first - points[j].first, 2) + 
-                    pow(points[i].second - points[j].second, 2);
-                dist_sq_m[dist_sq]++;
-            }
-            
-            for(const auto& kv: dist_sq_m) {
-                if(kv.second < 2) continue;
-                res += kv.second*(kv.second - 1);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-448. Find All Numbers Disappeared in an Array
-Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
-
-Find all the elements of [1, n] inclusive that do not appear in this array.
-
-Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
-
-Example:
-
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[5,6]
-/*
-    Submission Date: 2018-06-04
-    Runtime: 155 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findDisappearedNumbers(vector<int>& nums) {
-        for(int i = 0; i < nums.size(); i++) {
-            while(nums[nums[i]-1] != nums[i]) swap(nums[nums[i]-1], nums[i]);
-        }
-        
-        vector<int> res;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i + 1 != nums[i]) res.push_back(i+1);
-        }
-        
         return res;
     }
 };

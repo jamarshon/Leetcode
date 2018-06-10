@@ -1,6 +1,276 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+617. Merge Two Binary Trees
+Given two binary trees and imagine that when you put one of them to cover the 
+other, some nodes of the two trees are overlapped while the others are not.
+
+You need to merge them into a new binary tree. The merge rule is that if two 
+nodes overlap, then sum node values up as the new value of the merged node. 
+Otherwise, the NOT null node will be used as the node of new tree.
+
+Example 1:
+Input: 
+    Tree 1                     Tree 2                  
+          1                         2                             
+         / \                       / \                            
+        3   2                     1   3                        
+       /                           \   \                      
+      5                             4   7                  
+Output: 
+Merged tree:
+         3
+        / \
+       4   5
+      / \   \ 
+     5   4   7
+Note: The merging process must start from the root nodes of both trees.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+    TreeNode* mergeTreesHelper(TreeNode* t1, TreeNode* t2) {
+        if(t1 == NULL && t2 == NULL) return NULL;
+        
+        TreeNode* curr = new TreeNode(-1);
+        int new_val = -1;
+        if(t1 != NULL && t2 != NULL) {
+            new_val = t1 -> val + t2 -> val;
+        } else if(t1 != NULL) {
+            new_val = t1 -> val;
+        } else {
+            new_val = t2 -> val;
+        }
+        
+        curr -> val = new_val;
+        
+        TreeNode* left = mergeTreesHelper(t1 ? t1 -> left : NULL, t2 ? t2 -> left : NULL);
+        TreeNode* right = mergeTreesHelper(t1 ? t1 -> right : NULL, t2 ? t2 -> right : NULL);
+        curr -> left = left;
+        curr -> right = right;
+        return curr;
+    }
+public:
+    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
+        return mergeTreesHelper(t1, t2);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+623. Add One Row to Tree
+Given the root of a binary tree, then value v and depth d, you need to add a row of 
+nodes with value v at the given depth d. The root node is at depth 1.
+
+The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
+N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
+subtree root. And N's original left subtree should be the left subtree of the new left 
+subtree root, its original right subtree should be the right subtree of the new right 
+subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
+tree node with value v as the new root of the whole original tree, and the original 
+tree is the new root's left subtree.
+
+Example 1:
+Input: 
+A binary tree as following:
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+v = 1
+
+d = 2
+
+Output: 
+       4
+      / \
+     1   1
+    /     \
+   2       6
+  / \     / 
+ 3   1   5   
+
+Example 2:
+Input: 
+A binary tree as following:
+      4
+     /   
+    2    
+   / \   
+  3   1    
+
+v = 1
+
+d = 3
+
+Output: 
+      4
+     /   
+    2
+   / \    
+  1   1
+ /     \  
+3       1
+Note:
+The given d is in range [1, maximum depth of the given tree + 1].
+The given binary tree has at least one tree node.
+
+/*
+    Submission Date: 2017-06-18
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
+        if(root == NULL) return;
+        if(d == 0) {
+            vec.push_back(root);
+            return;
+        }
+        
+        getRow(root -> left, d - 1, vec);
+        getRow(root -> right, d - 1, vec);
+    }
+public:
+    TreeNode* addOneRow(TreeNode* root, int v, int d) {
+        // get all nodes at depth d - 1
+        vector<TreeNode*> vec;
+        if(d == 1) {
+            TreeNode* new_root = new TreeNode(v);
+            new_root -> left = root;
+            root = new_root;
+        } else {
+            getRow(root, d - 2, vec);
+            for(auto t: vec) {
+                TreeNode* left = t -> left;
+                TreeNode* right = t -> right;
+                t -> left = new TreeNode(v);
+                t -> right = new TreeNode(v);
+                t -> left -> left = left;
+                t -> right -> right = right;
+            }
+        }
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+624. Maximum Distance in Arrays
+Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
+integers from two different arrays (each array picks one) and calculate the distance. 
+We define the distance between two integers a and b to be their absolute difference 
+|a-b|. Your task is to find the maximum distance.
+
+Example 1:
+Input: 
+[[1,2,3],
+ [4,5],
+ [1,2,3]]
+Output: 4
+Explanation: 
+One way to reach the maximum distance 4 is to pick 1 in the first or third array 
+and pick 5 in the second array.
+Note:
+Each given array will have at least 1 number. There will be at least two non-empty arrays.
+The total number of the integers in all the m arrays will be in the range of [2, 10000].
+The integers in the m arrays will be in the range of [-10000, 10000].
+
+/*
+    Submission Date: 2017-06-18
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Start {
+    int index;
+    int first_value;
+};
+
+struct End {
+    int index;
+    int last_value;
+};
+
+class Solution {
+public:
+    int maxDistance(vector<vector<int>>& arrays) {
+        int N = arrays.size();
+        vector<Start> v;
+        vector<End> v2;
+        for(int i = 0; i < N; i++) {
+            Start e = {i, arrays[i][0]};
+            End e2 = {i, arrays[i].back()};
+            v.push_back(e);
+            v2.push_back(e2);
+        }
+
+        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
+        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
+
+        int max_dist = -1;
+        int max_search = N;
+
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < max_search; j++) {
+                if(v[i].index != v2[j].index) {
+                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
+                    max_search = j;
+                    break;
+                }
+            }
+        }
+        return max_dist;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 628. Maximum Product of Three Numbers
 Given an integer array, find three numbers whose product is maximum and output the maximum product.
 
@@ -661,295 +931,6 @@ public:
         }
         
         return res.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-647. Palindromic Substrings
-Given a string, your task is to count how many palindromic substrings in this string.
-
-The substrings with different start indexes or end indexes are counted as different substrings even 
-they consist of same characters.
-
-Example 1:
-Input: "abc"
-Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-Example 2:
-Input: "aaa"
-Output: 6
-Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
-Note:
-The input string length won't exceed 1000.
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int Manacher(string s) {
-        const char kNullChar = '\0';
-        string str = string(1, kNullChar);
-
-        for(auto c: s) str += string(1, c) + kNullChar;
-
-        string max_str = "";
-        int len = str.size();
-        int right = 0;
-        int center = 0;
-        vector<int> dp(len, 0);
-
-        for(int i = 1; i < len; i++) {
-            int mirr = 2*center - i;
-
-            // i is within right so can take the minimum of the mirror or distance from right
-            if(i < right) {
-                dp[i] = min(right - i, dp[mirr]);
-            }
-
-            // keep expanding around i while it is the same and increment P[i]
-            int left_index = i - (1 + dp[i]);
-            int right_index = i + (1 + dp[i]);
-            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
-                left_index--;
-                right_index++;
-                dp[i]++;
-            }
-
-            // i goes beyond current right so it is the new center
-            if(i + dp[i] > right) {
-                center = i;
-                right = i + dp[i];
-            }
-        }
-        
-        int count = 0;
-        for(int i = 0; i < len; i++) {
-            count += ceil((double)dp[i]/2.0);
-        }
-        return count;
-    }
-
-    int countSubstrings(string s) {
-        return Manacher(s);
-    }
-
-    int countSubstrings2(string s) {
-        int res = 0;
-        int N = s.size();
-        int left, right;
-        for(int i = 0; i < N; i++) {
-            res++;
-            
-            // treat as odd
-            left = i - 1;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-            
-            // treat as even
-            left = i;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-648. Replace Words
-In English, we have a concept called root, which can be followed by some other words to form another 
-longer word - let's call this word successor. For example, the root an, followed by other, which can 
-form another word another.
-
-Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
-in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
-root with the shortest length.
-
-You need to output the sentence after the replacement.
-
-Example 1:
-Input: dict = ["cat", "bat", "rat"]
-sentence = "the cattle was rattled by the battery"
-Output: "the cat was rat by the bat"
-Note:
-The input will only have lower-case letters.
-1 <= dict words number <= 1000
-1 <= sentence words number <= 1000
-1 <= root length <= 100
-1 <= sentence words length <= 1000
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 159 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_set>
-#include <set>
-#include <algorithm>
-#include <sstream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        unordered_set<string> ds(dict.begin(), dict.end());
-        set<int> word_size;
-        for(auto ds_e: ds) {
-            word_size.insert(ds_e.size());
-        }
-
-        stringstream ss(sentence);
-        string temp;
-
-        vector<string> res;
-        while(getline(ss, temp, ' ')) {
-            bool found = false;
-            for(auto len: word_size) {
-                if(len > temp.size()) {
-                    res.push_back(temp);
-                    found = true;
-                    break;
-                } else {
-                    if(ds.count(temp.substr(0, len))) {
-                        res.push_back(temp.substr(0, len));
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if(!found) {
-                res.push_back(temp);
-            }
-        }
-
-        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
-            return memo.empty() ? a : memo + " " + a;
-        });
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-649. Dota2 Senate
-In the world of Dota2, there are two parties: the Radiant and the Dire.
-
-The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
-a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
-can exercise one of the two rights:
-
-Ban one senator's right: 
-A senator can make another senator lose all his rights in this and all the following rounds.
-Announce the victory: 
-If this senator found the senators who still have rights to vote are all from the same party, he can announce 
-the victory and make the decision about the change in the game.
-Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
-party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
-
-The round-based procedure starts from the first senator to the last senator in the given order. This 
-procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
-during the procedure.
-
-Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
-which party will finally announce the victory and make the change in the Dota2 game. The output should be 
-Radiant or Dire.
-
-Example 1:
-Input: "RD"
-Output: "Radiant"
-Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights any more since his right has been banned. 
-And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Example 2:
-Input: "RDD"
-Output: "Dire"
-Explanation: 
-The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights anymore since his right has been banned. 
-And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
-And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Note:
-The length of the given string will in the range [1, 10,000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string predictPartyVictory(string senate) {
-        while(!senate.empty()) {
-            for(int i = 0; i < senate.size();) {
-                char curr = senate[i];
-                int j = i;
-                for(; j < senate.size(); j++) {
-                    if(senate[j] != curr) {
-                        break;
-                    }
-                }
-            
-                if(j == senate.size()) {
-                    j = 0;
-                    for(; j < i; j++) {
-                        if(senate[j] != curr) {
-                            break;
-                        }
-                    }
-
-                    if(j == i) {
-                        if(curr == 'R') return "Radiant";
-                        return "Dire";
-                    } else {
-                        senate = senate.substr(0, j) + senate.substr(j + 1);
-                    }
-                } else {
-                    senate = senate.substr(0, j) + senate.substr(j + 1);
-                    i++;
-                }
-            }
-        }
-        return "";
     }
 };
 

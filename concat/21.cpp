@@ -1,6 +1,114 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+447. Number of Boomerangs
+Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) 
+such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
+
+Find the number of boomerangs. You may assume that n will be at most 500 and coordinates of points are all in the range [-10000, 10000] (inclusive).
+
+Example:
+Input:
+[[0,0],[1,0],[2,0]]
+
+Output:
+2
+
+Explanation:
+The two boomerangs are [[1,0],[0,0],[2,0]] and [[1,0],[2,0],[0,0]]
+/*
+    Submission Date: 2018-06-08
+    Runtime: 284 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    int numberOfBoomerangs(vector<pair<int, int>>& points) {
+        int res = 0;
+        int N = points.size();
+        
+        for(int i = 0; i < N; i++) {
+            /*
+            From this point find the distance of all points from this point.
+            if there are m points that are at the same distance from this point,
+            if m is less than 2 then it can't be used else it is permutation without
+            repetition which is n!/(n-r)! = m!/(m-2)! = m*(m-1)
+            */
+            unordered_map<int, int> dist_sq_m;
+            for(int j = 0; j < N; j++) {
+                if(j == i) continue;
+                int dist_sq = pow(points[i].first - points[j].first, 2) + 
+                    pow(points[i].second - points[j].second, 2);
+                dist_sq_m[dist_sq]++;
+            }
+            
+            for(const auto& kv: dist_sq_m) {
+                if(kv.second < 2) continue;
+                res += kv.second*(kv.second - 1);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+448. Find All Numbers Disappeared in an Array
+Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
+
+Find all the elements of [1, n] inclusive that do not appear in this array.
+
+Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
+
+Example:
+
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[5,6]
+/*
+    Submission Date: 2018-06-04
+    Runtime: 155 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++) {
+            while(nums[nums[i]-1] != nums[i]) swap(nums[nums[i]-1], nums[i]);
+        }
+        
+        vector<int> res;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i + 1 != nums[i]) res.push_back(i+1);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 453. Minimum Moves to Equal Array Elements
 Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
 where a move is incrementing n - 1 elements by 1.
@@ -833,175 +941,6 @@ public:
         }
         
         return maxLen;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-530. Minimum Absolute Difference in BST
-Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
-
-Example:
-
-Input:
-
-   1
-    \
-     3
-    /
-   2
-
-Output:
-1
-
-Explanation:
-The minimum absolute difference is 1, which is the difference between 2 and 1 (or between 2 and 3).
-Note: There are at least two nodes in this BST.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-public:
-    /*
-    help called on node returns the smallest and largest value with node as the root
-    this means for a node, it is help(root->left)'s smallest value and help(root->right)'s largest value
-    if they exist else it is just the node
-    
-    the minimum difference is this node minus largest value in the left subtree or smallest value in right subtree 
-    minus this node
-    */
-    vector<int> help(TreeNode* root, int& res) {
-        if(root == NULL) return {};
-        vector<int> left = help(root->left, res);
-        vector<int> right = help(root->right, res);
-        
-        int min_left = left.empty() ? root->val : left[0];
-        int max_right = right.empty() ? root->val : right[1];
-        
-        if(!left.empty()) res = min(res, root->val - left[1]);
-        if(!right.empty()) res = min(res, right[0] - root->val);
-        
-        return {min_left, max_right};
-    }
-    
-    int getMinimumDifference(TreeNode* root) {
-        int res = INT_MAX;
-        help(root, res);
-        return res;
-    }
-};
-
-class Solution {
-public:
-    /*
-    inorder traversal keeping tracking of prev
-    */
-    void help(TreeNode* root, int& res, int& prev) {
-        if(root == NULL) return;
-        help(root->left, res, prev);
-        if(prev != INT_MAX) {
-            res = min(res, root->val - prev);
-        }
-        
-        prev = root->val;
-        help(root->right, res, prev);
-    }
-    
-    int getMinimumDifference(TreeNode* root) {
-        int res = INT_MAX, prev = INT_MAX;
-        help(root, res, prev);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-536. Construct Binary Tree from String
-You need to construct a binary tree from a string consisting of parenthesis and integers.
-
-The whole input represents a binary tree. It contains an integer followed by zero, 
-one or two pairs of parenthesis. The integer represents the root's value and a pair 
-of parenthesis contains a child binary tree with the same structure.
-
-You always start to construct the left child node of the parent first if it exists.
-
-Example:
-Input: "4(2(3)(1))(6(5))"
-Output: return the tree root node representing the following tree:
-
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-Note:
-There will only be '(', ')', '-' and '0' ~ '9' in the input string.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
     }
 };
 

@@ -1,6 +1,333 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+697. Degree of an Array
+Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
+
+Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
+
+Example 1:
+Input: [1, 2, 2, 3, 1]
+Output: 2
+Explanation: 
+The input array has a degree of 2 because both elements 1 and 2 appear twice.
+Of the subarrays that have the same degree:
+[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
+The shortest length is 2. So return 2.
+Example 2:
+Input: [1,2,2,3,1,4,2]
+Output: 6
+Note:
+
+nums.length will be between 1 and 50,000.
+nums[i] will be an integer between 0 and 49,999.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 59 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
+        then store the first seen and last seen index.
+        Loop through the first seen and last seen indicies to find the shortest one.
+    */
+    int findShortestSubArray(vector<int>& nums) {
+        unordered_map<int,int> val_to_freq;
+        int max_freq = 0;
+        for(const auto& n: nums) {
+            val_to_freq[n]++;
+            max_freq = max(max_freq, val_to_freq[n]);
+        }
+        
+        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
+        for(int i = 0; i < nums.size(); i++) {
+            if(val_to_freq[nums[i]] != max_freq) continue;
+            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
+            val_to_seen_boundaries[nums[i]].second = i;
+        }
+        
+        int res = INT_MAX;
+        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
+        return res + 1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+717. 1-bit and 2-bit Characters
+We have two special characters. The first character can be represented by one bit 0. The second character can be represented by 
+two bits (10 or 11).
+
+Now given a string represented by several bits. Return whether the last character must be a one-bit character or not. The given 
+string will always end with a zero.
+
+Example 1:
+Input: 
+bits = [1, 0, 0]
+Output: True
+Explanation: 
+The only way to decode it is two-bit character and one-bit character. So the last character is one-bit character.
+Example 2:
+Input: 
+bits = [1, 1, 1, 0]
+Output: False
+Explanation: 
+The only way to decode it is two-bit character and two-bit character. So the last character is NOT one-bit character.
+Note:
+
+1 <= len(bits) <= 1000.
+bits[i] is always 0 or 1.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 7 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isOneBitCharacter(vector<int>& bits) {
+        int N = bits.size();
+        vector<bool> dp(N, false);
+        dp[N-1] = true;
+
+        for(int i = N-2; i >= 0; i--) {
+            if(bits[i] == 0) {
+                dp[i] = dp[i+1];
+            } else {
+                if(i + 2 < N) dp[i] = dp[i+2];
+            }
+        }
+
+        return dp[0];
+    }
+};
+
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+720. Longest Word in Dictionary
+Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
+built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
+the smallest lexicographical order.
+
+If there is no answer, return the empty string.
+Example 1:
+Input: 
+words = ["w","wo","wor","worl", "world"]
+Output: "world"
+Explanation: 
+The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
+Example 2:
+Input: 
+words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
+Output: "apple"
+Explanation: 
+Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
+Note:
+
+All the strings in the input will only contain lowercase letters.
+The length of words will be in the range [1, 1000].
+The length of words[i] will be in the range [1, 30].
+/*
+    Submission Date: 2018-05-24
+    Runtime: 56 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+    bool is_word;
+    TrieNode* child[26];
+    TrieNode() {
+        is_word = false;
+        for(int i = 0; i < 26; i++) child[i] = NULL;
+    }
+};
+
+class Trie {
+public:
+    TrieNode* root_;
+    
+    /** Initialize your data structure here. */
+    Trie() {
+        root_ = new TrieNode();
+    }
+    
+    /** Inserts a word into the trie. */
+    void insert(string word) {
+        TrieNode* curr = root_;
+        for(auto c: word) {
+            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
+            curr = curr -> child[c - 'a'];
+        }
+        curr -> is_word = true;
+    }
+};
+
+class Solution {
+public:
+    string dfs(TrieNode* node, string letter) {
+        if(node == NULL || !node->is_word) return "";
+        string max_child = "";
+        for(int i = 0; i < 26; i++) {
+            string child = dfs(node -> child[i], string(1, 'a' + i));
+            if(child.size() > max_child.size()) {
+                max_child = child;
+            }
+        }
+        
+        return letter + max_child;
+    }
+    string longestWord(vector<string>& words) {
+        Trie trie;
+        for(const auto& s: words) trie.insert(s);
+        trie.root_ -> is_word = true;
+        return dfs(trie.root_, "");
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+724. Find Pivot Index
+Given an array of integers nums, write a method that returns the "pivot" index of this array.
+
+We define the pivot index as the index where the sum of the numbers to the left of the index is equal to the sum of the numbers to the right of the index.
+
+If no such index exists, we should return -1. If there are multiple pivot indexes, you should return the left-most pivot index.
+
+Example 1:
+Input: 
+nums = [1, 7, 3, 6, 5, 6]
+Output: 3
+Explanation: 
+The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum of numbers to the right of index 3.
+Also, 3 is the first index where this occurs.
+Example 2:
+Input: 
+nums = [1, 2, 3]
+Output: -1
+Explanation: 
+There is no index that satisfies the conditions in the problem statement.
+Note:
+
+The length of nums will be in the range [0, 10000].
+Each element nums[i] will be an integer in the range [-1000, 1000].
+/*
+    Submission Date: 2018-06-09
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    make right = sum of all array then at each index i decrease nums[i]
+    have left = 0 and increase it by nums[i] to compare if
+    the left sum == right sum
+    */
+    int pivotIndex(vector<int>& nums) {
+        int right = 0;
+        for(const auto& e: nums) right += e;
+        
+        int left = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            right -= nums[i];
+            if(left == right) return i;
+            left += nums[i];
+        }
+        
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+728. Self Dividing Numbers
+A self-dividing number is a number that is divisible by every digit it contains.
+
+For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0, and 128 % 8 == 0.
+
+Also, a self-dividing number is not allowed to contain the digit zero.
+
+Given a lower and upper number bound, output a list of every possible self dividing number, including the bounds if possible.
+
+Example 1:
+Input: 
+left = 1, right = 22
+Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
+Note:
+
+The boundaries of each input argument are 1 <= left <= right <= 10000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> selfDividingNumbers(int left, int right) {
+        vector<int> res;
+        
+        for(int i = left; i <= right; i++) {
+            int x = i;
+            bool can_use = true;
+            while(x) {
+                if(x % 10 == 0 || i % (x % 10) != 0) {
+                    can_use = false;
+                    break;
+                }
+                x /= 10;
+            }
+            
+            if(can_use) res.push_back(i);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 733. Flood Fill
 An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
 
@@ -681,280 +1008,6 @@ public:
         if(A.size() != B.size()) return false;
         string A2 = A + A;
         return A2.find(B) != string::npos;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-804. Unique Morse Code Words
-International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
-follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
-
-For convenience, the full table for the 26 letters of the English alphabet is given below:
-
-[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
-Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
-For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
-such a concatenation, the transformation of a word.
-
-Return the number of different transformations among all words we have.
-
-Example:
-Input: words = ["gin", "zen", "gig", "msg"]
-Output: 2
-Explanation: 
-The transformation of each word is:
-"gin" -> "--...-."
-"zen" -> "--...-."
-"gig" -> "--...--."
-"msg" -> "--...--."
-
-There are 2 different transformations, "--...-." and "--...--.".
- 
-
-Note:
-
-The length of words will be at most 100.
-Each words[i] will have length in range [1, 12].
-words[i] will only consist of lowercase letters.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
-public:
-    int uniqueMorseRepresentations(vector<string>& words) {
-        unordered_set<string> comb;
-        for(const auto& s: words) {
-            string curr = "";
-            for(const auto& c: s) {
-                curr += morse_[c - 'a'];
-            }
-            comb.insert(curr);
-        }
-        return comb.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-806. Number of Lines To Write String
-We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
-and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
-an array widths, an array where widths[0] is the width of 'a', widths[1] is the width of 'b', ..., and widths[25] is the width of 'z'.
-
-Now answer two questions: how many lines have at least one character from S, and what is the width used by the last such line? 
-Return your answer as an integer list of length 2.
-
-Example :
-Input: 
-widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "abcdefghijklmnopqrstuvwxyz"
-Output: [3, 60]
-Explanation: 
-All letters have the same length of 10. To write all 26 letters,
-we need two full lines and one line with 60 units.
-Example :
-Input: 
-widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "bbbcccdddaaa"
-Output: [2, 4]
-Explanation: 
-All letters except 'a' have the same length of 10, and 
-"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
-For the last 'a', it is written on the second line because
-there is only 2 units left in the first line.
-So the answer is 2 lines, plus 4 units in the second line.
- 
-Note:
-
-The length of S will be in the range [1, 1000].
-S will only contain lowercase letters.
-widths is an array of length 26.
-widths[i] will be in the range of [2, 10].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> numberOfLines(vector<int>& widths, string S) {
-        int current_len = 0;
-        int num_lines = 0;
-        for(const auto& c: S) {
-            if(current_len + widths[c - 'a'] > 100) {
-                num_lines++;
-                current_len = 0;
-            }
-            current_len += widths[c - 'a'];
-        }
-        return {num_lines+1, current_len};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-811. Subdomain Visit Count
-A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
-at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
-"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
-
-Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
-followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
-
-We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
-input, and in any order), that explicitly counts the number of visits to each subdomain.
-
-Example 1:
-Input: 
-["9001 discuss.leetcode.com"]
-Output: 
-["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
-Explanation: 
-We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
-So they will all be visited 9001 times.
-
-Example 2:
-Input: 
-["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
-Output: 
-["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
-Explanation: 
-We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
-we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
-
-Notes:
-
-The length of cpdomains will not exceed 100. 
-The length of each domain name will not exceed 100.
-Each address will have either 1 or 2 "." characters.
-The input count in any count-paired domain will not exceed 10000.
-The answer output can be returned in any order.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> subdomainVisits(vector<string>& cpdomains) {
-        unordered_map<string, int> domain_to_count;
-        for(const auto& s: cpdomains) {
-            int num = 0;
-            int i = 0;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    num = num * 10 + (s[i] - '0');
-                } else {
-                    break;
-                }
-                i++;
-            }
-            
-            string domain = s.substr(i + 1);
-            while(domain.find('.') != string::npos) {
-                domain_to_count[domain] += num;
-                domain = domain.substr(domain.find('.') + 1);
-            }
-            
-            domain_to_count[domain] += num;
-        }
-        
-        vector<string> res;
-        for(const auto& kv: domain_to_count) {
-            res.push_back(to_string(kv.second) + " " + kv.first);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-812. Largest Triangle Area
-You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
-
-Example:
-Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
-Output: 2
-Explanation: 
-The five points are show in the figure below. The red triangle is the largest.
-
-Notes:
-
-3 <= points.length <= 50.
-No points will be duplicated.
- -50 <= points[i][j] <= 50.
-Answers within 10^-6 of the true value will be accepted as correct.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double largestTriangleArea(vector<vector<int>>& points) {
-        int res = 0;
-        int N = points.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                for(int k = j + 1; k < N; k++) {
-                    /*
-                    given points (a,b), (c,d), (e,f)
-                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
-                    cross product of A and B is 
-                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
-                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
-                    magnitude of A cross B is area of parallelogram so divide by half
-                    */
-                    int c_minus_a = points[j][0] - points[i][0];
-                    int d_minus_b = points[j][1] - points[i][1];
-                    int e_minus_a = points[k][0] - points[i][0];
-                    int f_minus_b = points[k][1] - points[i][1];
-                    
-                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
-                }
-            }
-        }
-        return res/2.0;
     }
 };
 

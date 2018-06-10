@@ -1,6 +1,175 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+530. Minimum Absolute Difference in BST
+Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
+
+Example:
+
+Input:
+
+   1
+    \
+     3
+    /
+   2
+
+Output:
+1
+
+Explanation:
+The minimum absolute difference is 1, which is the difference between 2 and 1 (or between 2 and 3).
+Note: There are at least two nodes in this BST.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    /*
+    help called on node returns the smallest and largest value with node as the root
+    this means for a node, it is help(root->left)'s smallest value and help(root->right)'s largest value
+    if they exist else it is just the node
+    
+    the minimum difference is this node minus largest value in the left subtree or smallest value in right subtree 
+    minus this node
+    */
+    vector<int> help(TreeNode* root, int& res) {
+        if(root == NULL) return {};
+        vector<int> left = help(root->left, res);
+        vector<int> right = help(root->right, res);
+        
+        int min_left = left.empty() ? root->val : left[0];
+        int max_right = right.empty() ? root->val : right[1];
+        
+        if(!left.empty()) res = min(res, root->val - left[1]);
+        if(!right.empty()) res = min(res, right[0] - root->val);
+        
+        return {min_left, max_right};
+    }
+    
+    int getMinimumDifference(TreeNode* root) {
+        int res = INT_MAX;
+        help(root, res);
+        return res;
+    }
+};
+
+class Solution {
+public:
+    /*
+    inorder traversal keeping tracking of prev
+    */
+    void help(TreeNode* root, int& res, int& prev) {
+        if(root == NULL) return;
+        help(root->left, res, prev);
+        if(prev != INT_MAX) {
+            res = min(res, root->val - prev);
+        }
+        
+        prev = root->val;
+        help(root->right, res, prev);
+    }
+    
+    int getMinimumDifference(TreeNode* root) {
+        int res = INT_MAX, prev = INT_MAX;
+        help(root, res, prev);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+536. Construct Binary Tree from String
+You need to construct a binary tree from a string consisting of parenthesis and integers.
+
+The whole input represents a binary tree. It contains an integer followed by zero, 
+one or two pairs of parenthesis. The integer represents the root's value and a pair 
+of parenthesis contains a child binary tree with the same structure.
+
+You always start to construct the left child node of the parent first if it exists.
+
+Example:
+Input: "4(2(3)(1))(6(5))"
+Output: return the tree root node representing the following tree:
+
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+Note:
+There will only be '(', ')', '-' and '0' ~ '9' in the input string.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    TreeNode* str2tree(string s) {
+        int len = s.size();
+        if(len == 0) return NULL;
+
+        int firstBracketIndex = s.find('(');
+        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
+
+        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
+        int count = 1;
+        int offset = firstBracketIndex + 1;
+        int i = offset;
+
+        while(count != 0) {
+            if(s[i] == ')') count--;
+            else if(s[i] == '(') count++;
+            i++;
+        }
+
+        string leftExpression = s.substr(offset, i - 1 - offset);
+        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
+
+        node -> left = str2tree(leftExpression);
+        node -> right = str2tree(rightExpression);
+
+        return node;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 538. Convert BST to Greater Tree
 Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
 original key plus sum of all keys greater than the original key in BST.
@@ -636,6 +805,81 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+572. Subtree of Another Tree
+Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
+with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
+tree s could also be considered as a subtree of itself.
+
+Example 1:
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+Given tree t:
+   4 
+  / \
+ 1   2
+Return true, because t has the same structure and node values with a subtree of s.
+Example 2:
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+    /
+   0
+Given tree t:
+   4
+  / \
+ 1   2
+Return false.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 29 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    void serialize(TreeNode* node, string& res) {
+        if(node == NULL) {
+            res += "null,";
+        } else {
+            res += to_string(node->val) + ",";
+            serialize(node->left, res);
+            serialize(node->right, res);
+        }
+    }
+    
+    // check if s == t or s contains a subtree t
+    bool isSubtree(TreeNode* s, TreeNode* t) {
+        string s1 = "", s2 = "";
+        serialize(s, s1);
+        serialize(t, s2);
+        return s1 == s2 || s1.find("," + s2) != string::npos;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 575. Distribute Candies
 Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
 Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
@@ -734,270 +978,5 @@ int main() {
     Solution s;
     vector<int> v{2, 6, 4, 8, 10, 9, 15};
     cout << s.findUnsortedSubarray(v);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
-
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
-
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
-
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
-
-Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
-
-Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
-/*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
-            }
-        }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
-    }
-};
-
-int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to 
-make word1 and word2 the same, where in each step you can delete one character in either string.
-
-Example 1:
-Input: "sea", "eat"
-Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
-Note:
-The length of given words won't exceed 500.
-Characters in given words can only be lower-case letters.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minDistance(string word1, string word2) {
-        int row = word2.size() + 1;
-        int col = word1.size() + 1;
-        int dp[501][501];
-        for(int i = 0; i < row; i++) dp[i][0] = i;
-        for(int i = 0; i < col; i++) dp[0][i] = i;
-
-        for(int i = 1; i < row; i++) {
-            for(int j = 1; j < col; j++) {
-                if(word2[i - 1] == word1[j - 1]) {
-                    dp[i][j] = dp[i - 1][j - 1];
-                } else {
-                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
-                }
-            }
-        }
-        
-        return dp[row - 1][col - 1];
-    }
-};
-
-int main() {
-	Solution s;
-    cout << s.minDistance("sea", "eat");
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-592. Fraction Addition and Subtraction
-Given a string representing an expression of fraction addition 
-and subtraction, you need to return the calculation result in string 
-format. The final result should be irreducible fraction. If your final 
-result is an integer, say 2, you need to change it to the format of 
-fraction that has denominator 1. So in this case, 2 should be 
-converted to 2/1.
-
-Example 1:
-Input:"-1/2+1/2"
-Output: "0/1"
-Example 2:
-Input:"-1/2+1/2+1/3"
-Output: "1/3"
-Example 3:
-Input:"1/3-1/2"
-Output: "-1/6"
-Example 4:
-Input:"5/3+1/3"
-Output: "2/1"
-Note:
-The input string only contains '0' to '9', '/', '+' and '-'. 
-So does the output.
-Each fraction (input and output) has format ±numerator/denominator. 
-If the first input fraction or the output is positive, then '+' will 
-be omitted.
-The input only contains valid irreducible fractions, where the 
-numerator and denominator of each fraction will always be in the 
-range [1,10]. If the denominator is 1, it means this fraction is 
-actually an integer in a fraction format defined above.
-The number of given fractions will be in the range [1,10].
-The numerator and denominator of the final result are guaranteed 
-to be valid and in the range of 32-bit int.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <cassert>
-
-using namespace std;
-
-typedef long long ll;
-struct Fraction {
-    ll num, den;
-};
-
-class Solution {
-public:
-    ll gcd(ll a, ll b) {
-        return b == 0 ? a : gcd(b, a % b);
-    }
-
-    ll lcm(ll a, ll b) {
-        return a*b/gcd(a,b);
-    }
-
-    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
-    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
-    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
-
-    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
-    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
-    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
-    // (a*d + b*c)/(b*d)
-    Fraction add(Fraction a, Fraction b) {
-        return {a.num*b.den + a.den*b.num, a.den*b.den};
-    }
-
-    Fraction reduce(Fraction a) {
-        int gcd_num_den = gcd(abs(a.num), a.den);
-        return {a.num/gcd_num_den, a.den/gcd_num_den};
-    }
-
-    string fractionAddition(string s) {
-        vector<Fraction> v;
-        int N = s.size();
-        bool is_negative = false;
-        for(int i = 0; i < N;) {
-            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
-            // a number (positive num and is start of string)
-            Fraction fr;
-            is_negative = s[i] == '-';
-
-            if(s[i] == '+' || is_negative) {
-                i++;
-            }
-
-            ll curr = 0;
-            while(isdigit(s[i])) {
-                curr = curr*10 + (s[i] - '0');
-                i++;
-            }
-
-            fr.num = is_negative ? -curr : curr;
-            // s[i] is the '/' followed by a number so end i where the next operator starts
-            assert(s[i++] == '/');
-
-            curr = 0;
-            while(isdigit(s[i]) && i < N) {
-                curr = curr*10 + (s[i] - '0');
-                i++;
-            }
-
-            fr.den = curr;
-            v.push_back(fr);
-        }
-
-        Fraction res = v.front();
-        res = reduce(res);
-        for(int i = 1; i < v.size(); i++) {
-            res = add(res, v[i]);
-            res = reduce(res);
-        }
-
-        return to_string(res.num) + "/" + to_string(res.den);
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

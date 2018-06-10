@@ -1,6 +1,269 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+661. Image Smoother
+Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
+scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
+less than 8 surrounding cells, then use as many as you can.
+
+Example 1:
+Input:
+[[1,1,1],
+ [1,0,1],
+ [1,1,1]]
+Output:
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+Explanation:
+For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
+For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
+For the point (1,1): floor(8/9) = floor(0.88888889) = 0
+Note:
+The value in the given matrix is in the range of [0, 255].
+The length and width of the given matrix are in the range of [1, 150].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 178 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
+        int sum = 0;
+        int points = 0;
+        for(int k = -1; k <= 1; k++) {
+            for(int l = -1; l <= 1; l++) {
+                int new_i = i + k;
+                int new_j = j + l;
+                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
+                    points++;
+                    sum += A[new_i][new_j];
+                }
+            }
+        }
+        
+        return sum/points;
+    }
+    
+    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
+        if(A.empty()) return A;
+        int N = A.size();
+        int M = A[0].size();
+        
+        vector<vector<int>> res(N, vector<int>(M));
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                res[i][j] = help(A, i, j, N, M);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+662. Maximum Width of Binary Tree
+Given a binary tree, write a function to get the maximum width of the 
+given tree. The width of a tree is the maximum width among all levels. 
+The binary tree has the same structure as a full binary tree, but some 
+nodes are null.
+
+The width of one level is defined as the length between the end-nodes 
+(the leftmost and right most non-null nodes in the level, where the null 
+nodes between the end-nodes are also counted into the length calculation.
+
+Example 1:
+Input: 
+
+           1
+         /   \
+        3     2
+       / \     \  
+      5   3     9 
+
+Output: 4
+Explanation: The maximum width existing in the third level with the 
+length 4 (5,3,null,9).
+Example 2:
+Input: 
+
+          1
+         /  
+        3    
+       / \       
+      5   3     
+
+Output: 2
+Explanation: The maximum width existing in the third level with the 
+length 2 (5,3).
+Example 3:
+Input: 
+
+          1
+         / \
+        3   2 
+       /        
+      5      
+
+Output: 2
+Explanation: The maximum width existing in the second level with the 
+length 2 (3,2).
+Example 4:
+Input: 
+
+          1
+         / \
+        3   2
+       /     \  
+      5       9 
+     /         \
+    6           7
+Output: 8
+Explanation:The maximum width existing in the fourth level with the 
+length 8 (6,null,null,null,null,null,null,7).
+
+
+Note: Answer will in the range of 32-bit signed integer.
+/*
+    Submission Date: 2017-08-21
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+#include <tuple>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int widthOfBinaryTree(TreeNode* root) {
+        queue<pair<TreeNode*,int>> q;
+        q.emplace(root, 0);
+        
+        int res = 0;
+        
+        TreeNode* front;
+        int index;
+        
+        while(!q.empty()) {
+            int q_size = q.size();
+            int first_non_null = -1;
+            for(int i = 0; i < q_size; i++) {
+                tie(front, index) = q.front();
+                q.pop();
+                if(front) {
+                    q.emplace(front -> left, index*2);
+                    q.emplace(front -> right, index*2 + 1);
+                    if(first_non_null == -1) first_non_null = index;
+                    res = max(res, index - first_non_null + 1);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+669. Trim a Binary Search Tree
+Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
+[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+
+Example 1:
+Input: 
+    1
+   / \
+  0   2
+
+  L = 1
+  R = 2
+
+Output: 
+    1
+      \
+       2
+Example 2:
+Input: 
+    3
+   / \
+  0   4
+   \
+    2
+   /
+  1
+
+  L = 1
+  R = 3
+
+Output: 
+      3
+     / 
+   2   
+  /
+ 1
+/*
+    Submission Date: 2018-05-31
+    Runtime: 18 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    if node val is within bounds, than return node with left and right subtrees trimmed
+    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
+    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
+    */
+    TreeNode* trimBST(TreeNode* root, int L, int R) {
+        if(root == NULL) return NULL;
+        if(root->val > R) {
+            return trimBST(root->left, L, R);
+        } else if(root-> val < L) {
+            return trimBST(root->right, L, R);
+        } else {
+            root->left = trimBST(root->left, L, R);
+            root->right = trimBST(root->right, L, R);
+            return root;
+        }
+    }
+};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 671. Second Minimum Node In a Binary Tree
 Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in 
 this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes.
@@ -709,272 +972,6 @@ public:
             res += min(prev_cnt, i - start);
             prev_cnt = i - start;
         }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-697. Degree of an Array
-Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
-
-Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
-
-Example 1:
-Input: [1, 2, 2, 3, 1]
-Output: 2
-Explanation: 
-The input array has a degree of 2 because both elements 1 and 2 appear twice.
-Of the subarrays that have the same degree:
-[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
-The shortest length is 2. So return 2.
-Example 2:
-Input: [1,2,2,3,1,4,2]
-Output: 6
-Note:
-
-nums.length will be between 1 and 50,000.
-nums[i] will be an integer between 0 and 49,999.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 59 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
-        then store the first seen and last seen index.
-        Loop through the first seen and last seen indicies to find the shortest one.
-    */
-    int findShortestSubArray(vector<int>& nums) {
-        unordered_map<int,int> val_to_freq;
-        int max_freq = 0;
-        for(const auto& n: nums) {
-            val_to_freq[n]++;
-            max_freq = max(max_freq, val_to_freq[n]);
-        }
-        
-        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
-        for(int i = 0; i < nums.size(); i++) {
-            if(val_to_freq[nums[i]] != max_freq) continue;
-            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
-            val_to_seen_boundaries[nums[i]].second = i;
-        }
-        
-        int res = INT_MAX;
-        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
-        return res + 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-717. 1-bit and 2-bit Characters
-We have two special characters. The first character can be represented by one bit 0. The second character can be represented by 
-two bits (10 or 11).
-
-Now given a string represented by several bits. Return whether the last character must be a one-bit character or not. The given 
-string will always end with a zero.
-
-Example 1:
-Input: 
-bits = [1, 0, 0]
-Output: True
-Explanation: 
-The only way to decode it is two-bit character and one-bit character. So the last character is one-bit character.
-Example 2:
-Input: 
-bits = [1, 1, 1, 0]
-Output: False
-Explanation: 
-The only way to decode it is two-bit character and two-bit character. So the last character is NOT one-bit character.
-Note:
-
-1 <= len(bits) <= 1000.
-bits[i] is always 0 or 1.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 7 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isOneBitCharacter(vector<int>& bits) {
-        int N = bits.size();
-        vector<bool> dp(N, false);
-        dp[N-1] = true;
-
-        for(int i = N-2; i >= 0; i--) {
-            if(bits[i] == 0) {
-                dp[i] = dp[i+1];
-            } else {
-                if(i + 2 < N) dp[i] = dp[i+2];
-            }
-        }
-
-        return dp[0];
-    }
-};
-
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
-built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
-the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input: 
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation: 
-The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
-Example 2:
-Input: 
-words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
-Output: "apple"
-Explanation: 
-Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
-Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-    bool is_word;
-    TrieNode* child[26];
-    TrieNode() {
-        is_word = false;
-        for(int i = 0; i < 26; i++) child[i] = NULL;
-    }
-};
-
-class Trie {
-public:
-    TrieNode* root_;
-    
-    /** Initialize your data structure here. */
-    Trie() {
-        root_ = new TrieNode();
-    }
-    
-    /** Inserts a word into the trie. */
-    void insert(string word) {
-        TrieNode* curr = root_;
-        for(auto c: word) {
-            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
-            curr = curr -> child[c - 'a'];
-        }
-        curr -> is_word = true;
-    }
-};
-
-class Solution {
-public:
-    string dfs(TrieNode* node, string letter) {
-        if(node == NULL || !node->is_word) return "";
-        string max_child = "";
-        for(int i = 0; i < 26; i++) {
-            string child = dfs(node -> child[i], string(1, 'a' + i));
-            if(child.size() > max_child.size()) {
-                max_child = child;
-            }
-        }
-        
-        return letter + max_child;
-    }
-    string longestWord(vector<string>& words) {
-        Trie trie;
-        for(const auto& s: words) trie.insert(s);
-        trie.root_ -> is_word = true;
-        return dfs(trie.root_, "");
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-728. Self Dividing Numbers
-A self-dividing number is a number that is divisible by every digit it contains.
-
-For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0, and 128 % 8 == 0.
-
-Also, a self-dividing number is not allowed to contain the digit zero.
-
-Given a lower and upper number bound, output a list of every possible self dividing number, including the bounds if possible.
-
-Example 1:
-Input: 
-left = 1, right = 22
-Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
-Note:
-
-The boundaries of each input argument are 1 <= left <= right <= 10000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> selfDividingNumbers(int left, int right) {
-        vector<int> res;
-        
-        for(int i = left; i <= right; i++) {
-            int x = i;
-            bool can_use = true;
-            while(x) {
-                if(x % 10 == 0 || i % (x % 10) != 0) {
-                    can_use = false;
-                    break;
-                }
-                x /= 10;
-            }
-            
-            if(can_use) res.push_back(i);
-        }
-        
         return res;
     }
 };

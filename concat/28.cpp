@@ -1,6 +1,285 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+771. Jewels and Stones
+You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
+Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
+
+The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
+is considered a different type of stone from "A".
+
+Example 1:
+
+Input: J = "aA", S = "aAAbbbb"
+Output: 3
+Example 2:
+
+Input: J = "z", S = "ZZ"
+Output: 0
+Note:
+
+S and J will consist of letters and have length at most 50.
+The characters in J are distinct.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int numJewelsInStones(string J, string S) {
+        unordered_set<char> jewels(J.begin(), J.end());
+        int res = 0;
+        for(const auto& stone: S) res += jewels.count(stone);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+783. Minimum Distance Between BST Nodes
+Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
+values of any two different nodes in the tree.
+
+Example :
+
+Input: root = [4,2,6,1,3,null,null]
+Output: 1
+Explanation:
+Note that root is a TreeNode object, not an array.
+
+The given tree [4,2,6,1,3,null,null] is represented by the following diagram:
+
+          4
+        /   \
+      2      6
+     / \    
+    1   3  
+
+while the minimum difference in this tree is 1, it occurs between node 1 and node 2, also between node 3 and node 2.
+Note:
+
+The size of the BST will be between 2 and 100.
+The BST is always valid, each node's value is an integer, and each node's value is different.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <climits>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    inorder traversal keeping tracking of prev
+    */
+    void help(TreeNode* root, int& res, int& prev) {
+        if(root == NULL) return;
+        help(root->left, res, prev);
+        if(prev != INT_MAX) {
+            res = min(res, root->val - prev);
+        }
+        
+        prev = root->val;
+        help(root->right, res, prev);
+    }
+    
+    int minDiffInBST(TreeNode* root) {
+        int res = INT_MAX, prev = INT_MAX;
+        help(root, res, prev);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+784. Letter Case Permutation
+Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
+Return a list of all possible strings we could create.
+
+Examples:
+Input: S = "a1b2"
+Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
+
+Input: S = "3z4"
+Output: ["3z4", "3Z4"]
+
+Input: S = "12345"
+Output: ["12345"]
+Note:
+
+S will be a string with length at most 12.
+S will consist only of letters or digits.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, vector<string>> dp_;
+public:
+    /*
+     find the first alphabetical letter. get the vector for the remaining string
+     add prefix with the letter lower case and upper case to each element from the vector
+    */
+    vector<string> letterCasePermutation(string S) {
+        if(dp_.count(S)) return dp_[S];
+        
+        int N = S.size();
+        int i = 0;
+        for(; i < N; i++) {
+            if(isalpha(S[i])) break;
+        }
+        
+        if(i >= N) return { S };
+        vector<string> rem = letterCasePermutation(S.substr(i + 1));
+        int M = rem.size();
+        rem.reserve(2*M);
+        
+        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
+        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
+        for(int j = 0; j < M; j++) {
+            rem.push_back(s2 + rem[j]);
+            rem[j] = s1 + rem[j];
+        }
+        return rem;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+788. Rotated Digits
+X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
+Each digit must be rotated - we cannot choose to leave it alone.
+
+A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
+6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
+
+Now given a positive number N, how many numbers X from 1 to N are good?
+
+Example:
+Input: 10
+Output: 4
+Explanation: 
+There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
+Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
+Note:
+
+N  will be in range [1, 10000].
+/*
+    Submission Date: 2018-06-04
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
+    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
+    without the last number and rot[i % 10] gets the rotated version of the last number
+    of i
+    */
+    int rotatedDigits(int N) {
+        vector<int> dp(N + 1, -1);
+        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
+                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
+        int res = 0;
+        for(int i = 1; i <= N; i++) {
+            if(!rot.count(i % 10)) continue;
+            if(i < 10) {
+                dp[i] = rot[i];
+                res += dp[i] != i;
+            } else {
+                if(dp[i/10] == -1) continue;
+                dp[i] = dp[i/10] * 10 + rot[i % 10];
+                res += dp[i] != i;
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+796. Rotate String
+We are given two strings, A and B.
+
+A shift on A consists of taking string A and moving the leftmost character to the rightmost position. 
+For example, if A = 'abcde', then it will be 'bcdea' after one shift on A. Return True if and only if A can 
+become B after some number of shifts on A.
+
+Example 1:
+Input: A = 'abcde', B = 'cdeab'
+Output: true
+
+Example 2:
+Input: A = 'abcde', B = 'abced'
+Output: false
+Note:
+
+A and B will have length at most 100.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool rotateString(string A, string B) {
+        if(A.size() != B.size()) return false;
+        string A2 = A + A;
+        return A2.find(B) != string::npos;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 804. Unique Morse Code Words
 International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
 follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.

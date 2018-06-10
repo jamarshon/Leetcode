@@ -1,6 +1,115 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+441. Arranging Coins
+You have a total of n coins that you want to form in a staircase shape, where every k-th row must have exactly k coins.
+
+Given n, find the total number of full staircase rows that can be formed.
+
+n is a non-negative integer and fits within the range of a 32-bit signed integer.
+
+Example 1:
+
+n = 5
+
+The coins can form the following rows:
+¤
+¤ ¤
+¤ ¤
+
+Because the 3rd row is incomplete, we return 2.
+Example 2:
+
+n = 8
+
+The coins can form the following rows:
+¤
+¤ ¤
+¤ ¤ ¤
+¤ ¤
+
+Because the 4th row is incomplete, we return 3.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 33 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    sum of 0 to x = x(x+1)/2
+    x(x+1)/2 = n
+    x^2 + x - 2n = 0
+
+    quadratic formula: x = (-1 + sqrt(8n + 1))/2
+    */
+    int arrangeCoins(int n) {
+        return (-1 + sqrt(8LL*n + 1))/2;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+442. Find All Duplicates in an Array
+Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and 
+others appear once.
+
+Find all the elements that appear twice in this array.
+
+Could you do it without extra space and in O(n) runtime?
+
+Example:
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[2,3]
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 176 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDuplicates(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            while(nums[i] != nums[nums[i] - 1]) {
+                swap(nums[i], nums[nums[i] - 1]);
+            }
+        }
+    
+        for(int i = 0; i < N; i++) {
+            if(nums[i] != i + 1) {
+                res.push_back(nums[i]);
+            }
+        }
+         
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 447. Number of Boomerangs
 Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) 
 such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
@@ -255,6 +364,61 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+459. Repeated Substring Pattern
+Given a non-empty string check if it can be constructed by taking a substring of it and appending multiple copies 
+of the substring together. You may assume the given string consists of lowercase English letters only and its length will not exceed 10000.
+Example 1:
+Input: "abab"
+
+Output: True
+
+Explanation: It's the substring "ab" twice.
+Example 2:
+Input: "aba"
+
+Output: False
+Example 3:
+Input: "abcabcabcabc"
+
+Output: True
+
+Explanation: It's the substring "abc" four times. (And the substring "abcabc" twice.)
+/*
+    Submission Date: 2018-06-09
+    Runtime: 53 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool repeatedSubstringPattern(string s) {
+        int N = s.size();
+            
+        for(int i = 1; i <= N/2; i++) {
+            if(N % i == 0) {
+                // N can be split into parts containing i elements
+                string pos = "";
+                string part = s.substr(0, i);
+                for(int j = 0; j < N/i; j++) {
+                    pos += part;
+                }
+                
+                if(s == pos) return true;
+            }
+        }
+        
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 461. Hamming Distance
 The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
 
@@ -399,6 +563,73 @@ public:
     // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
     int findComplement(int num) {
         return ~num & ((1 << (int)log2(num) + 1) - 1);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+482. License Key Formatting
+You are given a license key represented as a string S which consists only alphanumeric character and dashes. 
+The string is separated into N+1 groups by N dashes.
+
+Given a number K, we would want to reformat the strings such that each group contains exactly K characters, 
+except for the first group which could be shorter than K, but still must contain at least one character. 
+Furthermore, there must be a dash inserted between two groups and all lowercase letters should be converted to uppercase.
+
+Given a non-empty string S and a number K, format the string according to the rules described above.
+
+Example 1:
+Input: S = "5F3Z-2e-9-w", K = 4
+
+Output: "5F3Z-2E9W"
+
+Explanation: The string S has been split into two parts, each part has 4 characters.
+Note that the two extra dashes are not needed and can be removed.
+Example 2:
+Input: S = "2-5g-3-J", K = 2
+
+Output: "2-5G-3J"
+
+Explanation: The string S has been split into three parts, each part has 2 characters except the first part as 
+it could be shorter as mentioned above.
+Note:
+The length of string S will not exceed 12,000, and K is a positive integer.
+String S consists only of alphanumerical characters (a-z and/or A-Z and/or 0-9) and dashes(-).
+String S is non-empty.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    string licenseKeyFormatting(string S, int K) {
+        string s = "";
+        // remove dashes and lower case letter
+        for(const auto& c: S) {
+            if(c == '-') continue;
+            s.push_back(toupper(c));
+        }
+        
+        int N = s.size();
+        int first_size = N % K;
+        
+        string res = "";
+        res.reserve(N + (N - 1)/2);
+        for(int i = 0; i < N; i++) {
+            if(i > 0 && (i - first_size) % K == 0) res.push_back('-');
+            res.push_back(s[i]);
+        }
+        
+        return res;
     }
 };
 
@@ -692,258 +923,85 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-504. Base 7
-Given an integer, return its base 7 string representation.
+501. Find Mode in Binary Search Tree
+Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
 
-Example 1:
-Input: 100
-Output: "202"
-Example 2:
-Input: -7
-Output: "-10"
-Note: The input will be in range of [-1e7, 1e7].
+Assume a BST is defined as follows:
+
+The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+Both the left and right subtrees must also be binary search trees.
+For example:
+Given BST [1,null,2,2],
+   1
+    \
+     2
+    /
+   2
+return [2].
+
+Note: If a tree has more than one mode, you can return them in any order.
+
+Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
 /*
-    Submission Date: 2018-06-08
-    Runtime: 8 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    string convertToBase7(int num) {
-        if(num == 0) return "0";
-        
-        string sgn = num < 0 ? "-" : "";
-        num = abs(num);
-        
-        string res = "";
-        while(num) {
-            res.push_back((num % 7) + '0');
-            num /= 7;
-        }
-        
-        reverse(res.begin(), res.end());
-        return sgn + res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-506. Relative Ranks
-Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
-will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
-
-Example 1:
-Input: [5, 4, 3, 2, 1]
-Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
-Explanation: The first three athletes got the top three highest scores, so they got "Gold Medal", "Silver Medal" and "Bronze Medal". 
-For the left two athletes, you just need to output their relative ranks according to their scores.
-Note:
-N is a positive integer and won't exceed 10,000.
-All the scores of athletes are guaranteed to be unique.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 24 ms
+    Submission Date: 2018-06-09
+    Runtime: 15 ms
     Difficulty: EASY
 */
 #include <iostream>
 #include <vector>
-#include <map>
 
 using namespace std;
 
-class Solution {
-public:
-    vector<string> findRelativeRanks(vector<int>& nums) {
-        map<int,int, greater<int>> m;
-        for(int i = 0; i < nums.size(); i++) m[nums[i]] = i;
-        
-        vector<string> rep{"Gold Medal", "Silver Medal", "Bronze Medal"};
-        
-        vector<string> res(nums.size());
-        int ind = 0;
-        for(const auto& kv: m) {
-            res[kv.second] = ind < 3 ? rep[ind] : to_string(ind+1);
-            ind++;
-        }
-        
-        return res;
-    }
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-520. Detect Capital
-Given a word, you need to judge whether the usage of capitals 
-in it is right or not.
-
-We define the usage of capitals in a word to be right when one 
-of the following cases holds:
-
-All letters in this word are capitals, like "USA".
-All letters in this word are not capitals, like "leetcode".
-Only the first letter in this word is capital if it has more than 
-one letter, like "Google".
-Otherwise, we define that this word doesn't use capitals in a 
-right way.
-Example 1:
-Input: "USA"
-Output: True
-Example 2:
-Input: "FlaG"
-Output: False
-Note: The input will be a non-empty word consisting of uppercase 
-and lowercase latin letters.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
 class Solution {
 public:
-    bool detectCapitalUse(string word) {
-        int N = word.size();
-        int capital_count = 0, lower_count = 0;
-        for(auto c: word) {
-            capital_count += isupper(c) != 0;
-            lower_count += islower(c) != 0;
-        }
-        
-        return capital_count == N || lower_count == N || 
-            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-521. Longest Uncommon Subsequence I
-Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
-The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
-should not be any subsequence of the other strings.
-
-A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
-order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
-
-The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
-uncommon subsequence doesn't exist, return -1.
-
-Example 1:
-Input: "aba", "cdc"
-Output: 3
-Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
-because "aba" is a subsequence of "aba", 
-but not a subsequence of any other strings in the group of two strings. 
-Note:
-
-Both strings' lengths will not exceed 100.
-Only letters from a ~ z will appear in input strings.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
-      what is the longest ss_A that is not ss_B and vice versa
-
-      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
-      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
-      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
-      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
-      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
-    */
-    int findLUSlength(string a, string b) {
-        if(a == b) return -1;
-        return max(a.size(), b.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
-Example 2:
-Input: [0,1,0]
-Output: 2
-Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
-Note: The length of the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-class Solution {
-public:
-    int findMaxLength(vector<int>& nums) {
-        int maxLen = 0;
-        int currentSum = 0;
-        
-        // unordered_map has key to currentSum and value to earliest index seen with that 
-        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
-        // elements between those two indices is zero meaning equal number of 0's and 1's
-        // so finding the smallest index with the same currentSum results in the largest subarray
-        unordered_map<int, int> m = {{0, -1}};
+    typedef pair<int,int> pii;
     
-        for(int i = 0, len = nums.size(); i < len; i++) {
-            if(nums[i] == 0) {
-                currentSum--;
-            } else {
-                currentSum++;
-            }
-            
-            if(m.find(currentSum) == m.end()) {
-                m[currentSum] = i;
-            } else {
-                maxLen = max(maxLen, i - m[currentSum]);
-            }
+    /*
+    inorder traversal where if the current element is the same as the last then
+    increase the frequency else reset it. if the frequency is greater than res
+    frequency, then change res else if the frequency is the same than push back
+    to res
+    */
+    void help(TreeNode* node, pii& curr, vector<pii>& res) {
+        if(node == NULL) return;
+        help(node->left, curr, res);
+        
+        if(curr.first == -1 || curr.second != node->val) {
+            curr = {1, node->val};
+        } else {
+            curr.first++;
         }
         
-        return maxLen;
+        if(curr.first > res[0].first) {
+            res = {curr};
+        } else if(curr.first == res[0].first) {
+            res.push_back(curr);
+        }
+        
+        help(node->right, curr, res);
+    }
+    
+    vector<int> findMode(TreeNode* root) {
+        if(root == NULL) return {};
+        
+        vector<pii> res = {{0, INT_MIN}};
+        pii curr = {-1, INT_MIN};
+        help(root, curr, res);
+    
+        vector<int> v_i;
+        v_i.reserve(res.size());
+        for(const auto& p: res) v_i.push_back(p.second);
+        return v_i;
     }
 };
-
 int main() {
     return 0;
 }

@@ -1,6 +1,263 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+504. Base 7
+Given an integer, return its base 7 string representation.
+
+Example 1:
+Input: 100
+Output: "202"
+Example 2:
+Input: -7
+Output: "-10"
+Note: The input will be in range of [-1e7, 1e7].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 8 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string convertToBase7(int num) {
+        if(num == 0) return "0";
+        
+        string sgn = num < 0 ? "-" : "";
+        num = abs(num);
+        
+        string res = "";
+        while(num) {
+            res.push_back((num % 7) + '0');
+            num /= 7;
+        }
+        
+        reverse(res.begin(), res.end());
+        return sgn + res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+506. Relative Ranks
+Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
+will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
+
+Example 1:
+Input: [5, 4, 3, 2, 1]
+Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
+Explanation: The first three athletes got the top three highest scores, so they got "Gold Medal", "Silver Medal" and "Bronze Medal". 
+For the left two athletes, you just need to output their relative ranks according to their scores.
+Note:
+N is a positive integer and won't exceed 10,000.
+All the scores of athletes are guaranteed to be unique.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 24 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& nums) {
+        map<int,int, greater<int>> m;
+        for(int i = 0; i < nums.size(); i++) m[nums[i]] = i;
+        
+        vector<string> rep{"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        vector<string> res(nums.size());
+        int ind = 0;
+        for(const auto& kv: m) {
+            res[kv.second] = ind < 3 ? rep[ind] : to_string(ind+1);
+            ind++;
+        }
+        
+        return res;
+    }
+};
+
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals 
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one 
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than 
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a 
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase 
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    bool detectCapitalUse(string word) {
+        int N = word.size();
+        int capital_count = 0, lower_count = 0;
+        for(auto c: word) {
+            capital_count += isupper(c) != 0;
+            lower_count += islower(c) != 0;
+        }
+        
+        return capital_count == N || lower_count == N || 
+            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+521. Longest Uncommon Subsequence I
+Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
+The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
+should not be any subsequence of the other strings.
+
+A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
+order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
+
+The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
+uncommon subsequence doesn't exist, return -1.
+
+Example 1:
+Input: "aba", "cdc"
+Output: 3
+Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
+because "aba" is a subsequence of "aba", 
+but not a subsequence of any other strings in the group of two strings. 
+Note:
+
+Both strings' lengths will not exceed 100.
+Only letters from a ~ z will appear in input strings.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
+      what is the longest ss_A that is not ss_B and vice versa
+
+      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
+      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
+      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
+      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
+      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
+    */
+    int findLUSlength(string a, string b) {
+        if(a == b) return -1;
+        return max(a.size(), b.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+525. Contiguous Array
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example 1:
+Input: [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
+Example 2:
+Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+Note: The length of the given binary array will not exceed 50,000.
+
+/*
+    Submission Date: 2017-04-01
+    Runtime: 162 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int findMaxLength(vector<int>& nums) {
+        int maxLen = 0;
+        int currentSum = 0;
+        
+        // unordered_map has key to currentSum and value to earliest index seen with that 
+        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
+        // elements between those two indices is zero meaning equal number of 0's and 1's
+        // so finding the smallest index with the same currentSum results in the largest subarray
+        unordered_map<int, int> m = {{0, -1}};
+    
+        for(int i = 0, len = nums.size(); i < len; i++) {
+            if(nums[i] == 0) {
+                currentSum--;
+            } else {
+                currentSum++;
+            }
+            
+            if(m.find(currentSum) == m.end()) {
+                m[currentSum] = i;
+            } else {
+                maxLen = max(maxLen, i - m[currentSum]);
+            }
+        }
+        
+        return maxLen;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 530. Minimum Absolute Difference in BST
 Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
 
@@ -721,262 +978,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-567. Permutation in String
-Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
-one of the first string's permutations is the substring of the second string.
-Example 1:
-Input:s1 = "ab" s2 = "eidbaooo"
-Output:True
-Explanation: s2 contains one permutation of s1 ("ba").
-Example 2:
-Input:s1= "ab" s2 = "eidboaoo"
-Output: False
-Note:
-The input strings only contain lower case letters.
-The length of both given strings is in range [1, 10,000].
-/*
-    Submission Date: 2018-06-02
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    frequency map of s1 with variable to_use as global to check if everything equals 0
-    use sliding window where everything in a window is a valid character and does not 
-    exceed the frequency map limit for certain character
-    for a new character, if it exceeds the limit or its not a valid character than keep
-    moving front (restoring freq map). if it is not a valid character, the map will be
-    restored and to_do = original
-    Check if character is valid, if it is use it else move front so that it is not
-    included
-    */
-    bool checkInclusion(string s1, string s2) {
-        vector<int> freq(26 , 0);
-        unordered_set<char> letters(s1.begin(), s1.end());
-        for(const auto& c: s1) freq[c - 'a']++;
-        
-        int front = 0;
-        int back = 0;
-        
-        int N = s2.size();
-        int to_use = s1.size();
-        
-        while(back < N) {
-            if(to_use == 0) return true;
-            // slide the front until the letter is removed
-            int back_val = s2[back] - 'a';
-            while(front < back && freq[back_val] == 0) {
-                freq[s2[front] - 'a']++;
-                front++;
-                to_use++;
-            }
-            
-            /* if the back letter is in s1, decrease the frequency and to_use
-                else it means front == back as freq[s2[back]] == 0 so increase front 
-                to not include this letter
-            */
-            if(letters.count(s2[back])) {
-                freq[back_val]--;
-                to_use--;
-            } else {
-                front++;
-            }
-            
-            back++;
-        }
-        
-        return to_use == 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-572. Subtree of Another Tree
-Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
-with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
-tree s could also be considered as a subtree of itself.
-
-Example 1:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-Given tree t:
-   4 
-  / \
- 1   2
-Return true, because t has the same structure and node values with a subtree of s.
-Example 2:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-    /
-   0
-Given tree t:
-   4
-  / \
- 1   2
-Return false.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 29 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    void serialize(TreeNode* node, string& res) {
-        if(node == NULL) {
-            res += "null,";
-        } else {
-            res += to_string(node->val) + ",";
-            serialize(node->left, res);
-            serialize(node->right, res);
-        }
-    }
-    
-    // check if s == t or s contains a subtree t
-    bool isSubtree(TreeNode* s, TreeNode* t) {
-        string s1 = "", s2 = "";
-        serialize(s, s1);
-        serialize(t, s2);
-        return s1 == s2 || s1.find("," + s2) != string::npos;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-575. Distribute Candies
-Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
-Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
-sister. Return the maximum number of kinds of candies the sister could gain.
-Example 1:
-Input: candies = [1,1,2,2,3,3]
-Output: 3
-Explanation:
-There are three different kinds of candies (1, 2 and 3), and two candies for each kind.
-Optimal distribution: The sister has candies [1,2,3] and the brother has candies [1,2,3], too. 
-The sister has three different kinds of candies. 
-Example 2:
-Input: candies = [1,1,2,3]
-Output: 2
-Explanation: For example, the sister has candies [2,3] and the brother has candies [1,1]. 
-The sister has two different kinds of candies, the brother has only one kind of candies. 
-Note:
-
-The length of the given array is in range [2, 10,000], and will be even.
-The number in given array is in range [-100,000, 100,000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 247 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    // Count the number of distinct candies. Return the min of this and the max size of the array which is candies.size()/2.
-    int distributeCandies(vector<int>& candies) {
-        unordered_set<int> st(candies.begin(), candies.end());
-        return min(candies.size()/2, st.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
     return 0;
 }

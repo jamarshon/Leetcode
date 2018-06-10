@@ -763,6 +763,44 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+434. Number of Segments in a String
+Count the number of segments in a string, where a segment is defined to be a contiguous sequence of non-space characters.
+
+Please note that the string does not contain any non-printable characters.
+
+Example:
+
+Input: "Hello, my name is John"
+Output: 5
+/*
+    Submission Date: 2018-06-09
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    int countSegments(string s) {
+        int res = 0;
+        for(int i = 0; i < s.size(); i++) {
+            if(!isspace(s[i]) && (i == 0 || isspace(s[i-1]))) {
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 437. Path Sum III
 You are given a binary tree in which each node contains an integer value.
 
@@ -934,58 +972,6 @@ public:
             else curr_freq[to_erase]--;
         }
         
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-442. Find All Duplicates in an Array
-Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and 
-others appear once.
-
-Find all the elements that appear twice in this array.
-
-Could you do it without extra space and in O(n) runtime?
-
-Example:
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[2,3]
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 176 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findDuplicates(vector<int>& nums) {
-        int N = nums.size();
-        vector<int> res;
-        for(int i = 0; i < N; i++) {
-            while(nums[i] != nums[nums[i] - 1]) {
-                swap(nums[i], nums[nums[i] - 1]);
-            }
-        }
-    
-        for(int i = 0; i < N; i++) {
-            if(nums[i] != i + 1) {
-                res.push_back(nums[i]);
-            }
-        }
-         
         return res;
     }
 };

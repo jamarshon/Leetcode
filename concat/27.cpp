@@ -1,6 +1,278 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+692. Top K Frequent Words
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
+with the lower alphabetical order comes first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]
+Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
+    with the number of occurrence being 4, 3, 2 and 1 respectively.
+Note:
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Input words contain only lowercase letters.
+Follow up:
+Try to solve it in O(n log k) time and O(n) extra space.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> topKFrequent(vector<string>& words, int k) {
+        unordered_map<string,int> freq_map;
+        for(auto e: words) freq_map[e]++;
+        
+        map<int, vector<string>> grouped_map;
+        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
+        
+        vector<string> res;
+        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
+            sort(it->second.begin(), it->second.end());
+            for(auto e: it->second) {
+                res.push_back(e);
+                if(res.size() == k) break;
+            }
+            if(res.size() == k) break;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+693. Binary Number with Alternating Bits
+Given a positive integer, check whether it has alternating bits: namely, if two adjacent bits will always have different values.
+
+Example 1:
+Input: 5
+Output: True
+Explanation:
+The binary representation of 5 is: 101
+Example 2:
+Input: 7
+Output: False
+Explanation:
+The binary representation of 7 is: 111.
+Example 3:
+Input: 11
+Output: False
+Explanation:
+The binary representation of 11 is: 1011.
+Example 4:
+Input: 10
+Output: True
+Explanation:
+The binary representation of 10 is: 1010.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution2 {
+public:
+    // 0x5555555555555555 checks if any of the even bits are set as 5 is 0101
+    bool IsPowerOfFour(long long x) {
+        return (x & ~(x-1)) == x && (x & 0x5555555555555555);
+    }
+    
+    // 0xaaaaaaaaaaaaaaaa checks if any of the odd bits are set as a is 1010
+    bool IsPowerOfFourTimesTwo(long long x) {
+        return (x & ~(x-1)) == x && (x & 0xaaaaaaaaaaaaaaaa);
+    }
+    /*
+        sum of geometric series is (1-r^n)/(1-r) so sum 2^(2i) and sum 2^(2i+1) becomes
+        sum(2^(2i)) = sum(4^i) = (1-4^n)/(1-4) = (4^n-1)/3
+        sum(2^(2i+1)) = 2*sum(4^i) = 2*(1-4^n)/(1-4) = (2*4^n-2)/3
+        so check if the number x = (4^n-1)/3 or x = (2*4^n-2)/3 works
+    */
+    bool hasAlternatingBits(long long n) {
+        return IsPowerOfFour(3*n+1) || IsPowerOfFourTimesTwo(n*3+2);
+    }
+};
+
+class Solution {
+public:
+    /*
+        shift number by two bits and xor it with itself. only the leading one should remeain
+        first operation gives one if x[i] != x[i+2] so if they are all zero it means x[0] = x[2] = x[4] = ... x[2*n]
+        and x[1] = x[3] = x[5] = ... x[2*n+1]
+
+        x[0] and x[1] can give 4 combinations 00, 01, 10, 11 so checking that there is just a leading one ensures
+        there is only one 1 and one 0 that propogate correctly to the rest of the numbers.
+    */
+    bool hasAlternatingBits(int n) {
+        int x = ((n >> 2) ^ n);
+        return (x & ~(x-1)) == x;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+695. Max Area of Island
+Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's (representing land) 
+connected 4-directionally (horizontal or vertical.) You may assume all four edges of the grid are surrounded by water.
+
+Find the maximum area of an island in the given 2D array. (If there is no island, the maximum area is 0.)
+
+Example 1:
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Given the above grid, return 6. Note the answer is not 11, because the island must be connected 4-directionally.
+Example 2:
+[[0,0,0,0,0,0,0,0]]
+Given the above grid, return 0.
+Note: The length of each dimension in the given grid does not exceed 50.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    int dx[4] = {1,-1,0,0};
+    int dy[4] = {0,0,-1,1};
+public:
+    int dfs(vector<vector<int>>& grid, int i, int j, int N, int M) {
+        grid[i][j] = 0;
+        
+        int res = 1;
+        for(int k = 0; k < 4; k++) {
+            int new_x = j + dx[k];
+            int new_y = i + dy[k];
+            if((0 <= new_x && new_x < M) && (0 <= new_y && new_y < N) && grid[new_y][new_x] == 1) {
+                res += dfs(grid, new_y, new_x, N, M);
+            }
+        }
+        return res;
+    }
+    
+    int maxAreaOfIsland(vector<vector<int>>& grid) {
+        if(grid.empty()) return 0;
+        int N = grid.size();
+        int M = grid[0].size();
+        int res = 0;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                if(grid[i][j] == 1) {
+                    res = max(res, dfs(grid, i, j, N, M));
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+696. Count Binary Substrings
+Give a string s, count the number of non-empty (contiguous) substrings that have the same number of 0's and 1's, 
+and all the 0's and all the 1's in these substrings are grouped consecutively.
+
+Substrings that occur multiple times are counted the number of times they occur.
+
+Example 1:
+Input: "00110011"
+Output: 6
+Explanation: There are 6 substrings that have equal number of consecutive 1's and 0's: "0011", "01", "1100", "10", "0011", and "01".
+
+Notice that some of these substrings repeat and are counted the number of times they occur.
+
+Also, "00110011" is not a valid substring because all the 0's (and 1's) are not grouped together.
+Example 2:
+Input: "10101"
+Output: 4
+Explanation: There are 4 substrings: "10", "01", "10", "01" that have equal number of consecutive 1's and 0's.
+Note:
+
+s.length will be between 1 and 50,000.
+s will only consist of "0" or "1" characters.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        suppose there is prev_cnt which is the number of repeated characters before index i that is
+        different than s[i].
+        Find how many s[i] repeats e.g. if it repeats from [i,j)
+        The number of times s[i] repeats (j-i) and the number of times previous character repeated (prev_cnt)
+        and the minimum between these two is the number of times that the substrings can have the same
+        number of characters from both characters.
+        e.g
+        3 4
+        000 1111
+        min(3,4) = 3
+        000 111, 00 11, 0 1
+    */
+    int countBinarySubstrings(string s) {
+        int res = 0;
+        int N = s.size();
+        int prev_cnt = 0;
+        for(int i = 0; i < N;) {
+            int start = i;
+            while(i < N && s[i] == s[start]) i++;
+            res += min(prev_cnt, i - start);
+            prev_cnt = i - start;
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 697. Degree of an Array
 Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
 
@@ -729,285 +1001,6 @@ public:
         }
         
         return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
-Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
-is considered a different type of stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int numJewelsInStones(string J, string S) {
-        unordered_set<char> jewels(J.begin(), J.end());
-        int res = 0;
-        for(const auto& stone: S) res += jewels.count(stone);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-783. Minimum Distance Between BST Nodes
-Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
-values of any two different nodes in the tree.
-
-Example :
-
-Input: root = [4,2,6,1,3,null,null]
-Output: 1
-Explanation:
-Note that root is a TreeNode object, not an array.
-
-The given tree [4,2,6,1,3,null,null] is represented by the following diagram:
-
-          4
-        /   \
-      2      6
-     / \    
-    1   3  
-
-while the minimum difference in this tree is 1, it occurs between node 1 and node 2, also between node 3 and node 2.
-Note:
-
-The size of the BST will be between 2 and 100.
-The BST is always valid, each node's value is an integer, and each node's value is different.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <climits>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    inorder traversal keeping tracking of prev
-    */
-    void help(TreeNode* root, int& res, int& prev) {
-        if(root == NULL) return;
-        help(root->left, res, prev);
-        if(prev != INT_MAX) {
-            res = min(res, root->val - prev);
-        }
-        
-        prev = root->val;
-        help(root->right, res, prev);
-    }
-    
-    int minDiffInBST(TreeNode* root) {
-        int res = INT_MAX, prev = INT_MAX;
-        help(root, res, prev);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-784. Letter Case Permutation
-Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
-Return a list of all possible strings we could create.
-
-Examples:
-Input: S = "a1b2"
-Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
-
-Input: S = "3z4"
-Output: ["3z4", "3Z4"]
-
-Input: S = "12345"
-Output: ["12345"]
-Note:
-
-S will be a string with length at most 12.
-S will consist only of letters or digits.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, vector<string>> dp_;
-public:
-    /*
-     find the first alphabetical letter. get the vector for the remaining string
-     add prefix with the letter lower case and upper case to each element from the vector
-    */
-    vector<string> letterCasePermutation(string S) {
-        if(dp_.count(S)) return dp_[S];
-        
-        int N = S.size();
-        int i = 0;
-        for(; i < N; i++) {
-            if(isalpha(S[i])) break;
-        }
-        
-        if(i >= N) return { S };
-        vector<string> rem = letterCasePermutation(S.substr(i + 1));
-        int M = rem.size();
-        rem.reserve(2*M);
-        
-        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
-        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
-        for(int j = 0; j < M; j++) {
-            rem.push_back(s2 + rem[j]);
-            rem[j] = s1 + rem[j];
-        }
-        return rem;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-788. Rotated Digits
-X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
-Each digit must be rotated - we cannot choose to leave it alone.
-
-A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
-6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
-
-Now given a positive number N, how many numbers X from 1 to N are good?
-
-Example:
-Input: 10
-Output: 4
-Explanation: 
-There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
-Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
-Note:
-
-N  will be in range [1, 10000].
-/*
-    Submission Date: 2018-06-04
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
-    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
-    without the last number and rot[i % 10] gets the rotated version of the last number
-    of i
-    */
-    int rotatedDigits(int N) {
-        vector<int> dp(N + 1, -1);
-        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
-                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
-        int res = 0;
-        for(int i = 1; i <= N; i++) {
-            if(!rot.count(i % 10)) continue;
-            if(i < 10) {
-                dp[i] = rot[i];
-                res += dp[i] != i;
-            } else {
-                if(dp[i/10] == -1) continue;
-                dp[i] = dp[i/10] * 10 + rot[i % 10];
-                res += dp[i] != i;
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-796. Rotate String
-We are given two strings, A and B.
-
-A shift on A consists of taking string A and moving the leftmost character to the rightmost position. 
-For example, if A = 'abcde', then it will be 'bcdea' after one shift on A. Return True if and only if A can 
-become B after some number of shifts on A.
-
-Example 1:
-Input: A = 'abcde', B = 'cdeab'
-Output: true
-
-Example 2:
-Input: A = 'abcde', B = 'abced'
-Output: false
-Note:
-
-A and B will have length at most 100.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool rotateString(string A, string B) {
-        if(A.size() != B.size()) return false;
-        string A2 = A + A;
-        return A2.find(B) != string::npos;
     }
 };
 

@@ -1,6 +1,208 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+341. Flatten Nested List Iterator
+Given a nested list of integers, implement an iterator to flatten it.
+
+Each element is either an integer, or a list -- whose elements may also be integers 
+or other lists.
+
+Example 1:
+Given the list [[1,1],2,[1,1]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by next 
+should be: [1,1,2,1,1].
+
+Example 2:
+Given the list [1,[4,[6]]],
+
+By calling next repeatedly until hasNext returns false, the order of elements returned by 
+next should be: [1,4,6].
+/*
+    Submission Date: 2018-05-02
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <stack>
+#include <vector>
+#include <tuple>
+
+using namespace std;
+
+class NestedInteger {
+  public:
+    // Return true if this NestedInteger holds a single integer, rather than a nested list.
+    bool isInteger() const;
+
+    // Return the single integer that this NestedInteger holds, if it holds a single integer
+    // The result is undefined if this NestedInteger holds a nested list
+    int getInteger() const;
+
+    // Return the nested list that this NestedInteger holds, if it holds a nested list
+    // The result is undefined if this NestedInteger holds a single integer
+    const vector<NestedInteger> &getList() const;
+};
+
+class NestedIterator {
+public:
+    stack<pair<int, const vector<NestedInteger>*>> stk;
+    vector<NestedInteger> cp;
+    NestedIterator(vector<NestedInteger> &nestedList) {
+        cp = nestedList;
+        stk.emplace(0, &cp);
+    }
+    
+    void traverse() {
+        while(!stk.empty()) {
+            int ind;
+            const vector<NestedInteger>* v;
+            tie(ind, v) = stk.top();
+            stk.pop();
+            if(ind < v->size()) {
+                if(v->at(ind).isInteger()) {
+                    stk.emplace(ind, v);
+                    return;
+                } else {
+                    stk.emplace(ind + 1, v);
+                    stk.emplace(0, &(v->at(ind).getList()));
+                }
+            }
+        }    
+    }
+    
+    int next() {
+        traverse();
+        
+        int ind;
+        const vector<NestedInteger>* v;
+        tie(ind, v) = stk.top();
+        stk.pop();
+        stk.emplace(ind + 1, v);
+        
+        return v->at(ind).getInteger();
+    }
+
+    bool hasNext() {
+        traverse();
+        return !stk.empty();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+342. Power of Four
+Given an integer (signed 32 bits), write a function to check 
+whether it is a power of 4.
+
+Example:
+Given num = 16, return true. Given num = 5, return false.
+
+Follow up: Could you solve it without loops/recursion?
+/*
+    Submission Date: 2017-08-21
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isPowerOfFour(int x) {
+        // (x & (x-1)) == 0 checks for power of two as it would 
+        // series of zeros with only one 1. so x-1 will AND with nothing
+        // leaving zero
+        // geometric series 1 + 4 + 16 + 64 + 256 -> a = 1, r = 4, n = 5
+        // sum{i = 0 to n-1}(a*r^i = a*(1-r^n/(1-r)
+        // so let x = sum{i = 0 to n-1}((1-4^n)/(1-4))
+        // x = (4^n - 1)/3
+        // 3*x = 4^n - 1 <- thus 4^n - 1 must be a multiple of 3
+        return x > 0 && (x & (x-1)) == 0 && (x-1) % 3 == 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+343. Integer Break
+Given a positive integer n, break it into the sum of at least two positive integers and 
+maximize the product of those integers. Return the maximum product you can get.
+
+For example, given n = 2, return 1 (2 = 1 + 1); given n = 10, return 36 (10 = 3 + 3 + 4).
+
+Note: You may assume that n is not less than 2 and not larger than 58.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<int, int> dp;
+public:
+    int integerBreak(int N) {
+        return integerBreak(N,N);
+    }
+    
+    int integerBreak(int n, int N) {
+        if(dp.count(n)) return dp[n];
+        
+        int res = n == N ? 1 : n;
+        for(int i = 1; i < n; i++) {
+            res = max(res, i*integerBreak(n-i, N));
+        }
+        
+        return dp[n] = res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+344. Reverse String
+Write a function that takes a string as input and returns the string reversed.
+
+Example:
+Given s = "hello", return "olleh".
+/*
+    Submission Date: 2017-03-11
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string reverseString(string s) {
+        int N = s.size();
+        for(int i = 0; i < N/2; i++) {
+            swap(s[i], s[N-i-1]);
+        }
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 345. Reverse Vowels of a String
 Write a function that takes a string as input and reverse only 
 the vowels of a string.
@@ -690,281 +892,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-378. Kth Smallest Element in a Sorted Matrix
-Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
-
-Note that it is the kth smallest element in the sorted order, not the kth distinct element.
-
-Example:
-
-matrix = [
-   [ 1,  5,  9],
-   [10, 11, 13],
-   [12, 13, 15]
-],
-k = 8,
-
-return 13.
-Note: 
-You may assume k is always valid, 1 ≤ k ≤ n2.
-/*
-    Submission Date: 2018-05-30
-    Runtime: 38 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <queue>
-
-using namespace std;
-
-class Solution2 {
-public:
-    bool Get(const vector<vector<int>>& matrix, int num, int N, int M, int k) {
-        int i = 0;
-        int j = M-1;
-        int curr = 0;
-        
-        int occurences = 0;
-        
-        while(i < N && j >= 0) {
-            if(matrix[i][j] > num) {
-                j--;
-            } else {
-                int temp = j;
-                while(temp >= 0 && matrix[i][temp] == num) temp--;
-                i++;
-                curr += temp + 1;
-                occurences += j - temp;
-            }
-        }
-        
-        return curr < k && k <= curr + occurences;
-    }
-
-    // for each element in the array, count the number of elements smaller than it
-    int kthSmallest(vector<vector<int>>& matrix, int k) {
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(Get(matrix, matrix[i][j], N, M, k)) {
-                    return matrix[i][j];
-                }
-            }
-        }
-        
-        return -1;
-    }
-};
-
-struct Item {
-    int i, j, val;
-    Item(const int& _i, const int& _j, const int& _val): i(_i), j(_j), val(_val) {}
-    bool operator>(const Item& rhs) const {
-        return val > rhs.val;
-    }
-};
-
-class Solution3 {
-public:
-    int kthSmallest(vector<vector<int>>& matrix, int k) {
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        priority_queue<Item, vector<Item>, greater<Item>> min_heap;
-        for(int j = 0; j < M; j++) {
-            min_heap.emplace(0, j, matrix[0][j]);
-        }
-        
-        for(int i = 0; i < k - 1; i++) { // remove k- 1 elements to get the kth element
-            Item smallest = min_heap.top();
-            min_heap.pop();
-            if(smallest.i + 1 < N) {
-                smallest.i++;
-                smallest.val = matrix[smallest.i][smallest.j];
-                min_heap.push(smallest);
-            }
-        }
-        
-        return min_heap.top().val;
-    }
-};
-
-class Solution {
-public:
-    int kthSmallest(vector<vector<int>>& matrix, int k) {
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        // matrix[i][j] >= matrix[k][l] for all k > i && l > j
-        int low = matrix[0][0];
-        int high = matrix[M-1][M-1];
-        
-        while(low <= high) {
-            int mid = low + (high-low)/2;
-            int num_smaller_than_mid = 0;
-            // get the number of elements that are <= mid.
-            // suppose the two elements in the array are 10 x 1, 10 x 2 and 10 x 3
-            // if k == 15, mid = 2 and num_smaller_than_mid are 10, 20, 30 return low
-            // gets the number larger than k
-            for(int j = M-1, i = 0; i < N; i++) {
-                while(j >= 0 && matrix[i][j] > mid) j--;
-                num_smaller_than_mid += j + 1;
-            }
-            
-            if(num_smaller_than_mid >= k) high = mid - 1; // too many elements
-            else low = mid + 1; // too little elements
-        }
-        
-        return low;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-383. Ransom Note
-Given an arbitrary ransom note string and another string containing letters from all the magazines, 
-write a function that will return true if the ransom note can be constructed from the magazines ; 
-otherwise, it will return false.
-
-Each letter in the magazine string can only be used once in your ransom note.
-
-Note:
-You may assume that both strings contain only lowercase letters.
-
-canConstruct("a", "b") -> false
-canConstruct("aa", "ab") -> false
-canConstruct("aa", "aab") -> true
-/*
-    Submission Date: 2018-05-02
-    Runtime: 34 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canConstruct(string ransomNote, string magazine) {
-        unordered_map<char,int> m;
-        for(auto e: magazine) m[e]++;
-        for(auto e: ransomNote) {
-          if(m.count(e)) {
-            if(m[e] == 0) return false;
-            m[e]--;
-          } else {
-            return false;
-          }
-        }
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-386. Lexicographical Numbers
-Given an integer n, return 1 - n in lexicographical order.
-
-For example, given 13, return: [1,10,11,12,13,2,3,4,5,6,7,8,9].
-
-Please optimize your algorithm to use less time and space. The input size 
-may be as large as 5,000,000.
-
-/*
-    Submission Date: 2017-08-21
-    Runtime: 239 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void lexicalOrder(int curr, int n, vector<int>& res) {
-        if(curr > n) return;
-
-        int limit = min(n + 1, curr == 1 ? 10: curr+10);
-        for(int i = curr; i < limit; i++) {
-            res.push_back(i);
-            lexicalOrder(i*10, n, res);
-        }
-    }
-    
-    vector<int> lexicalOrder(int n) {
-        vector<int> res;
-        lexicalOrder(1, n, res);
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-387. First Unique Character in a String
-Given a string, find the first non-repeating character in it and return 
-it's index. If it doesn't exist, return -1.
-
-Examples:
-
-s = "leetcode"
-return 0.
-
-s = "loveleetcode",
-return 2.
-Note: You may assume the string contain only lowercase letters.
-
-/*
-    Submission Date: 2017-08-21
-    Runtime: 93 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <set>
-
-using namespace std;
-
-class Solution {
-public:
-    int firstUniqChar(string s) {
-        unordered_map<char,int> letter_to_first_ind;
-        set<int> st;
-        for(int i = 0; i < s.size(); i++) {
-            if(letter_to_first_ind.count(s[i])) { 
-                // we've seen this letter before so we remove it from the set
-                if(st.count(letter_to_first_ind[s[i]])) {
-                    st.erase(letter_to_first_ind[s[i]]);
-                }
-            } else {
-                letter_to_first_ind[s[i]] = i;
-                st.insert(i);
-            }
-        }
-
-        return st.empty() ? -1 : *st.begin();
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

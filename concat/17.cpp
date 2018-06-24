@@ -450,6 +450,96 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+312. Burst Balloons
+Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented by array nums. 
+You are asked to burst all the balloons. If the you burst balloon i you will get 
+nums[left] * nums[i] * nums[right] coins. Here left and right are adjacent indices of i. 
+After the burst, the left and right then becomes adjacent.
+
+Find the maximum coins you can collect by bursting the balloons wisely.
+
+Note:
+
+You may imagine nums[-1] = nums[n] = 1. They are not real therefore you can not burst them.
+0 ≤ n ≤ 500, 0 ≤ nums[i] ≤ 100
+Example:
+
+Input: [3,1,5,8]
+Output: 167 
+Explanation: nums = [3,1,5,8] --> [3,5,8] -->   [3,8]   -->  [8]  --> []
+             coins =  3*1*5      +  3*5*8    +  1*3*8      + 1*8*1   = 167
+/*
+    Submission Date: 2018-06-24
+    Runtime: 14 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution2 {
+public:
+    unordered_map<string, int> dp;
+    int help(vector<int>& nums, int l, int r) {
+        string key = to_string(l) + "," + to_string(r);
+        if(dp.count(key)) return dp[key];
+        int res = 0;
+        for(int i = l + 1; i <= r - 1; i++) {
+            res = max(res, nums[l]*nums[i]*nums[r] + help(nums, l, i) + help(nums, i, r));
+        }
+        return dp[key] = res;
+    }
+    int maxCoins(vector<int>& nums) {
+        vector<int> x;
+        x.reserve(nums.size() + 2);
+        x.push_back(1);
+        for(auto e: nums) x.push_back(e);
+        x.push_back(1);
+        return help(x, 0, x.size()-1);
+    }
+};
+
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        vector<int> x;
+        x.reserve(nums.size() + 2);
+        x.push_back(1);
+        for(auto e: nums) x.push_back(e);
+        x.push_back(1);
+        
+        int N = x.size();
+        /*
+        O(n^3)
+        r-l < 2  gives 0 as needs at least 3 elements
+        if l and r are adjacent and i is popped, it means no number between y = [l,i] 
+        can be adjacent to z = [i,r]. if y is adjacent to z, then i must have been 
+        popped to get y adjacent to z.
+        the result would be finding what it takes to make l adjacent to i (dp[l][i])
+        and to make i adjacent to r (dp[i][r]) + value from popping i (x[l]*x[i]*x[r]).
+        */
+        vector<vector<int>> dp(N, vector<int>(N, 0));
+        for(int gap = 2; gap < N; gap++) {
+            for(int l = 0; l + gap < N; l++) {
+                int r = l + gap;
+                
+                for(int i = l + 1; i <= r - 1; i++) {
+                    dp[l][r] = max(dp[l][r], x[l]*x[i]*x[r] + dp[l][i] + dp[i][r]);
+                }
+            }
+        }
+        
+        return dp[0][N-1];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 313. Super Ugly Number
 Write a program to find the nth super ugly number.
 
@@ -843,149 +933,6 @@ class Solution {
 public:
     int bulbSwitch(int N) {
         return sqrt(N);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-321. Create Maximum Number
-Given two arrays of length m and n with digits 0-9 representing two numbers. 
-Create the maximum number of length k <= m + n from digits of the two. The relative 
-order of the digits from the same array must be preserved. Return an array of the k 
-digits. You should try to optimize your time and space complexity.
-
-Example 1:
-nums1 = [3, 4, 6, 5]
-nums2 = [9, 1, 2, 5, 8, 3]
-k = 5
-return [9, 8, 6, 5, 3]
-
-Example 2:
-nums1 = [6, 7]
-nums2 = [6, 0, 4]
-k = 5
-return [6, 7, 6, 0, 4]
-
-Example 3:
-nums1 = [3, 9]
-nums2 = [8, 9]
-k = 3
-return [9, 8, 9]
-/*
-    Submission Date: 2018-05-02
-    Runtime: 72 ms
-    Difficulty: HARD
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Take i numbers from first array and k - i numbers from second array.
-        Merge to find the largest possible string and store the largest for all i.
-        O(k^3)
-    */
-    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int k) {
-        string s1, s2;
-        int m = nums1.size(), 
-            n = nums2.size();
-        
-        s1.reserve(m);
-        s2.reserve(n);
-        
-        for(auto e: nums1) s1.push_back(e + '0');
-        for(auto e: nums2) s2.push_back(e + '0');
-        
-        string res = "";
-        // need to maintain k-i >= 0, i <= m
-        for (int i = 0; i <= min(m,k); i++) {
-            if(k - i > n) continue; // s2 is too short to produce k-i elements needed
-            string tmp = Merge(MaxArray(s1, i), MaxArray(s2, k - i), m, n);
-            res = max(res, tmp);
-        }
-        
-        vector<int> out(k);
-        for(int i = 0; i < k; i++) out[i] = res[i] - '0';
-        return out;
-    }
-    
-    // O(m + n) merge of two substrings of size m and n by choosing letters to make the largest
-    // possible.
-    string Merge(const string& s1, const string& s2, int m, int n) {
-        int i = 0,
-            j = 0;
-        string res;
-        while(i < s1.size() || j < s2.size()) {
-            if (s1.substr(min(i, m)) > s2.substr(min(j, n))) {
-                res.push_back(s1[i++]);
-            } else {
-                res.push_back(s2[j++]);
-            }
-        }
-        
-        return res;
-    }
-    
-    // maximum subsequence of s with size n, if s.size() <= n return s. O(n)
-    string MaxArray(const string& s, int n) {
-        string stk = "";
-        for(int i = 0; i < s.size(); i++) {
-            // if remaining elements and stack have more than enough elements
-            // then keep removing from the stack while it is smaller than the current element
-            while(s.size() - i + stk.size() > n && !stk.empty() && stk.back() < s[i]) stk.pop_back();
-            // if the stk is already size n, no need to push
-            if(stk.size() < n) stk.push_back(s[i]);
-        }
-        return stk;
-    }
-};
-
-class Solution2 {
-public:
-    /*
-        dp[i][j][k] represents the largest number created from nums1 from [0,i)
-        and nums2 [0, j) of size k.
-
-        dp[i][j][k] = max (
-            dp[i-1][j][k-1] + nums1[i-1]    take a number from nums1
-            dp[i-1][j][k]                   do not take a number 
-            dp[i][j-1][k-1] + nums2[j-1]    take a number forom nums2
-            dp[i][j-1][k]                   do not take a number
-            )
-    */
-    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int kk) {
-        string s1, s2;
-        for(auto e: nums1) s1.push_back(e + '0');
-        for(auto e: nums2) s2.push_back(e + '0');
-        vector<vector<vector<string>>> dp(
-            s1.size() + 1, vector<vector<string>>(s2.size() + 1, vector<string>(kk + 1)));
-
-        for(int k = 1; k <= kk; k++) {
-            for(int i = 0; i <= s1.size(); i++) {
-              for(int j = 0; j <= s2.size(); j++) {
-                if(i > 0) {
-                  dp[i][j][k] = max(dp[i][j][k], dp[i-1][j][k-1] + string(1, s1[i-1]));
-                  dp[i][j][k] = max(dp[i][j][k], dp[i-1][j][k]);
-                }
-                if(j > 0) {
-                  dp[i][j][k] = max(dp[i][j][k], dp[i][j-1][k-1] + string(1, s2[j-1]));
-                  dp[i][j][k] = max(dp[i][j][k], dp[i][j-1][k]);
-                }
-              }
-            }
-        }
-
-        vector<int> res;
-        for(const auto& e: dp[s1.size()][s2.size()][kk]) res.push_back(e - '0');
-        return res;
     }
 };
 

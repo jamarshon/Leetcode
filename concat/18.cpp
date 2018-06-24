@@ -1,6 +1,149 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+321. Create Maximum Number
+Given two arrays of length m and n with digits 0-9 representing two numbers. 
+Create the maximum number of length k <= m + n from digits of the two. The relative 
+order of the digits from the same array must be preserved. Return an array of the k 
+digits. You should try to optimize your time and space complexity.
+
+Example 1:
+nums1 = [3, 4, 6, 5]
+nums2 = [9, 1, 2, 5, 8, 3]
+k = 5
+return [9, 8, 6, 5, 3]
+
+Example 2:
+nums1 = [6, 7]
+nums2 = [6, 0, 4]
+k = 5
+return [6, 7, 6, 0, 4]
+
+Example 3:
+nums1 = [3, 9]
+nums2 = [8, 9]
+k = 3
+return [9, 8, 9]
+/*
+    Submission Date: 2018-05-02
+    Runtime: 72 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        Take i numbers from first array and k - i numbers from second array.
+        Merge to find the largest possible string and store the largest for all i.
+        O(k^3)
+    */
+    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int k) {
+        string s1, s2;
+        int m = nums1.size(), 
+            n = nums2.size();
+        
+        s1.reserve(m);
+        s2.reserve(n);
+        
+        for(auto e: nums1) s1.push_back(e + '0');
+        for(auto e: nums2) s2.push_back(e + '0');
+        
+        string res = "";
+        // need to maintain k-i >= 0, i <= m
+        for (int i = 0; i <= min(m,k); i++) {
+            if(k - i > n) continue; // s2 is too short to produce k-i elements needed
+            string tmp = Merge(MaxArray(s1, i), MaxArray(s2, k - i), m, n);
+            res = max(res, tmp);
+        }
+        
+        vector<int> out(k);
+        for(int i = 0; i < k; i++) out[i] = res[i] - '0';
+        return out;
+    }
+    
+    // O(m + n) merge of two substrings of size m and n by choosing letters to make the largest
+    // possible.
+    string Merge(const string& s1, const string& s2, int m, int n) {
+        int i = 0,
+            j = 0;
+        string res;
+        while(i < s1.size() || j < s2.size()) {
+            if (s1.substr(min(i, m)) > s2.substr(min(j, n))) {
+                res.push_back(s1[i++]);
+            } else {
+                res.push_back(s2[j++]);
+            }
+        }
+        
+        return res;
+    }
+    
+    // maximum subsequence of s with size n, if s.size() <= n return s. O(n)
+    string MaxArray(const string& s, int n) {
+        string stk = "";
+        for(int i = 0; i < s.size(); i++) {
+            // if remaining elements and stack have more than enough elements
+            // then keep removing from the stack while it is smaller than the current element
+            while(s.size() - i + stk.size() > n && !stk.empty() && stk.back() < s[i]) stk.pop_back();
+            // if the stk is already size n, no need to push
+            if(stk.size() < n) stk.push_back(s[i]);
+        }
+        return stk;
+    }
+};
+
+class Solution2 {
+public:
+    /*
+        dp[i][j][k] represents the largest number created from nums1 from [0,i)
+        and nums2 [0, j) of size k.
+
+        dp[i][j][k] = max (
+            dp[i-1][j][k-1] + nums1[i-1]    take a number from nums1
+            dp[i-1][j][k]                   do not take a number 
+            dp[i][j-1][k-1] + nums2[j-1]    take a number forom nums2
+            dp[i][j-1][k]                   do not take a number
+            )
+    */
+    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int kk) {
+        string s1, s2;
+        for(auto e: nums1) s1.push_back(e + '0');
+        for(auto e: nums2) s2.push_back(e + '0');
+        vector<vector<vector<string>>> dp(
+            s1.size() + 1, vector<vector<string>>(s2.size() + 1, vector<string>(kk + 1)));
+
+        for(int k = 1; k <= kk; k++) {
+            for(int i = 0; i <= s1.size(); i++) {
+              for(int j = 0; j <= s2.size(); j++) {
+                if(i > 0) {
+                  dp[i][j][k] = max(dp[i][j][k], dp[i-1][j][k-1] + string(1, s1[i-1]));
+                  dp[i][j][k] = max(dp[i][j][k], dp[i-1][j][k]);
+                }
+                if(j > 0) {
+                  dp[i][j][k] = max(dp[i][j][k], dp[i][j-1][k-1] + string(1, s2[j-1]));
+                  dp[i][j][k] = max(dp[i][j][k], dp[i][j-1][k]);
+                }
+              }
+            }
+        }
+
+        vector<int> res;
+        for(const auto& e: dp[s1.size()][s2.size()][kk]) res.push_back(e - '0');
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 322. Coin Change
 You are given coins of different denominations and a total amount of money amount. Write a 
 function to compute the fewest number of coins that you need to make up that amount. If that 
@@ -788,208 +931,6 @@ public:
         }
 
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-341. Flatten Nested List Iterator
-Given a nested list of integers, implement an iterator to flatten it.
-
-Each element is either an integer, or a list -- whose elements may also be integers 
-or other lists.
-
-Example 1:
-Given the list [[1,1],2,[1,1]],
-
-By calling next repeatedly until hasNext returns false, the order of elements returned by next 
-should be: [1,1,2,1,1].
-
-Example 2:
-Given the list [1,[4,[6]]],
-
-By calling next repeatedly until hasNext returns false, the order of elements returned by 
-next should be: [1,4,6].
-/*
-    Submission Date: 2018-05-02
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <stack>
-#include <vector>
-#include <tuple>
-
-using namespace std;
-
-class NestedInteger {
-  public:
-    // Return true if this NestedInteger holds a single integer, rather than a nested list.
-    bool isInteger() const;
-
-    // Return the single integer that this NestedInteger holds, if it holds a single integer
-    // The result is undefined if this NestedInteger holds a nested list
-    int getInteger() const;
-
-    // Return the nested list that this NestedInteger holds, if it holds a nested list
-    // The result is undefined if this NestedInteger holds a single integer
-    const vector<NestedInteger> &getList() const;
-};
-
-class NestedIterator {
-public:
-    stack<pair<int, const vector<NestedInteger>*>> stk;
-    vector<NestedInteger> cp;
-    NestedIterator(vector<NestedInteger> &nestedList) {
-        cp = nestedList;
-        stk.emplace(0, &cp);
-    }
-    
-    void traverse() {
-        while(!stk.empty()) {
-            int ind;
-            const vector<NestedInteger>* v;
-            tie(ind, v) = stk.top();
-            stk.pop();
-            if(ind < v->size()) {
-                if(v->at(ind).isInteger()) {
-                    stk.emplace(ind, v);
-                    return;
-                } else {
-                    stk.emplace(ind + 1, v);
-                    stk.emplace(0, &(v->at(ind).getList()));
-                }
-            }
-        }    
-    }
-    
-    int next() {
-        traverse();
-        
-        int ind;
-        const vector<NestedInteger>* v;
-        tie(ind, v) = stk.top();
-        stk.pop();
-        stk.emplace(ind + 1, v);
-        
-        return v->at(ind).getInteger();
-    }
-
-    bool hasNext() {
-        traverse();
-        return !stk.empty();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-342. Power of Four
-Given an integer (signed 32 bits), write a function to check 
-whether it is a power of 4.
-
-Example:
-Given num = 16, return true. Given num = 5, return false.
-
-Follow up: Could you solve it without loops/recursion?
-/*
-    Submission Date: 2017-08-21
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isPowerOfFour(int x) {
-        // (x & (x-1)) == 0 checks for power of two as it would 
-        // series of zeros with only one 1. so x-1 will AND with nothing
-        // leaving zero
-        // geometric series 1 + 4 + 16 + 64 + 256 -> a = 1, r = 4, n = 5
-        // sum{i = 0 to n-1}(a*r^i = a*(1-r^n/(1-r)
-        // so let x = sum{i = 0 to n-1}((1-4^n)/(1-4))
-        // x = (4^n - 1)/3
-        // 3*x = 4^n - 1 <- thus 4^n - 1 must be a multiple of 3
-        return x > 0 && (x & (x-1)) == 0 && (x-1) % 3 == 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-343. Integer Break
-Given a positive integer n, break it into the sum of at least two positive integers and 
-maximize the product of those integers. Return the maximum product you can get.
-
-For example, given n = 2, return 1 (2 = 1 + 1); given n = 10, return 36 (10 = 3 + 3 + 4).
-
-Note: You may assume that n is not less than 2 and not larger than 58.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    unordered_map<int, int> dp;
-public:
-    int integerBreak(int N) {
-        return integerBreak(N,N);
-    }
-    
-    int integerBreak(int n, int N) {
-        if(dp.count(n)) return dp[n];
-        
-        int res = n == N ? 1 : n;
-        for(int i = 1; i < n; i++) {
-            res = max(res, i*integerBreak(n-i, N));
-        }
-        
-        return dp[n] = res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-344. Reverse String
-Write a function that takes a string as input and returns the string reversed.
-
-Example:
-Given s = "hello", return "olleh".
-/*
-    Submission Date: 2017-03-11
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string reverseString(string s) {
-        int N = s.size();
-        for(int i = 0; i < N/2; i++) {
-            swap(s[i], s[N-i-1]);
-        }
-        return s;
     }
 };
 

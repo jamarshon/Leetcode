@@ -1,482 +1,392 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-656. Coin Path
-Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
-and an integer B. The integer B denotes that from any place (suppose the index is i) 
-in the array A, you can jump to any one of the place in the array A indexed i+1, i+2, …, 
-i+B if this place can be jumped to. Also, if you step on the index i, you have to pay Ai 
-coins. If Ai is -1, it means you can’t jump to the place indexed i in the array.
+645. Set Mismatch
+The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
+the numbers in the set got duplicated to another number in the set, which results in repetition of one 
+number and loss of another number.
 
-Now, you start from the place indexed 1 in the array A, and your aim is to reach the place 
-indexed N using the minimum coins. You need to return the path of indexes (starting from 1 to N) 
-in the array you should take to get to the place indexed N using minimum coins.
-
-If there are multiple paths with the same cost, return the lexicographically smallest such path.
-
-If it's not possible to reach the place indexed N then you need to return an empty array.
+Given an array nums representing the data status of this set after the error. Your task is to firstly 
+find the number occurs twice and then find the number that is missing. Return them in the form of an array.
 
 Example 1:
-Input: [1,2,4,-1,2], 2
-Output: [1,3,5]
-Example 2:
-Input: [1,2,4,-1,2], 1
-Output: []
+Input: nums = [1,2,2,4]
+Output: [2,3]
 Note:
-Path Pa1, Pa2, ..., Pan is lexicographically smaller than Pb1, Pb2, ..., Pbm, if and only if at 
-the first i where Pai and Pbi differ, Pai < Pbi; when no such i exists, then n < m.
-A1 >= 0. A2, ..., AN (if exist) will in the range of [-1, 100].
-Length of A is in the range of [1, 1000].
-B is in the range of [1, 100].
+The given array size will in the range [2, 10000].
+The given array's numbers won't have any order.
 
 /*
-    Submission Date: 2017-08-06
-    Runtime: 12 ms
-    Difficulty: HARD
+    Submission Date: 2017-07-23
+    Runtime: 62 ms
+    Difficulty: EASY
 */
 
 #include <iostream>
-#include <vector>
 #include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <climits>
+#include <vector>
 
 using namespace std;
 
-struct Compare {
-    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) const {
-        return (lhs.first == rhs.first) ? (lhs.second < rhs.second) : (lhs.first < rhs.first);
+class Solution {
+public:
+    vector<int> findErrorNums(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for(auto num: nums) freq[num]++;
+        
+        int N = nums.size();
+        int duplicate = -1;
+        int missing = -1;
+        for(int i = 1; i <= N; i++) {
+            if(missing != -1 && duplicate != -1) break;
+            if(!freq.count(i)) {
+                missing = i;
+            } else if(freq[i] >= 2) {
+                duplicate = i;
+            }
+        }
+        return {duplicate, missing};
     }
 };
 
-class Solution2 {
-public:
-    vector<vector<int>> createPath(int curr, unordered_map<int, vector<int>>& parent) {
-        if(curr == 0) return {{}};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+646. Maximum Length of Pair Chain
+You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
 
+Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
+formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
+pairs. You can select pairs in any order.
+
+Example 1:
+Input: [[1,2], [2,3], [3,4]]
+Output: 2
+Explanation: The longest chain is [1,2] -> [3,4]
+Note:
+The number of given pairs will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 82 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
+            return v1[1] < v2[1];
+        });
+        
         vector<vector<int>> res;
-        for(auto prev: parent[curr]) {
-            vector<vector<int>> path = createPath(prev, parent);
-            for(auto p: path) {
-                p.push_back(curr);
+        
+        for(auto p: pairs) {
+            if(res.empty() || res.back()[1] < p[0]) {
                 res.push_back(p);
             }
         }
-
-        return res;
+        
+        return res.size();
     }
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        
-        // id is index, pair weight, to
-        vector<vector<pair<int, int>>> graph(N + 1);
-        
-        graph[0] = {{A[0], 1}};
-        for(int i = 0; i < N; i++) {
-            if(A[i] == -1) continue;
-            for(int j = 1; j <= B; j++) {
-                if(i + j >= N) break;
-                if(A[i + j] == -1) continue;
-                // connect vertex i with vertex i + j by weight A[i + j]
-                graph[i + 1].emplace_back(A[i + j], i + 1 + j);
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+647. Palindromic Substrings
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even 
+they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Note:
+The input string length won't exceed 1000.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int Manacher(string s) {
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+
+        for(auto c: s) str += string(1, c) + kNullChar;
+
+        string max_str = "";
+        int len = str.size();
+        int right = 0;
+        int center = 0;
+        vector<int> dp(len, 0);
+
+        for(int i = 1; i < len; i++) {
+            int mirr = 2*center - i;
+
+            // i is within right so can take the minimum of the mirror or distance from right
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirr]);
+            }
+
+            // keep expanding around i while it is the same and increment P[i]
+            int left_index = i - (1 + dp[i]);
+            int right_index = i + (1 + dp[i]);
+            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
+                left_index--;
+                right_index++;
+                dp[i]++;
+            }
+
+            // i goes beyond current right so it is the new center
+            if(i + dp[i] > right) {
+                center = i;
+                right = i + dp[i];
             }
         }
         
-        unordered_map<int, vector<int>> parent;
-        set<pair<int, int>, Compare> edges_to_process;
-        unordered_map<int, int> min_distance;
-        
-        for(int i = 1; i <= N; i++) {
-            edges_to_process.emplace(INT_MAX, i);
-            min_distance[i] = INT_MAX;
+        int count = 0;
+        for(int i = 0; i < len; i++) {
+            count += ceil((double)dp[i]/2.0);
+        }
+        return count;
+    }
+
+    int countSubstrings(string s) {
+        return Manacher(s);
+    }
+
+    int countSubstrings2(string s) {
+        int res = 0;
+        int N = s.size();
+        int left, right;
+        for(int i = 0; i < N; i++) {
+            res++;
+            
+            // treat as odd
+            left = i - 1;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+            
+            // treat as even
+            left = i;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
         }
         
-        edges_to_process.emplace(0, 0);
-        min_distance[0] = 0;
-        parent[0] = {0};
+        return res;
+    }
+};
 
-        while(!edges_to_process.empty()) {
-            // Minimum weight edge
-            pair<int,int> min_edge = *edges_to_process.begin();
-            edges_to_process.erase(edges_to_process.begin());
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+648. Replace Words
+In English, we have a concept called root, which can be followed by some other words to form another 
+longer word - let's call this word successor. For example, the root an, followed by other, which can 
+form another word another.
 
-            int current_vertex = min_edge.second;
-            int current_weight = min_edge.first;
+Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
+in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
+root with the shortest length.
 
-            if(current_weight == INT_MAX) break;
+You need to output the sentence after the replacement.
 
-            vector<pair<int,int>> neighbors = graph[current_vertex];
-            for(pair<int,int> neighbor: neighbors) {
-                auto edge_set_it = edges_to_process.find({min_distance[neighbor.second], neighbor.second});
-                // done processing already
-                if(edge_set_it == edges_to_process.end()) continue;
+Example 1:
+Input: dict = ["cat", "bat", "rat"]
+sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+Note:
+The input will only have lower-case letters.
+1 <= dict words number <= 1000
+1 <= sentence words number <= 1000
+1 <= root length <= 100
+1 <= sentence words length <= 1000
 
-                // found a smaller distance
-                if(current_weight + neighbor.first <= min_distance[neighbor.second]) {
-                    if(current_weight + neighbor.first == min_distance[neighbor.second]) {
-                        parent[neighbor.second].push_back(current_vertex);
-                    } else {
-                        min_distance[neighbor.second] = current_weight + neighbor.first;
-                        parent[neighbor.second].push_back(current_vertex);
-                        edges_to_process.erase(edge_set_it);
-                        edges_to_process.emplace(min_distance[neighbor.second], neighbor.second);
+/*
+    Submission Date: 2017-07-23
+    Runtime: 159 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_set>
+#include <set>
+#include <algorithm>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    string replaceWords(vector<string>& dict, string sentence) {
+        unordered_set<string> ds(dict.begin(), dict.end());
+        set<int> word_size;
+        for(auto ds_e: ds) {
+            word_size.insert(ds_e.size());
+        }
+
+        stringstream ss(sentence);
+        string temp;
+
+        vector<string> res;
+        while(getline(ss, temp, ' ')) {
+            bool found = false;
+            for(auto len: word_size) {
+                if(len > temp.size()) {
+                    res.push_back(temp);
+                    found = true;
+                    break;
+                } else {
+                    if(ds.count(temp.substr(0, len))) {
+                        res.push_back(temp.substr(0, len));
+                        found = true;
+                        break;
                     }
                 }
             }
-        }
-            
-        if(min_distance[N] == INT_MAX) return {};
 
-        vector<vector<int>> v = createPath(N, parent);
-        return *min_element(v.begin(), v.end(), [](const vector<int>& lhs, const vector<int>& rhs){
-            int M = lhs.size();
-            int N = rhs.size();
-            for(int i = 0; i < min(M,N); i++) {
-                if(lhs[i] != rhs[i]) return lhs[i] < rhs[i];
+            if(!found) {
+                res.push_back(temp);
             }
-            return M < N;
+        }
+
+        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
+            return memo.empty() ? a : memo + " " + a;
         });
     }
 };
 
-class Solution {
-public:
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        if(N == 0 || A[N-1] == -1) return {};
-        // dp[i] represents cost of i to N-1
-        vector<int> dp(N, INT_MAX), to(N, -1);
-        
-        dp[N-1] = A[N-1];
-        for(int i = N-2; i >= 0; i--) {
-            if(A[i] == -1) continue;
-            // if we try smaller jumps first, don't need to worry about lexicographical order
-            // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
-            // Clearly, when k = n-1, it is true because there is only 1 possible path, which is [n]. 
-            // When k = i and i < n-1, we search for an index j, which has smallest cost or 
-            // smallest j if the same cost. If there are >= 2 paths having the same minimum cost, 
-            // for example,
-            // P = [k+1, j+1, ..., n]
-            // Q = [k+1, m+1, ..., n] (m > j)
-            // The path P with smaller index j is always the lexicographically smaller path.
-            // So the argument is true by induction.
-            for(int j = 1; j <= B && i + j < N; j++) { 
-                if(dp[i + j] == INT_MAX) continue;
-                // cost of taking this jump is smaller
-                if(A[i] + dp[i + j] < dp[i]) {
-                    dp[i] = A[i] + dp[i + j];
-                    to[i] = i + j;
-                }
-            }
-        }
-        
-        vector<int> res;
-        if(dp[0] == INT_MAX) return res; // no path to the end
-
-        for(int i = 0; i >= 0; i = to[i])
-            res.push_back(i + 1);
-        return res;
-    }
-};
-
 int main() {
-    Solution s;
-    vector<int> v{1,2,4,-1,2};
-    s.cheapestJump(v, 2);
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-657. Judge Route Circle
-Initially, there is a Robot at position (0, 0). Given a sequence of its moves, judge if this robot makes 
-a circle, which means it moves back to the original place.
+649. Dota2 Senate
+In the world of Dota2, there are two parties: the Radiant and the Dire.
 
-The move sequence is represented by a string. And each move is represent by a character. The valid robot moves are 
-R (Right), L (Left), U (Up) and D (down). The output should be true or false representing whether the robot makes a circle.
+The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
+a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
+can exercise one of the two rights:
+
+Ban one senator's right: 
+A senator can make another senator lose all his rights in this and all the following rounds.
+Announce the victory: 
+If this senator found the senators who still have rights to vote are all from the same party, he can announce 
+the victory and make the decision about the change in the game.
+Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
+party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
+
+The round-based procedure starts from the first senator to the last senator in the given order. This 
+procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
+during the procedure.
+
+Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
+which party will finally announce the victory and make the change in the Dota2 game. The output should be 
+Radiant or Dire.
 
 Example 1:
-Input: "UD"
-Output: true
+Input: "RD"
+Output: "Radiant"
+Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights any more since his right has been banned. 
+And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
+who can vote.
 Example 2:
-Input: "LL"
-Output: false
-/*
-    Submission Date: 2018-05-31
-    Runtime: 43 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<char, vector<int>> m_{
-        {'U', {0,1}},
-        {'D', {0,-1}},
-        {'L', {-1,0}},
-        {'R', {1,0}},
-    };
-public:
-    bool judgeCircle(string moves) {
-        int x = 0;
-        int y = 0;
-        for(const auto& c: moves) {
-            x += m_[c][0];
-            y += m_[c][1];
-        }
-        return x == 0 && y == 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-661. Image Smoother
-Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
-scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
-less than 8 surrounding cells, then use as many as you can.
-
-Example 1:
-Input:
-[[1,1,1],
- [1,0,1],
- [1,1,1]]
-Output:
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-Explanation:
-For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
-For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
-For the point (1,1): floor(8/9) = floor(0.88888889) = 0
+Input: "RDD"
+Output: "Dire"
+Explanation: 
+The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights anymore since his right has been banned. 
+And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
+And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
+who can vote.
 Note:
-The value in the given matrix is in the range of [0, 255].
-The length and width of the given matrix are in the range of [1, 150].
+The length of the given string will in the range [1, 10,000].
+
 /*
-    Submission Date: 2018-06-08
-    Runtime: 178 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
-        int sum = 0;
-        int points = 0;
-        for(int k = -1; k <= 1; k++) {
-            for(int l = -1; l <= 1; l++) {
-                int new_i = i + k;
-                int new_j = j + l;
-                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
-                    points++;
-                    sum += A[new_i][new_j];
-                }
-            }
-        }
-        
-        return sum/points;
-    }
-    
-    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
-        if(A.empty()) return A;
-        int N = A.size();
-        int M = A[0].size();
-        
-        vector<vector<int>> res(N, vector<int>(M));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[i][j] = help(A, i, j, N, M);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-662. Maximum Width of Binary Tree
-Given a binary tree, write a function to get the maximum width of the 
-given tree. The width of a tree is the maximum width among all levels. 
-The binary tree has the same structure as a full binary tree, but some 
-nodes are null.
-
-The width of one level is defined as the length between the end-nodes 
-(the leftmost and right most non-null nodes in the level, where the null 
-nodes between the end-nodes are also counted into the length calculation.
-
-Example 1:
-Input: 
-
-           1
-         /   \
-        3     2
-       / \     \  
-      5   3     9 
-
-Output: 4
-Explanation: The maximum width existing in the third level with the 
-length 4 (5,3,null,9).
-Example 2:
-Input: 
-
-          1
-         /  
-        3    
-       / \       
-      5   3     
-
-Output: 2
-Explanation: The maximum width existing in the third level with the 
-length 2 (5,3).
-Example 3:
-Input: 
-
-          1
-         / \
-        3   2 
-       /        
-      5      
-
-Output: 2
-Explanation: The maximum width existing in the second level with the 
-length 2 (3,2).
-Example 4:
-Input: 
-
-          1
-         / \
-        3   2
-       /     \  
-      5       9 
-     /         \
-    6           7
-Output: 8
-Explanation:The maximum width existing in the fourth level with the 
-length 8 (6,null,null,null,null,null,null,7).
-
-
-Note: Answer will in the range of 32-bit signed integer.
-/*
-    Submission Date: 2017-08-21
-    Runtime: 6 ms
+    Submission Date: 2017-07-30
+    Runtime: 69 ms
     Difficulty: MEDIUM
 */
+
 #include <iostream>
-#include <queue>
-#include <tuple>
 
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
 class Solution {
 public:
-    int widthOfBinaryTree(TreeNode* root) {
-        queue<pair<TreeNode*,int>> q;
-        q.emplace(root, 0);
-        
-        int res = 0;
-        
-        TreeNode* front;
-        int index;
-        
-        while(!q.empty()) {
-            int q_size = q.size();
-            int first_non_null = -1;
-            for(int i = 0; i < q_size; i++) {
-                tie(front, index) = q.front();
-                q.pop();
-                if(front) {
-                    q.emplace(front -> left, index*2);
-                    q.emplace(front -> right, index*2 + 1);
-                    if(first_non_null == -1) first_non_null = index;
-                    res = max(res, index - first_non_null + 1);
+    string predictPartyVictory(string senate) {
+        while(!senate.empty()) {
+            for(int i = 0; i < senate.size();) {
+                char curr = senate[i];
+                int j = i;
+                for(; j < senate.size(); j++) {
+                    if(senate[j] != curr) {
+                        break;
+                    }
+                }
+            
+                if(j == senate.size()) {
+                    j = 0;
+                    for(; j < i; j++) {
+                        if(senate[j] != curr) {
+                            break;
+                        }
+                    }
+
+                    if(j == i) {
+                        if(curr == 'R') return "Radiant";
+                        return "Dire";
+                    } else {
+                        senate = senate.substr(0, j) + senate.substr(j + 1);
+                    }
+                } else {
+                    senate = senate.substr(0, j) + senate.substr(j + 1);
+                    i++;
                 }
             }
         }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-665. Non-decreasing Array
-Given an array with n integers, your task is to check if it could become non-decreasing by modifying at most 1 element.
-
-We define an array is non-decreasing if array[i] <= array[i + 1] holds for every i (1 <= i < n).
-
-Example 1:
-Input: [4,2,3]
-Output: True
-Explanation: You could modify the first 4 to 1 to get a non-decreasing array.
-Example 2:
-Input: [4,2,1]
-Output: False
-Explanation: You can't get a non-decreasing array by modify at most one element.
-Note: The n belongs to [1, 10,000].
-/*
-    Submission Date: 2018-06-09
-    Runtime: 40 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    for the first number where nums[i] < nums[i-1] where nums[i] = c
-    a b c d
-    
-    then a <= b and c < b.
-    the condition must hold c <= d as if c < d then it will be a a c (c-x) 
-    or 10 10 7 6 where c has to be fixed and d as well
-    
-    if problem_ind == -1 means the array is already sorted in increasing order
-    if it is 1 then just update nums[0] to equal nums[1]
-    
-    if a <= c then it is true as well as a <= b, a <= c and c <= d (from before)
-    so a <= b <= c <= d
-    
-    if d does not exist or b <= d as a <= b and b <= d so replace c with any number 
-    between [b,d] to get a b b d
-    */
-    bool checkPossibility(vector<int>& nums) {
-        int problem_ind = -1;
-        for(int i = 1; i < nums.size(); i++) {
-            if(nums[i] < nums[i-1]) {
-                if(problem_ind != -1) return false;
-                problem_ind = i;
-            }
-        }
-        
-        return problem_ind < 2 || 
-            nums[problem_ind-2] <= nums[problem_ind] || 
-            (problem_ind + 1 == nums.size() || nums[problem_ind-1] <= nums[problem_ind+1]);
+        return "";
     }
 };
 
@@ -485,199 +395,124 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-669. Trim a Binary Search Tree
-Given a binary search tree and the lowest and highest boundaries as L and R, trim the tree so that all its elements lies in 
-[L, R] (R >= L). You might need to change the root of the tree, so the result should return the new root of the trimmed binary search tree.
+650. 2 Keys Keyboard
+Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
+for each step:
+
+Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
+Paste: You can paste the characters which are copied last time.
+Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
+permitted. Output the minimum number of steps to get n 'A'.
 
 Example 1:
-Input: 
-    1
-   / \
-  0   2
-
-  L = 1
-  R = 2
-
-Output: 
-    1
-      \
-       2
-Example 2:
-Input: 
-    3
-   / \
-  0   4
-   \
-    2
-   /
-  1
-
-  L = 1
-  R = 3
-
-Output: 
-      3
-     / 
-   2   
-  /
- 1
-/*
-    Submission Date: 2018-05-31
-    Runtime: 18 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    if node val is within bounds, than return node with left and right subtrees trimmed
-    if node val is > R that means all the element in the right subtree will also be bigger so return the trimmed left subtree
-    if node val is < L that means all the element in the left subtree will also be smaller so return the trimmed right subtree
-    */
-    TreeNode* trimBST(TreeNode* root, int L, int R) {
-        if(root == NULL) return NULL;
-        if(root->val > R) {
-            return trimBST(root->left, L, R);
-        } else if(root-> val < L) {
-            return trimBST(root->right, L, R);
-        } else {
-            root->left = trimBST(root->left, L, R);
-            root->right = trimBST(root->right, L, R);
-            return root;
-        }
-    }
-};
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-671. Second Minimum Node In a Binary Tree
-Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in 
-this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes.
-
-Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
-
-If no such second minimum value exists, output -1 instead.
-
-Example 1:
-Input: 
-    2
-   / \
-  2   5
-     / \
-    5   7
-
-Output: 5
-Explanation: The smallest value is 2, the second smallest value is 5.
-Example 2:
-Input: 
-    2
-   / \
-  2   2
-
-Output: -1
-Explanation: The smallest value is 2, but there isn't any second smallest value.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    bfs that once reaches a different node->val than root->val will stop putting that node's
-    children. result is the minimum of all these first encountered different node-> val
-    */
-    int findSecondMinimumValue(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        int res = INT_MAX;
-        bool seen_others = false;
-        
-        while(!q.empty()) {
-            TreeNode* node = q.front();
-            q.pop();
-            if(node->val == root->val) {
-                if(node->left) q.push(node->left);
-                if(node->right) q.push(node->right);
-            } else {
-                // found node that does not equal root->val, no need to go deeper as they will be >= node->val
-                res = min(res, node->val);
-                seen_others = true;
-            }
-        }
-        
-        return seen_others ? res : -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-674. Longest Continuous Increasing Subsequence
-Given an unsorted array of integers, find the length of longest continuous increasing subsequence (subarray).
-
-Example 1:
-Input: [1,3,5,4,7]
+Input: 3
 Output: 3
-Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
-Even though [1,3,5,7] is also an increasing subsequence, it's not a continuous one where 5 and 7 are separated by 4. 
-Example 2:
-Input: [2,2,2,2,2]
-Output: 1
-Explanation: The longest continuous increasing subsequence is [2], its length is 1. 
-Note: Length of the array will not exceed 10,000.
+Explanation:
+Intitally, we have one character 'A'.
+In step 1, we use Copy All operation.
+In step 2, we use Paste operation to get 'AA'.
+In step 3, we use Paste operation to get 'AAA'.
+Note:
+The n will be in the range [1, 1000].
+
 /*
-    Submission Date: 2018-06-08
-    Runtime: 14 ms
-    Difficulty: EASY
+    Submission Date: 2017-07-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
 */
+
 #include <iostream>
+#include <climits>
 #include <vector>
 
 using namespace std;
 
 class Solution {
 public:
-    int findLengthOfLCIS(vector<int>& nums) {
-        if(nums.empty()) return 0;
-        
-        int res = 1;
-        int pos_res = 1;
-        for(int i = 1; i < nums.size(); i++) {
-            if(nums[i] > nums[i-1]) {
-                pos_res++;
-            } else {
-                pos_res = 1;
+    int minSteps(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = dp[1] = 0;
+
+        for(int i = 1; i <= n; i++) {
+            int cost = dp[i] + 1;
+            int temp = i*2;
+            if(temp > n) break; 
+            while(temp <= n) {
+                dp[temp] = min(dp[temp], ++cost);
+                temp += i;
             }
-            res = max(res, pos_res);
         }
-        
+
+        return dp[n];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+652. Find Duplicate Subtrees
+Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
+return the root node of any one of them.
+
+Two trees are duplicate if they have the same structure with same node values.
+
+Example 1: 
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+The following are two duplicate subtrees:
+      2
+     /
+    4
+and
+    4
+Therefore, you need to return above trees' root in the form of a list.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 45 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
+        if(root != NULL) {
+            string left = preorder(root -> left, freq, res);
+            string right = preorder(root -> right, freq, res);
+            
+            string str = to_string(root -> val) + " " + left + right;
+            
+            if(freq[str] == 1) res.push_back(root);
+            freq[str]++;
+            return str;
+        } else {
+            return "null ";
+        }
+    }
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        unordered_map<string, int> freq;
+        vector<TreeNode*> res;
+        preorder(root, freq, res);
         return res;
     }
 };
@@ -687,166 +522,211 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-676. Implement Magic Dictionary
-
-Implement a magic directory with buildDict, and search methods.
-
-For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
-
-For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
-character in this word, the modified word is in the dictionary you just built.
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
 
 Example 1:
-Input: buildDict(["hello", "leetcode"]), Output: Null
-Input: search("hello"), Output: False
-Input: search("hhllo"), Output: True
-Input: search("hell"), Output: False
-Input: search("leetcoded"), Output: False
-Note:
-You may assume that all the inputs are consist of lowercase letters a-z.
-For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
-Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
-across multiple test cases. Please see here for more details.
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
 /*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
 */
+
 #include <iostream>
 #include <vector>
 #include <unordered_map>
 
 using namespace std;
 
-class MagicDictionary {
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
 public:
-    /** Initialize your data structure here. */
-    unordered_map<string, vector<pair<char, int>>> m_;
-    MagicDictionary() {
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
         
-    }
-    
-    /** Build a dictionary through a list of words */
-    void buildDict(vector<string> dict) {
-        /*
-            N words of size K O(Nk^2)
-            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
-        */
-        m_.clear();
-        for(const auto& s: dict) {
-            for(int i = 0; i < s.size(); i++) {
-                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
             }
         }
         
-    }
-    
-    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
-    bool search(string s) {
-        // O(k^2*M) where M is size of vector for a key in m_
-        for(int i = 0; i < s.size(); i++) {
-            const auto& key = s.substr(0,i) + s.substr(i+1);
-            if(!m_.count(key)) continue;
-            for(const auto& p: m_[key]) {
-                // looking for same index different letter
-                if(p.second == i && p.first != s[i]) return true;
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
             }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
         }
         return false;
     }
 };
 
-/**
- * Your MagicDictionary object will be instantiated and called as such:
- * MagicDictionary obj = new MagicDictionary();
- * obj.buildDict(dict);
- * bool param_2 = obj.search(word);
- */
-
 int main() {
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-682. Baseball Game
-You're now a baseball game point recorder.
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
 
-Given a list of strings, each string can be one of the 4 following types:
-
-Integer (one round's score): Directly represents the number of points you get in this round.
-"+" (one round's score): Represents that the points you get in this round are the sum of the last two valid round's points.
-"D" (one round's score): Represents that the points you get in this round are the doubled data of the last valid round's points.
-"C" (an operation, which isn't a round's score): Represents the last valid round's points you get were invalid and should be removed.
-Each round's operation is permanent and could have an impact on the round before and the round after.
-
-You need to return the sum of the points you could get in all the rounds.
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
 
 Example 1:
-Input: ["5","2","C","D","+"]
-Output: 30
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get 2 points. The sum is: 7.
-Operation 1: The round 2's data was invalid. The sum is: 5.  
-Round 3: You could get 10 points (the round 2's data has been removed). The sum is: 15.
-Round 4: You could get 5 + 10 = 15 points. The sum is: 30.
-Example 2:
-Input: ["5","-2","4","C","D","9","+","+"]
-Output: 27
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get -2 points. The sum is: 3.
-Round 3: You could get 4 points. The sum is: 7.
-Operation 1: The round 3's data is invalid. The sum is: 3.  
-Round 4: You could get -4 points (the round 3's data has been removed). The sum is: -1.
-Round 5: You could get 9 points. The sum is: 8.
-Round 6: You could get -4 + 9 = 5 points. The sum is 13.
-Round 7: You could get 9 + 5 = 14 points. The sum is 27.
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
 Note:
-The size of the input list will be between 1 and 1000.
-Every integer represented in the list will be between -30000 and 30000.
+The size of the given array will be in the range [1,1000].
+
 /*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
 */
+
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 using namespace std;
 
-class Solution {
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
 public:
-    /*
-    let stk be all the valid round points. if it is a number just add it as a round and increment res by the amount
-    if it is a "+", take the last two rounds add add them up. put the sum as a round and increment res by the amount
-    if it is a "D", take the last round, multiply it by two and add it as a around and increment res by the amount
-    if it is a "C", take the last round and decrease res by the amount as well as pop that round off.
-    */
-    int calPoints(vector<string>& ops) {
-        int res = 0; 
-        vector<int> stk;
-        for(const auto& s: ops) {
-            int stk_size = stk.size();
-            if(s == "+") {
-                assert(stk_size >= 2);
-                stk.push_back(stk[stk_size-1] + stk[stk_size-2]);
-                res += stk.back();
-            } else if(s == "D") {
-                assert(stk_size >= 1);
-                stk.push_back(stk[stk_size-1] * 2);
-                res += stk.back();
-            } else if(s == "C") {
-                res -= stk.back();
-                stk.pop_back();
-            } else { // a number
-                stk.push_back(stoi(s));
-                res += stk.back();
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
             }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
         }
         
-        return res;
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
     }
 };
 
@@ -855,41 +735,63 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-687. Longest Univalue Path
-Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
+655. Print Binary Tree
+Print a binary tree in an m*n 2D string array following these rules:
 
-Note: The length of path between two nodes is represented by the number of edges between them.
-
+The row number m should be equal to the height of the given binary tree.
+The column number n should always be an odd number.
+The root node's value (in string format) should be put in the exactly middle of the 
+first row it can be put. The column and the row where the root node belongs will separate 
+the rest space into two parts (left-bottom part and right-bottom part). You should print the 
+left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
+left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
+none while the other is not, you don't need to print anything for the none subtree but still 
+need to leave the space as large as that for the other subtree. However, if two subtrees are 
+none, then you don't need to leave space for both of them.
+Each unused space should contain an empty string "".
+Print the subtrees following the same rules.
 Example 1:
-
 Input:
-
-              5
-             / \
-            4   5
-           / \   \
-          1   1   5
+     1
+    /
+   2
 Output:
-
-2
+[["", "1", ""],
+ ["2", "", ""]]
 Example 2:
-
 Input:
-
-              1
-             / \
-            4   5
-           / \   \
-          4   4   5
+     1
+    / \
+   2   3
+    \
+     4
+Output:
+[["", "", "", "1", "", "", ""],
+ ["", "2", "", "", "", "3", ""],
+ ["", "", "4", "", "", "", ""]]
+Example 3:
+Input:
+      1
+     / \
+    2   5
+   / 
+  3 
+ / 
+4 
 Output:
 
-2
-Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
+[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+ ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+ ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+ ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+Note: The height of binary tree is in the range of [1, 10].
+
 /*
-    Submission Date: 2018-05-24
-    Runtime: 112 ms
-    Difficulty: EASY
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
 */
+
 #include <iostream>
 #include <vector>
 
@@ -904,101 +806,31 @@ struct TreeNode {
 
 class Solution {
 public:
-    /*
-        N by returning the longest path that starts from this node where a path is straight down where all
-        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
-        value as this node.
-        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
-        and right have the same value as this node as it means there is a path for the left and a path for
-        the right which creates a upside down v shape.
-    */
-    int solve(TreeNode* root, int& res) {
-        if(!root) return 0;
-        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
-        int pos_res = 1;
-        int longest_path_starting_at_node = 0;
+    int depth(TreeNode* root) {
+        if(root == NULL) return -1;
+        return 1 + max(depth(root -> left), depth(root -> right));
+    }
+    
+    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
+        if(root == NULL) return;
+        if(start >= end) return;
+        if(row >= res.size()) return;
         
-        if(root->left && root->left->val == root->val) {
-            pos_res += longest_path_starting_at_child[0];
-            longest_path_starting_at_node = longest_path_starting_at_child[0];
-        }
-        if(root->right && root->right->val == root->val) {
-            pos_res += longest_path_starting_at_child[1];
-            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
-        }
-
-        res = max(res, pos_res);
-        return 1 + longest_path_starting_at_node;
+        string val = to_string(root -> val);
+        int mid = start + (end - start)/2;
+        res[row][mid] = val;
+        
+        populate(root -> left, res, row + 1, start, mid);
+        populate(root -> right, res, row + 1, mid + 1, end);
     }
-
-    int longestUnivaluePath(TreeNode* root) {
-        int res = 1;
-        solve(root, res);
-        return res - 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-690. Employee Importance
-You are given a data structure of employee information, which includes the employee's unique id, 
-his importance value and his direct subordinates' id.
-
-For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
-importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
-[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
-
-Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
-employee and all his subordinates.
-
-Example 1:
-Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
-Output: 11
-Explanation:
-Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
-So the total importance value of employee 1 is 5 + 3 + 3 = 11.
-Note:
-One employee has at most one direct leader and may have several subordinates.
-The maximum number of employees won't exceed 2000.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 135 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Employee {
-public:
-    // It's the unique ID of each node.
-    // unique id of this employee
-    int id;
-    // the importance value of this employee
-    int importance;
-    // the id of direct subordinates
-    vector<int> subordinates;
-};
-
-class Solution {
-public:
-    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
-        int res = employees[id_to_ind[id]]->importance;
-        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
-            res += dfs(e, id_to_ind, employees);
+    vector<vector<string>> printTree(TreeNode* root) {
+        // get the maximum depth of the tree
+        int rd = depth(root);
+        int col = (1 << (rd + 1)) - 1; 
+        // the matrix has depth rows and 2^(depth + 1) - 1 columns
+        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
+        populate(root, res, 0, 0, col);
         return res;
-    }
-
-    int getImportance(vector<Employee*> employees, int id) {
-        unordered_map<int, int> id_to_ind;
-        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
-        
-        return dfs(id, id_to_ind, employees);
     }
 };
 

@@ -1,6 +1,282 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+378. Kth Smallest Element in a Sorted Matrix
+Given a n x n matrix where each of the rows and columns are sorted in ascending order, find the kth smallest element in the matrix.
+
+Note that it is the kth smallest element in the sorted order, not the kth distinct element.
+
+Example:
+
+matrix = [
+   [ 1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+],
+k = 8,
+
+return 13.
+Note: 
+You may assume k is always valid, 1 ≤ k ≤ n2.
+/*
+    Submission Date: 2018-05-30
+    Runtime: 38 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+class Solution2 {
+public:
+    bool Get(const vector<vector<int>>& matrix, int num, int N, int M, int k) {
+        int i = 0;
+        int j = M-1;
+        int curr = 0;
+        
+        int occurences = 0;
+        
+        while(i < N && j >= 0) {
+            if(matrix[i][j] > num) {
+                j--;
+            } else {
+                int temp = j;
+                while(temp >= 0 && matrix[i][temp] == num) temp--;
+                i++;
+                curr += temp + 1;
+                occurences += j - temp;
+            }
+        }
+        
+        return curr < k && k <= curr + occurences;
+    }
+
+    // for each element in the array, count the number of elements smaller than it
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                if(Get(matrix, matrix[i][j], N, M, k)) {
+                    return matrix[i][j];
+                }
+            }
+        }
+        
+        return -1;
+    }
+};
+
+struct Item {
+    int i, j, val;
+    Item(const int& _i, const int& _j, const int& _val): i(_i), j(_j), val(_val) {}
+    bool operator>(const Item& rhs) const {
+        return val > rhs.val;
+    }
+};
+
+class Solution3 {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        priority_queue<Item, vector<Item>, greater<Item>> min_heap;
+        for(int j = 0; j < M; j++) {
+            min_heap.emplace(0, j, matrix[0][j]);
+        }
+        
+        for(int i = 0; i < k - 1; i++) { // remove k- 1 elements to get the kth element
+            Item smallest = min_heap.top();
+            min_heap.pop();
+            if(smallest.i + 1 < N) {
+                smallest.i++;
+                smallest.val = matrix[smallest.i][smallest.j];
+                min_heap.push(smallest);
+            }
+        }
+        
+        return min_heap.top().val;
+    }
+};
+
+class Solution {
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        // matrix[i][j] >= matrix[k][l] for all k > i && l > j
+        int low = matrix[0][0];
+        int high = matrix[M-1][M-1];
+        
+        while(low <= high) {
+            int mid = low + (high-low)/2;
+            int num_smaller_than_mid = 0;
+            // get the number of elements that are <= mid.
+            // suppose the two elements in the array are 10 x 1, 10 x 2 and 10 x 3
+            // if k == 15, mid = 2 and num_smaller_than_mid are 10, 20, 30 return low
+            // gets the number larger than k
+            for(int j = M-1, i = 0; i < N; i++) {
+                while(j >= 0 && matrix[i][j] > mid) j--;
+                num_smaller_than_mid += j + 1;
+            }
+            
+            if(num_smaller_than_mid >= k) high = mid - 1; // too many elements
+            else low = mid + 1; // too little elements
+        }
+        
+        return low;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+383. Ransom Note
+Given an arbitrary ransom note string and another string containing letters from all the magazines, 
+write a function that will return true if the ransom note can be constructed from the magazines ; 
+otherwise, it will return false.
+
+Each letter in the magazine string can only be used once in your ransom note.
+
+Note:
+You may assume that both strings contain only lowercase letters.
+
+canConstruct("a", "b") -> false
+canConstruct("aa", "ab") -> false
+canConstruct("aa", "aab") -> true
+/*
+    Submission Date: 2018-05-02
+    Runtime: 34 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        unordered_map<char,int> m;
+        for(auto e: magazine) m[e]++;
+        for(auto e: ransomNote) {
+          if(m.count(e)) {
+            if(m[e] == 0) return false;
+            m[e]--;
+          } else {
+            return false;
+          }
+        }
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+386. Lexicographical Numbers
+Given an integer n, return 1 - n in lexicographical order.
+
+For example, given 13, return: [1,10,11,12,13,2,3,4,5,6,7,8,9].
+
+Please optimize your algorithm to use less time and space. The input size 
+may be as large as 5,000,000.
+
+/*
+    Submission Date: 2017-08-21
+    Runtime: 239 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void lexicalOrder(int curr, int n, vector<int>& res) {
+        if(curr > n) return;
+
+        int limit = min(n + 1, curr == 1 ? 10: curr+10);
+        for(int i = curr; i < limit; i++) {
+            res.push_back(i);
+            lexicalOrder(i*10, n, res);
+        }
+    }
+    
+    vector<int> lexicalOrder(int n) {
+        vector<int> res;
+        lexicalOrder(1, n, res);
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+387. First Unique Character in a String
+Given a string, find the first non-repeating character in it and return 
+it's index. If it doesn't exist, return -1.
+
+Examples:
+
+s = "leetcode"
+return 0.
+
+s = "loveleetcode",
+return 2.
+Note: You may assume the string contain only lowercase letters.
+
+/*
+    Submission Date: 2017-08-21
+    Runtime: 93 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    int firstUniqChar(string s) {
+        unordered_map<char,int> letter_to_first_ind;
+        set<int> st;
+        for(int i = 0; i < s.size(); i++) {
+            if(letter_to_first_ind.count(s[i])) { 
+                // we've seen this letter before so we remove it from the set
+                if(st.count(letter_to_first_ind[s[i]])) {
+                    st.erase(letter_to_first_ind[s[i]]);
+                }
+            } else {
+                letter_to_first_ind[s[i]] = i;
+                st.insert(i);
+            }
+        }
+
+        return st.empty() ? -1 : *st.begin();
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 389. Find the Difference
 Given two strings s and t which consist of only lowercase letters.
 
@@ -200,6 +476,74 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+400. Nth Digit
+Find the nth digit of the infinite integer sequence 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ...
+
+Note:
+n is positive and will fit within the range of a 32-bit signed integer (n < 231).
+
+Example 1:
+
+Input:
+3
+
+Output:
+3
+Example 2:
+
+Input:
+11
+
+Output:
+0
+
+Explanation:
+The 11th digit of the sequence 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ... is a 0, which is part of the number 10.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    1-9, 10-99, 100-999
+    have digits i=1,2,3 respectively
+    so find the smallest i which does not exceed n
+    
+    so 10^(i-1) + allowed is the number
+    allowed is (n - (sum of previous numbers with less than i digits))/i
+    
+    once the number is found, find the character by seeing the remainder
+    */
+    int findNthDigit(int n) {
+        int sum = 0;
+        int i = 1;
+        while(i < 10) {
+            if(sum + 9*pow(10, i-1)*i >= n) {
+                int allowed = (n - (sum+1))/i;
+                int num = pow(10, i-1) + allowed;
+                string num_s = to_string(num);
+                return num_s[(n - (sum+1)) % i] - '0';
+            }
+            sum += 9*pow(10, i-1)*i;
+            i++;
+        }
+        
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 401. Binary Watch
 A binary watch has 4 LEDs on the top which represent the hours (0-11), and the 6 LEDs on the bottom represent the minutes (0-59).
 
@@ -369,6 +713,72 @@ public:
         
         res = res.substr(0, last_non_zero + 1);
         reverse(res.begin(), res.end());
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+406. Queue Reconstruction by Height
+Suppose you have a random list of people standing in a queue. Each person is described by a pair 
+of integers (h, k), where h is the height of the person and k is the number of people in front of this 
+person who have a height greater than or equal to h. Write an algorithm to reconstruct the queue.
+
+Note:
+The number of people is less than 1,100.
+
+
+Example
+
+Input:
+[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
+
+Output:
+[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
+/*
+    Submission Date: 2018-06-24
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    sort by height (h) and break tie on number greater than or equal to before (called k)
+
+    start from the lowest and for each of the same height, find the kth not used spot and 
+    place the pair there. keep track of the number of same height elements already placed.
+    */
+    vector<pair<int, int>> reconstructQueue(vector<pair<int, int>>& people) {
+        vector<pair<int,int>> res(people.size(), {-1, -1});
+        sort(people.begin(), people.end());
+        
+        int N = people.size();
+        for(int i = 0; i < N;) {
+            int start = i;
+            while(people[i].first == people[start].first) {
+                auto p = people[i];
+                int to_go = p.second - (i - start);
+                for(int j = 0; j < N; j++) {
+                    if(res[j].second != -1) continue;
+                    if(to_go == 0) {
+                        res[j] = p;
+                        break;
+                    }
+                    to_go--;
+                }
+                i++;
+            }
+        }
+        
         return res;
     }
 };
@@ -593,385 +1003,6 @@ public:
         
         if(carry > 0) res.push_back('1');
         reverse(res.begin(), res.end());
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-419. Battleships in a Board
-Given an 2D board, count how many battleships are in it. The battleships are represented with 'X's, empty slots are represented with '.'s. 
-You may assume the following rules:
-You receive a valid board, made of only battleships or empty slots.
-Battleships can only be placed horizontally or vertically. In other words, they can only be made of the shape 1xN (1 row, N columns) or Nx1 
-(N rows, 1 column), where N can be of any size.
-At least one horizontal or vertical cell separates between two battleships - there are no adjacent battleships.
-Example:
-X..X
-...X
-...X
-In the above board there are 2 battleships.
-Invalid Example:
-...X
-XXXX
-...X
-This is an invalid board that you will not receive - as battleships will always have a cell separating between them.
-Follow up:
-Could you do it in one-pass, using only O(1) extra memory and without modifying the value of the board?
-/*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-/*
-    N by checking if the element to the left and to the top of board[i][j] isn't a 'X'.
-    If there is one then it means it is continuing a ship so it should not be counted.
-*/
-class Solution {
-public:
-    int countBattleships(vector<vector<char>>& board) {
-        if(board.empty()) return 0;
-        int res = 0;
-        for(int i = 0; i < board.size(); i++) {
-            for(int j = 0; j < board[0].size(); j++) {
-                if(board[i][j] == 'X' && (j == 0 || board[i][j-1] != 'X') && (i == 0 || board[i-1][j] != 'X')) {
-                    res++;
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-433. Minimum Genetic Mutation
-A gene string can be represented by an 8-character long string, with choices from 
-"A", "C", "G", "T".
-
-Suppose we need to investigate about a mutation (mutation from "start" to "end"), 
-where ONE mutation is defined as ONE single character changed in the gene string.
-
-For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
-
-Also, there is a given gene "bank", which records all the valid gene mutations. 
-A gene must be in the bank to make it a valid gene string.
-
-Now, given 3 things - start, end, bank, your task is to determine what is the 
-minimum number of mutations needed to mutate from "start" to "end". If there is no 
-such a mutation, return -1.
-
-Note:
-
-Starting point is assumed to be valid, so it might not be included in the bank.
-If multiple mutations are needed, all mutations during in the sequence must be valid.
-You may assume start and end string is not the same.
-Example 1:
-
-start: "AACCGGTT"
-end:   "AACCGGTA"
-bank: ["AACCGGTA"]
-
-return: 1
-Example 2:
-
-start: "AACCGGTT"
-end:   "AAACGGTA"
-bank: ["AACCGGTA", "AACCGCTA", "AAACGGTA"]
-
-return: 2
-Example 3:
-
-start: "AAAAACCC"
-end:   "AACCCCCC"
-bank: ["AAAACCCC", "AAACCCCC", "AACCCCCC"]
-
-return: 3
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    bool isConnect(string s1, string s2) {
-        int diff_count = 0;
-        for(int i = 0, len = s1.size(); i < len; i++) {
-            diff_count += s1[i] != s2[i];
-        }
-        return diff_count == 1;
-    }
-public:
-    int minMutation(string start, string end, vector<string>& bank) {
-        unordered_map<string, vector<string>> graph;
-
-        bank.push_back(start);
-        int N = bank.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                if(isConnect(bank[i], bank[j])) {
-                    graph[bank[i]].push_back(bank[j]);
-                    graph[bank[j]].push_back(bank[i]);
-                }
-            }
-        }
-
-        unordered_set<string> visited;
-        queue<pair<string, int>> q;
-        q.emplace(start, 0);
-        visited.insert(start);
-
-        string curr;
-        int dist;
-        while(!q.empty()) {
-            tie(curr, dist) = q.front();
-            // cout << curr << ' ' << dist << endl;
-            q.pop();
-            if(curr == end) return dist;
-            for(auto neighbor: graph[curr]) {
-                if(visited.count(neighbor)) continue;
-                q.emplace(neighbor, dist + 1);
-                visited.insert(neighbor);
-            }
-        }
-        return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-434. Number of Segments in a String
-Count the number of segments in a string, where a segment is defined to be a contiguous sequence of non-space characters.
-
-Please note that the string does not contain any non-printable characters.
-
-Example:
-
-Input: "Hello, my name is John"
-Output: 5
-/*
-    Submission Date: 2018-06-09
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    int countSegments(string s) {
-        int res = 0;
-        for(int i = 0; i < s.size(); i++) {
-            if(!isspace(s[i]) && (i == 0 || isspace(s[i-1]))) {
-                res++;
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-437. Path Sum III
-You are given a binary tree in which each node contains an integer value.
-
-Find the number of paths that sum to a given value.
-
-The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
-
-The tree has no more than 1,000 nodes and the values are in the range -1,000,000 to 1,000,000.
-
-Example:
-
-root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
-
-      10
-     /  \
-    5   -3
-   / \    \
-  3   2   11
- / \   \
-3  -2   1
-
-Return 3. The paths that sum to 8 are:
-
-1.  5 -> 3
-2.  5 -> 2 -> 1
-3. -3 -> 11
-/*
-    Submission Date: 2018-06-09
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    returns path sums from this root down (not necessarily reach leaf)
-    this is {root->val, 
-            root->val + l for all l from f(root->left),
-            root->val + r for all r from f(root->left),
-            }
-    first one meets terminate the path here, second one means this extends a left path
-    and the last one extends a right path
-    check if any of the new paths equal sum to increase res
-    */
-    vector<int> help(TreeNode* root, int sum, int& res) {
-        if(root == NULL) return {};
-        vector<int> left = help(root->left, sum, res);
-        vector<int> right = help(root->right, sum, res);
-        
-        if(root->val == sum) res++;
-        
-        vector<int> paths;
-        paths.reserve(1 + left.size() + right.size());
-        paths.push_back(root->val);
-        
-        for(const auto& l: left) {
-            paths.push_back(root->val + l);
-            if(paths.back() == sum) res++;
-        }
-        
-        for(const auto& r: right) {
-            paths.push_back(root->val + r);
-            if(paths.back() == sum) res++;
-        }
-        
-        return paths;
-    }
-    
-    int pathSum(TreeNode* root, int sum) {
-        int res = 0;
-        help(root, sum, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-438. Find All Anagrams in a String
-Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
-
-Strings consists of lowercase English letters only and the length of both strings s and p 
-will not be larger than 20,100.
-
-The order of output does not matter.
-
-Example 1:
-
-Input:
-s: "cbaebabacd" p: "abc"
-
-Output:
-[0, 6]
-
-Explanation:
-The substring with start index = 0 is "cba", which is an anagram of "abc".
-The substring with start index = 6 is "bac", which is an anagram of "abc".
-Example 2:
-
-Input:
-s: "abab" p: "ab"
-
-Output:
-[0, 1, 2]
-
-Explanation:
-The substring with start index = 0 is "ab", which is an anagram of "ab".
-The substring with start index = 1 is "ba", which is an anagram of "ab".
-The substring with start index = 2 is "ab", which is an anagram of "ab".
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 106 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findAnagrams(string s, string p) {
-        vector<int> res;
-        int M = s.size();
-        int N = p.size();
-        
-        if(M < N) return res;
-        unordered_map<char, int> freq, curr_freq;
-        
-        for(auto c: p) freq[c]++;
-        
-        for(int i = 0; i < N; i++) curr_freq[s[i]]++;
-        
-        int low = 0;
-        int high = N;
-        while(high <= M) {
-            bool is_match = true;
-            if(curr_freq.size() == freq.size()) {
-                for(auto kv: freq) {
-                    if(curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second) continue;
-                    is_match = false;
-                    break;
-                }
-            } else {
-                is_match = false;
-            }
-            
-            if(is_match) res.push_back(low);
-            if(high == M) break;
-            char to_erase = s[low++];
-            curr_freq[s[high++]]++;
-            if(curr_freq[to_erase] == 1) curr_freq.erase(to_erase);
-            else curr_freq[to_erase]--;
-        }
-        
         return res;
     }
 };

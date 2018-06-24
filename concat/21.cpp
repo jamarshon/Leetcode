@@ -1,6 +1,385 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+419. Battleships in a Board
+Given an 2D board, count how many battleships are in it. The battleships are represented with 'X's, empty slots are represented with '.'s. 
+You may assume the following rules:
+You receive a valid board, made of only battleships or empty slots.
+Battleships can only be placed horizontally or vertically. In other words, they can only be made of the shape 1xN (1 row, N columns) or Nx1 
+(N rows, 1 column), where N can be of any size.
+At least one horizontal or vertical cell separates between two battleships - there are no adjacent battleships.
+Example:
+X..X
+...X
+...X
+In the above board there are 2 battleships.
+Invalid Example:
+...X
+XXXX
+...X
+This is an invalid board that you will not receive - as battleships will always have a cell separating between them.
+Follow up:
+Could you do it in one-pass, using only O(1) extra memory and without modifying the value of the board?
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/*
+    N by checking if the element to the left and to the top of board[i][j] isn't a 'X'.
+    If there is one then it means it is continuing a ship so it should not be counted.
+*/
+class Solution {
+public:
+    int countBattleships(vector<vector<char>>& board) {
+        if(board.empty()) return 0;
+        int res = 0;
+        for(int i = 0; i < board.size(); i++) {
+            for(int j = 0; j < board[0].size(); j++) {
+                if(board[i][j] == 'X' && (j == 0 || board[i][j-1] != 'X') && (i == 0 || board[i-1][j] != 'X')) {
+                    res++;
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+433. Minimum Genetic Mutation
+A gene string can be represented by an 8-character long string, with choices from 
+"A", "C", "G", "T".
+
+Suppose we need to investigate about a mutation (mutation from "start" to "end"), 
+where ONE mutation is defined as ONE single character changed in the gene string.
+
+For example, "AACCGGTT" -> "AACCGGTA" is 1 mutation.
+
+Also, there is a given gene "bank", which records all the valid gene mutations. 
+A gene must be in the bank to make it a valid gene string.
+
+Now, given 3 things - start, end, bank, your task is to determine what is the 
+minimum number of mutations needed to mutate from "start" to "end". If there is no 
+such a mutation, return -1.
+
+Note:
+
+Starting point is assumed to be valid, so it might not be included in the bank.
+If multiple mutations are needed, all mutations during in the sequence must be valid.
+You may assume start and end string is not the same.
+Example 1:
+
+start: "AACCGGTT"
+end:   "AACCGGTA"
+bank: ["AACCGGTA"]
+
+return: 1
+Example 2:
+
+start: "AACCGGTT"
+end:   "AAACGGTA"
+bank: ["AACCGGTA", "AACCGCTA", "AAACGGTA"]
+
+return: 2
+Example 3:
+
+start: "AAAAACCC"
+end:   "AACCCCCC"
+bank: ["AAAACCCC", "AAACCCCC", "AACCCCCC"]
+
+return: 3
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+    bool isConnect(string s1, string s2) {
+        int diff_count = 0;
+        for(int i = 0, len = s1.size(); i < len; i++) {
+            diff_count += s1[i] != s2[i];
+        }
+        return diff_count == 1;
+    }
+public:
+    int minMutation(string start, string end, vector<string>& bank) {
+        unordered_map<string, vector<string>> graph;
+
+        bank.push_back(start);
+        int N = bank.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                if(isConnect(bank[i], bank[j])) {
+                    graph[bank[i]].push_back(bank[j]);
+                    graph[bank[j]].push_back(bank[i]);
+                }
+            }
+        }
+
+        unordered_set<string> visited;
+        queue<pair<string, int>> q;
+        q.emplace(start, 0);
+        visited.insert(start);
+
+        string curr;
+        int dist;
+        while(!q.empty()) {
+            tie(curr, dist) = q.front();
+            // cout << curr << ' ' << dist << endl;
+            q.pop();
+            if(curr == end) return dist;
+            for(auto neighbor: graph[curr]) {
+                if(visited.count(neighbor)) continue;
+                q.emplace(neighbor, dist + 1);
+                visited.insert(neighbor);
+            }
+        }
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+434. Number of Segments in a String
+Count the number of segments in a string, where a segment is defined to be a contiguous sequence of non-space characters.
+
+Please note that the string does not contain any non-printable characters.
+
+Example:
+
+Input: "Hello, my name is John"
+Output: 5
+/*
+    Submission Date: 2018-06-09
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    int countSegments(string s) {
+        int res = 0;
+        for(int i = 0; i < s.size(); i++) {
+            if(!isspace(s[i]) && (i == 0 || isspace(s[i-1]))) {
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+437. Path Sum III
+You are given a binary tree in which each node contains an integer value.
+
+Find the number of paths that sum to a given value.
+
+The path does not need to start or end at the root or a leaf, but it must go downwards (traveling only from parent nodes to child nodes).
+
+The tree has no more than 1,000 nodes and the values are in the range -1,000,000 to 1,000,000.
+
+Example:
+
+root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
+
+      10
+     /  \
+    5   -3
+   / \    \
+  3   2   11
+ / \   \
+3  -2   1
+
+Return 3. The paths that sum to 8 are:
+
+1.  5 -> 3
+2.  5 -> 2 -> 1
+3. -3 -> 11
+/*
+    Submission Date: 2018-06-09
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    returns path sums from this root down (not necessarily reach leaf)
+    this is {root->val, 
+            root->val + l for all l from f(root->left),
+            root->val + r for all r from f(root->left),
+            }
+    first one meets terminate the path here, second one means this extends a left path
+    and the last one extends a right path
+    check if any of the new paths equal sum to increase res
+    */
+    vector<int> help(TreeNode* root, int sum, int& res) {
+        if(root == NULL) return {};
+        vector<int> left = help(root->left, sum, res);
+        vector<int> right = help(root->right, sum, res);
+        
+        if(root->val == sum) res++;
+        
+        vector<int> paths;
+        paths.reserve(1 + left.size() + right.size());
+        paths.push_back(root->val);
+        
+        for(const auto& l: left) {
+            paths.push_back(root->val + l);
+            if(paths.back() == sum) res++;
+        }
+        
+        for(const auto& r: right) {
+            paths.push_back(root->val + r);
+            if(paths.back() == sum) res++;
+        }
+        
+        return paths;
+    }
+    
+    int pathSum(TreeNode* root, int sum) {
+        int res = 0;
+        help(root, sum, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+438. Find All Anagrams in a String
+Given a string s and a non-empty string p, find all the start indices of p's anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both strings s and p 
+will not be larger than 20,100.
+
+The order of output does not matter.
+
+Example 1:
+
+Input:
+s: "cbaebabacd" p: "abc"
+
+Output:
+[0, 6]
+
+Explanation:
+The substring with start index = 0 is "cba", which is an anagram of "abc".
+The substring with start index = 6 is "bac", which is an anagram of "abc".
+Example 2:
+
+Input:
+s: "abab" p: "ab"
+
+Output:
+[0, 1, 2]
+
+Explanation:
+The substring with start index = 0 is "ab", which is an anagram of "ab".
+The substring with start index = 1 is "ba", which is an anagram of "ab".
+The substring with start index = 2 is "ab", which is an anagram of "ab".
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 106 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> res;
+        int M = s.size();
+        int N = p.size();
+        
+        if(M < N) return res;
+        unordered_map<char, int> freq, curr_freq;
+        
+        for(auto c: p) freq[c]++;
+        
+        for(int i = 0; i < N; i++) curr_freq[s[i]]++;
+        
+        int low = 0;
+        int high = N;
+        while(high <= M) {
+            bool is_match = true;
+            if(curr_freq.size() == freq.size()) {
+                for(auto kv: freq) {
+                    if(curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second) continue;
+                    is_match = false;
+                    break;
+                }
+            } else {
+                is_match = false;
+            }
+            
+            if(is_match) res.push_back(low);
+            if(high == M) break;
+            char to_erase = s[low++];
+            curr_freq[s[high++]]++;
+            if(curr_freq[to_erase] == 1) curr_freq.erase(to_erase);
+            else curr_freq[to_erase]--;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 441. Arranging Coins
 You have a total of n coins that you want to form in a staircase shape, where every k-th row must have exactly k coins.
 
@@ -102,6 +481,87 @@ public:
         }
          
         return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+443. String Compression
+Given an array of characters, compress it in-place.
+
+The length after compression must always be smaller than or equal to the original array.
+
+Every element of the array should be a character (not int) of length 1.
+
+After you are done modifying the input array in-place, return the new length of the array.
+
+
+Follow up:
+Could you solve it using only O(1) extra space?
+
+
+Example 1:
+Input:
+["a","a","b","b","c","c","c"]
+
+Output:
+Return 6, and the first 6 characters of the input array should be: ["a","2","b","2","c","3"]
+
+Explanation:
+"aa" is replaced by "a2". "bb" is replaced by "b2". "ccc" is replaced by "c3".
+Example 2:
+Input:
+["a"]
+
+Output:
+Return 1, and the first 1 characters of the input array should be: ["a"]
+
+Explanation:
+Nothing is replaced.
+Example 3:
+Input:
+["a","b","b","b","b","b","b","b","b","b","b","b","b"]
+
+Output:
+Return 4, and the first 4 characters of the input array should be: ["a","b","1","2"].
+
+Explanation:
+Since the character "a" does not repeat, it is not compressed. "bbbbbbbbbbbb" is replaced by "b12".
+Notice each digit has it's own entry in the array.
+Note:
+All characters have an ASCII value in [35, 126].
+1 <= len(chars) <= 1000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    since length of 1 are not included the compressed string will always be less than
+    the full string e.g a12 is smaller than aaa...
+    hence it is safe to just overwrite existing string
+    */
+    int compress(vector<char>& s) {
+        int write = 0;
+        int N = s.size();
+        for(int i = 0; i < N;) {
+            int start = i;
+            while(i < N && s[start] == s[i]) i++;
+            string freq = to_string(i - start);
+            s[write++] = s[start];
+            if(i - start > 1) for(const auto& d: freq) s[write++] = d;
+        }
+        return write;
     }
 };
 
@@ -529,479 +989,6 @@ public:
     }
 };
 
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-476. Number Complement
-Given a positive integer, output its complement number. The complement strategy is to flip the bits of its binary representation.
-
-Note:
-The given integer is guaranteed to fit within the range of a 32-bit signed integer.
-You could assume no leading zero bit in the integer’s binary representation.
-Example 1:
-Input: 5
-Output: 2
-Explanation: The binary representation of 5 is 101 (no leading zero bits), and its complement is 010. So you need to output 2.
-Example 2:
-Input: 1
-Output: 0
-Explanation: The binary representation of 1 is 1 (no leading zero bits), and its complement is 0. So you need to output 0.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
-    int findComplement(int num) {
-        return ~num & ((1 << (int)log2(num) + 1) - 1);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-482. License Key Formatting
-You are given a license key represented as a string S which consists only alphanumeric character and dashes. 
-The string is separated into N+1 groups by N dashes.
-
-Given a number K, we would want to reformat the strings such that each group contains exactly K characters, 
-except for the first group which could be shorter than K, but still must contain at least one character. 
-Furthermore, there must be a dash inserted between two groups and all lowercase letters should be converted to uppercase.
-
-Given a non-empty string S and a number K, format the string according to the rules described above.
-
-Example 1:
-Input: S = "5F3Z-2e-9-w", K = 4
-
-Output: "5F3Z-2E9W"
-
-Explanation: The string S has been split into two parts, each part has 4 characters.
-Note that the two extra dashes are not needed and can be removed.
-Example 2:
-Input: S = "2-5g-3-J", K = 2
-
-Output: "2-5G-3J"
-
-Explanation: The string S has been split into three parts, each part has 2 characters except the first part as 
-it could be shorter as mentioned above.
-Note:
-The length of string S will not exceed 12,000, and K is a positive integer.
-String S consists only of alphanumerical characters (a-z and/or A-Z and/or 0-9) and dashes(-).
-String S is non-empty.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    string licenseKeyFormatting(string S, int K) {
-        string s = "";
-        // remove dashes and lower case letter
-        for(const auto& c: S) {
-            if(c == '-') continue;
-            s.push_back(toupper(c));
-        }
-        
-        int N = s.size();
-        int first_size = N % K;
-        
-        string res = "";
-        res.reserve(N + (N - 1)/2);
-        for(int i = 0; i < N; i++) {
-            if(i > 0 && (i - first_size) % K == 0) res.push_back('-');
-            res.push_back(s[i]);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-485. Max Consecutive Ones
-Given a binary array, find the maximum number of consecutive 1s in this array.
-
-Example 1:
-Input: [1,1,0,1,1,1]
-Output: 3
-Explanation: The first two digits or the last three digits are consecutive 1s.
-    The maximum number of consecutive 1s is 3.
-Note:
-
-The input array will only contain 0 and 1.
-The length of input array is a positive integer and will not exceed 10,000
-/*
-    Submission Date: 2018-06-03
-    Runtime: 37 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findMaxConsecutiveOnes(vector<int>& nums) {
-        int curr = 0;
-        int res = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            if(nums[i] == 1) {
-                curr++;
-                res = max(res, curr);
-            } else {
-                curr = 0;
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible increasing 
-subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
-
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
-Note:
-The length of the given array will not exceed 15.
-The range of integer in the given array is [-100,100].
-The given array may contain duplicates, and two equal integers should also be considered 
-as a special case of increasing sequence.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> findSubsequences(const vector<int>& nums) {
-        int N = nums.size();
-        vector<vector<vector<int>>> dp(N);
-        vector<vector<int>> res;
-        set<vector<int>> used;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] >= nums[j]) {
-                    for(auto seq: dp[j]) {
-                        seq.push_back(nums[i]);
-                        dp[i].push_back(seq);
-                    }
-                }
-            }
-            dp[i].push_back({nums[i]});
-        }
-        
-        for(auto vec: dp) {
-            for(auto seq: vec) {
-                if(seq.size() >= 2 && !used.count(seq)) {
-                    res.push_back(seq);
-                    used.insert(seq);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-492. Construct the Rectangle
-For a web developer, it is very important to know how to design a web page's size. So, given a specific rectangular web 
-page’s area, your job by now is to design a rectangular web page, whose length L and width W satisfy the following requirements:
-
-1. The area of the rectangular web page you designed must equal to the given target area.
-
-2. The width W should not be larger than the length L, which means L >= W.
-
-3. The difference between length L and width W should be as small as possible.
-You need to output the length L and the width W of the web page you designed in sequence.
-Example:
-Input: 4
-Output: [2, 2]
-Explanation: The target area is 4, and all the possible ways to construct it are [1,4], [2,2], [4,1]. 
-But according to requirement 2, [1,4] is illegal; according to requirement 3,  [4,1] is not optimal compared to [2,2]. So the 
-length L is 2, and the width W is 2.
-Note:
-The given area won't exceed 10,000,000 and is a positive integer
-The web page's width and length you designed must be positive integers.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 2 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> constructRectangle(int area) {
-        for(int i = sqrt(area); i >= 1; i--) {
-            if(area % i == 0) return {area/i, i};
-        }
-        return {};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-496. Next Greater Element I
-You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. Find all the next greater numbers for 
-nums1's elements in the corresponding places of nums2.
-
-The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. If it does not exist, output -1 for this number.
-
-Example 1:
-Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
-Output: [-1,3,-1]
-Explanation:
-    For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
-    For number 1 in the first array, the next greater number for it in the second array is 3.
-    For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
-Example 2:
-Input: nums1 = [2,4], nums2 = [1,2,3,4].
-Output: [3,-1]
-Explanation:
-    For number 2 in the first array, the next greater number for it in the second array is 3.
-    For number 4 in the first array, there is no next greater number for it in the second array, so output -1.
-Note:
-All elements in nums1 and nums2 are unique.
-The length of both nums1 and nums2 would not exceed 1000.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 11 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        For a stack of decreasing number, if there is a number x encountered.
-        All the numbers in the stack that x is greater than will have their return value to be x
-        and x is placed in the stack. This means there is no number in the stack that is less than x
-        eg [1,3,4,2,3]
-         []     1 => [1]
-         [1]    3 => [3]    update greater(1) = 3
-         [3]    4 => [4]    update greater(3) = 4
-         [4]    2 => [4,2]
-         [4,2]  3 => [4,3]  update greater(2) = 3
-    */
-    vector<int> nextGreaterElement(vector<int>& findNums, vector<int>& nums) {
-        if(nums.empty()) return {};
-        
-        int N = findNums.size();
-        // decreasing numbers
-        stack<int> stk;
-        
-        unordered_map<int,int> val_to_greater_val;
-        for(const auto& x: nums) {
-            while(!stk.empty() && stk.top() < x) {
-                val_to_greater_val[stk.top()] = x;
-                stk.pop();
-            }
-            
-            stk.push(x);
-        }
-        
-        vector<int> res;
-        for(const auto& x: findNums) {
-            res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-500. Keyboard Row
-Given a List of words, return the words that can be typed using letters of alphabet on only one row's of American keyboard like the image below.
-
-
-American keyboard
-
-
-Example 1:
-Input: ["Hello", "Alaska", "Dad", "Peace"]
-Output: ["Alaska", "Dad"]
-Note:
-You may use one character in the keyboard more than once.
-You may assume the input string will only contain letters of alphabet.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    // Have a map of character to row. Loop through each string and check if all the characters come from the same row.
-    vector<string> findWords(vector<string>& words) {
-        vector<string> v{"qwertyuiop", "asdfghjkl", "zxcvbnm"};
-        unordered_map<char, int> m;
-
-        for(int i = 0; i < v.size(); i++) {
-            for(const auto& c: v[i]) m[c] = i;
-        }
-
-        vector<string> res;
-        for(const auto& s: words) {
-            int ind = -1;
-            bool can_add = true;
-            for(const auto& c: s) {
-                if(ind == -1) ind = m[tolower(c)];
-                if(m[tolower(c)] != ind) {
-                    can_add = false;
-                    break;
-                }
-            }
-
-            if(can_add) res.push_back(s);
-        }
-
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-501. Find Mode in Binary Search Tree
-Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
-
-Assume a BST is defined as follows:
-
-The left subtree of a node contains only nodes with keys less than or equal to the node's key.
-The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
-Both the left and right subtrees must also be binary search trees.
-For example:
-Given BST [1,null,2,2],
-   1
-    \
-     2
-    /
-   2
-return [2].
-
-Note: If a tree has more than one mode, you can return them in any order.
-
-Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
-/*
-    Submission Date: 2018-06-09
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    typedef pair<int,int> pii;
-    
-    /*
-    inorder traversal where if the current element is the same as the last then
-    increase the frequency else reset it. if the frequency is greater than res
-    frequency, then change res else if the frequency is the same than push back
-    to res
-    */
-    void help(TreeNode* node, pii& curr, vector<pii>& res) {
-        if(node == NULL) return;
-        help(node->left, curr, res);
-        
-        if(curr.first == -1 || curr.second != node->val) {
-            curr = {1, node->val};
-        } else {
-            curr.first++;
-        }
-        
-        if(curr.first > res[0].first) {
-            res = {curr};
-        } else if(curr.first == res[0].first) {
-            res.push_back(curr);
-        }
-        
-        help(node->right, curr, res);
-    }
-    
-    vector<int> findMode(TreeNode* root) {
-        if(root == NULL) return {};
-        
-        vector<pii> res = {{0, INT_MIN}};
-        pii curr = {-1, INT_MIN};
-        help(root, curr, res);
-    
-        vector<int> v_i;
-        v_i.reserve(res.size());
-        for(const auto& p: res) v_i.push_back(p.second);
-        return v_i;
-    }
-};
 int main() {
     return 0;
 }

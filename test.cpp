@@ -62,7 +62,6 @@ bool isprime(int x) {
 }
 
 int main() {
-    return 0;
 }
 
 

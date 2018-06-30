@@ -1,6 +1,80 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+606. Construct String from Binary Tree
+You need to construct a string consists of parenthesis and integers from a 
+binary tree with the preorder traversing way.
+
+The null node needs to be represented by empty parenthesis pair "()". And you 
+need to omit all the empty parenthesis pairs that don't affect the one-to-one 
+mapping relationship between the string and the original binary tree.
+
+Example 1:
+Input: Binary tree: [1,2,3,4]
+       1
+     /   \
+    2     3
+   /    
+  4     
+
+Output: "1(2(4))(3)"
+
+Explanation: Originallay it needs to be "1(2(4)())(3()())", 
+but you need to omit all the unnecessary empty parenthesis pairs. 
+And it will be "1(2(4))(3)".
+Example 2:
+Input: Binary tree: [1,2,3,null,4]
+       1
+     /   \
+    2     3
+     \  
+      4 
+
+Output: "1(2()(4))(3)"
+
+Explanation: Almost the same as the first example, 
+except we can't omit the first parenthesis pair to break the one-to-one 
+mapping relationship between the input and the output.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string tree2str(TreeNode* t) {
+        if(t == NULL) return "";
+        string root = to_string(t -> val);
+        string left = tree2str(t -> left);
+        string right = tree2str(t -> right);
+        
+        if(left.empty() && right.empty())
+            return root;
+        if(!left.empty() && right.empty())
+            return root + "(" + left + ")";
+        
+        return root + "(" + left + ")" + "(" + right + ")";
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 609. Find Duplicate File in System
 Given a list of directory info including directory path, and all the files 
 with contents in this directory, you need to find out all the groups of 
@@ -839,166 +913,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
-    }
-};
-
-int main() {
     return 0;
 }

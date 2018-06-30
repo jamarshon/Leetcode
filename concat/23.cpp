@@ -1,6 +1,65 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+525. Contiguous Array
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example 1:
+Input: [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
+Example 2:
+Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+Note: The length of the given binary array will not exceed 50,000.
+
+/*
+    Submission Date: 2017-04-01
+    Runtime: 162 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int findMaxLength(vector<int>& nums) {
+        int maxLen = 0;
+        int currentSum = 0;
+        
+        // unordered_map has key to currentSum and value to earliest index seen with that 
+        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
+        // elements between those two indices is zero meaning equal number of 0's and 1's
+        // so finding the smallest index with the same currentSum results in the largest subarray
+        unordered_map<int, int> m = {{0, -1}};
+    
+        for(int i = 0, len = nums.size(); i < len; i++) {
+            if(nums[i] == 0) {
+                currentSum--;
+            } else {
+                currentSum++;
+            }
+            
+            if(m.find(currentSum) == m.end()) {
+                m[currentSum] = i;
+            } else {
+                maxLen = max(maxLen, i - m[currentSum]);
+            }
+        }
+        
+        return maxLen;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 530. Minimum Absolute Difference in BST
 Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
 
@@ -920,86 +979,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-567. Permutation in String
-Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
-one of the first string's permutations is the substring of the second string.
-Example 1:
-Input:s1 = "ab" s2 = "eidbaooo"
-Output:True
-Explanation: s2 contains one permutation of s1 ("ba").
-Example 2:
-Input:s1= "ab" s2 = "eidboaoo"
-Output: False
-Note:
-The input strings only contain lower case letters.
-The length of both given strings is in range [1, 10,000].
-/*
-    Submission Date: 2018-06-02
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    frequency map of s1 with variable to_use as global to check if everything equals 0
-    use sliding window where everything in a window is a valid character and does not 
-    exceed the frequency map limit for certain character
-    for a new character, if it exceeds the limit or its not a valid character than keep
-    moving front (restoring freq map). if it is not a valid character, the map will be
-    restored and to_do = original
-    Check if character is valid, if it is use it else move front so that it is not
-    included
-    */
-    bool checkInclusion(string s1, string s2) {
-        vector<int> freq(26 , 0);
-        unordered_set<char> letters(s1.begin(), s1.end());
-        for(const auto& c: s1) freq[c - 'a']++;
-        
-        int front = 0;
-        int back = 0;
-        
-        int N = s2.size();
-        int to_use = s1.size();
-        
-        while(back < N) {
-            if(to_use == 0) return true;
-            // slide the front until the letter is removed
-            int back_val = s2[back] - 'a';
-            while(front < back && freq[back_val] == 0) {
-                freq[s2[front] - 'a']++;
-                front++;
-                to_use++;
-            }
-            
-            /* if the back letter is in s1, decrease the frequency and to_use
-                else it means front == back as freq[s2[back]] == 0 so increase front 
-                to not include this letter
-            */
-            if(letters.count(s2[back])) {
-                freq[back_val]--;
-                to_use--;
-            } else {
-                front++;
-            }
-            
-            back++;
-        }
-        
-        return to_use == 0;
     }
 };
 

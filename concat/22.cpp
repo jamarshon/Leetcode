@@ -841,6 +841,68 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+515. Find Largest Value in Each Tree Row
+You need to find the largest value in each row of a binary tree.
+
+Example:
+Input: 
+
+          1
+         / \
+        3   2
+       / \   \  
+      5   3   9 
+
+Output: [1, 3, 9]
+
+/*
+    Submission Date: 2018-06-29
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if(root == NULL) return {};
+        vector<int> res;
+        queue<TreeNode*> q;
+        q.push(root);
+        
+        while(!q.empty()) {
+            int n = q.size();
+            int max_level = q.front()->val;
+            for(int i = 0; i < n; i++) {
+                TreeNode* curr = q.front();
+                q.pop();
+                max_level = max(max_level, curr->val);
+                if(curr->left) q.push(curr->left);
+                if(curr->right) q.push(curr->right);
+            }
+            res.push_back(max_level);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 520. Detect Capital
 Given a word, you need to judge whether the usage of capitals 
 in it is right or not.
@@ -939,65 +1001,6 @@ public:
     int findLUSlength(string a, string b) {
         if(a == b) return -1;
         return max(a.size(), b.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
-Example 2:
-Input: [0,1,0]
-Output: 2
-Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
-Note: The length of the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-class Solution {
-public:
-    int findMaxLength(vector<int>& nums) {
-        int maxLen = 0;
-        int currentSum = 0;
-        
-        // unordered_map has key to currentSum and value to earliest index seen with that 
-        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
-        // elements between those two indices is zero meaning equal number of 0's and 1's
-        // so finding the smallest index with the same currentSum results in the largest subarray
-        unordered_map<int, int> m = {{0, -1}};
-    
-        for(int i = 0, len = nums.size(); i < len; i++) {
-            if(nums[i] == 0) {
-                currentSum--;
-            } else {
-                currentSum++;
-            }
-            
-            if(m.find(currentSum) == m.end()) {
-                m[currentSum] = i;
-            } else {
-                maxLen = max(maxLen, i - m[currentSum]);
-            }
-        }
-        
-        return maxLen;
     }
 };
 

@@ -1,6 +1,167 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+640. Solve the Equation
+Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
+only '+', '-' operation, the variable x and its coefficient.
+
+If there is no solution for the equation, return "No solution".
+
+If there are infinite solutions for the equation, return "Infinite solutions".
+
+If there is exactly one solution for the equation, we ensure that the value of x is an integer.
+
+Example 1:
+Input: "x+5-3+x=6+x-2"
+Output: "x=2"
+Example 2:
+Input: "x=x"
+Output: "Infinite solutions"
+Example 3:
+Input: "2x=x"
+Output: "x=0"
+Example 4:
+Input: "2x+3x-6x=x+2"
+Output: "x=-1"
+Example 5:
+Input: "x=x+2"
+Output: "No solution"
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<long long, long long> getCount(string s) {
+        long long x_count = 0;
+        long long c_count = 0;
+        for(int i = 0; i < s.size();) {
+            string prev = "";
+            bool seen_number = false;
+            bool end_x = false;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    prev += s[i];
+                    seen_number = true;
+                    i++;
+                } else if(s[i] == '+' || s[i] == '-') {
+                    if(!seen_number) {
+                        prev += s[i];
+                        i++;
+                    } else {
+                        break;
+                    }
+                } else if(s[i] == 'x') {
+                    end_x = true;
+                    i++;
+                    break;
+                }
+            }
+
+            if(end_x) {
+                if(prev == "+") x_count++;
+                else if(prev == "-") x_count--;
+                else if(prev == "") x_count++;
+                else x_count += stoll(prev);
+            } else {
+                if(prev == "+") c_count++;
+                else if(prev == "-") c_count--;
+                else if(prev == "") c_count++;
+                else c_count += stoll(prev);
+            }
+        }
+
+        return {x_count, c_count};
+    }
+    string solveEquation(string equation) {
+        // put all the x on the left side and all the numbers on the right side
+        string s = equation;
+        string inf = "Infinite solutions";
+        string none = "No solution";
+
+        int eq_ind = s.find("=");
+        if(eq_ind == string::npos) return none;
+
+        string left = s.substr(0, eq_ind);
+        string right = s.substr(eq_ind + 1);
+
+        
+        long long x_count1, c_count1;
+        tie(x_count1, c_count1) = getCount(left);
+
+        long long x_count2, c_count2;
+        tie(x_count2, c_count2) = getCount(right);
+
+        long long left_x_count = x_count1 - x_count2;
+        long long right_c_count = c_count2 - c_count1;
+
+        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
+
+        return "x=" + to_string(right_c_count/left_x_count);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+643. Maximum Average Subarray I
+Given an array consisting of n integers, find the contiguous subarray of given length k that 
+has the maximum average value. And you need to output the maximum average value.
+
+Example 1:
+Input: [1,12,-5,-6,50,3], k = 4
+Output: 12.75
+Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
+Note:
+1 <= k <= n <= 30,000.
+Elements of the given array will be in the range [-10,000, 10,000].
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 199 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double findMaxAverage(vector<int>& nums, int k) {
+        int sum = 0;
+        int max_average = INT_MIN;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i < k) {
+                sum += nums[i];
+            } else {
+                if(i == k) max_average = max(max_average, sum);
+                sum = sum - nums[i - k] + nums[i];
+                max_average = max(max_average, sum);
+            }
+        }
+        if(k == nums.size()) return (double)sum/k;
+        return (double)max_average/k;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 645. Set Mismatch
 The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
 the numbers in the set got duplicated to another number in the set, which results in repetition of one 

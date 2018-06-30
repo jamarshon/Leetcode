@@ -1,6 +1,220 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
+
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
+
+Example 1:
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
+Note:
+The size of the given array will be in the range [1,1000].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
+            }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
+        }
+        
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+655. Print Binary Tree
+Print a binary tree in an m*n 2D string array following these rules:
+
+The row number m should be equal to the height of the given binary tree.
+The column number n should always be an odd number.
+The root node's value (in string format) should be put in the exactly middle of the 
+first row it can be put. The column and the row where the root node belongs will separate 
+the rest space into two parts (left-bottom part and right-bottom part). You should print the 
+left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
+left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
+none while the other is not, you don't need to print anything for the none subtree but still 
+need to leave the space as large as that for the other subtree. However, if two subtrees are 
+none, then you don't need to leave space for both of them.
+Each unused space should contain an empty string "".
+Print the subtrees following the same rules.
+Example 1:
+Input:
+     1
+    /
+   2
+Output:
+[["", "1", ""],
+ ["2", "", ""]]
+Example 2:
+Input:
+     1
+    / \
+   2   3
+    \
+     4
+Output:
+[["", "", "", "1", "", "", ""],
+ ["", "2", "", "", "", "3", ""],
+ ["", "", "4", "", "", "", ""]]
+Example 3:
+Input:
+      1
+     / \
+    2   5
+   / 
+  3 
+ / 
+4 
+Output:
+
+[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+ ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+ ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+ ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+Note: The height of binary tree is in the range of [1, 10].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int depth(TreeNode* root) {
+        if(root == NULL) return -1;
+        return 1 + max(depth(root -> left), depth(root -> right));
+    }
+    
+    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
+        if(root == NULL) return;
+        if(start >= end) return;
+        if(row >= res.size()) return;
+        
+        string val = to_string(root -> val);
+        int mid = start + (end - start)/2;
+        res[row][mid] = val;
+        
+        populate(root -> left, res, row + 1, start, mid);
+        populate(root -> right, res, row + 1, mid + 1, end);
+    }
+    vector<vector<string>> printTree(TreeNode* root) {
+        // get the maximum depth of the tree
+        int rd = depth(root);
+        int col = (1 << (rd + 1)) - 1; 
+        // the matrix has depth rows and 2^(depth + 1) - 1 columns
+        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
+        populate(root, res, 0, 0, col);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 656. Coin Path
 Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
 and an integer B. The integer B denotes that from any place (suppose the index is i) 
@@ -762,237 +976,6 @@ public:
  * obj.buildDict(dict);
  * bool param_2 = obj.search(word);
  */
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-680. Valid Palindrome II
-Given a non-empty string s, you may delete at most one character. Judge whether you can make it a palindrome.
-
-Example 1:
-Input: "aba"
-Output: True
-Example 2:
-Input: "abca"
-Output: True
-Explanation: You could delete the character 'c'.
-Note:
-The string will only contain lowercase characters a-z. The maximum length of the string is 50000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 129 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution2 {
-public:
-    /*
-    dp[i][j] represents number of deletes to make a palindrome for string [i, j]
-    */
-    bool validPalindrome(string s) {
-        int N = s.size();
-        vector<vector<int>> dp(N, vector<int>(N, 0));
-        for(int gap = 1; gap < N; gap++) {
-            for(int i = 0; i + gap < N; i++) {
-                int j = i + gap;
-                dp[i][j] = s[i] == s[j] ? dp[i+1][j-1] : 1 + min(dp[i+1][j], dp[i][j-1]);
-            }
-        }
-        
-        return dp[0][N-1] <= 1;
-    }
-};
-
-class Solution {
-public:
-    bool IsPalindrome(const string& s, int l, int r) {
-        while(l < r) {
-            if(s[l] == s[r]) {
-                l++;
-                r--;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    /*
-    loop l and r until they do not match then check either if skipping l IsPalindrome(s, l+1, r)
-    or skipping r IsPalindrome(s, l, r-1) will result in a palindrome
-    */
-    bool validPalindrome(string s) {
-        int l = 0;
-        int r = s.size() - 1;
-        while(l < r) {
-            if(s[l] == s[r]) {
-                l++;
-                r--;
-            } else {
-                return IsPalindrome(s, l+1, r) || IsPalindrome(s, l, r-1);
-            }
-        }
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-682. Baseball Game
-You're now a baseball game point recorder.
-
-Given a list of strings, each string can be one of the 4 following types:
-
-Integer (one round's score): Directly represents the number of points you get in this round.
-"+" (one round's score): Represents that the points you get in this round are the sum of the last two valid round's points.
-"D" (one round's score): Represents that the points you get in this round are the doubled data of the last valid round's points.
-"C" (an operation, which isn't a round's score): Represents the last valid round's points you get were invalid and should be removed.
-Each round's operation is permanent and could have an impact on the round before and the round after.
-
-You need to return the sum of the points you could get in all the rounds.
-
-Example 1:
-Input: ["5","2","C","D","+"]
-Output: 30
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get 2 points. The sum is: 7.
-Operation 1: The round 2's data was invalid. The sum is: 5.  
-Round 3: You could get 10 points (the round 2's data has been removed). The sum is: 15.
-Round 4: You could get 5 + 10 = 15 points. The sum is: 30.
-Example 2:
-Input: ["5","-2","4","C","D","9","+","+"]
-Output: 27
-Explanation: 
-Round 1: You could get 5 points. The sum is: 5.
-Round 2: You could get -2 points. The sum is: 3.
-Round 3: You could get 4 points. The sum is: 7.
-Operation 1: The round 3's data is invalid. The sum is: 3.  
-Round 4: You could get -4 points (the round 3's data has been removed). The sum is: -1.
-Round 5: You could get 9 points. The sum is: 8.
-Round 6: You could get -4 + 9 = 5 points. The sum is 13.
-Round 7: You could get 9 + 5 = 14 points. The sum is 27.
-Note:
-The size of the input list will be between 1 and 1000.
-Every integer represented in the list will be between -30000 and 30000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cassert>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    let stk be all the valid round points. if it is a number just add it as a round and increment res by the amount
-    if it is a "+", take the last two rounds add add them up. put the sum as a round and increment res by the amount
-    if it is a "D", take the last round, multiply it by two and add it as a around and increment res by the amount
-    if it is a "C", take the last round and decrease res by the amount as well as pop that round off.
-    */
-    int calPoints(vector<string>& ops) {
-        int res = 0; 
-        vector<int> stk;
-        for(const auto& s: ops) {
-            int stk_size = stk.size();
-            if(s == "+") {
-                assert(stk_size >= 2);
-                stk.push_back(stk[stk_size-1] + stk[stk_size-2]);
-                res += stk.back();
-            } else if(s == "D") {
-                assert(stk_size >= 1);
-                stk.push_back(stk[stk_size-1] * 2);
-                res += stk.back();
-            } else if(s == "C") {
-                res -= stk.back();
-                stk.pop_back();
-            } else { // a number
-                stk.push_back(stoi(s));
-                res += stk.back();
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-686. Repeated String Match
-Given two strings A and B, find the minimum number of times A has to be repeated such that B is a substring of it. If no such solution, return -1.
-
-For example, with A = "abcd" and B = "cdabcdab".
-
-Return 3, because by repeating A three times (“abcdabcdabcd”), B is a substring of it; and B is not a substring of A repeated two times ("abcdabcd").
-
-Note:
-The length of A and B will be between 1 and 10000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 716 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    if A is already in B, return 1
-    else it is a suffix of A + A repeated n times + prefix of A
-    so return n + 2
-    for all suffix of A, check if it is a prefix of B. if it is then see how many times A repeats
-    if it does repeat n times and the prefix of A is a suffix of B, then the answer is just n + 2.
-    */
-    int repeatedStringMatch(string A, string B) {
-        if(A.find(B) != string::npos) return 1;
-        for(int i = 0; i < A.size(); i++) {
-            bool got_suffix = true;
-            for(int j = 0; j < A.size() - i; j++) {
-                if(B[j] != A[i+j]) {
-                    got_suffix = false;
-                    break;
-                }
-            }
-            
-            if(!got_suffix) continue;
-            int res = 1;
-            int A_ind = 0;
-            for(int j = A.size() - i; j < B.size(); j++) {
-                if(A_ind == 0) res++;
-                
-                if(B[j] != A[A_ind]) {
-                    res = -1;
-                    break;
-                }
-                
-                A_ind = (A_ind + 1) % A.size();
-            }
-            
-            if(res == -1) continue;
-            return res;
-        }
-        
-        return -1;
-    }
-};
 
 int main() {
     return 0;

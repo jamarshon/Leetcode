@@ -702,6 +702,117 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+553. Optimal Division
+Given a list of positive integers, the adjacent integers will perform the float division. 
+For example, [2,3,4] -> 2 / 3 / 4.
+
+However, you can add any number of parenthesis at any position to change the priority of operations. 
+You should find out how to add parenthesis to get the maximum result, and return the corresponding expression 
+in string format. Your expression should NOT contain redundant parenthesis.
+
+Example:
+Input: [1000,100,10,2]
+Output: "1000/(100/10/2)"
+Explanation:
+1000/(100/10/2) = 1000/((100/10)/2) = 200
+However, the bold parenthesis in "1000/((100/10)/2)" are redundant, 
+since they don't influence the operation priority. So you should return "1000/(100/10/2)". 
+
+Other cases:
+1000/(100/10)/2 = 50
+1000/(100/(10/2)) = 50
+1000/100/10/2 = 0.5
+1000/100/(10/2) = 2
+Note:
+
+The length of the input array is [1, 10].
+Elements in the given array will be in range [2, 1000].
+There is only one optimal division for each test case.
+/*
+    Submission Date: 2018-06-30
+    Runtime: 5 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    o(n) for a series of number dp_max[i] = nums[i]/dp_min[i+1]
+    the minimum would be just divide all the numbers from [1,N)
+    as they are all integers meaning its some number divide by all integers 
+    in the denominator which would be the smallest. if nums[i] had
+    decimals than the smallest would not be dividing all the numbers as it could
+    be equivalent to putting a integer number in the numerator
+    
+    so return nums[0] / (nums[1]/nums[2]/ .... /nums[N-1])
+    */
+    string optimalDivision(vector<int>& nums) {
+        int N = nums.size();
+        string res = to_string(nums[0]);
+        if(N == 1) return res;
+        if(N == 2) return res + "/" + to_string(nums[1]);
+        
+        res += "/(";
+        for(int i = 1; i < N; i++) {
+            res += to_string(nums[i]) + (i == N-1 ? ")" : "/");
+        }
+        
+        return res;
+    }
+    
+    /*
+    o(n^2) dp where dp_max[i] is the largest number created from [i, N) and dp_min[i] is the smallest
+    then dp_max[i] is max(product of numbers between [i, j) /dp_min[j]) for j > i 
+    and dp_min[i] is min(product of numbers between [i, j) /dp_max[j]) for j > i 
+    
+    strings in dp_max and dp_min are surrounded by parenthesis while product of numbers aren't
+    
+    return dp_max[0]
+    */
+    string optimalDivision2(vector<int>& nums) {
+        int N = nums.size();
+        vector<pair<string, double>> dp_max(N, {"", INT_MIN}), dp_min(N, {"", INT_MAX});
+        dp_max[N-1] = {to_string(nums[N-1]), nums[N-1]};
+        dp_min[N-1] = dp_max[N-1];
+        
+        if(N == 1) return dp_max[0].first;
+        
+        for(int i = N-2; i >= 0; i--) {
+            string curr_s = to_string(nums[i]);
+            double curr = nums[i];
+            for(int j = i + 1; j < N; j++) {
+                if(dp_max[i].second < curr/dp_min[j].second) {
+                    dp_max[i] = {
+                        "(" + curr_s + "/" + dp_min[j].first + ")",
+                        curr/dp_min[j].second
+                    };
+                }
+                
+                if(dp_min[i].second > curr/dp_max[j].second) {
+                    dp_min[i] = {
+                        "(" + curr_s + "/" + dp_max[j].first + ")",
+                        curr/dp_max[j].second
+                    };
+                }
+                
+                curr /= nums[j];
+                curr_s += "/" + to_string(nums[j]);
+            }
+        }
+        
+        return dp_max[0].first.substr(1, dp_max[0].first.size() - 2);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 557. Reverse Words in a String III
 Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
 
@@ -837,147 +948,6 @@ public:
     int findTilt(TreeNode* root) {
         int res = 0;
         help(root, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-565. Array Nesting
-A zero-indexed array A consisting of N different integers is given. The array contains 
-all integers in the range [0, N - 1].
-
-Sets S[K] for 0 <= K < N are defined as follows:
-
-S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
-
-Sets S[K] are finite for each K and should NOT contain duplicates.
-
-Write a function that given an array A consisting of N integers, return the size of 
-the largest set S[K] for this array.
-
-Example 1:
-Input: A = [5,4,0,3,1,6,2]
-Output: 4
-Explanation: 
-A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
-
-One of the longest S[K]:
-S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
-Note:
-N is an integer within the range [1, 20,000].
-The elements of A are all distinct.
-Each element of array A is an integer within the range [0, N-1].
-/*
-    Submission Date: 2017-05-29
-    Runtime: 36 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
-                }
-                max_set = max(current_set, max_set);
-            }
-        }
-        return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-566. Reshape the Matrix
-In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
-
-You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
-the wanted reshaped matrix, respectively.
-
-The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
-
-If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
-
-Example 1:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 1, c = 4
-Output: 
-[[1,2,3,4]]
-Explanation:
-The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
-Example 2:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 2, c = 4
-Output: 
-[[1,2],
- [3,4]]
-Explanation:
-There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
-Note:
-The height and width of the given matrix is in range [1, 100].
-The given r and c are all positive.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 39 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
-        if(nums.empty()) return {};
-        int N = nums.size();
-        int M = nums[0].size();
-        
-        // cannot gain or lose elements
-        if(N*M != r*c) return nums;
-        
-        vector<vector<int>> res(r, vector<int>(c));
-        int x = 0;
-        int y = 0;
-        
-        for(int i = 0; i < r; i++) {
-            for(int j = 0; j < c; j++) {
-                res[i][j] = nums[y][x];
-                x++;
-                if(x == M) {
-                    x = 0;
-                    y++;
-                }
-            }
-        }
-        
         return res;
     }
 };

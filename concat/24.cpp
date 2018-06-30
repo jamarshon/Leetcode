@@ -1,6 +1,147 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+565. Array Nesting
+A zero-indexed array A consisting of N different integers is given. The array contains 
+all integers in the range [0, N - 1].
+
+Sets S[K] for 0 <= K < N are defined as follows:
+
+S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+
+Sets S[K] are finite for each K and should NOT contain duplicates.
+
+Write a function that given an array A consisting of N integers, return the size of 
+the largest set S[K] for this array.
+
+Example 1:
+Input: A = [5,4,0,3,1,6,2]
+Output: 4
+Explanation: 
+A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
+
+One of the longest S[K]:
+S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
+Note:
+N is an integer within the range [1, 20,000].
+The elements of A are all distinct.
+Each element of array A is an integer within the range [0, N-1].
+/*
+    Submission Date: 2017-05-29
+    Runtime: 36 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int arrayNesting(vector<int>& nums) {
+        int N = nums.size();
+        vector<bool> mask(N, true);
+        int max_set = 0;
+        for(int i = 0; i < N; i++) {
+            if(mask[i]) { // hasn't been processed
+                int current = i;
+                int current_set = 0;
+                while(true) {
+                    if(current >= N || !mask[current]) break;
+                    mask[current] = false;
+                    current = nums[current];
+                    current_set++;
+                }
+                max_set = max(current_set, max_set);
+            }
+        }
+        return max_set;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+566. Reshape the Matrix
+In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
+
+You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
+the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example 1:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+Output: 
+[[1,2,3,4]]
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+Example 2:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 2, c = 4
+Output: 
+[[1,2],
+ [3,4]]
+Explanation:
+There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
+Note:
+The height and width of the given matrix is in range [1, 100].
+The given r and c are all positive.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+        if(nums.empty()) return {};
+        int N = nums.size();
+        int M = nums[0].size();
+        
+        // cannot gain or lose elements
+        if(N*M != r*c) return nums;
+        
+        vector<vector<int>> res(r, vector<int>(c));
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < r; i++) {
+            for(int j = 0; j < c; j++) {
+                res[i][j] = nums[y][x];
+                x++;
+                if(x == M) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 567. Permutation in String
 Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
 one of the first string's permutations is the substring of the second string.
@@ -839,159 +980,5 @@ int main() {
     vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
     vector<string> t = s.findRestaurant(v1, v2);
     cout << t.size() << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

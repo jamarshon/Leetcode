@@ -1,6 +1,208 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+733. Flood Fill
+An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
+
+Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, 
+"flood fill" the image.
+
+To perform a "flood fill", consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color 
+as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), 
+and so on. Replace the color of all of the aforementioned pixels with the newColor.
+
+At the end, return the modified image.
+
+Example 1:
+Input: 
+image = [[1,1,1],[1,1,0],[1,0,1]]
+sr = 1, sc = 1, newColor = 2
+Output: [[2,2,2],[2,2,0],[2,0,1]]
+Explanation: 
+From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected 
+by a path of the same color as the starting pixel are colored with the new color.
+Note the bottom corner is not colored 2, because it is not 4-directionally connected
+to the starting pixel.
+Note:
+
+The length of image and image[0] will be in the range [1, 50].
+The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc < image[0].length.
+The value of each color in image[i][j] and newColor will be an integer in [0, 65535].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 57 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+public:
+    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor) {
+        if(image.empty()) return {};
+        queue<pair<int,int>> q;
+        unordered_set<string> visited;
+        
+        int N = image.size();
+        int M = image[0].size();
+        int original_color = image[sr][sc];
+        
+        q.emplace(sr, sc);
+        visited.insert(to_string(sr) + "," + to_string(sc));
+        while(!q.empty()) {
+            pair<int,int> p = q.front();
+            q.pop();
+            image[p.first][p.second] = newColor;
+            
+            for(int k = 0; k < 4; k++) {
+                int new_row = p.first + dy[k];
+                int new_col = p.second + dx[k];
+                if(0 <= new_row && new_row < N && 0 <= new_col && new_col < M && image[new_row][new_col] == original_color) {
+                    string key = to_string(new_row) + "," + to_string(new_col);
+                    if(!visited.count(key)) {
+                        q.emplace(new_row, new_col);
+                        visited.insert(key);
+                    }
+                }
+            }
+        }
+        
+        return image;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+744. Find Smallest Letter Greater Than Target
+Given a list of sorted characters letters containing only lowercase letters, and given a target letter target, find the 
+smallest element in the list that is larger than the given target.
+
+Letters also wrap around. For example, if the target is target = 'z' and letters = ['a', 'b'], the answer is 'a'.
+
+Examples:
+Input:
+letters = ["c", "f", "j"]
+target = "a"
+Output: "c"
+
+Input:
+letters = ["c", "f", "j"]
+target = "c"
+Output: "f"
+
+Input:
+letters = ["c", "f", "j"]
+target = "d"
+Output: "f"
+
+Input:
+letters = ["c", "f", "j"]
+target = "g"
+Output: "j"
+
+Input:
+letters = ["c", "f", "j"]
+target = "j"
+Output: "c"
+
+Input:
+letters = ["c", "f", "j"]
+target = "k"
+Output: "c"
+Note:
+letters has a length in range [2, 10000].
+letters consists of lowercase letters, and contains at least 2 unique letters.
+target is a lowercase letter.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 17 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        int low = 0;
+        int high = letters.size() - 1;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+            if(letters[mid] > target) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+        
+        if(low == letters.size()) return letters[0];
+        return letters[low];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+746. Min Cost Climbing Stairs
+On a staircase, the i-th step has some non-negative cost cost[i] assigned (0 indexed).
+
+Once you pay the cost, you can either climb one or two steps. You need to find minimum cost to 
+reach the top of the floor, and you can either start from the step with index 0, or the step with index 1.
+
+Example 1:
+Input: cost = [10, 15, 20]
+Output: 15
+Explanation: Cheapest is start on cost[1], pay that cost and go to the top.
+Example 2:
+Input: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+Output: 6
+Explanation: Cheapest is start on cost[0], and only step on 1s, skipping cost[3].
+Note:
+cost will have a length in the range [2, 1000].
+Every cost[i] will be an integer in the range [0, 999].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        if(cost.empty()) return 0;
+        int N = cost.size();
+        
+        vector<int> dp(N + 2, 0);
+        for(int i = N-1; i >= 0; i--) {
+            dp[i] = cost[i] + min(dp[i+1], dp[i+2]);
+        }
+        
+        return N == 1 ? dp[0] : min(dp[0], dp[1]);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 747. Largest Number At Least Twice of Others
 In a given integer array nums, there is always exactly one largest element.
 
@@ -773,228 +975,6 @@ public:
             current_len += widths[c - 'a'];
         }
         return {num_lines+1, current_len};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-807. Max Increase to Keep City Skyline
-In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
-We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
-different for different buildings). Height 0 is considered to be a building as well. 
-
-At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
-and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
-of the rectangles formed by all the buildings when viewed from a distance. See the following example.
-
-What is the maximum total sum that the height of the buildings can be increased?
-
-Example:
-Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
-Output: 35
-Explanation: 
-The grid is:
-[ [3, 0, 8, 4], 
-  [2, 4, 5, 7],
-  [9, 2, 6, 3],
-  [0, 3, 1, 0] ]
-
-The skyline viewed from top or bottom is: [9, 4, 8, 7]
-The skyline viewed from left or right is: [8, 7, 9, 3]
-
-The grid after increasing the height of buildings without affecting skylines is:
-
-gridNew = [ [8, 4, 8, 7],
-            [7, 4, 7, 7],
-            [9, 4, 8, 7],
-            [3, 3, 3, 3] ]
-
-Notes:
-
-1 < grid.length = grid[0].length <= 50.
-All heights grid[i][j] are in the range [0, 100].
-All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
-        if(grid.empty()) return 0;
-        int N = grid.size();
-        int M = grid[0].size();
-        vector<int> max_col(M, 0), max_row(N, 0);
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                max_col[j] = max(max_col[j], grid[i][j]);
-                max_row[i] = max(max_row[i], grid[i][j]);
-            }
-        }
-        
-        int res = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res += min(max_col[j], max_row[i]) - grid[i][j];
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-811. Subdomain Visit Count
-A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
-at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
-"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
-
-Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
-followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
-
-We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
-input, and in any order), that explicitly counts the number of visits to each subdomain.
-
-Example 1:
-Input: 
-["9001 discuss.leetcode.com"]
-Output: 
-["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
-Explanation: 
-We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
-So they will all be visited 9001 times.
-
-Example 2:
-Input: 
-["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
-Output: 
-["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
-Explanation: 
-We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
-we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
-
-Notes:
-
-The length of cpdomains will not exceed 100. 
-The length of each domain name will not exceed 100.
-Each address will have either 1 or 2 "." characters.
-The input count in any count-paired domain will not exceed 10000.
-The answer output can be returned in any order.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> subdomainVisits(vector<string>& cpdomains) {
-        unordered_map<string, int> domain_to_count;
-        for(const auto& s: cpdomains) {
-            int num = 0;
-            int i = 0;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    num = num * 10 + (s[i] - '0');
-                } else {
-                    break;
-                }
-                i++;
-            }
-            
-            string domain = s.substr(i + 1);
-            while(domain.find('.') != string::npos) {
-                domain_to_count[domain] += num;
-                domain = domain.substr(domain.find('.') + 1);
-            }
-            
-            domain_to_count[domain] += num;
-        }
-        
-        vector<string> res;
-        for(const auto& kv: domain_to_count) {
-            res.push_back(to_string(kv.second) + " " + kv.first);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-812. Largest Triangle Area
-You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
-
-Example:
-Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
-Output: 2
-Explanation: 
-The five points are show in the figure below. The red triangle is the largest.
-
-Notes:
-
-3 <= points.length <= 50.
-No points will be duplicated.
- -50 <= points[i][j] <= 50.
-Answers within 10^-6 of the true value will be accepted as correct.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double largestTriangleArea(vector<vector<int>>& points) {
-        int res = 0;
-        int N = points.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                for(int k = j + 1; k < N; k++) {
-                    /*
-                    given points (a,b), (c,d), (e,f)
-                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
-                    cross product of A and B is 
-                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
-                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
-                    magnitude of A cross B is area of parallelogram so divide by half
-                    */
-                    int c_minus_a = points[j][0] - points[i][0];
-                    int d_minus_b = points[j][1] - points[i][1];
-                    int e_minus_a = points[k][0] - points[i][0];
-                    int f_minus_b = points[k][1] - points[i][1];
-                    
-                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
-                }
-            }
-        }
-        return res/2.0;
     }
 };
 

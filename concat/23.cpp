@@ -1,6 +1,112 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals 
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one 
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than 
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a 
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase 
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    bool detectCapitalUse(string word) {
+        int N = word.size();
+        int capital_count = 0, lower_count = 0;
+        for(auto c: word) {
+            capital_count += isupper(c) != 0;
+            lower_count += islower(c) != 0;
+        }
+        
+        return capital_count == N || lower_count == N || 
+            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+521. Longest Uncommon Subsequence I
+Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
+The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
+should not be any subsequence of the other strings.
+
+A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
+order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
+
+The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
+uncommon subsequence doesn't exist, return -1.
+
+Example 1:
+Input: "aba", "cdc"
+Output: 3
+Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
+because "aba" is a subsequence of "aba", 
+but not a subsequence of any other strings in the group of two strings. 
+Note:
+
+Both strings' lengths will not exceed 100.
+Only letters from a ~ z will appear in input strings.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
+      what is the longest ss_A that is not ss_B and vice versa
+
+      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
+      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
+      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
+      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
+      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
+    */
+    int findLUSlength(string a, string b) {
+        if(a == b) return -1;
+        return max(a.size(), b.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 525. Contiguous Array
 Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
 
@@ -884,70 +990,6 @@ public:
         int res = 0;
         sort(nums.begin(), nums.end());
         for(int i = 0; i < nums.size(); i+= 2) res += nums[i];
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-563. Binary Tree Tilt
-Given a binary tree, return the tilt of the whole tree.
-
-The tilt of a tree node is defined as the absolute difference between the sum of all left subtree node values and 
-the sum of all right subtree node values. Null node has tilt 0.
-
-The tilt of the whole tree is defined as the sum of all nodes' tilt.
-
-Example:
-Input: 
-         1
-       /   \
-      2     3
-Output: 1
-Explanation: 
-Tilt of node 2 : 0
-Tilt of node 3 : 0
-Tilt of node 1 : |2-3| = 1
-Tilt of binary tree : 0 + 0 + 1 = 1
-Note:
-
-The sum of node values in any subtree won't exceed the range of 32-bit integer.
-All the tilt values won't exceed the range of 32-bit integer.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    returns the sum of subtree with node as root
-    */
-    int help(TreeNode* node, int& res) {
-        if(node == NULL) return 0;
-        int left = help(node->left, res);
-        int right = help(node->right, res);
-        res += abs(left - right);
-        return node->val + left + right;
-    }
-    
-    int findTilt(TreeNode* root) {
-        int res = 0;
-        help(root, res);
         return res;
     }
 };

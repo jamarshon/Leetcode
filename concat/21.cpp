@@ -1,6 +1,120 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+414. Third Maximum Number
+Given a non-empty array of integers, return the third maximum number in this array. 
+If it does not exist, return the maximum number. The time complexity must be in O(n).
+
+Example 1:
+Input: [3, 2, 1]
+
+Output: 1
+
+Explanation: The third maximum is 1.
+Example 2:
+Input: [1, 2]
+
+Output: 2
+
+Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
+Example 3:
+Input: [2, 2, 3, 1]
+
+Output: 1
+
+Explanation: Note that the third maximum here means the third maximum distinct number.
+Both numbers with value 2 are both considered as second maximum.
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int thirdMax(vector<int>& nums) {
+        priority_queue<int, vector<int>, greater<int>> min_heap;
+        unordered_set<int> distinct;
+        int max_item = nums.front();
+        for(auto num: nums) {
+            max_item = max(max_item, num);
+            if(distinct.count(num)) continue;
+            min_heap.push(num);
+            distinct.insert(num);
+            if(min_heap.size() > 3) {
+                int to_delete = min_heap.top();
+                distinct.erase(to_delete);
+                min_heap.pop();
+            }
+        }
+        
+        return min_heap.size() == 3 ? min_heap.top() : max_item;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+415. Add Strings
+Given two non-negative integers num1 and num2 represented as string, return the sum of num1 and num2.
+
+Note:
+
+The length of both num1 and num2 is < 5100.
+Both num1 and num2 contains only digits 0-9.
+Both num1 and num2 does not contain any leading zero.
+You must not use any built-in BigInteger library or convert the inputs to integer directly.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string addStrings(string num1, string num2) {
+        string res = "";
+        int carry = 0;
+        int i = num1.size() - 1, 
+            j = num2.size() - 1;
+        
+        while(i >= 0 || j >= 0) {
+            int x = carry;
+            if(i >= 0) x += (num1[i] - '0');
+            if(j >= 0) x += (num2[j] -'0');
+            
+            carry = x / 10;
+            res.push_back((x % 10) + '0');
+            
+            i--;
+            j--;
+        }
+        
+        if(carry > 0) res.push_back('1');
+        reverse(res.begin(), res.end());
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 419. Battleships in a Board
 Given an 2D board, count how many battleships are in it. The battleships are represented with 'X's, empty slots are represented with '.'s. 
 You may assume the following rules:
@@ -871,121 +985,6 @@ public:
         }
         
         return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-461. Hamming Distance
-The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
-
-Given two integers x and y, calculate the Hamming distance.
-
-Note:
-0 ≤ x, y < 2^31.
-
-Example:
-
-Input: x = 1, y = 4
-
-Output: 2
-
-Explanation:
-1   (0 0 0 1)
-4   (0 1 0 0)
-       ↑   ↑
-
-The above arrows point to positions where the corresponding bits are different.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    int hammingDistance(int x, int y) {
-        int res = 0;
-        while(x && y) {
-            res += (x % 2) != (y % 2); // check if last bit are different
-            x /= 2;
-            y /= 2;
-        }
-        
-        while(x) {
-            x &= (x-1); // y is all zeros so just count number of ones in x
-            res++;
-        }
-        
-        while(y) {
-            y &= (y-1); // x is all zeros so just count number of ones in y
-            res++;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-463. Island Perimeter
-You are given a map in form of a two-dimensional integer grid where 1 represents land and 0 represents water. 
-Grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, and 
-there is exactly one island (i.e., one or more connected land cells). The island doesn't have "lakes" (water inside that isn't 
-connected to the water around the island). One cell is a square with side length 1. The grid is rectangular, width and height 
-don't exceed 100. Determine the perimeter of the island.
-
-Example:
-
-[[0,1,0,0],
- [1,1,1,0],
- [0,1,0,0],
- [1,1,0,0]]
-
-Answer: 16
-Explanation: The perimeter is the 16 yellow stripes in the image below:
-
-/*
-    Submission Date: 2018-05-31
-    Runtime: 245 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    int dx[4] = {1,-1,0,0};
-    int dy[4] = {0,0,-1,1};
-public:
-    int islandPerimeter(vector<vector<int>>& grid) {
-        int res = 0;
-        for(int i = 0; i < grid.size(); i++) {
-            for(int j = 0; j < grid[0].size(); j++) {
-                if(grid[i][j] == 0) continue;
-                for(int k = 0; k < 4; k++) {
-                    int new_x = dx[k] + j;
-                    int new_y = dy[k] + i;
-                    // if out of bounds or is a zero element, add one
-                    if(new_x < 0 || new_x >= grid[0].size() || new_y < 0 || new_y >= grid.size() || 
-                       grid[new_y][new_x] == 0) {
-                        res++;
-                    }
-                }
-                
-            }
-        }
-        return res;
     }
 };
 

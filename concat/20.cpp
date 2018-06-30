@@ -898,111 +898,63 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-414. Third Maximum Number
-Given a non-empty array of integers, return the third maximum number in this array. 
-If it does not exist, return the maximum number. The time complexity must be in O(n).
+413. Arithmetic Slices
+A sequence of number is called arithmetic if it consists of at least three elements and if the 
+difference between any two consecutive elements is the same.
 
-Example 1:
-Input: [3, 2, 1]
+For example, these are arithmetic sequence:
 
-Output: 1
+1, 3, 5, 7, 9
+7, 7, 7, 7
+3, -1, -5, -9
+The following sequence is not arithmetic.
 
-Explanation: The third maximum is 1.
-Example 2:
-Input: [1, 2]
+1, 1, 2, 5, 7
 
-Output: 2
+A zero-indexed array A consisting of N numbers is given. A slice of that array is any 
+pair of integers (P, Q) such that 0 <= P < Q < N.
 
-Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
-Example 3:
-Input: [2, 2, 3, 1]
+A slice (P, Q) of array A is called arithmetic if the sequence:
+A[P], A[p + 1], ..., A[Q - 1], A[Q] is arithmetic. In particular, this means that P + 1 < Q.
 
-Output: 1
+The function should return the number of arithmetic slices in the array A.
 
-Explanation: Note that the third maximum here means the third maximum distinct number.
-Both numbers with value 2 are both considered as second maximum.
 
+Example:
+
+A = [1, 2, 3, 4]
+
+return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4] itself.
 /*
-    Submission Date: 2017-08-06
-    Runtime: 9 ms
-    Difficulty: EASY
+    Submission Date: 2018-06-30
+    Runtime:  ms
+    Difficulty: MEDIUM
 */
-
 #include <iostream>
 #include <vector>
-#include <queue>
-#include <unordered_set>
 
 using namespace std;
 
 class Solution {
 public:
-    int thirdMax(vector<int>& nums) {
-        priority_queue<int, vector<int>, greater<int>> min_heap;
-        unordered_set<int> distinct;
-        int max_item = nums.front();
-        for(auto num: nums) {
-            max_item = max(max_item, num);
-            if(distinct.count(num)) continue;
-            min_heap.push(num);
-            distinct.insert(num);
-            if(min_heap.size() > 3) {
-                int to_delete = min_heap.top();
-                distinct.erase(to_delete);
-                min_heap.pop();
+    /*
+    find the length of sequence where A[i+1] - A[i] is the same for all numbers in the sequence
+    let this length be called len, then there are len - 2 subarrays of size 3, len - 3 subarrays
+    of size 4 and so on. so the sum of 0 to len - 2 is just n*(n+1)/2 or (len - 2)*(len - 1)/2
+    */
+    int numberOfArithmeticSlices(vector<int>& A) {
+        int res = 0;
+        int N = A.size();
+        for(int i = 0; i + 1 < N;) {
+            int diff = A[i+1] - A[i];
+            int start = i;
+            while(i + 1 < N && A[i+1] - A[i] == diff) i++;
+            int len = i - start + 1;
+            if(len >= 3) {
+                res += (len - 2)*(len - 1)/2;
             }
         }
         
-        return min_heap.size() == 3 ? min_heap.top() : max_item;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-415. Add Strings
-Given two non-negative integers num1 and num2 represented as string, return the sum of num1 and num2.
-
-Note:
-
-The length of both num1 and num2 is < 5100.
-Both num1 and num2 contains only digits 0-9.
-Both num1 and num2 does not contain any leading zero.
-You must not use any built-in BigInteger library or convert the inputs to integer directly.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    string addStrings(string num1, string num2) {
-        string res = "";
-        int carry = 0;
-        int i = num1.size() - 1, 
-            j = num2.size() - 1;
-        
-        while(i >= 0 || j >= 0) {
-            int x = carry;
-            if(i >= 0) x += (num1[i] - '0');
-            if(j >= 0) x += (num2[j] -'0');
-            
-            carry = x / 10;
-            res.push_back((x % 10) + '0');
-            
-            i--;
-            j--;
-        }
-        
-        if(carry > 0) res.push_back('1');
-        reverse(res.begin(), res.end());
         return res;
     }
 };

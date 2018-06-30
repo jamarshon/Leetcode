@@ -1,6 +1,121 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+461. Hamming Distance
+The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
+
+Given two integers x and y, calculate the Hamming distance.
+
+Note:
+0 ≤ x, y < 2^31.
+
+Example:
+
+Input: x = 1, y = 4
+
+Output: 2
+
+Explanation:
+1   (0 0 0 1)
+4   (0 1 0 0)
+       ↑   ↑
+
+The above arrows point to positions where the corresponding bits are different.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    int hammingDistance(int x, int y) {
+        int res = 0;
+        while(x && y) {
+            res += (x % 2) != (y % 2); // check if last bit are different
+            x /= 2;
+            y /= 2;
+        }
+        
+        while(x) {
+            x &= (x-1); // y is all zeros so just count number of ones in x
+            res++;
+        }
+        
+        while(y) {
+            y &= (y-1); // x is all zeros so just count number of ones in y
+            res++;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+463. Island Perimeter
+You are given a map in form of a two-dimensional integer grid where 1 represents land and 0 represents water. 
+Grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, and 
+there is exactly one island (i.e., one or more connected land cells). The island doesn't have "lakes" (water inside that isn't 
+connected to the water around the island). One cell is a square with side length 1. The grid is rectangular, width and height 
+don't exceed 100. Determine the perimeter of the island.
+
+Example:
+
+[[0,1,0,0],
+ [1,1,1,0],
+ [0,1,0,0],
+ [1,1,0,0]]
+
+Answer: 16
+Explanation: The perimeter is the 16 yellow stripes in the image below:
+
+/*
+    Submission Date: 2018-05-31
+    Runtime: 245 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    int dx[4] = {1,-1,0,0};
+    int dy[4] = {0,0,-1,1};
+public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int res = 0;
+        for(int i = 0; i < grid.size(); i++) {
+            for(int j = 0; j < grid[0].size(); j++) {
+                if(grid[i][j] == 0) continue;
+                for(int k = 0; k < 4; k++) {
+                    int new_x = dx[k] + j;
+                    int new_y = dy[k] + i;
+                    // if out of bounds or is a zero element, add one
+                    if(new_x < 0 || new_x >= grid[0].size() || new_y < 0 || new_y >= grid.size() || 
+                       grid[new_y][new_x] == 0) {
+                        res++;
+                    }
+                }
+                
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 475. Heaters
 Winter is coming! Your first job during the contest is to design a standard heater with fixed warm radius to warm all the houses.
 
@@ -895,112 +1010,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-520. Detect Capital
-Given a word, you need to judge whether the usage of capitals 
-in it is right or not.
-
-We define the usage of capitals in a word to be right when one 
-of the following cases holds:
-
-All letters in this word are capitals, like "USA".
-All letters in this word are not capitals, like "leetcode".
-Only the first letter in this word is capital if it has more than 
-one letter, like "Google".
-Otherwise, we define that this word doesn't use capitals in a 
-right way.
-Example 1:
-Input: "USA"
-Output: True
-Example 2:
-Input: "FlaG"
-Output: False
-Note: The input will be a non-empty word consisting of uppercase 
-and lowercase latin letters.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    bool detectCapitalUse(string word) {
-        int N = word.size();
-        int capital_count = 0, lower_count = 0;
-        for(auto c: word) {
-            capital_count += isupper(c) != 0;
-            lower_count += islower(c) != 0;
-        }
-        
-        return capital_count == N || lower_count == N || 
-            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-521. Longest Uncommon Subsequence I
-Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
-The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
-should not be any subsequence of the other strings.
-
-A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
-order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
-
-The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
-uncommon subsequence doesn't exist, return -1.
-
-Example 1:
-Input: "aba", "cdc"
-Output: 3
-Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
-because "aba" is a subsequence of "aba", 
-but not a subsequence of any other strings in the group of two strings. 
-Note:
-
-Both strings' lengths will not exceed 100.
-Only letters from a ~ z will appear in input strings.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
-      what is the longest ss_A that is not ss_B and vice versa
-
-      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
-      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
-      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
-      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
-      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
-    */
-    int findLUSlength(string a, string b) {
-        if(a == b) return -1;
-        return max(a.size(), b.size());
     }
 };
 

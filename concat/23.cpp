@@ -1,6 +1,293 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+506. Relative Ranks
+Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
+will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
+
+Example 1:
+Input: [5, 4, 3, 2, 1]
+Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
+Explanation: The first three athletes got the top three highest scores, so they got "Gold Medal", "Silver Medal" and "Bronze Medal". 
+For the left two athletes, you just need to output their relative ranks according to their scores.
+Note:
+N is a positive integer and won't exceed 10,000.
+All the scores of athletes are guaranteed to be unique.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 24 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRelativeRanks(vector<int>& nums) {
+        map<int,int, greater<int>> m;
+        for(int i = 0; i < nums.size(); i++) m[nums[i]] = i;
+        
+        vector<string> rep{"Gold Medal", "Silver Medal", "Bronze Medal"};
+        
+        vector<string> res(nums.size());
+        int ind = 0;
+        for(const auto& kv: m) {
+            res[kv.second] = ind < 3 ? rep[ind] : to_string(ind+1);
+            ind++;
+        }
+        
+        return res;
+    }
+};
+
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+507. Perfect Number
+We define the Perfect Number is a positive integer that is equal to the sum of all its positive divisors except itself.
+
+Now, given an integer n, write a function that returns true when it is a perfect number and false when it is not.
+Example:
+Input: 28
+Output: True
+Explanation: 28 = 1 + 2 + 4 + 7 + 14
+Note: The input number n will not exceed 100,000,000. (1e8)
+/*
+    Submission Date: 2018-06-24
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    bool checkPerfectNumber(int num) {
+        if(num < 2) return false;
+        int res = 1;
+        for(int i = 2; i <= sqrt(num); i++) {
+            if(num % i == 0) {
+                res += i;
+                res += num/i;
+            }
+        }
+        
+        return res == num;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+508. Most Frequent Subtree Sum
+Given the root of a tree, you are asked to find the most frequent subtree sum. The 
+subtree sum of a node is defined as the sum of all the node values formed by the subtree 
+rooted at that node (including the node itself). So what is the most frequent subtree sum value? If there is a tie, 
+return all the values with the highest frequency in any order.
+
+Examples 1
+Input:
+
+  5
+ /  \
+2   -3
+return [2, -3, 4], since all the values happen only once, return all of them in any order.
+Examples 2
+Input:
+
+  5
+ /  \
+2   -5
+return [2], since 2 happens twice, however -5 only occur once.
+Note: You may assume the sum of values in any subtree is in the range of 32-bit signed integer.
+/*
+    Submission Date: 2018-06-30
+    Runtime: 16 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int f(TreeNode* node, unordered_map<int,int>& sum_to_freq, int& max_freq) {
+        if(node == NULL) return 0;
+        
+        int sum = node->val + f(node->left, sum_to_freq, max_freq) + f(node->right, sum_to_freq, max_freq);
+        sum_to_freq[sum]++;
+        max_freq = max(max_freq, sum_to_freq[sum]);
+        return sum;
+    }
+    
+    vector<int> findFrequentTreeSum(TreeNode* root) {
+        unordered_map<int,int> sum_to_freq;
+        int max_freq = 0;
+        f(root, sum_to_freq, max_freq);
+        vector<int> res;
+        for(const auto& kv: sum_to_freq) 
+            if(kv.second == max_freq) res.push_back(kv.first);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+513. Find Bottom Left Tree Value
+Given a binary tree, find the leftmost value in the last row of the tree.
+
+Example 1:
+Input:
+
+    2
+   / \
+  1   3
+
+Output:
+1
+Example 2: 
+Input:
+
+        1
+       / \
+      2   3
+     /   / \
+    4   5   6
+       /
+      7
+
+Output:
+7
+Note: You may assume the tree (i.e., the given root node) is not NULL.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 12 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        
+        TreeNode* res =  NULL;
+        while(!q.empty()) {
+            res = q.front();
+            
+            int level = q.size();
+            for(int i = 0; i < level; i++) {
+                TreeNode* node = q.front();
+                q.pop();
+                if(node->left) q.push(node->left);
+                if(node->right) q.push(node->right);
+            }
+        }
+        
+        return res->val;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+515. Find Largest Value in Each Tree Row
+You need to find the largest value in each row of a binary tree.
+
+Example:
+Input: 
+
+          1
+         / \
+        3   2
+       / \   \  
+      5   3   9 
+
+Output: [1, 3, 9]
+
+/*
+    Submission Date: 2018-06-29
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if(root == NULL) return {};
+        vector<int> res;
+        queue<TreeNode*> q;
+        q.push(root);
+        
+        while(!q.empty()) {
+            int n = q.size();
+            int max_level = q.front()->val;
+            for(int i = 0; i < n; i++) {
+                TreeNode* curr = q.front();
+                q.pop();
+                max_level = max(max_level, curr->val);
+                if(curr->left) q.push(curr->left);
+                if(curr->right) q.push(curr->right);
+            }
+            res.push_back(max_level);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 520. Detect Capital
 Given a word, you need to judge whether the usage of capitals 
 in it is right or not.
@@ -691,306 +978,6 @@ public:
         }
         
         return finalStr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-543. Diameter of Binary Tree
-Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary 
-tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
-
-Example:
-Given a binary tree 
-          1
-         / \
-        2   3
-       / \     
-      4   5    
-Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
-
-Note: The length of path between two nodes is represented by the number of edges between them.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    returns the height of a node so height(root) = 1 + max(height(left), height(right))
-    res can be updated to 2 + height(left) + height(right) as the longest path in the left
-    and right go through this node.
-    */
-    int help(TreeNode* root, int& res) {
-        if(root == NULL) return -1;
-        int left = help(root->left, res);
-        int right = help(root->right, res);
-        res = max(res, 2 + left + right);
-        return 1 + max(left, right);
-    }
-    
-    int diameterOfBinaryTree(TreeNode* root) {
-        int res = 0;
-        help(root, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-551. Student Attendance Record I
-You are given a string representing an attendance record for a student. The record only contains the following three characters:
-'A' : Absent.
-'L' : Late.
-'P' : Present.
-A student could be rewarded if his attendance record doesn't contain more than one 'A' (absent) or more than two continuous 'L' (late).
-
-You need to return whether the student could be rewarded according to his attendance record.
-
-Example 1:
-Input: "PPALLP"
-Output: True
-Example 2:
-Input: "PPALLL"
-Output: False
-/*
-    Submission Date: 2018-06-08
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool checkRecord(string s) {
-        int l_streak = 0;
-        bool seen_absent = false;
-        for(const auto& c: s) {
-            if(c == 'L') {
-                if(l_streak == 2) return false;
-                l_streak++;
-            } else {
-                if(c == 'A') {
-                    if(seen_absent) return false;
-                    seen_absent = true;
-                } // c == 'P'
-                
-                l_streak = 0;
-            }
-        }
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-553. Optimal Division
-Given a list of positive integers, the adjacent integers will perform the float division. 
-For example, [2,3,4] -> 2 / 3 / 4.
-
-However, you can add any number of parenthesis at any position to change the priority of operations. 
-You should find out how to add parenthesis to get the maximum result, and return the corresponding expression 
-in string format. Your expression should NOT contain redundant parenthesis.
-
-Example:
-Input: [1000,100,10,2]
-Output: "1000/(100/10/2)"
-Explanation:
-1000/(100/10/2) = 1000/((100/10)/2) = 200
-However, the bold parenthesis in "1000/((100/10)/2)" are redundant, 
-since they don't influence the operation priority. So you should return "1000/(100/10/2)". 
-
-Other cases:
-1000/(100/10)/2 = 50
-1000/(100/(10/2)) = 50
-1000/100/10/2 = 0.5
-1000/100/(10/2) = 2
-Note:
-
-The length of the input array is [1, 10].
-Elements in the given array will be in range [2, 1000].
-There is only one optimal division for each test case.
-/*
-    Submission Date: 2018-06-30
-    Runtime: 5 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    o(n) for a series of number dp_max[i] = nums[i]/dp_min[i+1]
-    the minimum would be just divide all the numbers from [1,N)
-    as they are all integers meaning its some number divide by all integers 
-    in the denominator which would be the smallest. if nums[i] had
-    decimals than the smallest would not be dividing all the numbers as it could
-    be equivalent to putting a integer number in the numerator
-    
-    so return nums[0] / (nums[1]/nums[2]/ .... /nums[N-1])
-    */
-    string optimalDivision(vector<int>& nums) {
-        int N = nums.size();
-        string res = to_string(nums[0]);
-        if(N == 1) return res;
-        if(N == 2) return res + "/" + to_string(nums[1]);
-        
-        res += "/(";
-        for(int i = 1; i < N; i++) {
-            res += to_string(nums[i]) + (i == N-1 ? ")" : "/");
-        }
-        
-        return res;
-    }
-    
-    /*
-    o(n^2) dp where dp_max[i] is the largest number created from [i, N) and dp_min[i] is the smallest
-    then dp_max[i] is max(product of numbers between [i, j) /dp_min[j]) for j > i 
-    and dp_min[i] is min(product of numbers between [i, j) /dp_max[j]) for j > i 
-    
-    strings in dp_max and dp_min are surrounded by parenthesis while product of numbers aren't
-    
-    return dp_max[0]
-    */
-    string optimalDivision2(vector<int>& nums) {
-        int N = nums.size();
-        vector<pair<string, double>> dp_max(N, {"", INT_MIN}), dp_min(N, {"", INT_MAX});
-        dp_max[N-1] = {to_string(nums[N-1]), nums[N-1]};
-        dp_min[N-1] = dp_max[N-1];
-        
-        if(N == 1) return dp_max[0].first;
-        
-        for(int i = N-2; i >= 0; i--) {
-            string curr_s = to_string(nums[i]);
-            double curr = nums[i];
-            for(int j = i + 1; j < N; j++) {
-                if(dp_max[i].second < curr/dp_min[j].second) {
-                    dp_max[i] = {
-                        "(" + curr_s + "/" + dp_min[j].first + ")",
-                        curr/dp_min[j].second
-                    };
-                }
-                
-                if(dp_min[i].second > curr/dp_max[j].second) {
-                    dp_min[i] = {
-                        "(" + curr_s + "/" + dp_max[j].first + ")",
-                        curr/dp_max[j].second
-                    };
-                }
-                
-                curr /= nums[j];
-                curr_s += "/" + to_string(nums[j]);
-            }
-        }
-        
-        return dp_max[0].first.substr(1, dp_max[0].first.size() - 2);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-557. Reverse Words in a String III
-Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
-
-Example 1:
-Input: "Let's take LeetCode contest"
-Output: "s'teL ekat edoCteeL tsetnoc"
-Note: In the string, each word is separated by single space and there will not be any extra space in the string.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    // from index 'start', find a space and reverse everything between start and space. change start to space + 1.
-    string reverseWords(string s) {
-        int start = 0;
-        while(s.find(' ', start) != string::npos) {
-            int space_ind = s.find(' ', start);
-            reverse(s.begin() + start, s.begin() + space_ind);
-            start = space_ind + 1;
-        }
-            
-        reverse(s.begin() + start, s.end());
-        return s;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-561. Array Partition I
-Given an array of 2n integers, your task is to group these integers into n pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) 
-which makes sum of min(ai, bi) for all i from 1 to n as large as possible.
-
-Example 1:
-Input: [1,4,3,2]
-
-Output: 4
-Explanation: n is 2, and the maximum sum of pairs is 4 = min(1, 2) + min(3, 4).
-Note:
-n is a positive integer, which is in the range of [1, 10000].
-All the integers in the array will be in the range of [-10000, 10000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 85 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-     for a pair ai and bi where bi is not used, it means bi should be the smallest element > ai
-     in order to maximize the rest of the result
-    */
-    int arrayPairSum(vector<int>& nums) {
-        int res = 0;
-        sort(nums.begin(), nums.end());
-        for(int i = 0; i < nums.size(); i+= 2) res += nums[i];
-        return res;
     }
 };
 

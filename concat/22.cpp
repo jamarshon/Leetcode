@@ -1,6 +1,61 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+459. Repeated Substring Pattern
+Given a non-empty string check if it can be constructed by taking a substring of it and appending multiple copies 
+of the substring together. You may assume the given string consists of lowercase English letters only and its length will not exceed 10000.
+Example 1:
+Input: "abab"
+
+Output: True
+
+Explanation: It's the substring "ab" twice.
+Example 2:
+Input: "aba"
+
+Output: False
+Example 3:
+Input: "abcabcabcabc"
+
+Output: True
+
+Explanation: It's the substring "abc" four times. (And the substring "abcabc" twice.)
+/*
+    Submission Date: 2018-06-09
+    Runtime: 53 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool repeatedSubstringPattern(string s) {
+        int N = s.size();
+            
+        for(int i = 1; i <= N/2; i++) {
+            if(N % i == 0) {
+                // N can be split into parts containing i elements
+                string pos = "";
+                string part = s.substr(0, i);
+                for(int j = 0; j < N/i; j++) {
+                    pos += part;
+                }
+                
+                if(s == pos) return true;
+            }
+        }
+        
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 461. Hamming Distance
 The Hamming distance between two integers is the number of positions at which the corresponding bits are different.
 
@@ -50,6 +105,102 @@ public:
             res++;
         }
         
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+462. Minimum Moves to Equal Array Elements II
+Given a non-empty integer array, find the minimum number of moves required to make all array elements equal, 
+where a move is incrementing a selected element by 1 or decrementing a selected element by 1.
+
+You may assume the array's length is at most 10,000.
+
+Example:
+
+Input:
+[1,2,3]
+
+Output:
+2
+
+Explanation:
+Only two moves are needed (remember each move increments or decrements one element):
+
+[1,2,3]  =>  [2,2,3]  =>  [2,2,2]
+/*
+    Submission Date: 2018-07-01
+    Runtime: 18 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    O(nlogn) given that it is sorted compute the sum and say that is the lhs_cost
+    rhs_cost = 0. as i decreases, there is a block of width i+1 and height diff
+    that is removed from lhs_cost and a block of width N-i-1 and height diff that
+    is added to the rhs_cost
+
+    compute the lhs_cost, rhs_cost for all i and take the minimum.
+    */
+    typedef long long ll;
+    int minMoves2(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        ll lhs_cost = 0;
+        for(const auto& e: nums) lhs_cost += nums.back() - e;
+        ll res = lhs_cost;
+        
+        ll rhs_cost = 0;
+        int N = nums.size();
+        for(int i = N-2; i >= 0; i--) {
+            int diff = nums[i+1] - nums[i];
+            lhs_cost -= diff*(i+1);
+            rhs_cost += diff*(N-i-1);
+            res = min(res, lhs_cost + rhs_cost);
+        }
+        return res;
+    }
+};
+
+class Solution2 {
+public:
+    /*
+    proof is suppose x is between two numbers (y, z where y <= z) 
+    then u can say the sum of deviation is (x-y) + (z-x) = z - y. 
+    so given an array of size n, u can just keep removing the min and max elements 
+    which would be equivalent to finding the median as it is the x between all the pairs of y,z.
+    (need y,z to be as far apart as possible in order to ensure x is between them)
+    */
+    int minMoves2_sort(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        int res = 0;
+        int N = nums.size();
+        for(int i = 0; i < N/2; i++) {
+            res += abs(nums[i] - nums[N-i-1]);
+        }
+        return res;
+    }
+
+    int minMoves2(vector<int>& nums) {
+        int res = 0;
+        int N = nums.size();
+        nth_element(nums.begin(), nums.begin() + N/2, nums.end());
+        
+        int median = nums[N/2];
+        
+        for(const auto& e: nums) {
+            res += abs(e - median);
+        }
         return res;
     }
 };
@@ -532,6 +683,66 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+495. Teemo Attacking
+In LOL world, there is a hero called Teemo and his attacking can make his enemy Ashe be in 
+poisoned condition. Now, given the Teemo's attacking ascending time series towards Ashe and 
+the poisoning time duration per Teemo's attacking, you need to output the total time that Ashe is in poisoned condition.
+
+You may assume that Teemo attacks at the very beginning of a specific time point, and makes 
+Ashe be in poisoned condition immediately.
+
+Example 1:
+Input: [1,4], 2
+Output: 4
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned immediately. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+And at time point 4, Teemo attacks Ashe again, and causes Ashe to be in poisoned status for another 2 seconds. 
+So you finally need to output 4.
+Example 2:
+Input: [1,2], 2
+Output: 3
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+However, at the beginning of time point 2, Teemo attacks Ashe again who is already in 
+poisoned status. 
+Since the poisoned status won't add up together, though the second poisoning attack will 
+still work at time point 2, it will stop at the end of time point 3. 
+So you finally need to output 3.
+Note:
+You may assume the length of given time series array won't exceed 10000.
+You may assume the numbers in the Teemo's attacking time series and his poisoning time duration 
+per attacking are non-negative integers, which won't exceed 10,000,000.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 103 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findPoisonedDuration(vector<int>& timeSeries, int duration) {
+        if(timeSeries.empty()) return 0;
+        
+        int N = timeSeries.size();
+        
+        int res = duration;
+        for(int i = 1; i < N; i++) {
+            res += min(duration, timeSeries[i] - timeSeries[i-1]);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 496. Next Greater Element I
 You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. Find all the next greater numbers for 
 nums1's elements in the corresponding places of nums2.
@@ -789,227 +1000,6 @@ public:
         
         reverse(res.begin(), res.end());
         return sgn + res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-506. Relative Ranks
-Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
-will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
-
-Example 1:
-Input: [5, 4, 3, 2, 1]
-Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
-Explanation: The first three athletes got the top three highest scores, so they got "Gold Medal", "Silver Medal" and "Bronze Medal". 
-For the left two athletes, you just need to output their relative ranks according to their scores.
-Note:
-N is a positive integer and won't exceed 10,000.
-All the scores of athletes are guaranteed to be unique.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 24 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRelativeRanks(vector<int>& nums) {
-        map<int,int, greater<int>> m;
-        for(int i = 0; i < nums.size(); i++) m[nums[i]] = i;
-        
-        vector<string> rep{"Gold Medal", "Silver Medal", "Bronze Medal"};
-        
-        vector<string> res(nums.size());
-        int ind = 0;
-        for(const auto& kv: m) {
-            res[kv.second] = ind < 3 ? rep[ind] : to_string(ind+1);
-            ind++;
-        }
-        
-        return res;
-    }
-};
-
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-507. Perfect Number
-We define the Perfect Number is a positive integer that is equal to the sum of all its positive divisors except itself.
-
-Now, given an integer n, write a function that returns true when it is a perfect number and false when it is not.
-Example:
-Input: 28
-Output: True
-Explanation: 28 = 1 + 2 + 4 + 7 + 14
-Note: The input number n will not exceed 100,000,000. (1e8)
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    bool checkPerfectNumber(int num) {
-        if(num < 2) return false;
-        int res = 1;
-        for(int i = 2; i <= sqrt(num); i++) {
-            if(num % i == 0) {
-                res += i;
-                res += num/i;
-            }
-        }
-        
-        return res == num;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-513. Find Bottom Left Tree Value
-Given a binary tree, find the leftmost value in the last row of the tree.
-
-Example 1:
-Input:
-
-    2
-   / \
-  1   3
-
-Output:
-1
-Example 2: 
-Input:
-
-        1
-       / \
-      2   3
-     /   / \
-    4   5   6
-       /
-      7
-
-Output:
-7
-Note: You may assume the tree (i.e., the given root node) is not NULL.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 12 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int findBottomLeftValue(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        TreeNode* res =  NULL;
-        while(!q.empty()) {
-            res = q.front();
-            
-            int level = q.size();
-            for(int i = 0; i < level; i++) {
-                TreeNode* node = q.front();
-                q.pop();
-                if(node->left) q.push(node->left);
-                if(node->right) q.push(node->right);
-            }
-        }
-        
-        return res->val;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-515. Find Largest Value in Each Tree Row
-You need to find the largest value in each row of a binary tree.
-
-Example:
-Input: 
-
-          1
-         / \
-        3   2
-       / \   \  
-      5   3   9 
-
-Output: [1, 3, 9]
-
-/*
-    Submission Date: 2018-06-29
-    Runtime: 15 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<int> largestValues(TreeNode* root) {
-        if(root == NULL) return {};
-        vector<int> res;
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        while(!q.empty()) {
-            int n = q.size();
-            int max_level = q.front()->val;
-            for(int i = 0; i < n; i++) {
-                TreeNode* curr = q.front();
-                q.pop();
-                max_level = max(max_level, curr->val);
-                if(curr->left) q.push(curr->left);
-                if(curr->right) q.push(curr->right);
-            }
-            res.push_back(max_level);
-        }
-        
-        return res;
     }
 };
 

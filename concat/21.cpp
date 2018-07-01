@@ -792,6 +792,70 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+451. Sort Characters By Frequency
+Given a string, sort it in decreasing order based on the frequency of characters.
+
+Example 1:
+
+Input:
+"tree"
+
+Output:
+"eert"
+
+Explanation:
+'e' appears twice while 'r' and 't' both appear once.
+So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid answer.
+Example 2:
+
+Input:
+"cccaaa"
+
+Output:
+"cccaaa"
+
+Explanation:
+Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
+Note that "cacaca" is incorrect, as the same characters must be together.
+Example 3:
+
+Input:
+"Aabb"
+
+Output:
+"bbAa"
+
+Explanation:
+"bbaA" is also a valid answer, but "Aabb" is incorrect.
+Note that 'A' and 'a' are treated as two different characters.
+/*
+    Submission Date: 2018-06-30
+    Runtime: 201 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    string frequencySort(string s) {
+        unordered_map<char, int> letter_to_freq;
+        for(const auto& c: s) letter_to_freq[c]++;
+        sort(s.begin(), s.end(), [&letter_to_freq](const char& lhs, const char& rhs) {
+            return letter_to_freq[lhs] == letter_to_freq[rhs] ? lhs > rhs : letter_to_freq[lhs] > letter_to_freq[rhs];
+        });
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 453. Minimum Moves to Equal Array Elements
 Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
 where a move is incrementing n - 1 elements by 1.
@@ -930,61 +994,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-459. Repeated Substring Pattern
-Given a non-empty string check if it can be constructed by taking a substring of it and appending multiple copies 
-of the substring together. You may assume the given string consists of lowercase English letters only and its length will not exceed 10000.
-Example 1:
-Input: "abab"
-
-Output: True
-
-Explanation: It's the substring "ab" twice.
-Example 2:
-Input: "aba"
-
-Output: False
-Example 3:
-Input: "abcabcabcabc"
-
-Output: True
-
-Explanation: It's the substring "abc" four times. (And the substring "abcabc" twice.)
-/*
-    Submission Date: 2018-06-09
-    Runtime: 53 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool repeatedSubstringPattern(string s) {
-        int N = s.size();
-            
-        for(int i = 1; i <= N/2; i++) {
-            if(N % i == 0) {
-                // N can be split into parts containing i elements
-                string pos = "";
-                string part = s.substr(0, i);
-                for(int j = 0; j < N/i; j++) {
-                    pos += part;
-                }
-                
-                if(s == pos) return true;
-            }
-        }
-        
-        return false;
     }
 };
 

@@ -1,6 +1,134 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+501. Find Mode in Binary Search Tree
+Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
+
+Assume a BST is defined as follows:
+
+The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+Both the left and right subtrees must also be binary search trees.
+For example:
+Given BST [1,null,2,2],
+   1
+    \
+     2
+    /
+   2
+return [2].
+
+Note: If a tree has more than one mode, you can return them in any order.
+
+Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
+/*
+    Submission Date: 2018-06-09
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    typedef pair<int,int> pii;
+    
+    /*
+    inorder traversal where if the current element is the same as the last then
+    increase the frequency else reset it. if the frequency is greater than res
+    frequency, then change res else if the frequency is the same than push back
+    to res
+    */
+    void help(TreeNode* node, pii& curr, vector<pii>& res) {
+        if(node == NULL) return;
+        help(node->left, curr, res);
+        
+        if(curr.first == -1 || curr.second != node->val) {
+            curr = {1, node->val};
+        } else {
+            curr.first++;
+        }
+        
+        if(curr.first > res[0].first) {
+            res = {curr};
+        } else if(curr.first == res[0].first) {
+            res.push_back(curr);
+        }
+        
+        help(node->right, curr, res);
+    }
+    
+    vector<int> findMode(TreeNode* root) {
+        if(root == NULL) return {};
+        
+        vector<pii> res = {{0, INT_MIN}};
+        pii curr = {-1, INT_MIN};
+        help(root, curr, res);
+    
+        vector<int> v_i;
+        v_i.reserve(res.size());
+        for(const auto& p: res) v_i.push_back(p.second);
+        return v_i;
+    }
+};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+504. Base 7
+Given an integer, return its base 7 string representation.
+
+Example 1:
+Input: 100
+Output: "202"
+Example 2:
+Input: -7
+Output: "-10"
+Note: The input will be in range of [-1e7, 1e7].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 8 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string convertToBase7(int num) {
+        if(num == 0) return "0";
+        
+        string sgn = num < 0 ? "-" : "";
+        num = abs(num);
+        
+        string res = "";
+        while(num) {
+            res.push_back((num % 7) + '0');
+            num /= 7;
+        }
+        
+        reverse(res.begin(), res.end());
+        return sgn + res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 506. Relative Ranks
 Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
 will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
@@ -826,158 +954,6 @@ public:
         int curr = 0;
         help(root, curr);
         return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-539. Minimum Time Difference
-Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
-minutes difference between any two time points in the list.
-
-Example 1:
-Input: ["23:59","00:00"]
-Output: 1
-
-Note:
-The number of time points in the given list is at least 2 and won't exceed 20000.
-The input time is legal and ranges from 00:00 to 23:59.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 43 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <limits.h>
-#include <algorithm>
-
-class Solution {
-public:
-    // Assume time b is larger than a
-    int getDifference(string a, string b) {
-        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
-        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
-        return hours*60 + minutes;
-    }
-
-    int findMinDifference(vector<string>& timePoints) {
-        sort(timePoints.begin(), timePoints.end());
-        int minDiff = INT_MAX;
-        int len = timePoints.size();
-
-        for(int i = 1; i < len; i++) {
-            int diff = getDifference(timePoints[i-1], timePoints[i]);
-            if(diff < minDiff) minDiff = diff;
-        }
-
-        string firstTimePoint = timePoints.front();
-        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
-        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
-        int wrapDiff = getDifference(timePoints.back(), wrap);
-
-        if(wrapDiff < minDiff) minDiff = wrapDiff;
-        return minDiff;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-540. Single Element in a Sorted Array
-Given a sorted array consisting of only integers where every element appears twice 
-except for one element which appears once. Find this single element that appears only once.
-
-Example 1:
-Input: [1,1,2,3,3,4,4,8,8]
-Output: 2
-Example 2:
-Input: [3,3,7,7,10,11,11]
-Output: 10
-Note: Your solution should run in O(log n) time and O(1) space.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 7 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int singleNonDuplicate(vector<int>& nums) {
-        int low = 0;
-        int high = nums.size() - 1;
-        while(low <= high) {
-            int mid = low + (high - low)/2;
-            if((mid % 2 == 0 && nums[mid] == nums[mid+1]) || 
-               (mid % 2 == 1 && nums[mid] == nums[mid-1])
-              ) {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-        
-        return nums[low];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-541. Reverse String II
-Given a string and an integer k, you need to reverse the first k characters for every 2k 
-characters counting from the start of the string. If there are less than k characters left, 
-reverse all of them. If there are less than 2k but greater than or equal to k characters, 
-then reverse the first k characters and left the other as original.
-
-Example:
-Input: s = "abcdefg", k = 2
-Output: "bacdfeg"
-
-Restrictions:
-The string consists of lower English letters only.
-Length of the given string and k will in the range [1, 10000]
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 26 ms
-    Difficulty: EASY
-*/
-
-using namespace std;
-#include <iostream>
-
-class Solution {
-public:
-    string reverseStr(string s, int k) {
-        string finalStr = "";
-        bool reverse = true;
-        int i = 0, len = s.size();
-        while(i < len) {
-            string currentStr = string(1, s[i++]);
-            while(i%k != 0 && i < len) {
-                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
-                i++;
-            }
-            finalStr += currentStr;
-            reverse ^= true;
-        }
-        
-        return finalStr;
     }
 };
 

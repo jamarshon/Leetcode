@@ -356,6 +356,92 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+789. Escape The Ghosts
+You are playing a simplified Pacman game. You start at the point (0, 0), and your 
+destination is (target[0], target[1]). There are several ghosts on the map, the i-th ghost 
+starts at (ghosts[i][0], ghosts[i][1]).
+
+Each turn, you and all ghosts simultaneously *may* move in one of 4 cardinal directions: 
+north, east, west, or south, going from the previous point to a new point 1 unit of distance away.
+
+You escape if and only if you can reach the target before any ghost reaches you (for any given 
+moves the ghosts may take.)  If you reach any square (including the target) at the same time as 
+a ghost, it doesn't count as an escape.
+
+Return True if and only if it is possible to escape.
+
+Example 1:
+Input: 
+ghosts = [[1, 0], [0, 3]]
+target = [0, 1]
+Output: true
+Explanation: 
+You can directly reach the destination (0, 1) at time 1, while the ghosts located at (1, 0) or 
+(0, 3) have no way to catch up with you.
+Example 2:
+Input: 
+ghosts = [[1, 0]]
+target = [2, 0]
+Output: false
+Explanation: 
+You need to reach the destination (2, 0), but the ghost at (1, 0) lies between you and the destination.
+Example 3:
+Input: 
+ghosts = [[2, 0]]
+target = [1, 0]
+Output: false
+Explanation: 
+The ghost can reach the target at the same time as you.
+Note:
+
+All points have coordinates with absolute value <= 10000.
+The number of ghosts will not exceed 100.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    if the manhattan distance (abs horizontal + abs vertical) of the target
+    from the origin is less than or equal to the manhattan distance of the 
+    target with the ghost, then return false as the ghost can get there
+    faster and just wait indefinitely.
+
+    why ghost intercept is not good?
+    if a ghost can intercept you, it means they can reach the target faster than
+    you. the shortest path between two points is straight line so if ghost can
+    take detour and intercept then it means if they just went straight, they
+    would be there before you.
+              if ghost gets here before you, they would already be at target
+              x   
+    you --------------- target
+              |         |
+              |         |
+    ghost--------------
+    */
+    bool escapeGhosts(vector<vector<int>>& ghosts, vector<int>& target) {
+        int mine = abs(target[0]) + abs(target[1]);
+        for(const auto& e: ghosts) {
+            int dist = abs(e[0]-target[0]) + abs(e[1]-target[1]);
+            if(dist <= mine) return false;
+        }
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 791. Custom Sort String
 S and T are strings composed of lowercase letters. In S, no letter occurs more than once.
 
@@ -920,77 +1006,6 @@ public:
     TreeNode* pruneTree(TreeNode* root) {
         if(!HasOne(root)) { delete root; return NULL; }
         return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-819. Most Common Word
-Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
-It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
-
-Words in the list of banned words are given in lowercase, and free of punctuation.  Words in the paragraph are not case sensitive.  
-The answer is in lowercase.
-
-Example:
-Input: 
-paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
-banned = ["hit"]
-Output: "ball"
-Explanation: 
-"hit" occurs 3 times, but it is a banned word.
-"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
-Note that words in the paragraph are not case sensitive,
-that punctuation is ignored (even if adjacent to words, such as "ball,"), 
-and that "hit" isn't the answer even though it occurs more because it is banned.
- 
-
-Note:
-
-1 <= paragraph.length <= 1000.
-1 <= banned.length <= 100.
-1 <= banned[i].length <= 10.
-The answer is unique, and written in lowercase (even if its occurrences in paragraph may have uppercase symbols, and 
-even if it is a proper noun.)
-paragraph only consists of letters, spaces, or the punctuation symbols !?',;.
-Different words in paragraph are always separated by a space.
-There are no hyphens or hyphenated words.
-Words only consist of letters, never apostrophes or other punctuation symbols.
-/*
-    Submission Date: 2018-06-04
-    Runtime:  ms
-    Difficulty: 
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
-public:
-    string mostCommonWord(string paragraph, vector<string>& banned) {
-        unordered_set<string> banned_set(banned.begin(), banned.end());
-        unordered_map<string,int> freq;
-        
-        stringstream ss(paragraph);
-        string temp;
-        
-        string res = "";
-        while(getline(ss, temp, ' ')) {
-            for(int i = 0; i < temp.size(); i++) temp[i] = tolower(temp[i]);
-            while(!temp.empty() && !isalpha(temp.back())) temp.pop_back();
-            if(banned_set.count(temp)) continue;
-            freq[temp]++;
-            if(res.empty() || freq[res] < freq[temp]) res = temp;
-        }
-        
-        return res;
     }
 };
 

@@ -169,6 +169,79 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+421. Maximum XOR of Two Numbers in an Array
+Given a non-empty array of numbers, a0, a1, a2, … , an-1, where 0 ≤ ai < 231.
+
+Find the maximum result of ai XOR aj, where 0 ≤ i, j < n.
+
+Could you do this in O(n) runtime?
+
+Example:
+
+Input: [3, 10, 5, 25, 2, 8]
+
+Output: 28
+
+Explanation: The maximum result is 5 ^ 25 = 28.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 47 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+    TrieNode* children[2];
+    TrieNode() {
+        children[0] = children[1] = NULL;
+    }
+};
+
+class Solution {
+public:
+    int findMaximumXOR(vector<int>& nums) {
+        TrieNode* root = new TrieNode();
+        // insert all numbers in trie in bit representation with msb near root
+        for(const auto& n: nums) {
+            TrieNode* curr = root;
+            for(int i = 31; i >= 0; i--) {
+                bool bit = n & (1 << i);
+                if(curr->children[bit] == NULL) curr->children[bit] = new TrieNode();
+                curr = curr->children[bit];
+            }
+        }
+        
+        // for each number search for the complementary if it exists, else take other path
+        int res = 0;
+        for(const auto& n: nums) {
+            TrieNode* curr = root;
+            int max_value = 0;
+            for(int i = 31; i >= 0; i--) {
+                bool bit = n & (1 << i);
+                bool comp_bit = !bit;
+                if(curr->children[comp_bit] == NULL) {
+                    // take other path and since same number nothing is added
+                    curr = curr->children[bit];
+                } else {
+                    // take complentary path and since a different number is added, add to the max_value
+                    max_value += (1 << i);
+                    curr = curr->children[comp_bit];
+                }
+            }
+            res = max(res, max_value);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 433. Minimum Genetic Mutation
 A gene string can be represented by an 8-character long string, with choices from 
 "A", "C", "G", "T".
@@ -930,67 +1003,6 @@ public:
         int res = 0;
         for(int i = 0; i < nums.size(); i++) {
             res += nums[i] - min_el;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-455. Assign Cookies
-Assume you are an awesome parent and want to give your children some cookies. But, you should give 
-each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that 
-the child will be content with; and each cookie j has a size sj. If sj >= gi, we can assign the cookie j to the 
-child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.
-
-Note:
-You may assume the greed factor is always positive. 
-You cannot assign more than one cookie to one child.
-
-Example 1:
-Input: [1,2,3], [1,1]
-
-Output: 1
-
-Explanation: You have 3 children and 2 cookies. The greed factors of 3 children are 1, 2, 3. 
-And even though you have 2 cookies, since their size is both 1, you could only make the child whose greed factor is 1 content.
-You need to output 1.
-Example 2:
-Input: [1,2], [1,2,3]
-
-Output: 2
-
-Explanation: You have 2 children and 3 cookies. The greed factors of 2 children are 1, 2. 
-You have 3 cookies and their sizes are big enough to gratify all of the children, 
-You need to output 2.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 42 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findContentChildren(vector<int>& g, vector<int>& s) {
-        int res = 0;
-        sort(g.begin(), g.end());
-        sort(s.begin(), s.end());
-        
-        int j = 0;
-        for(int i = 0; i < g.size(); i++) {
-            while(j < s.size() && g[i] > s[j]) j++;
-            if(j >= s.size()) break;
-            j++;
-            res++;
         }
         
         return res;

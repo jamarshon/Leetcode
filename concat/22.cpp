@@ -1,6 +1,67 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+455. Assign Cookies
+Assume you are an awesome parent and want to give your children some cookies. But, you should give 
+each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that 
+the child will be content with; and each cookie j has a size sj. If sj >= gi, we can assign the cookie j to the 
+child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.
+
+Note:
+You may assume the greed factor is always positive. 
+You cannot assign more than one cookie to one child.
+
+Example 1:
+Input: [1,2,3], [1,1]
+
+Output: 1
+
+Explanation: You have 3 children and 2 cookies. The greed factors of 3 children are 1, 2, 3. 
+And even though you have 2 cookies, since their size is both 1, you could only make the child whose greed factor is 1 content.
+You need to output 1.
+Example 2:
+Input: [1,2], [1,2,3]
+
+Output: 2
+
+Explanation: You have 2 children and 3 cookies. The greed factors of 2 children are 1, 2. 
+You have 3 cookies and their sizes are big enough to gratify all of the children, 
+You need to output 2.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 42 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        int res = 0;
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        
+        int j = 0;
+        for(int i = 0; i < g.size(); i++) {
+            while(j < s.size() && g[i] > s[j]) j++;
+            if(j >= s.size()) break;
+            j++;
+            res++;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 459. Repeated Substring Pattern
 Given a non-empty string check if it can be constructed by taking a substring of it and appending multiple copies 
 of the substring together. You may assume the given string consists of lowercase English letters only and its length will not exceed 10000.
@@ -872,134 +933,6 @@ public:
         }
 
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-501. Find Mode in Binary Search Tree
-Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
-
-Assume a BST is defined as follows:
-
-The left subtree of a node contains only nodes with keys less than or equal to the node's key.
-The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
-Both the left and right subtrees must also be binary search trees.
-For example:
-Given BST [1,null,2,2],
-   1
-    \
-     2
-    /
-   2
-return [2].
-
-Note: If a tree has more than one mode, you can return them in any order.
-
-Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
-/*
-    Submission Date: 2018-06-09
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    typedef pair<int,int> pii;
-    
-    /*
-    inorder traversal where if the current element is the same as the last then
-    increase the frequency else reset it. if the frequency is greater than res
-    frequency, then change res else if the frequency is the same than push back
-    to res
-    */
-    void help(TreeNode* node, pii& curr, vector<pii>& res) {
-        if(node == NULL) return;
-        help(node->left, curr, res);
-        
-        if(curr.first == -1 || curr.second != node->val) {
-            curr = {1, node->val};
-        } else {
-            curr.first++;
-        }
-        
-        if(curr.first > res[0].first) {
-            res = {curr};
-        } else if(curr.first == res[0].first) {
-            res.push_back(curr);
-        }
-        
-        help(node->right, curr, res);
-    }
-    
-    vector<int> findMode(TreeNode* root) {
-        if(root == NULL) return {};
-        
-        vector<pii> res = {{0, INT_MIN}};
-        pii curr = {-1, INT_MIN};
-        help(root, curr, res);
-    
-        vector<int> v_i;
-        v_i.reserve(res.size());
-        for(const auto& p: res) v_i.push_back(p.second);
-        return v_i;
-    }
-};
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-504. Base 7
-Given an integer, return its base 7 string representation.
-
-Example 1:
-Input: 100
-Output: "202"
-Example 2:
-Input: -7
-Output: "-10"
-Note: The input will be in range of [-1e7, 1e7].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 8 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    string convertToBase7(int num) {
-        if(num == 0) return "0";
-        
-        string sgn = num < 0 ? "-" : "";
-        num = abs(num);
-        
-        string res = "";
-        while(num) {
-            res.push_back((num % 7) + '0');
-            num /= 7;
-        }
-        
-        reverse(res.begin(), res.end());
-        return sgn + res;
     }
 };
 

@@ -1,6 +1,158 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+539. Minimum Time Difference
+Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
+minutes difference between any two time points in the list.
+
+Example 1:
+Input: ["23:59","00:00"]
+Output: 1
+
+Note:
+The number of time points in the given list is at least 2 and won't exceed 20000.
+The input time is legal and ranges from 00:00 to 23:59.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 43 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <limits.h>
+#include <algorithm>
+
+class Solution {
+public:
+    // Assume time b is larger than a
+    int getDifference(string a, string b) {
+        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
+        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
+        return hours*60 + minutes;
+    }
+
+    int findMinDifference(vector<string>& timePoints) {
+        sort(timePoints.begin(), timePoints.end());
+        int minDiff = INT_MAX;
+        int len = timePoints.size();
+
+        for(int i = 1; i < len; i++) {
+            int diff = getDifference(timePoints[i-1], timePoints[i]);
+            if(diff < minDiff) minDiff = diff;
+        }
+
+        string firstTimePoint = timePoints.front();
+        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
+        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
+        int wrapDiff = getDifference(timePoints.back(), wrap);
+
+        if(wrapDiff < minDiff) minDiff = wrapDiff;
+        return minDiff;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+540. Single Element in a Sorted Array
+Given a sorted array consisting of only integers where every element appears twice 
+except for one element which appears once. Find this single element that appears only once.
+
+Example 1:
+Input: [1,1,2,3,3,4,4,8,8]
+Output: 2
+Example 2:
+Input: [3,3,7,7,10,11,11]
+Output: 10
+Note: Your solution should run in O(log n) time and O(1) space.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 7 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int singleNonDuplicate(vector<int>& nums) {
+        int low = 0;
+        int high = nums.size() - 1;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+            if((mid % 2 == 0 && nums[mid] == nums[mid+1]) || 
+               (mid % 2 == 1 && nums[mid] == nums[mid-1])
+              ) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        
+        return nums[low];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+541. Reverse String II
+Given a string and an integer k, you need to reverse the first k characters for every 2k 
+characters counting from the start of the string. If there are less than k characters left, 
+reverse all of them. If there are less than 2k but greater than or equal to k characters, 
+then reverse the first k characters and left the other as original.
+
+Example:
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+
+Restrictions:
+The string consists of lower English letters only.
+Length of the given string and k will in the range [1, 10000]
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 26 ms
+    Difficulty: EASY
+*/
+
+using namespace std;
+#include <iostream>
+
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string finalStr = "";
+        bool reverse = true;
+        int i = 0, len = s.size();
+        while(i < len) {
+            string currentStr = string(1, s[i++]);
+            while(i%k != 0 && i < len) {
+                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
+                i++;
+            }
+            finalStr += currentStr;
+            reverse ^= true;
+        }
+        
+        return finalStr;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 543. Diameter of Binary Tree
 Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary 
 tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
@@ -844,57 +996,5 @@ int main() {
     int kill = 5;
     vector<int> t = s.killProcess(pid, ppid, kill);
 	for(auto l: t) cout << l << " ";
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to 
-make word1 and word2 the same, where in each step you can delete one character in either string.
-
-Example 1:
-Input: "sea", "eat"
-Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
-Note:
-The length of given words won't exceed 500.
-Characters in given words can only be lower-case letters.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minDistance(string word1, string word2) {
-        int row = word2.size() + 1;
-        int col = word1.size() + 1;
-        int dp[501][501];
-        for(int i = 0; i < row; i++) dp[i][0] = i;
-        for(int i = 0; i < col; i++) dp[0][i] = i;
-
-        for(int i = 1; i < row; i++) {
-            for(int j = 1; j < col; j++) {
-                if(word2[i - 1] == word1[j - 1]) {
-                    dp[i][j] = dp[i - 1][j - 1];
-                } else {
-                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
-                }
-            }
-        }
-        
-        return dp[row - 1][col - 1];
-    }
-};
-
-int main() {
-	Solution s;
-    cout << s.minDistance("sea", "eat");
 	return 0;
 }

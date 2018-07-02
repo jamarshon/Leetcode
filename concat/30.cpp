@@ -1,6 +1,155 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+747. Largest Number At Least Twice of Others
+In a given integer array nums, there is always exactly one largest element.
+
+Find whether the largest element in the array is at least twice as much as every other number in the array.
+
+If it is, return the index of the largest element, otherwise return -1.
+
+Example 1:
+
+Input: nums = [3, 6, 1, 0]
+Output: 1
+Explanation: 6 is the largest integer, and for every other number in the array x,
+6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
+ 
+
+Example 2:
+
+Input: nums = [1, 2, 3, 4]
+Output: -1
+Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
+ 
+
+Note:
+
+nums will have a length in the range [1, 50].
+Every nums[i] will be an integer in the range [0, 99].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    priority queue minheap to get the 2 largest element along with their index
+    compare if the largest element is > second largest element * 2 then return index of largest element
+    else -1
+    */
+    typedef pair<int,int> pii;
+    int dominantIndex(vector<int>& nums) {
+        if(nums.empty()) return -1;
+        
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        for(int i = 0; i < nums.size(); i++) {
+            pq.emplace(nums[i], i);
+            if(pq.size() > 2) pq.pop();
+        }
+        
+        int top_ind = pq.top().second;
+        pq.pop();
+        
+        if(pq.empty()) return top_ind;
+        
+        return nums[top_ind] > nums[pq.top().second]/2 ? -1 : pq.top().second;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+748. Shortest Completing Word
+Find the minimum length word from a given dictionary words, which has all the letters from the string 
+licensePlate. Such a word is said to complete the given string licensePlate
+
+Here, for letters we ignore case. For example, "P" on the licensePlate still matches "p" on the word.
+
+It is guaranteed an answer exists. If there are multiple answers, return the one that occurs first in the array.
+
+The license plate might have the same letter occurring multiple times. For example, given a licensePlate of 
+"PP", the word "pair" does not complete the licensePlate, but the word "supper" does.
+
+Example 1:
+Input: licensePlate = "1s3 PSt", words = ["step", "steps", "stripe", "stepple"]
+Output: "steps"
+Explanation: The smallest length word that contains the letters "S", "P", "S", and "T".
+Note that the answer is not "step", because the letter "s" must occur in the word twice.
+Also note that we ignored case for the purposes of comparing whether a letter exists in the word.
+Example 2:
+Input: licensePlate = "1s3 456", words = ["looks", "pest", "stew", "show"]
+Output: "pest"
+Explanation: There are 3 smallest length words that contains the letters "s".
+We return the one that occurred first.
+Note:
+licensePlate will be a string with length in range [1, 7].
+licensePlate will contain digits, spaces, or letters (uppercase or lowercase).
+words will have a length in the range [10, 1000].
+Every words[i] will consist of lowercase letters, and have length in range [1, 15].
+/*
+    Submission Date: 2018-06-30
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    licensePlate size M, words size N, words[i] size k
+    
+    generate a frequency of character for licensePlate O(M)
+    for each word, loop through character and decrease frequency of character if it exists
+    if the frequency is zero, remove it and if the hashmap is empty than all the characters
+    are needed in this string so update res if it is shorter O(N*k)
+    
+    O(N*k + M)
+    */
+    string shortestCompletingWord(string licensePlate, vector<string>& words) {
+        unordered_map<char, int> letters;
+        for(const auto& c: licensePlate) if(isalpha(c)) letters[tolower(c)]++;
+        
+        string res = "";
+        for(const auto& word: words) {
+            unordered_map<char, int> letters_copy = letters;
+            for(const auto& c: word) {
+                if(letters_copy.count(c)) {
+                    letters_copy[c]--;
+                    if(letters_copy[c] == 0) {
+                        letters_copy.erase(c);
+                        if(letters_copy.empty()) break;
+                    }
+                }
+            }
+            
+            if(letters_copy.empty() && (res.empty() || word.size() < res.size())) {
+                res = word;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 762. Prime Number of Set Bits in Binary Representation
 Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
 their binary representation.
@@ -791,169 +940,6 @@ public:
             current_len += widths[c - 'a'];
         }
         return {num_lines+1, current_len};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-807. Max Increase to Keep City Skyline
-In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
-We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
-different for different buildings). Height 0 is considered to be a building as well. 
-
-At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
-and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
-of the rectangles formed by all the buildings when viewed from a distance. See the following example.
-
-What is the maximum total sum that the height of the buildings can be increased?
-
-Example:
-Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
-Output: 35
-Explanation: 
-The grid is:
-[ [3, 0, 8, 4], 
-  [2, 4, 5, 7],
-  [9, 2, 6, 3],
-  [0, 3, 1, 0] ]
-
-The skyline viewed from top or bottom is: [9, 4, 8, 7]
-The skyline viewed from left or right is: [8, 7, 9, 3]
-
-The grid after increasing the height of buildings without affecting skylines is:
-
-gridNew = [ [8, 4, 8, 7],
-            [7, 4, 7, 7],
-            [9, 4, 8, 7],
-            [3, 3, 3, 3] ]
-
-Notes:
-
-1 < grid.length = grid[0].length <= 50.
-All heights grid[i][j] are in the range [0, 100].
-All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
-        if(grid.empty()) return 0;
-        int N = grid.size();
-        int M = grid[0].size();
-        vector<int> max_col(M, 0), max_row(N, 0);
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                max_col[j] = max(max_col[j], grid[i][j]);
-                max_row[i] = max(max_row[i], grid[i][j]);
-            }
-        }
-        
-        int res = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res += min(max_col[j], max_row[i]) - grid[i][j];
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-811. Subdomain Visit Count
-A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
-at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
-"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
-
-Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
-followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
-
-We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
-input, and in any order), that explicitly counts the number of visits to each subdomain.
-
-Example 1:
-Input: 
-["9001 discuss.leetcode.com"]
-Output: 
-["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
-Explanation: 
-We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
-So they will all be visited 9001 times.
-
-Example 2:
-Input: 
-["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
-Output: 
-["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
-Explanation: 
-We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
-we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
-
-Notes:
-
-The length of cpdomains will not exceed 100. 
-The length of each domain name will not exceed 100.
-Each address will have either 1 or 2 "." characters.
-The input count in any count-paired domain will not exceed 10000.
-The answer output can be returned in any order.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> subdomainVisits(vector<string>& cpdomains) {
-        unordered_map<string, int> domain_to_count;
-        for(const auto& s: cpdomains) {
-            int num = 0;
-            int i = 0;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    num = num * 10 + (s[i] - '0');
-                } else {
-                    break;
-                }
-                i++;
-            }
-            
-            string domain = s.substr(i + 1);
-            while(domain.find('.') != string::npos) {
-                domain_to_count[domain] += num;
-                domain = domain.substr(domain.find('.') + 1);
-            }
-            
-            domain_to_count[domain] += num;
-        }
-        
-        vector<string> res;
-        for(const auto& kv: domain_to_count) {
-            res.push_back(to_string(kv.second) + " " + kv.first);
-        }
-        
-        return res;
     }
 };
 

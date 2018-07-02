@@ -68,15 +68,21 @@ for(var i = 0; i < question_description.length; i++) {
 build("/*");
 build("\tSubmission Date: " + getDate());
 
+var curr_url = window.location.href;
+var base = "https://leetcode.com/problems/";
+var ind = curr_url.indexOf("/", base.length);
+var name = curr_url.substr(base.length, ind - base.length);
 
-var m = $.get("https://leetcode.com/api/submissions/escape-the-ghosts/?offset=0&limit=10&lastkey=", function(x) {
+var url = "https://leetcode.com/api/submissions/" + name + "/?offset=0&limit=10&lastkey=";
+
+var m = $.get(url, function(x) {
     var submissions = x.submissions_dump;
     JASSERT(submissions.length > 0);
     JASSERT(submissions[0].status_display === "Accepted");
 
     var run_time = submissions[0].runtime;
 
-    build("\tRuntime: " + run_time + "ms");
+    build("\tRuntime: " + run_time);
     build("\tDifficulty: " + difficulty);
 build("*/");
 

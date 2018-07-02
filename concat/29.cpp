@@ -1,6 +1,132 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+690. Employee Importance
+You are given a data structure of employee information, which includes the employee's unique id, 
+his importance value and his direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
+importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
+[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
+employee and all his subordinates.
+
+Example 1:
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
+So the total importance value of employee 1 is 5 + 3 + 3 = 11.
+Note:
+One employee has at most one direct leader and may have several subordinates.
+The maximum number of employees won't exceed 2000.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 135 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Employee {
+public:
+    // It's the unique ID of each node.
+    // unique id of this employee
+    int id;
+    // the importance value of this employee
+    int importance;
+    // the id of direct subordinates
+    vector<int> subordinates;
+};
+
+class Solution {
+public:
+    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
+        int res = employees[id_to_ind[id]]->importance;
+        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
+            res += dfs(e, id_to_ind, employees);
+        return res;
+    }
+
+    int getImportance(vector<Employee*> employees, int id) {
+        unordered_map<int, int> id_to_ind;
+        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
+        
+        return dfs(id, id_to_ind, employees);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+692. Top K Frequent Words
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
+with the lower alphabetical order comes first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]
+Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
+    with the number of occurrence being 4, 3, 2 and 1 respectively.
+Note:
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Input words contain only lowercase letters.
+Follow up:
+Try to solve it in O(n log k) time and O(n) extra space.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> topKFrequent(vector<string>& words, int k) {
+        unordered_map<string,int> freq_map;
+        for(auto e: words) freq_map[e]++;
+        
+        map<int, vector<string>> grouped_map;
+        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
+        
+        vector<string> res;
+        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
+            sort(it->second.begin(), it->second.end());
+            for(auto e: it->second) {
+                res.push_back(e);
+                if(res.size() == k) break;
+            }
+            if(res.size() == k) break;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 693. Binary Number with Alternating Bits
 Given a positive integer, check whether it has alternating bits: namely, if two adjacent bits will always have different values.
 
@@ -852,155 +978,6 @@ public:
         }
         
         return N == 1 ? dp[0] : min(dp[0], dp[1]);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-747. Largest Number At Least Twice of Others
-In a given integer array nums, there is always exactly one largest element.
-
-Find whether the largest element in the array is at least twice as much as every other number in the array.
-
-If it is, return the index of the largest element, otherwise return -1.
-
-Example 1:
-
-Input: nums = [3, 6, 1, 0]
-Output: 1
-Explanation: 6 is the largest integer, and for every other number in the array x,
-6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
- 
-
-Example 2:
-
-Input: nums = [1, 2, 3, 4]
-Output: -1
-Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
- 
-
-Note:
-
-nums will have a length in the range [1, 50].
-Every nums[i] will be an integer in the range [0, 99].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    priority queue minheap to get the 2 largest element along with their index
-    compare if the largest element is > second largest element * 2 then return index of largest element
-    else -1
-    */
-    typedef pair<int,int> pii;
-    int dominantIndex(vector<int>& nums) {
-        if(nums.empty()) return -1;
-        
-        priority_queue<pii, vector<pii>, greater<pii>> pq;
-        for(int i = 0; i < nums.size(); i++) {
-            pq.emplace(nums[i], i);
-            if(pq.size() > 2) pq.pop();
-        }
-        
-        int top_ind = pq.top().second;
-        pq.pop();
-        
-        if(pq.empty()) return top_ind;
-        
-        return nums[top_ind] > nums[pq.top().second]/2 ? -1 : pq.top().second;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-748. Shortest Completing Word
-Find the minimum length word from a given dictionary words, which has all the letters from the string 
-licensePlate. Such a word is said to complete the given string licensePlate
-
-Here, for letters we ignore case. For example, "P" on the licensePlate still matches "p" on the word.
-
-It is guaranteed an answer exists. If there are multiple answers, return the one that occurs first in the array.
-
-The license plate might have the same letter occurring multiple times. For example, given a licensePlate of 
-"PP", the word "pair" does not complete the licensePlate, but the word "supper" does.
-
-Example 1:
-Input: licensePlate = "1s3 PSt", words = ["step", "steps", "stripe", "stepple"]
-Output: "steps"
-Explanation: The smallest length word that contains the letters "S", "P", "S", and "T".
-Note that the answer is not "step", because the letter "s" must occur in the word twice.
-Also note that we ignored case for the purposes of comparing whether a letter exists in the word.
-Example 2:
-Input: licensePlate = "1s3 456", words = ["looks", "pest", "stew", "show"]
-Output: "pest"
-Explanation: There are 3 smallest length words that contains the letters "s".
-We return the one that occurred first.
-Note:
-licensePlate will be a string with length in range [1, 7].
-licensePlate will contain digits, spaces, or letters (uppercase or lowercase).
-words will have a length in the range [10, 1000].
-Every words[i] will consist of lowercase letters, and have length in range [1, 15].
-/*
-    Submission Date: 2018-06-30
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    licensePlate size M, words size N, words[i] size k
-    
-    generate a frequency of character for licensePlate O(M)
-    for each word, loop through character and decrease frequency of character if it exists
-    if the frequency is zero, remove it and if the hashmap is empty than all the characters
-    are needed in this string so update res if it is shorter O(N*k)
-    
-    O(N*k + M)
-    */
-    string shortestCompletingWord(string licensePlate, vector<string>& words) {
-        unordered_map<char, int> letters;
-        for(const auto& c: licensePlate) if(isalpha(c)) letters[tolower(c)]++;
-        
-        string res = "";
-        for(const auto& word: words) {
-            unordered_map<char, int> letters_copy = letters;
-            for(const auto& c: word) {
-                if(letters_copy.count(c)) {
-                    letters_copy[c]--;
-                    if(letters_copy[c] == 0) {
-                        letters_copy.erase(c);
-                        if(letters_copy.empty()) break;
-                    }
-                }
-            }
-            
-            if(letters_copy.empty() && (res.empty() || word.size() < res.size())) {
-                res = word;
-            }
-        }
-        
-        return res;
     }
 };
 

@@ -29,7 +29,7 @@ Note:
 The n and k are in the range 1 <= k < n <= 104.
 /*
     Submission Date: 2018-07-02
-    Runtime: 9 msms
+    Runtime: 29 ms
     Difficulty: MEDIUM
 */
 #include <iostream>

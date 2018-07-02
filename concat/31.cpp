@@ -1,6 +1,169 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+807. Max Increase to Keep City Skyline
+In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
+We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
+different for different buildings). Height 0 is considered to be a building as well. 
+
+At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
+and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
+of the rectangles formed by all the buildings when viewed from a distance. See the following example.
+
+What is the maximum total sum that the height of the buildings can be increased?
+
+Example:
+Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
+Output: 35
+Explanation: 
+The grid is:
+[ [3, 0, 8, 4], 
+  [2, 4, 5, 7],
+  [9, 2, 6, 3],
+  [0, 3, 1, 0] ]
+
+The skyline viewed from top or bottom is: [9, 4, 8, 7]
+The skyline viewed from left or right is: [8, 7, 9, 3]
+
+The grid after increasing the height of buildings without affecting skylines is:
+
+gridNew = [ [8, 4, 8, 7],
+            [7, 4, 7, 7],
+            [9, 4, 8, 7],
+            [3, 3, 3, 3] ]
+
+Notes:
+
+1 < grid.length = grid[0].length <= 50.
+All heights grid[i][j] are in the range [0, 100].
+All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
+        if(grid.empty()) return 0;
+        int N = grid.size();
+        int M = grid[0].size();
+        vector<int> max_col(M, 0), max_row(N, 0);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                max_col[j] = max(max_col[j], grid[i][j]);
+                max_row[i] = max(max_row[i], grid[i][j]);
+            }
+        }
+        
+        int res = 0;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                res += min(max_col[j], max_row[i]) - grid[i][j];
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+811. Subdomain Visit Count
+A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
+at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
+"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
+
+Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
+followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
+
+We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
+input, and in any order), that explicitly counts the number of visits to each subdomain.
+
+Example 1:
+Input: 
+["9001 discuss.leetcode.com"]
+Output: 
+["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
+Explanation: 
+We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
+So they will all be visited 9001 times.
+
+Example 2:
+Input: 
+["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
+Output: 
+["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
+Explanation: 
+We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
+we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
+
+Notes:
+
+The length of cpdomains will not exceed 100. 
+The length of each domain name will not exceed 100.
+Each address will have either 1 or 2 "." characters.
+The input count in any count-paired domain will not exceed 10000.
+The answer output can be returned in any order.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> subdomainVisits(vector<string>& cpdomains) {
+        unordered_map<string, int> domain_to_count;
+        for(const auto& s: cpdomains) {
+            int num = 0;
+            int i = 0;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    num = num * 10 + (s[i] - '0');
+                } else {
+                    break;
+                }
+                i++;
+            }
+            
+            string domain = s.substr(i + 1);
+            while(domain.find('.') != string::npos) {
+                domain_to_count[domain] += num;
+                domain = domain.substr(domain.find('.') + 1);
+            }
+            
+            domain_to_count[domain] += num;
+        }
+        
+        vector<string> res;
+        for(const auto& kv: domain_to_count) {
+            res.push_back(to_string(kv.second) + " " + kv.first);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 812. Largest Triangle Area
 You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
 
@@ -130,6 +293,88 @@ public:
 int main() {
     return 0;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+817. Linked List Components
+We are given head, the head node of a linked list containing unique integer 
+
+We are also given the list G, a subset of the values in the linked list.
+
+Return the number of connected components in G, where two values are connected 
+
+Example 1:
+
+Input: 
+head: 0->1->2->3
+G = [0, 1, 3]
+Output: 2
+Explanation: 
+0 and 1 are connected, so [0, 1] and [3] are the two connected components.
+
+
+Example 2:
+
+Input: 
+head: 0->1->2->3->4
+G = [0, 3, 1, 4]
+Output: 2
+Explanation: 
+0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two 
+
+
+Note: 
+
+
+    If N is the length of the linked list given by head, 1 <= N <= 10000.
+    The value of each node in the linked list will be in the range [0, N - 1].
+    1 <= G.length <= 10000.
+    G is a subset of all values in the linked list.
+/*
+    Submission Date: 2018-07-02
+    Runtime: 35 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    int numComponents(ListNode* head, vector<int>& G) {
+        unordered_set<int> G_set(G.begin(), G.end());
+        ListNode* curr = head;
+        int res = 0;
+        while(curr) {
+            // looking for the start of a component
+            while(curr && !G_set.count(curr->val)) {
+                curr = curr->next;
+            }
+            
+            if(curr) {
+                res++;
+                // looking for the end of a component
+                while(curr && G_set.count(curr->val)) {
+                    curr = curr->next;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 819. Most Common Word
@@ -719,289 +964,6 @@ public:
         }
         
         return visited.size() == rooms.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-844. Backspace String Compare
-Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
-
-Example 1:
-
-Input: S = "ab#c", T = "ad#c"
-Output: true
-Explanation: Both S and T become "ac".
-Example 2:
-
-Input: S = "ab##", T = "c#d#"
-Output: true
-Explanation: Both S and T become "".
-Example 3:
-
-Input: S = "a##c", T = "#a#c"
-Output: true
-Explanation: Both S and T become "c".
-Example 4:
-
-Input: S = "a#c", T = "b"
-Output: false
-Explanation: S becomes "c" while T becomes "b".
- 
-
-Note:
-
-1 <= S.length <= 200
-1 <= T.length <= 200
-S and T only contain lowercase letters and '#' characters.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string eval(string s) {
-        string res = "";
-        for(const auto& c: s) {
-            if(c == '#') {
-                if(!res.empty()) res.pop_back();
-            } else {
-                res.push_back(c);
-            }
-        }
-        return res;
-    }
-    bool backspaceCompare(string S, string T) {
-        return eval(S) == eval(T);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-849. Maximize Distance to Closest Person
-In a row of seats, 1 represents a person sitting in that seat, and 0 represents that the seat is empty. 
-
-There is at least one empty seat, and at least one person sitting.
-
-Alex wants to sit in the seat such that the distance between him and the closest person to him is maximized. 
-
-Return that maximum distance to closest person.
-
-Example 1:
-
-Input: [1,0,0,0,1,0,1]
-Output: 2
-Explanation: 
-If Alex sits in the second open seat (seats[2]), then the closest person has distance 2.
-If Alex sits in any other open seat, the closest person has distance 1.
-Thus, the maximum distance to the closest person is 2.
-Example 2:
-
-Input: [1,0,0,0]
-Output: 3
-Explanation: 
-If Alex sits in the last seat, the closest person is 3 seats away.
-This is the maximum distance possible, so the answer is 3.
-Note:
-
-1 <= seats.length <= 20000
-seats contains only 0s or 1s, at least one 0, and at least one 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxDistToClosest(vector<int>& seats) {
-        if(seats.empty()) return INT_MAX;
-        
-        int N = seats.size();
-        // left[i] indicates the distance to the closest 1 to the left 
-        vector<int> left(N, INT_MAX);
-        for(int i = 0; i < N; i++) {
-            if(seats[i] == 1) left[i] = 0;
-            else if(i > 0 && left[i-1] < INT_MAX) {
-                left[i] = left[i-1] + 1;
-            }
-        }
-        
-        int right = INT_MAX;
-        int res = INT_MIN;
-        /*
-        if there is at least one 1 and 0
-        left[i] will be INT_MAX until the first 1 then some number after it 
-        
-        hence if starting from the back, the number will not be INT_MAX so right
-        will be correctly minimized.
-        */
-        for(int i = N-1; i >= 0; i--) {
-            if(seats[i] == 1) right = 0;
-            else if(right < INT_MAX) right++;
-            
-            res = max(res, min(left[i], right));
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-852. Peak Index in a Mountain Array
-Let's call an array A a mountain if the following properties hold:
-
-A.length >= 3
-There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1]
-Given an array that is definitely a mountain, return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1].
-
-Example 1:
-
-Input: [0,1,0]
-Output: 1
-Example 2:
-
-Input: [0,2,1,0]
-Output: 1
-Note:
-
-3 <= A.length <= 10000
-0 <= A[i] <= 10^6
-A is a mountain, as defined above.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int peakIndexInMountainArray(vector<int>& A) {
-        int low = 0;
-        int high = A.size() - 1;
-        while(low <= high-2) { // at least 3 elements
-            int mid = low + (high-low)/2;
-            if(A[mid-1] < A[mid] && A[mid] > A[mid+1]) {
-                return mid;
-                
-            /* 
-            a number and the next number has only two conditions < and >
-            if < then it is before the peak, so go right
-            if > then it is after the peak, so go left
-            
-            need to include mid in the search as it can be either the left
-            or right boundary to the peak
-            */
-            } if(A[mid-1] < A[mid]) {
-                low = mid; 
-            } else { // A[mid-1] > A[mid]
-                high = mid;
-            }
-        }
-        
-        return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-856. Score of Parentheses
-Given a balanced parentheses string S, compute the score of the string based on the following rule:
-
-() has score 1
-AB has score A + B, where A and B are balanced parentheses strings.
-(A) has score 2 * A, where A is a balanced parentheses string.
- 
-
-Example 1:
-
-Input: "()"
-Output: 1
-Example 2:
-
-Input: "(())"
-Output: 2
-Example 3:
-
-Input: "()()"
-Output: 2
-Example 4:
-
-Input: "(()(()))"
-Output: 6
- 
-
-Note:
-
-S is a balanced parentheses string, containing only ( and ).
-2 <= S.length <= 50
-/*
-    Submission Date: 2018-06-29
-    Runtime: 4 ms
-    Difficulty:MEDIUM 
-*/
-#include <iostream>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    int scoreOfParentheses(string S) {
-        // first is the value or -1 if it is a character '(' 
-        stack<pair<int, char>> stk;
-        for(const auto& e: S) {
-            if(e == '(') {
-                stk.emplace(-1, '(');
-            } else { // e == ')'
-                // S is balanced so keep going back until '(' (ie not value)
-                // add all the numbers in between and multiply by 2
-                int in_between = 0;
-                while(stk.top().first != -1) {
-                    in_between += stk.top().first;
-                    stk.pop();
-                }
-                
-                stk.pop();
-                stk.emplace(max(1, 2*in_between), 'r');
-            }
-        }
-        
-        int res = 0;
-        // since S is balanced then stk must only contain values so add 
-        // up and return value
-        while(!stk.empty()) {
-            res += stk.top().first;
-            stk.pop();
-        }
-        
-        return res;
     }
 };
 

@@ -209,7 +209,7 @@ Note:
 The n and k are in the range 1 <= k < n <= 104.
 /*
     Submission Date: 2018-07-02
-    Runtime: 9 msms
+    Runtime: 29 ms
     Difficulty: MEDIUM
 */
 #include <iostream>
@@ -551,6 +551,93 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+677. Map Sum Pairs
+Implement a MapSum class with insert, and sum methods.
+
+
+
+For the method insert, you'll be given a pair of (string, integer). The string 
+represents the key and the integer represents the value. If the key already 
+
+
+
+For the method sum, you'll be given a string representing the prefix, and you 
+
+
+Example 1:
+Input: insert("apple", 3), Output: Null
+Input: sum("ap"), Output: 3
+Input: insert("app", 2), Output: Null
+Input: sum("ap"), Output: 5
+/*
+    Submission Date: 2018-07-02
+    Runtime: 4 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+struct TrieNode {
+    int sum;
+    TrieNode* children[26];
+    TrieNode() {
+        sum = 0;
+        for(int i = 0; i < 26; i++) children[i] = NULL;
+    }
+};
+
+class MapSum {
+    unordered_map<string, int> m;
+    TrieNode* root;
+public:
+    /** Have a trie and unordered_map. the unordered_map keeps track of key and val
+     the trie can find prefix easily. each node has sum which is the sum of all...l with each node visited getting the to_add
+     added to their sum.
+    */
+    MapSum() {
+        root = new TrieNode();
+    }
+    
+    void insert(string key, int val) {
+        int to_add = m.count(key) ? val - m[key] : val;
+        m[key] = val;
+        TrieNode* curr = root;
+        curr->sum += to_add;
+        
+        for(const auto& c: key) {
+            if(curr->children[c - 'a'] == NULL) 
+                curr->children[c - 'a'] = new TrieNode();
+            curr = curr->children[c - 'a'];
+            curr->sum += to_add;
+        }
+    }
+    
+    int sum(string prefix) {
+        TrieNode* curr = root;
+        for(const auto& c: prefix) {
+            if(curr->children[c - 'a'] == NULL) return 0;
+            curr = curr->children[c - 'a'];
+        }
+        
+        return curr->sum;
+    }
+};
+
+/**
+ * Your MapSum object will be instantiated and called as such:
+ * MapSum obj = new MapSum();
+ * obj.insert(key,val);
+ * int param_2 = obj.sum(prefix);
+ */
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 680. Valid Palindrome II
 Given a non-empty string s, you may delete at most one character. Judge whether you can make it a palindrome.
 
@@ -862,132 +949,6 @@ public:
         int res = 1;
         solve(root, res);
         return res - 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-690. Employee Importance
-You are given a data structure of employee information, which includes the employee's unique id, 
-his importance value and his direct subordinates' id.
-
-For example, employee 1 is the leader of employee 2, and employee 2 is the leader of employee 3. They have 
-importance value 15, 10 and 5, respectively. Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has 
-[2, 10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a subordinate of employee 1, the relationship is not direct.
-
-Now given the employee information of a company, and an employee id, you need to return the total importance value of this 
-employee and all his subordinates.
-
-Example 1:
-Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
-Output: 11
-Explanation:
-Employee 1 has importance value 5, and he has two direct subordinates: employee 2 and employee 3. They both have importance value 3. 
-So the total importance value of employee 1 is 5 + 3 + 3 = 11.
-Note:
-One employee has at most one direct leader and may have several subordinates.
-The maximum number of employees won't exceed 2000.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 135 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Employee {
-public:
-    // It's the unique ID of each node.
-    // unique id of this employee
-    int id;
-    // the importance value of this employee
-    int importance;
-    // the id of direct subordinates
-    vector<int> subordinates;
-};
-
-class Solution {
-public:
-    int dfs(int id, unordered_map<int, int> id_to_ind, const vector<Employee*>& employees) {
-        int res = employees[id_to_ind[id]]->importance;
-        for(const auto& e: employees[id_to_ind[id]]->subordinates) 
-            res += dfs(e, id_to_ind, employees);
-        return res;
-    }
-
-    int getImportance(vector<Employee*> employees, int id) {
-        unordered_map<int, int> id_to_ind;
-        for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
-        
-        return dfs(id, id_to_ind, employees);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-692. Top K Frequent Words
-Given a non-empty list of words, return the k most frequent elements.
-
-Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
-with the lower alphabetical order comes first.
-
-Example 1:
-Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
-Output: ["i", "love"]
-Explanation: "i" and "love" are the two most frequent words.
-    Note that "i" comes before "love" due to a lower alphabetical order.
-Example 2:
-Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
-Output: ["the", "is", "sunny", "day"]
-Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
-    with the number of occurrence being 4, 3, 2 and 1 respectively.
-Note:
-You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
-Input words contain only lowercase letters.
-Follow up:
-Try to solve it in O(n log k) time and O(n) extra space.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> topKFrequent(vector<string>& words, int k) {
-        unordered_map<string,int> freq_map;
-        for(auto e: words) freq_map[e]++;
-        
-        map<int, vector<string>> grouped_map;
-        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
-        
-        vector<string> res;
-        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
-            sort(it->second.begin(), it->second.end());
-            for(auto e: it->second) {
-                res.push_back(e);
-                if(res.size() == k) break;
-            }
-            if(res.size() == k) break;
-        }
-        
-        return res;
     }
 };
 

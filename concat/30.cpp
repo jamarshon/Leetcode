@@ -1,6 +1,85 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+762. Prime Number of Set Bits in Binary Representation
+Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
+their binary representation.
+
+(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
+10101 which has 3 set bits. Also, 1 is not a prime.)
+
+Example 1:
+
+Input: L = 6, R = 10
+Output: 4
+Explanation:
+6 -> 110 (2 set bits, 2 is prime)
+7 -> 111 (3 set bits, 3 is prime)
+9 -> 1001 (2 set bits , 2 is prime)
+10->1010 (2 set bits , 2 is prime)
+Example 2:
+
+Input: L = 10, R = 15
+Output: 5
+Explanation:
+10 -> 1010 (2 set bits, 2 is prime)
+11 -> 1011 (3 set bits, 3 is prime)
+12 -> 1100 (2 set bits, 2 is prime)
+13 -> 1101 (3 set bits, 3 is prime)
+14 -> 1110 (3 set bits, 3 is prime)
+15 -> 1111 (4 set bits, 4 is not prime)
+Note:
+
+L, R will be integers L <= R in the range [1, 10^6].
+R - L will be at most 10000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 105 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    int numbits(int x) {
+        int res = 0;
+        while(x) {
+            x &= (x-1);
+            res++;
+        }
+        return res;
+    }
+public:
+    /*
+        the number of bits for a number i = number of bits for i/2 + the last bit of i
+        e.g 10101 = number of bits for 1010 + last bit which is 1
+    */
+    int countPrimeSetBits(int L, int R) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        unordered_map<int,int> n_to_bits;
+        int res = 0;
+        for(int i = L; i <= R; i++) {
+            int bits;
+            if(n_to_bits.count(i)) {
+                bits = n_to_bits[i/2] + (i % 2);
+            } else {
+                bits = numbits(i);
+            }
+            n_to_bits[i] = bits;
+            res += primes.count(bits);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 763. Partition Labels
 A string S of lowercase letters is given. We want to partition this string into as many parts 
 as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
@@ -875,137 +954,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-812. Largest Triangle Area
-You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
-
-Example:
-Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
-Output: 2
-Explanation: 
-The five points are show in the figure below. The red triangle is the largest.
-
-Notes:
-
-3 <= points.length <= 50.
-No points will be duplicated.
- -50 <= points[i][j] <= 50.
-Answers within 10^-6 of the true value will be accepted as correct.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double largestTriangleArea(vector<vector<int>>& points) {
-        int res = 0;
-        int N = points.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                for(int k = j + 1; k < N; k++) {
-                    /*
-                    given points (a,b), (c,d), (e,f)
-                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
-                    cross product of A and B is 
-                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
-                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
-                    magnitude of A cross B is area of parallelogram so divide by half
-                    */
-                    int c_minus_a = points[j][0] - points[i][0];
-                    int d_minus_b = points[j][1] - points[i][1];
-                    int e_minus_a = points[k][0] - points[i][0];
-                    int f_minus_b = points[k][1] - points[i][1];
-                    
-                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
-                }
-            }
-        }
-        return res/2.0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-814. Binary Tree Pruning
-We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
-
-Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
-
-(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
-
-Example 1:
-Input: [1,null,0,0,1]
-Output: [1,null,0,null,1]
- 
-Explanation: 
-Only the red nodes satisfy the property "every subtree not containing a 1".
-The diagram on the right represents the answer.
-
-
-Example 2:
-Input: [1,0,1,0,0,0,1]
-Output: [1,null,1,null,1]
-
-
-
-Example 3:
-Input: [1,1,0,1,1,0,1,0]
-Output: [1,1,0,1,1,null,1]
-
-
-
-Note:
-
-The binary tree will have at most 100 nodes.
-The value of each node will only be 0 or 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    bool HasOne(TreeNode* root) {
-        if(root == NULL) return false;
-        bool l = HasOne(root->left);
-        bool r = HasOne(root->right);
-        
-        if(!l) { delete root->left; root->left = NULL; }
-        if(!r) { delete root->right; root->right = NULL; }
-        
-        return root->val == 1 || l || r;
-    }
-    
-    TreeNode* pruneTree(TreeNode* root) {
-        if(!HasOne(root)) { delete root; return NULL; }
-        return root;
     }
 };
 

@@ -1,6 +1,137 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+812. Largest Triangle Area
+You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2
+Explanation: 
+The five points are show in the figure below. The red triangle is the largest.
+
+Notes:
+
+3 <= points.length <= 50.
+No points will be duplicated.
+ -50 <= points[i][j] <= 50.
+Answers within 10^-6 of the true value will be accepted as correct.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        int res = 0;
+        int N = points.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                for(int k = j + 1; k < N; k++) {
+                    /*
+                    given points (a,b), (c,d), (e,f)
+                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
+                    cross product of A and B is 
+                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
+                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
+                    magnitude of A cross B is area of parallelogram so divide by half
+                    */
+                    int c_minus_a = points[j][0] - points[i][0];
+                    int d_minus_b = points[j][1] - points[i][1];
+                    int e_minus_a = points[k][0] - points[i][0];
+                    int f_minus_b = points[k][1] - points[i][1];
+                    
+                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
+                }
+            }
+        }
+        return res/2.0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+814. Binary Tree Pruning
+We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
+
+Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
+
+(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
+
+Example 1:
+Input: [1,null,0,0,1]
+Output: [1,null,0,null,1]
+ 
+Explanation: 
+Only the red nodes satisfy the property "every subtree not containing a 1".
+The diagram on the right represents the answer.
+
+
+Example 2:
+Input: [1,0,1,0,0,0,1]
+Output: [1,null,1,null,1]
+
+
+
+Example 3:
+Input: [1,1,0,1,1,0,1,0]
+Output: [1,1,0,1,1,null,1]
+
+
+
+Note:
+
+The binary tree will have at most 100 nodes.
+The value of each node will only be 0 or 1.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    bool HasOne(TreeNode* root) {
+        if(root == NULL) return false;
+        bool l = HasOne(root->left);
+        bool r = HasOne(root->right);
+        
+        if(!l) { delete root->left; root->left = NULL; }
+        if(!r) { delete root->right; root->right = NULL; }
+        
+        return root->val == 1 || l || r;
+    }
+    
+    TreeNode* pruneTree(TreeNode* root) {
+        if(!HasOne(root)) { delete root; return NULL; }
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 819. Most Common Word
 Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
 It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
@@ -871,66 +1002,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-859. Buddy Strings
-Given two strings A and B of lowercase letters, return true if and only if we can swap two letters in A so that the result equals B.
-
- 
-
-Example 1:
-
-Input: A = "ab", B = "ba"
-Output: true
-Example 2:
-
-Input: A = "ab", B = "ab"
-Output: false
-Example 3:
-
-Input: A = "aa", B = "aa"
-Output: true
-Example 4:
-
-Input: A = "aaaaaaabc", B = "aaaaaaacb"
-Output: true
-Example 5:
-
-Input: A = "", B = "aa"
-Output: false
-/*
-    Submission Date: 2018-06-24
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    bool buddyStrings(string A, string B) {
-        if(A.size() != B.size()) return false;
-        
-        vector<int> diff;
-        for(int i = 0; i < A.size(); i++) {
-            if(A[i] != B[i]) {
-                diff.push_back(i);
-                if(diff.size() > 2) return false;
-            }
-        }
-        
-        if(diff.size() == 1) return false;
-        if(diff.size() == 0) return unordered_set<char>(A.begin(), A.end()).size() < A.size();
-        return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
     }
 };
 

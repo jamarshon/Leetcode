@@ -1,6 +1,325 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+680. Valid Palindrome II
+Given a non-empty string s, you may delete at most one character. Judge whether you can make it a palindrome.
+
+Example 1:
+Input: "aba"
+Output: True
+Example 2:
+Input: "abca"
+Output: True
+Explanation: You could delete the character 'c'.
+Note:
+The string will only contain lowercase characters a-z. The maximum length of the string is 50000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 129 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution2 {
+public:
+    /*
+    dp[i][j] represents number of deletes to make a palindrome for string [i, j]
+    */
+    bool validPalindrome(string s) {
+        int N = s.size();
+        vector<vector<int>> dp(N, vector<int>(N, 0));
+        for(int gap = 1; gap < N; gap++) {
+            for(int i = 0; i + gap < N; i++) {
+                int j = i + gap;
+                dp[i][j] = s[i] == s[j] ? dp[i+1][j-1] : 1 + min(dp[i+1][j], dp[i][j-1]);
+            }
+        }
+        
+        return dp[0][N-1] <= 1;
+    }
+};
+
+class Solution {
+public:
+    bool IsPalindrome(const string& s, int l, int r) {
+        while(l < r) {
+            if(s[l] == s[r]) {
+                l++;
+                r--;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /*
+    loop l and r until they do not match then check either if skipping l IsPalindrome(s, l+1, r)
+    or skipping r IsPalindrome(s, l, r-1) will result in a palindrome
+    */
+    bool validPalindrome(string s) {
+        int l = 0;
+        int r = s.size() - 1;
+        while(l < r) {
+            if(s[l] == s[r]) {
+                l++;
+                r--;
+            } else {
+                return IsPalindrome(s, l+1, r) || IsPalindrome(s, l, r-1);
+            }
+        }
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+682. Baseball Game
+You're now a baseball game point recorder.
+
+Given a list of strings, each string can be one of the 4 following types:
+
+Integer (one round's score): Directly represents the number of points you get in this round.
+"+" (one round's score): Represents that the points you get in this round are the sum of the last two valid round's points.
+"D" (one round's score): Represents that the points you get in this round are the doubled data of the last valid round's points.
+"C" (an operation, which isn't a round's score): Represents the last valid round's points you get were invalid and should be removed.
+Each round's operation is permanent and could have an impact on the round before and the round after.
+
+You need to return the sum of the points you could get in all the rounds.
+
+Example 1:
+Input: ["5","2","C","D","+"]
+Output: 30
+Explanation: 
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get 2 points. The sum is: 7.
+Operation 1: The round 2's data was invalid. The sum is: 5.  
+Round 3: You could get 10 points (the round 2's data has been removed). The sum is: 15.
+Round 4: You could get 5 + 10 = 15 points. The sum is: 30.
+Example 2:
+Input: ["5","-2","4","C","D","9","+","+"]
+Output: 27
+Explanation: 
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get -2 points. The sum is: 3.
+Round 3: You could get 4 points. The sum is: 7.
+Operation 1: The round 3's data is invalid. The sum is: 3.  
+Round 4: You could get -4 points (the round 3's data has been removed). The sum is: -1.
+Round 5: You could get 9 points. The sum is: 8.
+Round 6: You could get -4 + 9 = 5 points. The sum is 13.
+Round 7: You could get 9 + 5 = 14 points. The sum is 27.
+Note:
+The size of the input list will be between 1 and 1000.
+Every integer represented in the list will be between -30000 and 30000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cassert>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    let stk be all the valid round points. if it is a number just add it as a round and increment res by the amount
+    if it is a "+", take the last two rounds add add them up. put the sum as a round and increment res by the amount
+    if it is a "D", take the last round, multiply it by two and add it as a around and increment res by the amount
+    if it is a "C", take the last round and decrease res by the amount as well as pop that round off.
+    */
+    int calPoints(vector<string>& ops) {
+        int res = 0; 
+        vector<int> stk;
+        for(const auto& s: ops) {
+            int stk_size = stk.size();
+            if(s == "+") {
+                assert(stk_size >= 2);
+                stk.push_back(stk[stk_size-1] + stk[stk_size-2]);
+                res += stk.back();
+            } else if(s == "D") {
+                assert(stk_size >= 1);
+                stk.push_back(stk[stk_size-1] * 2);
+                res += stk.back();
+            } else if(s == "C") {
+                res -= stk.back();
+                stk.pop_back();
+            } else { // a number
+                stk.push_back(stoi(s));
+                res += stk.back();
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+686. Repeated String Match
+Given two strings A and B, find the minimum number of times A has to be repeated such that B is a substring of it. If no such solution, return -1.
+
+For example, with A = "abcd" and B = "cdabcdab".
+
+Return 3, because by repeating A three times (“abcdabcdabcd”), B is a substring of it; and B is not a substring of A repeated two times ("abcdabcd").
+
+Note:
+The length of A and B will be between 1 and 10000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 716 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    if A is already in B, return 1
+    else it is a suffix of A + A repeated n times + prefix of A
+    so return n + 2
+    for all suffix of A, check if it is a prefix of B. if it is then see how many times A repeats
+    if it does repeat n times and the prefix of A is a suffix of B, then the answer is just n + 2.
+    */
+    int repeatedStringMatch(string A, string B) {
+        if(A.find(B) != string::npos) return 1;
+        for(int i = 0; i < A.size(); i++) {
+            bool got_suffix = true;
+            for(int j = 0; j < A.size() - i; j++) {
+                if(B[j] != A[i+j]) {
+                    got_suffix = false;
+                    break;
+                }
+            }
+            
+            if(!got_suffix) continue;
+            int res = 1;
+            int A_ind = 0;
+            for(int j = A.size() - i; j < B.size(); j++) {
+                if(A_ind == 0) res++;
+                
+                if(B[j] != A[A_ind]) {
+                    res = -1;
+                    break;
+                }
+                
+                A_ind = (A_ind + 1) % A.size();
+            }
+            
+            if(res == -1) continue;
+            return res;
+        }
+        
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+687. Longest Univalue Path
+Given a binary tree, find the length of the longest path where each node in the path has the same value. This path may or may not pass through the root.
+
+Note: The length of path between two nodes is represented by the number of edges between them.
+
+Example 1:
+
+Input:
+
+              5
+             / \
+            4   5
+           / \   \
+          1   1   5
+Output:
+
+2
+Example 2:
+
+Input:
+
+              1
+             / \
+            4   5
+           / \   \
+          4   4   5
+Output:
+
+2
+Note: The given binary tree has not more than 10000 nodes. The height of the tree is not more than 1000.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 112 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+        N by returning the longest path that starts from this node where a path is straight down where all
+        the nodes have the same value. This is 1 + max(f(left), f(right)) if left and right have the same
+        value as this node.
+        Variable that is passed by reference is the result where it can be 1 + f(left) + f(right) if left
+        and right have the same value as this node as it means there is a path for the left and a path for
+        the right which creates a upside down v shape.
+    */
+    int solve(TreeNode* root, int& res) {
+        if(!root) return 0;
+        vector<int> longest_path_starting_at_child{solve(root->left, res), solve(root->right, res)};
+        int pos_res = 1;
+        int longest_path_starting_at_node = 0;
+        
+        if(root->left && root->left->val == root->val) {
+            pos_res += longest_path_starting_at_child[0];
+            longest_path_starting_at_node = longest_path_starting_at_child[0];
+        }
+        if(root->right && root->right->val == root->val) {
+            pos_res += longest_path_starting_at_child[1];
+            longest_path_starting_at_node = max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
+        }
+
+        res = max(res, pos_res);
+        return 1 + longest_path_starting_at_node;
+    }
+
+    int longestUnivaluePath(TreeNode* root) {
+        int res = 1;
+        solve(root, res);
+        return res - 1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 690. Employee Importance
 You are given a data structure of employee information, which includes the employee's unique id, 
 his importance value and his direct subordinates' id.
@@ -676,308 +995,6 @@ public:
         }
         
         return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-728. Self Dividing Numbers
-A self-dividing number is a number that is divisible by every digit it contains.
-
-For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0, and 128 % 8 == 0.
-
-Also, a self-dividing number is not allowed to contain the digit zero.
-
-Given a lower and upper number bound, output a list of every possible self dividing number, including the bounds if possible.
-
-Example 1:
-Input: 
-left = 1, right = 22
-Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
-Note:
-
-The boundaries of each input argument are 1 <= left <= right <= 10000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> selfDividingNumbers(int left, int right) {
-        vector<int> res;
-        
-        for(int i = left; i <= right; i++) {
-            int x = i;
-            bool can_use = true;
-            while(x) {
-                if(x % 10 == 0 || i % (x % 10) != 0) {
-                    can_use = false;
-                    break;
-                }
-                x /= 10;
-            }
-            
-            if(can_use) res.push_back(i);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-733. Flood Fill
-An image is represented by a 2-D array of integers, each integer representing the pixel value of the image (from 0 to 65535).
-
-Given a coordinate (sr, sc) representing the starting pixel (row and column) of the flood fill, and a pixel value newColor, 
-"flood fill" the image.
-
-To perform a "flood fill", consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color 
-as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color as the starting pixel), 
-and so on. Replace the color of all of the aforementioned pixels with the newColor.
-
-At the end, return the modified image.
-
-Example 1:
-Input: 
-image = [[1,1,1],[1,1,0],[1,0,1]]
-sr = 1, sc = 1, newColor = 2
-Output: [[2,2,2],[2,2,0],[2,0,1]]
-Explanation: 
-From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected 
-by a path of the same color as the starting pixel are colored with the new color.
-Note the bottom corner is not colored 2, because it is not 4-directionally connected
-to the starting pixel.
-Note:
-
-The length of image and image[0] will be in the range [1, 50].
-The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc < image[0].length.
-The value of each color in image[i][j] and newColor will be an integer in [0, 65535].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 57 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    int dx[4] = {1, -1, 0, 0};
-    int dy[4] = {0, 0, 1, -1};
-public:
-    vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int newColor) {
-        if(image.empty()) return {};
-        queue<pair<int,int>> q;
-        unordered_set<string> visited;
-        
-        int N = image.size();
-        int M = image[0].size();
-        int original_color = image[sr][sc];
-        
-        q.emplace(sr, sc);
-        visited.insert(to_string(sr) + "," + to_string(sc));
-        while(!q.empty()) {
-            pair<int,int> p = q.front();
-            q.pop();
-            image[p.first][p.second] = newColor;
-            
-            for(int k = 0; k < 4; k++) {
-                int new_row = p.first + dy[k];
-                int new_col = p.second + dx[k];
-                if(0 <= new_row && new_row < N && 0 <= new_col && new_col < M && image[new_row][new_col] == original_color) {
-                    string key = to_string(new_row) + "," + to_string(new_col);
-                    if(!visited.count(key)) {
-                        q.emplace(new_row, new_col);
-                        visited.insert(key);
-                    }
-                }
-            }
-        }
-        
-        return image;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-739. Daily Temperatures
-Given a list of daily temperatures, produce a list that, for each day in the input, 
-tells you how many days you would have to wait until a warmer temperature. If there is no future day for which 
-this is possible, put 0 instead.
-
-For example, given the list temperatures = [73, 74, 75, 71, 69, 72, 76, 73], your output should be [1, 1, 4, 2, 1, 1, 0, 0].
-
-Note: The length of temperatures will be in the range [1, 30000]. Each temperature will be an integer in the range [30, 100].
-/*
-    Submission Date: 2018-06-30
-    Runtime: 250 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    stk keeps an increasing temperatures to the right (represented as indices)
-    while stk isn't emtpy and the current element is greater than the smallest element 
-    (ie stk top) pop the stk, basically it means this element replaces all the smaller elements
-    as it will be closer to the next element while still being greater
-    */
-    vector<int> dailyTemperatures(vector<int>& temperatures) {
-        stack<int> stk;
-        int N = temperatures.size();
-        vector<int> res(N, 0);
-        for(int i = N-1; i >= 0; i--) {
-            while(!stk.empty() && temperatures[stk.top()] <= temperatures[i]) stk.pop();
-            res[i] = stk.empty() ? 0 : stk.top() - i;
-            stk.push(i);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-744. Find Smallest Letter Greater Than Target
-Given a list of sorted characters letters containing only lowercase letters, and given a target letter target, find the 
-smallest element in the list that is larger than the given target.
-
-Letters also wrap around. For example, if the target is target = 'z' and letters = ['a', 'b'], the answer is 'a'.
-
-Examples:
-Input:
-letters = ["c", "f", "j"]
-target = "a"
-Output: "c"
-
-Input:
-letters = ["c", "f", "j"]
-target = "c"
-Output: "f"
-
-Input:
-letters = ["c", "f", "j"]
-target = "d"
-Output: "f"
-
-Input:
-letters = ["c", "f", "j"]
-target = "g"
-Output: "j"
-
-Input:
-letters = ["c", "f", "j"]
-target = "j"
-Output: "c"
-
-Input:
-letters = ["c", "f", "j"]
-target = "k"
-Output: "c"
-Note:
-letters has a length in range [2, 10000].
-letters consists of lowercase letters, and contains at least 2 unique letters.
-target is a lowercase letter.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    char nextGreatestLetter(vector<char>& letters, char target) {
-        int low = 0;
-        int high = letters.size() - 1;
-        while(low <= high) {
-            int mid = low + (high - low)/2;
-            if(letters[mid] > target) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-        
-        if(low == letters.size()) return letters[0];
-        return letters[low];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-746. Min Cost Climbing Stairs
-On a staircase, the i-th step has some non-negative cost cost[i] assigned (0 indexed).
-
-Once you pay the cost, you can either climb one or two steps. You need to find minimum cost to 
-reach the top of the floor, and you can either start from the step with index 0, or the step with index 1.
-
-Example 1:
-Input: cost = [10, 15, 20]
-Output: 15
-Explanation: Cheapest is start on cost[1], pay that cost and go to the top.
-Example 2:
-Input: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
-Output: 6
-Explanation: Cheapest is start on cost[0], and only step on 1s, skipping cost[3].
-Note:
-cost will have a length in the range [2, 1000].
-Every cost[i] will be an integer in the range [0, 999].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minCostClimbingStairs(vector<int>& cost) {
-        if(cost.empty()) return 0;
-        int N = cost.size();
-        
-        vector<int> dp(N + 2, 0);
-        for(int i = N-1; i >= 0; i--) {
-            dp[i] = cost[i] + min(dp[i+1], dp[i+2]);
-        }
-        
-        return N == 1 ? dp[0] : min(dp[0], dp[1]);
     }
 };
 

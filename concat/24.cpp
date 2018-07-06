@@ -1,6 +1,116 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+537. Complex Number Multiplication
+Given two strings representing two complex numbers.
+
+You need to return a string representing their multiplication. Note i2 = -1 according to the definition.
+
+Example 1:
+Input: "1+1i", "1+1i"
+Output: "0+2i"
+Explanation: (1 + i) * (1 + i) = 1 + i2 + 2 * i = 2i, and you need convert it to the form of 0+2i.
+Example 2:
+Input: "1+-1i", "1+-1i"
+Output: "0+-2i"
+Explanation: (1 - i) * (1 - i) = 1 + i2 - 2 * i = -2i, and you need convert it to the form of 0+-2i.
+Note:
+
+The input strings will not have extra blank.
+The input strings will be given in the form of a+bi, where the integer a and b will both belong to the range of 
+[-100, 100]. And the output should be also in this form.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: MEDIUM 
+*/
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<int,int> Extract(string S) {
+        int plus_S_ind = S.find("+");
+        string a = S.substr(0, plus_S_ind);
+        string b = S.substr(plus_S_ind + 1, S.size() - (plus_S_ind + 1) - 1);
+        return {stoi(a), stoi(b)};
+    }
+    string complexNumberMultiply(string S1, string S2) {
+        int a, b, c, d;
+        tie(a,b) = Extract(S1);
+        tie(c,d) = Extract(S2);
+        
+        int real = a*c - b*d;
+        int imag = b*c + d*a;
+        
+        string res = to_string(real) + "+" + to_string(imag) + "i";
+        return res;
+        
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+538. Convert BST to Greater Tree
+Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
+original key plus sum of all keys greater than the original key in BST.
+
+Example:
+
+Input: The root of a Binary Search Tree like this:
+              5
+            /   \
+           2     13
+
+Output: The root of a Greater Tree like this:
+             18
+            /   \
+          20     13
+/*
+    Submission Date: 2018-06-07
+    Runtime:  ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    reverse inorder traversal with curr storing the sum of all elements greater than current node
+    */
+    void help(TreeNode* node, int& curr) {
+        if(node == NULL) return;
+        help(node->right, curr);
+        node->val += curr;
+        curr = node->val;
+        help(node->left, curr);
+    }
+    TreeNode* convertBST(TreeNode* root) {
+        int curr = 0;
+        help(root, curr);
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 539. Minimum Time Difference
 Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
 minutes difference between any two time points in the list.
@@ -202,6 +312,141 @@ public:
         int res = 0;
         help(root, res);
         return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+547. Friend Circles
+There are N students in a class. Some of them are friends, while some are not. 
+Their friendship is transitive in nature. For example, if A is a direct friend 
+of B, and B is a direct friend of C, then A is an indirect friend of C. And we 
+defined a friend circle is a group of students who are direct or indirect 
+
+
+
+Given a N*N matrix M representing the friend relationship between students in 
+the class. If M[i][j] = 1, then the ith and jth students are direct friends with 
+each other, otherwise not. And you have to output the total number of friend 
+
+
+Example 1:
+Input: 
+[[1,1,0],
+ [1,1,0],
+ [0,0,1]]
+Output: 2
+Explanation:The 0th and 1st students are direct friends, so they are in a friend 
+
+
+
+Example 2:
+Input: 
+[[1,1,0],
+ [1,1,1],
+ [0,1,1]]
+Output: 1
+Explanation:The 0th and 1st students are direct friends, the 1st and 2nd 
+students are direct friends, so the 0th and 2nd students are indirect friends. 
+
+
+
+
+Note:
+
+N is in range [1,200].
+M[i][i] = 1 for all students.
+If M[i][j] = 1, then M[j][i] = 1.
+/*
+    Submission Date: 2018-07-05
+    Runtime: 20 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <unordered_set>
+#include <cassert>
+
+using namespace std;
+
+template <typename T>
+class UnionFind {
+    // key is element, value is rank
+    unordered_map<T, int> rank_;
+    // key is element, value is parent
+    unordered_map<T, T> parent_;
+public:
+    bool IsWithinSet(T e) {
+        return parent_.count(e);
+    }
+ 
+    void CreateSet(T e) {
+        assert(!IsWithinSet(e));
+        parent_[e] = e;
+        rank_[e] = 0;
+    }
+ 
+    // finds the root of e
+    T Find(T e) {
+        if(parent_[e] != e) {
+            // this is not a root (root has parent to be equal itself)
+            // so find root and apply path compression along path
+            parent_[e] = Find(parent_[e]);
+        }
+        return parent_[e];
+    }
+ 
+    // unions the sets of e1 and e2 if necessary
+    // return whether an union took place
+    bool Union(T e1, T e2) {
+        T e1_root = Find(e1);
+        T e2_root = Find(e2);
+ 
+        if(e1_root == e2_root) return false; // same root
+ 
+        // Attach smaller rank tree under root of high rank tree
+        // (Union by Rank)
+        if(rank_[e1_root] < rank_[e2_root]) {
+            parent_[e1_root] = e2_root;
+        } else {
+            parent_[e2_root] = e1_root;
+            if(rank_[e1_root] == rank_[e2_root]) {
+                rank_[e1_root]++;
+            }
+        }
+ 
+        return true;
+    }
+};
+
+class Solution {
+public:
+    /*
+    basically find how many connected graphs there are
+    so use union-find, for every edge from u to v, merge the sets u and v
+    at the end find how many sets there are by finding the root of all
+    the nodes and counting the distinct ones.
+    
+    O(N^2) as Union and Find are O(1)
+    */
+    int findCircleNum(vector<vector<int>>& M) {
+        int N = M.size();
+        UnionFind<int> uf;
+        for(int i = 0; i < N; i++) uf.CreateSet(i);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < N; j++) {
+                if(M[i][j] == 0) continue;
+                uf.Union(i, j);
+            }
+        }
+        
+        unordered_set<int> roots;
+        for(int i = 0; i < N; i++) roots.insert(uf.Find(i));
+        return roots.size();
     }
 };
 
@@ -735,266 +980,4 @@ public:
 
 int main() {
     return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-572. Subtree of Another Tree
-Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
-with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
-tree s could also be considered as a subtree of itself.
-
-Example 1:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-Given tree t:
-   4 
-  / \
- 1   2
-Return true, because t has the same structure and node values with a subtree of s.
-Example 2:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-    /
-   0
-Given tree t:
-   4
-  / \
- 1   2
-Return false.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 29 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    void serialize(TreeNode* node, string& res) {
-        if(node == NULL) {
-            res += "null,";
-        } else {
-            res += to_string(node->val) + ",";
-            serialize(node->left, res);
-            serialize(node->right, res);
-        }
-    }
-    
-    // check if s == t or s contains a subtree t
-    bool isSubtree(TreeNode* s, TreeNode* t) {
-        string s1 = "", s2 = "";
-        serialize(s, s1);
-        serialize(t, s2);
-        return s1 == s2 || s1.find("," + s2) != string::npos;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-575. Distribute Candies
-Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
-Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
-sister. Return the maximum number of kinds of candies the sister could gain.
-Example 1:
-Input: candies = [1,1,2,2,3,3]
-Output: 3
-Explanation:
-There are three different kinds of candies (1, 2 and 3), and two candies for each kind.
-Optimal distribution: The sister has candies [1,2,3] and the brother has candies [1,2,3], too. 
-The sister has three different kinds of candies. 
-Example 2:
-Input: candies = [1,1,2,3]
-Output: 2
-Explanation: For example, the sister has candies [2,3] and the brother has candies [1,1]. 
-The sister has two different kinds of candies, the brother has only one kind of candies. 
-Note:
-
-The length of the given array is in range [2, 10,000], and will be even.
-The number in given array is in range [-100,000, 100,000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 247 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    // Count the number of distinct candies. Return the min of this and the max size of the array which is candies.size()/2.
-    int distributeCandies(vector<int>& candies) {
-        unordered_set<int> st(candies.begin(), candies.end());
-        return min(candies.size()/2, st.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
-
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
-
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
-
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
-
-Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
-
-Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
-/*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
-            }
-        }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
-    }
-};
-
-int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
 }

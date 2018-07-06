@@ -1,6 +1,224 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+645. Set Mismatch
+The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
+the numbers in the set got duplicated to another number in the set, which results in repetition of one 
+number and loss of another number.
+
+Given an array nums representing the data status of this set after the error. Your task is to firstly 
+find the number occurs twice and then find the number that is missing. Return them in the form of an array.
+
+Example 1:
+Input: nums = [1,2,2,4]
+Output: [2,3]
+Note:
+The given array size will in the range [2, 10000].
+The given array's numbers won't have any order.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 62 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findErrorNums(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for(auto num: nums) freq[num]++;
+        
+        int N = nums.size();
+        int duplicate = -1;
+        int missing = -1;
+        for(int i = 1; i <= N; i++) {
+            if(missing != -1 && duplicate != -1) break;
+            if(!freq.count(i)) {
+                missing = i;
+            } else if(freq[i] >= 2) {
+                duplicate = i;
+            }
+        }
+        return {duplicate, missing};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+646. Maximum Length of Pair Chain
+You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
+
+Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
+formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
+pairs. You can select pairs in any order.
+
+Example 1:
+Input: [[1,2], [2,3], [3,4]]
+Output: 2
+Explanation: The longest chain is [1,2] -> [3,4]
+Note:
+The number of given pairs will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 82 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
+            return v1[1] < v2[1];
+        });
+        
+        vector<vector<int>> res;
+        
+        for(auto p: pairs) {
+            if(res.empty() || res.back()[1] < p[0]) {
+                res.push_back(p);
+            }
+        }
+        
+        return res.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+647. Palindromic Substrings
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even 
+they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Note:
+The input string length won't exceed 1000.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int Manacher(string s) {
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+
+        for(auto c: s) str += string(1, c) + kNullChar;
+
+        string max_str = "";
+        int len = str.size();
+        int right = 0;
+        int center = 0;
+        vector<int> dp(len, 0);
+
+        for(int i = 1; i < len; i++) {
+            int mirr = 2*center - i;
+
+            // i is within right so can take the minimum of the mirror or distance from right
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirr]);
+            }
+
+            // keep expanding around i while it is the same and increment P[i]
+            int left_index = i - (1 + dp[i]);
+            int right_index = i + (1 + dp[i]);
+            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
+                left_index--;
+                right_index++;
+                dp[i]++;
+            }
+
+            // i goes beyond current right so it is the new center
+            if(i + dp[i] > right) {
+                center = i;
+                right = i + dp[i];
+            }
+        }
+        
+        int count = 0;
+        for(int i = 0; i < len; i++) {
+            count += ceil((double)dp[i]/2.0);
+        }
+        return count;
+    }
+
+    int countSubstrings(string s) {
+        return Manacher(s);
+    }
+
+    int countSubstrings2(string s) {
+        int res = 0;
+        int N = s.size();
+        int left, right;
+        for(int i = 0; i < N; i++) {
+            res++;
+            
+            // treat as odd
+            left = i - 1;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+            
+            // treat as even
+            left = i;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 648. Replace Words
 In English, we have a concept called root, which can be followed by some other words to form another 
 longer word - let's call this word successor. For example, the root an, followed by other, which can 
@@ -612,312 +830,6 @@ public:
         // the matrix has depth rows and 2^(depth + 1) - 1 columns
         vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
         populate(root, res, 0, 0, col);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-656. Coin Path
-Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
-and an integer B. The integer B denotes that from any place (suppose the index is i) 
-in the array A, you can jump to any one of the place in the array A indexed i+1, i+2, …, 
-i+B if this place can be jumped to. Also, if you step on the index i, you have to pay Ai 
-coins. If Ai is -1, it means you can’t jump to the place indexed i in the array.
-
-Now, you start from the place indexed 1 in the array A, and your aim is to reach the place 
-indexed N using the minimum coins. You need to return the path of indexes (starting from 1 to N) 
-in the array you should take to get to the place indexed N using minimum coins.
-
-If there are multiple paths with the same cost, return the lexicographically smallest such path.
-
-If it's not possible to reach the place indexed N then you need to return an empty array.
-
-Example 1:
-Input: [1,2,4,-1,2], 2
-Output: [1,3,5]
-Example 2:
-Input: [1,2,4,-1,2], 1
-Output: []
-Note:
-Path Pa1, Pa2, ..., Pan is lexicographically smaller than Pb1, Pb2, ..., Pbm, if and only if at 
-the first i where Pai and Pbi differ, Pai < Pbi; when no such i exists, then n < m.
-A1 >= 0. A2, ..., AN (if exist) will in the range of [-1, 100].
-Length of A is in the range of [1, 1000].
-B is in the range of [1, 100].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 12 ms
-    Difficulty: HARD
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <climits>
-
-using namespace std;
-
-struct Compare {
-    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) const {
-        return (lhs.first == rhs.first) ? (lhs.second < rhs.second) : (lhs.first < rhs.first);
-    }
-};
-
-class Solution2 {
-public:
-    vector<vector<int>> createPath(int curr, unordered_map<int, vector<int>>& parent) {
-        if(curr == 0) return {{}};
-
-        vector<vector<int>> res;
-        for(auto prev: parent[curr]) {
-            vector<vector<int>> path = createPath(prev, parent);
-            for(auto p: path) {
-                p.push_back(curr);
-                res.push_back(p);
-            }
-        }
-
-        return res;
-    }
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        
-        // id is index, pair weight, to
-        vector<vector<pair<int, int>>> graph(N + 1);
-        
-        graph[0] = {{A[0], 1}};
-        for(int i = 0; i < N; i++) {
-            if(A[i] == -1) continue;
-            for(int j = 1; j <= B; j++) {
-                if(i + j >= N) break;
-                if(A[i + j] == -1) continue;
-                // connect vertex i with vertex i + j by weight A[i + j]
-                graph[i + 1].emplace_back(A[i + j], i + 1 + j);
-            }
-        }
-        
-        unordered_map<int, vector<int>> parent;
-        set<pair<int, int>, Compare> edges_to_process;
-        unordered_map<int, int> min_distance;
-        
-        for(int i = 1; i <= N; i++) {
-            edges_to_process.emplace(INT_MAX, i);
-            min_distance[i] = INT_MAX;
-        }
-        
-        edges_to_process.emplace(0, 0);
-        min_distance[0] = 0;
-        parent[0] = {0};
-
-        while(!edges_to_process.empty()) {
-            // Minimum weight edge
-            pair<int,int> min_edge = *edges_to_process.begin();
-            edges_to_process.erase(edges_to_process.begin());
-
-            int current_vertex = min_edge.second;
-            int current_weight = min_edge.first;
-
-            if(current_weight == INT_MAX) break;
-
-            vector<pair<int,int>> neighbors = graph[current_vertex];
-            for(pair<int,int> neighbor: neighbors) {
-                auto edge_set_it = edges_to_process.find({min_distance[neighbor.second], neighbor.second});
-                // done processing already
-                if(edge_set_it == edges_to_process.end()) continue;
-
-                // found a smaller distance
-                if(current_weight + neighbor.first <= min_distance[neighbor.second]) {
-                    if(current_weight + neighbor.first == min_distance[neighbor.second]) {
-                        parent[neighbor.second].push_back(current_vertex);
-                    } else {
-                        min_distance[neighbor.second] = current_weight + neighbor.first;
-                        parent[neighbor.second].push_back(current_vertex);
-                        edges_to_process.erase(edge_set_it);
-                        edges_to_process.emplace(min_distance[neighbor.second], neighbor.second);
-                    }
-                }
-            }
-        }
-            
-        if(min_distance[N] == INT_MAX) return {};
-
-        vector<vector<int>> v = createPath(N, parent);
-        return *min_element(v.begin(), v.end(), [](const vector<int>& lhs, const vector<int>& rhs){
-            int M = lhs.size();
-            int N = rhs.size();
-            for(int i = 0; i < min(M,N); i++) {
-                if(lhs[i] != rhs[i]) return lhs[i] < rhs[i];
-            }
-            return M < N;
-        });
-    }
-};
-
-class Solution {
-public:
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        if(N == 0 || A[N-1] == -1) return {};
-        // dp[i] represents cost of i to N-1
-        vector<int> dp(N, INT_MAX), to(N, -1);
-        
-        dp[N-1] = A[N-1];
-        for(int i = N-2; i >= 0; i--) {
-            if(A[i] == -1) continue;
-            // if we try smaller jumps first, don't need to worry about lexicographical order
-            // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
-            // Clearly, when k = n-1, it is true because there is only 1 possible path, which is [n]. 
-            // When k = i and i < n-1, we search for an index j, which has smallest cost or 
-            // smallest j if the same cost. If there are >= 2 paths having the same minimum cost, 
-            // for example,
-            // P = [k+1, j+1, ..., n]
-            // Q = [k+1, m+1, ..., n] (m > j)
-            // The path P with smaller index j is always the lexicographically smaller path.
-            // So the argument is true by induction.
-            for(int j = 1; j <= B && i + j < N; j++) { 
-                if(dp[i + j] == INT_MAX) continue;
-                // cost of taking this jump is smaller
-                if(A[i] + dp[i + j] < dp[i]) {
-                    dp[i] = A[i] + dp[i + j];
-                    to[i] = i + j;
-                }
-            }
-        }
-        
-        vector<int> res;
-        if(dp[0] == INT_MAX) return res; // no path to the end
-
-        for(int i = 0; i >= 0; i = to[i])
-            res.push_back(i + 1);
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{1,2,4,-1,2};
-    s.cheapestJump(v, 2);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-657. Judge Route Circle
-Initially, there is a Robot at position (0, 0). Given a sequence of its moves, judge if this robot makes 
-a circle, which means it moves back to the original place.
-
-The move sequence is represented by a string. And each move is represent by a character. The valid robot moves are 
-R (Right), L (Left), U (Up) and D (down). The output should be true or false representing whether the robot makes a circle.
-
-Example 1:
-Input: "UD"
-Output: true
-Example 2:
-Input: "LL"
-Output: false
-/*
-    Submission Date: 2018-05-31
-    Runtime: 43 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<char, vector<int>> m_{
-        {'U', {0,1}},
-        {'D', {0,-1}},
-        {'L', {-1,0}},
-        {'R', {1,0}},
-    };
-public:
-    bool judgeCircle(string moves) {
-        int x = 0;
-        int y = 0;
-        for(const auto& c: moves) {
-            x += m_[c][0];
-            y += m_[c][1];
-        }
-        return x == 0 && y == 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-661. Image Smoother
-Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
-scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
-less than 8 surrounding cells, then use as many as you can.
-
-Example 1:
-Input:
-[[1,1,1],
- [1,0,1],
- [1,1,1]]
-Output:
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-Explanation:
-For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
-For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
-For the point (1,1): floor(8/9) = floor(0.88888889) = 0
-Note:
-The value in the given matrix is in the range of [0, 255].
-The length and width of the given matrix are in the range of [1, 150].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 178 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
-        int sum = 0;
-        int points = 0;
-        for(int k = -1; k <= 1; k++) {
-            for(int l = -1; l <= 1; l++) {
-                int new_i = i + k;
-                int new_j = j + l;
-                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
-                    points++;
-                    sum += A[new_i][new_j];
-                }
-            }
-        }
-        
-        return sum/points;
-    }
-    
-    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
-        if(A.empty()) return A;
-        int N = A.size();
-        int M = A[0].size();
-        
-        vector<vector<int>> res(N, vector<int>(M));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[i][j] = help(A, i, j, N, M);
-            }
-        }
-        
         return res;
     }
 };

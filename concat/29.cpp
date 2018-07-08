@@ -1,6 +1,93 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+677. Map Sum Pairs
+Implement a MapSum class with insert, and sum methods.
+
+
+
+For the method insert, you'll be given a pair of (string, integer). The string 
+represents the key and the integer represents the value. If the key already 
+
+
+
+For the method sum, you'll be given a string representing the prefix, and you 
+
+
+Example 1:
+Input: insert("apple", 3), Output: Null
+Input: sum("ap"), Output: 3
+Input: insert("app", 2), Output: Null
+Input: sum("ap"), Output: 5
+/*
+    Submission Date: 2018-07-02
+    Runtime: 4 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+struct TrieNode {
+    int sum;
+    TrieNode* children[26];
+    TrieNode() {
+        sum = 0;
+        for(int i = 0; i < 26; i++) children[i] = NULL;
+    }
+};
+
+class MapSum {
+    unordered_map<string, int> m;
+    TrieNode* root;
+public:
+    /** Have a trie and unordered_map. the unordered_map keeps track of key and val
+     the trie can find prefix easily. each node has sum which is the sum of all...l with each node visited getting the to_add
+     added to their sum.
+    */
+    MapSum() {
+        root = new TrieNode();
+    }
+    
+    void insert(string key, int val) {
+        int to_add = m.count(key) ? val - m[key] : val;
+        m[key] = val;
+        TrieNode* curr = root;
+        curr->sum += to_add;
+        
+        for(const auto& c: key) {
+            if(curr->children[c - 'a'] == NULL) 
+                curr->children[c - 'a'] = new TrieNode();
+            curr = curr->children[c - 'a'];
+            curr->sum += to_add;
+        }
+    }
+    
+    int sum(string prefix) {
+        TrieNode* curr = root;
+        for(const auto& c: prefix) {
+            if(curr->children[c - 'a'] == NULL) return 0;
+            curr = curr->children[c - 'a'];
+        }
+        
+        return curr->sum;
+    }
+};
+
+/**
+ * Your MapSum object will be instantiated and called as such:
+ * MapSum obj = new MapSum();
+ * obj.insert(key,val);
+ * int param_2 = obj.sum(prefix);
+ */
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 680. Valid Palindrome II
 Given a non-empty string s, you may delete at most one character. Judge whether you can make it a palindrome.
 
@@ -847,156 +934,6 @@ public:
     }
 };
 
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
-built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
-the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input: 
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation: 
-The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
-Example 2:
-Input: 
-words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
-Output: "apple"
-Explanation: 
-Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
-Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-    bool is_word;
-    TrieNode* child[26];
-    TrieNode() {
-        is_word = false;
-        for(int i = 0; i < 26; i++) child[i] = NULL;
-    }
-};
-
-class Trie {
-public:
-    TrieNode* root_;
-    
-    /** Initialize your data structure here. */
-    Trie() {
-        root_ = new TrieNode();
-    }
-    
-    /** Inserts a word into the trie. */
-    void insert(string word) {
-        TrieNode* curr = root_;
-        for(auto c: word) {
-            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
-            curr = curr -> child[c - 'a'];
-        }
-        curr -> is_word = true;
-    }
-};
-
-class Solution {
-public:
-    string dfs(TrieNode* node, string letter) {
-        if(node == NULL || !node->is_word) return "";
-        string max_child = "";
-        for(int i = 0; i < 26; i++) {
-            string child = dfs(node -> child[i], string(1, 'a' + i));
-            if(child.size() > max_child.size()) {
-                max_child = child;
-            }
-        }
-        
-        return letter + max_child;
-    }
-    string longestWord(vector<string>& words) {
-        Trie trie;
-        for(const auto& s: words) trie.insert(s);
-        trie.root_ -> is_word = true;
-        return dfs(trie.root_, "");
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-724. Find Pivot Index
-Given an array of integers nums, write a method that returns the "pivot" index of this array.
-
-We define the pivot index as the index where the sum of the numbers to the left of the index is equal to the sum of the numbers to the right of the index.
-
-If no such index exists, we should return -1. If there are multiple pivot indexes, you should return the left-most pivot index.
-
-Example 1:
-Input: 
-nums = [1, 7, 3, 6, 5, 6]
-Output: 3
-Explanation: 
-The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum of numbers to the right of index 3.
-Also, 3 is the first index where this occurs.
-Example 2:
-Input: 
-nums = [1, 2, 3]
-Output: -1
-Explanation: 
-There is no index that satisfies the conditions in the problem statement.
-Note:
-
-The length of nums will be in the range [0, 10000].
-Each element nums[i] will be an integer in the range [-1000, 1000].
-/*
-    Submission Date: 2018-06-09
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    make right = sum of all array then at each index i decrease nums[i]
-    have left = 0 and increase it by nums[i] to compare if
-    the left sum == right sum
-    */
-    int pivotIndex(vector<int>& nums) {
-        int right = 0;
-        for(const auto& e: nums) right += e;
-        
-        int left = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            right -= nums[i];
-            if(left == right) return i;
-            left += nums[i];
-        }
-        
-        return -1;
-    }
-};
 
 int main() {
     return 0;

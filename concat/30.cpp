@@ -1,6 +1,156 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+720. Longest Word in Dictionary
+Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
+built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
+the smallest lexicographical order.
+
+If there is no answer, return the empty string.
+Example 1:
+Input: 
+words = ["w","wo","wor","worl", "world"]
+Output: "world"
+Explanation: 
+The word "world" can be built one character at a time by "w", "wo", "wor", and "worl".
+Example 2:
+Input: 
+words = ["a", "banana", "app", "appl", "ap", "apply", "apple"]
+Output: "apple"
+Explanation: 
+Both "apply" and "apple" can be built from other words in the dictionary. However, "apple" is lexicographically smaller than "apply".
+Note:
+
+All the strings in the input will only contain lowercase letters.
+The length of words will be in the range [1, 1000].
+The length of words[i] will be in the range [1, 30].
+/*
+    Submission Date: 2018-05-24
+    Runtime: 56 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+    bool is_word;
+    TrieNode* child[26];
+    TrieNode() {
+        is_word = false;
+        for(int i = 0; i < 26; i++) child[i] = NULL;
+    }
+};
+
+class Trie {
+public:
+    TrieNode* root_;
+    
+    /** Initialize your data structure here. */
+    Trie() {
+        root_ = new TrieNode();
+    }
+    
+    /** Inserts a word into the trie. */
+    void insert(string word) {
+        TrieNode* curr = root_;
+        for(auto c: word) {
+            if(curr -> child[c - 'a'] == NULL) curr -> child[c - 'a'] = new TrieNode();
+            curr = curr -> child[c - 'a'];
+        }
+        curr -> is_word = true;
+    }
+};
+
+class Solution {
+public:
+    string dfs(TrieNode* node, string letter) {
+        if(node == NULL || !node->is_word) return "";
+        string max_child = "";
+        for(int i = 0; i < 26; i++) {
+            string child = dfs(node -> child[i], string(1, 'a' + i));
+            if(child.size() > max_child.size()) {
+                max_child = child;
+            }
+        }
+        
+        return letter + max_child;
+    }
+    string longestWord(vector<string>& words) {
+        Trie trie;
+        for(const auto& s: words) trie.insert(s);
+        trie.root_ -> is_word = true;
+        return dfs(trie.root_, "");
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+724. Find Pivot Index
+Given an array of integers nums, write a method that returns the "pivot" index of this array.
+
+We define the pivot index as the index where the sum of the numbers to the left of the index is equal to the sum of the numbers to the right of the index.
+
+If no such index exists, we should return -1. If there are multiple pivot indexes, you should return the left-most pivot index.
+
+Example 1:
+Input: 
+nums = [1, 7, 3, 6, 5, 6]
+Output: 3
+Explanation: 
+The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum of numbers to the right of index 3.
+Also, 3 is the first index where this occurs.
+Example 2:
+Input: 
+nums = [1, 2, 3]
+Output: -1
+Explanation: 
+There is no index that satisfies the conditions in the problem statement.
+Note:
+
+The length of nums will be in the range [0, 10000].
+Each element nums[i] will be an integer in the range [-1000, 1000].
+/*
+    Submission Date: 2018-06-09
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    make right = sum of all array then at each index i decrease nums[i]
+    have left = 0 and increase it by nums[i] to compare if
+    the left sum == right sum
+    */
+    int pivotIndex(vector<int>& nums) {
+        int right = 0;
+        for(const auto& e: nums) right += e;
+        
+        int left = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            right -= nums[i];
+            if(left == right) return i;
+            left += nums[i];
+        }
+        
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 728. Self Dividing Numbers
 A self-dividing number is a number that is divisible by every digit it contains.
 
@@ -822,132 +972,6 @@ public:
     int minDiffInBST(TreeNode* root) {
         int res = INT_MAX, prev = INT_MAX;
         help(root, res, prev);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-784. Letter Case Permutation
-Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
-Return a list of all possible strings we could create.
-
-Examples:
-Input: S = "a1b2"
-Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
-
-Input: S = "3z4"
-Output: ["3z4", "3Z4"]
-
-Input: S = "12345"
-Output: ["12345"]
-Note:
-
-S will be a string with length at most 12.
-S will consist only of letters or digits.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, vector<string>> dp_;
-public:
-    /*
-     find the first alphabetical letter. get the vector for the remaining string
-     add prefix with the letter lower case and upper case to each element from the vector
-    */
-    vector<string> letterCasePermutation(string S) {
-        if(dp_.count(S)) return dp_[S];
-        
-        int N = S.size();
-        int i = 0;
-        for(; i < N; i++) {
-            if(isalpha(S[i])) break;
-        }
-        
-        if(i >= N) return { S };
-        vector<string> rem = letterCasePermutation(S.substr(i + 1));
-        int M = rem.size();
-        rem.reserve(2*M);
-        
-        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
-        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
-        for(int j = 0; j < M; j++) {
-            rem.push_back(s2 + rem[j]);
-            rem[j] = s1 + rem[j];
-        }
-        return rem;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-788. Rotated Digits
-X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
-Each digit must be rotated - we cannot choose to leave it alone.
-
-A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
-6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
-
-Now given a positive number N, how many numbers X from 1 to N are good?
-
-Example:
-Input: 10
-Output: 4
-Explanation: 
-There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
-Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
-Note:
-
-N  will be in range [1, 10000].
-/*
-    Submission Date: 2018-06-04
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
-    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
-    without the last number and rot[i % 10] gets the rotated version of the last number
-    of i
-    */
-    int rotatedDigits(int N) {
-        vector<int> dp(N + 1, -1);
-        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
-                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
-        int res = 0;
-        for(int i = 1; i <= N; i++) {
-            if(!rot.count(i % 10)) continue;
-            if(i < 10) {
-                dp[i] = rot[i];
-                res += dp[i] != i;
-            } else {
-                if(dp[i/10] == -1) continue;
-                dp[i] = dp[i/10] * 10 + rot[i % 10];
-                res += dp[i] != i;
-            }
-        }
         return res;
     }
 };

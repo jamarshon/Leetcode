@@ -1,3 +1,5 @@
+javascript:(function(){
+
 // https://closure-compiler.appspot.com/home
 var LINE_LENGTH = 80;
 var can_build = true;
@@ -74,8 +76,7 @@ var ind = curr_url.indexOf("/", base.length);
 var name = curr_url.substr(base.length, ind - base.length);
 
 var url = "https://leetcode.com/api/submissions/" + name + "/?offset=0&limit=10&lastkey=";
-
-var m = $.get(url, function(x) {
+var success = function(x) {
     var submissions = x.submissions_dump;
     JASSERT(submissions.length > 0);
     JASSERT(submissions[0].status_display === "Accepted");
@@ -84,20 +85,34 @@ var m = $.get(url, function(x) {
 
     build("\tRuntime: " + run_time);
     build("\tDifficulty: " + difficulty);
-build("*/");
+    build("*/");
 
-build("#include <iostream>");
-build("\nusing namespace std;");
-build();
+    build("#include <iostream>");
+    build("\nusing namespace std;");
+    build();
 
-var soln = $('.CodeMirror')[0].CodeMirror.getValue();
-build(soln);
+    var soln = $('.CodeMirror')[0].CodeMirror.getValue();
+    build(soln);
 
-build();
-build("int main() {");
-build("\treturn 0;");
-build("}");
+    build();
+    build("int main() {");
+    build("\treturn 0;");
+    build("}");
 
-console.log(message);
-window.prompt("Copy to clipboard: Ctrl+C, Enter", message);
-});
+    console.log(message);
+
+    function copy(text) {
+      var $temp = $("<textarea>");
+      $("body").append($temp);
+      $temp.val(text).select();
+      document.execCommand("copy");
+      $temp.remove();
+    }
+
+    copy(message);
+};
+
+$.get({url: url, success: success, async: false});
+}())
+
+

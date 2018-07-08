@@ -1,6 +1,132 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+784. Letter Case Permutation
+Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
+Return a list of all possible strings we could create.
+
+Examples:
+Input: S = "a1b2"
+Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
+
+Input: S = "3z4"
+Output: ["3z4", "3Z4"]
+
+Input: S = "12345"
+Output: ["12345"]
+Note:
+
+S will be a string with length at most 12.
+S will consist only of letters or digits.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, vector<string>> dp_;
+public:
+    /*
+     find the first alphabetical letter. get the vector for the remaining string
+     add prefix with the letter lower case and upper case to each element from the vector
+    */
+    vector<string> letterCasePermutation(string S) {
+        if(dp_.count(S)) return dp_[S];
+        
+        int N = S.size();
+        int i = 0;
+        for(; i < N; i++) {
+            if(isalpha(S[i])) break;
+        }
+        
+        if(i >= N) return { S };
+        vector<string> rem = letterCasePermutation(S.substr(i + 1));
+        int M = rem.size();
+        rem.reserve(2*M);
+        
+        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
+        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
+        for(int j = 0; j < M; j++) {
+            rem.push_back(s2 + rem[j]);
+            rem[j] = s1 + rem[j];
+        }
+        return rem;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+788. Rotated Digits
+X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
+Each digit must be rotated - we cannot choose to leave it alone.
+
+A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
+6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
+
+Now given a positive number N, how many numbers X from 1 to N are good?
+
+Example:
+Input: 10
+Output: 4
+Explanation: 
+There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
+Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
+Note:
+
+N  will be in range [1, 10000].
+/*
+    Submission Date: 2018-06-04
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
+    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
+    without the last number and rot[i % 10] gets the rotated version of the last number
+    of i
+    */
+    int rotatedDigits(int N) {
+        vector<int> dp(N + 1, -1);
+        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
+                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
+        int res = 0;
+        for(int i = 1; i <= N; i++) {
+            if(!rot.count(i % 10)) continue;
+            if(i < 10) {
+                dp[i] = rot[i];
+                res += dp[i] != i;
+            } else {
+                if(dp[i/10] == -1) continue;
+                dp[i] = dp[i/10] * 10 + rot[i % 10];
+                res += dp[i] != i;
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 789. Escape The Ghosts
 You are playing a simplified Pacman game. You start at the point (0, 0), and your 
 destination is (target[0], target[1]). There are several ghosts on the map, the i-th ghost 
@@ -861,77 +987,6 @@ public:
                 res[N-i-1] = min(res[N-i-1], last_C_backward - (N-i-1));
             }
             
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-824. Goat Latin
-A sentence S is given, composed of words separated by spaces. Each word consists of lowercase and uppercase letters only.
-
-We would like to convert the sentence to "Goat Latin" (a made-up language similar to Pig Latin.)
-
-The rules of Goat Latin are as follows:
-
-If a word begins with a vowel (a, e, i, o, or u), append "ma" to the end of the word.
-For example, the word 'apple' becomes 'applema'.
- 
-If a word begins with a consonant (i.e. not a vowel), remove the first letter and append it to the end, then add "ma".
-For example, the word "goat" becomes "oatgma".
- 
-Add one letter 'a' to the end of each word per its word index in the sentence, starting with 1.
-For example, the first word gets "a" added to the end, the second word gets "aa" added to the end and so on.
-Return the final sentence representing the conversion from S to Goat Latin. 
-
-Example 1:
-
-Input: "I speak Goat Latin"
-Output: "Imaa peaksmaaa oatGmaaaa atinLmaaaaa"
-Example 2:
-
-Input: "The quick brown fox jumped over the lazy dog"
-Output: "heTmaa uickqmaaa rownbmaaaa oxfmaaaaa umpedjmaaaaaa overmaaaaaaa hetmaaaaaaaa azylmaaaaaaaaa ogdmaaaaaaaaaa"
- 
-
-Notes:
-
-S contains only uppercase, lowercase and spaces. Exactly one space between each word.
-1 <= S.length <= 150.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    unordered_set<char> vowels = {'a', 'e', 'i', 'o', 'u'};
-public:
-    string toGoatLatin(string S) {
-        stringstream ss(S);
-        string token;
-        string res = "";
-        int i = 1;
-        while(getline(ss, token, ' ')) {
-            if(!res.empty()) res += ' ';
-            if(vowels.count(tolower(token[0]))) {
-                res += token;
-            } else {
-                res += token.substr(1) + string(1, token[0]); 
-            }
-            
-            res += "ma" + string(i, 'a');
-            i++;
         }
         
         return res;

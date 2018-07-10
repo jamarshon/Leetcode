@@ -1,6 +1,277 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+530. Minimum Absolute Difference in BST
+Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
+
+Example:
+
+Input:
+
+   1
+    \
+     3
+    /
+   2
+
+Output:
+1
+
+Explanation:
+The minimum absolute difference is 1, which is the difference between 2 and 1 (or between 2 and 3).
+Note: There are at least two nodes in this BST.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    /*
+    help called on node returns the smallest and largest value with node as the root
+    this means for a node, it is help(root->left)'s smallest value and help(root->right)'s largest value
+    if they exist else it is just the node
+    
+    the minimum difference is this node minus largest value in the left subtree or smallest value in right subtree 
+    minus this node
+    */
+    vector<int> help(TreeNode* root, int& res) {
+        if(root == NULL) return {};
+        vector<int> left = help(root->left, res);
+        vector<int> right = help(root->right, res);
+        
+        int min_left = left.empty() ? root->val : left[0];
+        int max_right = right.empty() ? root->val : right[1];
+        
+        if(!left.empty()) res = min(res, root->val - left[1]);
+        if(!right.empty()) res = min(res, right[0] - root->val);
+        
+        return {min_left, max_right};
+    }
+    
+    int getMinimumDifference(TreeNode* root) {
+        int res = INT_MAX;
+        help(root, res);
+        return res;
+    }
+};
+
+class Solution {
+public:
+    /*
+    inorder traversal keeping tracking of prev
+    */
+    void help(TreeNode* root, int& res, int& prev) {
+        if(root == NULL) return;
+        help(root->left, res, prev);
+        if(prev != INT_MAX) {
+            res = min(res, root->val - prev);
+        }
+        
+        prev = root->val;
+        help(root->right, res, prev);
+    }
+    
+    int getMinimumDifference(TreeNode* root) {
+        int res = INT_MAX, prev = INT_MAX;
+        help(root, res, prev);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+532. K-diff Pairs in an Array
+Given an array of integers and an integer k, you need to find the number of unique k-diff pairs in the array. 
+Here a k-diff pair is defined as an integer pair (i, j), where i and j are both numbers in the array and their absolute difference is k.
+
+Example 1:
+Input: [3, 1, 4, 1, 5], k = 2
+Output: 2
+Explanation: There are two 2-diff pairs in the array, (1, 3) and (3, 5).
+Although we have two 1s in the input, we should only return the number of unique pairs.
+Example 2:
+Input:[1, 2, 3, 4, 5], k = 1
+Output: 4
+Explanation: There are four 1-diff pairs in the array, (1, 2), (2, 3), (3, 4) and (4, 5).
+Example 3:
+Input: [1, 3, 1, 5, 4], k = 0
+Output: 1
+Explanation: There is one 0-diff pair in the array, (1, 1).
+Note:
+The pairs (i, j) and (j, i) count as the same pair.
+The length of the array won't exceed 10,000.
+All the integers in the given input belong to the range: [-1e7, 1e7].
+/*
+    Submission Date: 2018-06-24
+    Runtime: 43 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int findPairs(vector<int>& nums, int k) {
+        if(k < 0) return 0;
+        int res = 0;
+        unordered_set<int> st;
+        unordered_set<int> counted;
+        for(const auto& e: nums) {
+            if(st.count(e)) { counted.insert(e); continue; }
+            res += st.count(e + k);
+            res += st.count(e - k);
+            st.insert(e);
+        }
+        
+        return k == 0 ? counted.size() : res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+535. Encode and Decode TinyURL
+TinyURL is a URL shortening service where you enter a URL such as 
+https://leetcode.com/problems/design-tinyurl and it returns a short URL such as http://tinyurl.com/4e9iAk.
+
+Design the encode and decode methods for the TinyURL service. There is no restriction on how 
+your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to 
+a tiny URL and the tiny URL can be decoded to the original URL.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 7 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/*
+A vector and return the encoded as an index to retrieve the original string
+The encode called upon the same string should not return the same encoded string
+as it would have collision problems so usually a randomizer and a storage of encoded
+to original is needed.
+*/
+class Solution {
+public:
+    vector<string> m;
+    // Encodes a URL to a shortened URL.
+    string encode(string longUrl) {
+        m.push_back(longUrl);
+        return to_string(m.size());
+    }
+
+    // Decodes a shortened URL to its original URL.
+    string decode(string shortUrl) {
+        return m[stoi(shortUrl)-1];
+    }
+};
+
+// Your Solution object will be instantiated and called as such:
+// Solution solution;
+// solution.decode(solution.encode(url));
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+536. Construct Binary Tree from String
+You need to construct a binary tree from a string consisting of parenthesis and integers.
+
+The whole input represents a binary tree. It contains an integer followed by zero, 
+one or two pairs of parenthesis. The integer represents the root's value and a pair 
+of parenthesis contains a child binary tree with the same structure.
+
+You always start to construct the left child node of the parent first if it exists.
+
+Example:
+Input: "4(2(3)(1))(6(5))"
+Output: return the tree root node representing the following tree:
+
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+Note:
+There will only be '(', ')', '-' and '0' ~ '9' in the input string.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    TreeNode* str2tree(string s) {
+        int len = s.size();
+        if(len == 0) return NULL;
+
+        int firstBracketIndex = s.find('(');
+        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
+
+        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
+        int count = 1;
+        int offset = firstBracketIndex + 1;
+        int i = offset;
+
+        while(count != 0) {
+            if(s[i] == ')') count--;
+            else if(s[i] == '(') count++;
+            i++;
+        }
+
+        string leftExpression = s.substr(offset, i - 1 - offset);
+        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
+
+        node -> left = str2tree(leftExpression);
+        node -> right = str2tree(rightExpression);
+
+        return node;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 537. Complex Number Multiplication
 Given two strings representing two complex numbers.
 
@@ -690,291 +961,6 @@ public:
         sort(nums.begin(), nums.end());
         for(int i = 0; i < nums.size(); i+= 2) res += nums[i];
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-563. Binary Tree Tilt
-Given a binary tree, return the tilt of the whole tree.
-
-The tilt of a tree node is defined as the absolute difference between the sum of all left subtree node values and 
-the sum of all right subtree node values. Null node has tilt 0.
-
-The tilt of the whole tree is defined as the sum of all nodes' tilt.
-
-Example:
-Input: 
-         1
-       /   \
-      2     3
-Output: 1
-Explanation: 
-Tilt of node 2 : 0
-Tilt of node 3 : 0
-Tilt of node 1 : |2-3| = 1
-Tilt of binary tree : 0 + 0 + 1 = 1
-Note:
-
-The sum of node values in any subtree won't exceed the range of 32-bit integer.
-All the tilt values won't exceed the range of 32-bit integer.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    returns the sum of subtree with node as root
-    */
-    int help(TreeNode* node, int& res) {
-        if(node == NULL) return 0;
-        int left = help(node->left, res);
-        int right = help(node->right, res);
-        res += abs(left - right);
-        return node->val + left + right;
-    }
-    
-    int findTilt(TreeNode* root) {
-        int res = 0;
-        help(root, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-565. Array Nesting
-A zero-indexed array A consisting of N different integers is given. The array contains 
-all integers in the range [0, N - 1].
-
-Sets S[K] for 0 <= K < N are defined as follows:
-
-S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
-
-Sets S[K] are finite for each K and should NOT contain duplicates.
-
-Write a function that given an array A consisting of N integers, return the size of 
-the largest set S[K] for this array.
-
-Example 1:
-Input: A = [5,4,0,3,1,6,2]
-Output: 4
-Explanation: 
-A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
-
-One of the longest S[K]:
-S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
-Note:
-N is an integer within the range [1, 20,000].
-The elements of A are all distinct.
-Each element of array A is an integer within the range [0, N-1].
-/*
-    Submission Date: 2017-05-29
-    Runtime: 36 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
-                }
-                max_set = max(current_set, max_set);
-            }
-        }
-        return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-566. Reshape the Matrix
-In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
-
-You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
-the wanted reshaped matrix, respectively.
-
-The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
-
-If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
-
-Example 1:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 1, c = 4
-Output: 
-[[1,2,3,4]]
-Explanation:
-The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
-Example 2:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 2, c = 4
-Output: 
-[[1,2],
- [3,4]]
-Explanation:
-There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
-Note:
-The height and width of the given matrix is in range [1, 100].
-The given r and c are all positive.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 39 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
-        if(nums.empty()) return {};
-        int N = nums.size();
-        int M = nums[0].size();
-        
-        // cannot gain or lose elements
-        if(N*M != r*c) return nums;
-        
-        vector<vector<int>> res(r, vector<int>(c));
-        int x = 0;
-        int y = 0;
-        
-        for(int i = 0; i < r; i++) {
-            for(int j = 0; j < c; j++) {
-                res[i][j] = nums[y][x];
-                x++;
-                if(x == M) {
-                    x = 0;
-                    y++;
-                }
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-567. Permutation in String
-Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
-one of the first string's permutations is the substring of the second string.
-Example 1:
-Input:s1 = "ab" s2 = "eidbaooo"
-Output:True
-Explanation: s2 contains one permutation of s1 ("ba").
-Example 2:
-Input:s1= "ab" s2 = "eidboaoo"
-Output: False
-Note:
-The input strings only contain lower case letters.
-The length of both given strings is in range [1, 10,000].
-/*
-    Submission Date: 2018-06-02
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    frequency map of s1 with variable to_use as global to check if everything equals 0
-    use sliding window where everything in a window is a valid character and does not 
-    exceed the frequency map limit for certain character
-    for a new character, if it exceeds the limit or its not a valid character than keep
-    moving front (restoring freq map). if it is not a valid character, the map will be
-    restored and to_do = original
-    Check if character is valid, if it is use it else move front so that it is not
-    included
-    */
-    bool checkInclusion(string s1, string s2) {
-        vector<int> freq(26 , 0);
-        unordered_set<char> letters(s1.begin(), s1.end());
-        for(const auto& c: s1) freq[c - 'a']++;
-        
-        int front = 0;
-        int back = 0;
-        
-        int N = s2.size();
-        int to_use = s1.size();
-        
-        while(back < N) {
-            if(to_use == 0) return true;
-            // slide the front until the letter is removed
-            int back_val = s2[back] - 'a';
-            while(front < back && freq[back_val] == 0) {
-                freq[s2[front] - 'a']++;
-                front++;
-                to_use++;
-            }
-            
-            /* if the back letter is in s1, decrease the frequency and to_use
-                else it means front == back as freq[s2[back]] == 0 so increase front 
-                to not include this letter
-            */
-            if(letters.count(s2[back])) {
-                freq[back_val]--;
-                to_use--;
-            } else {
-                front++;
-            }
-            
-            back++;
-        }
-        
-        return to_use == 0;
     }
 };
 

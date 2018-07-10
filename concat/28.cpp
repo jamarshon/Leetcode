@@ -1,6 +1,220 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
+
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
+
+Example 1:
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
+Note:
+The size of the given array will be in the range [1,1000].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
+            }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
+        }
+        
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+655. Print Binary Tree
+Print a binary tree in an m*n 2D string array following these rules:
+
+The row number m should be equal to the height of the given binary tree.
+The column number n should always be an odd number.
+The root node's value (in string format) should be put in the exactly middle of the 
+first row it can be put. The column and the row where the root node belongs will separate 
+the rest space into two parts (left-bottom part and right-bottom part). You should print the 
+left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
+left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
+none while the other is not, you don't need to print anything for the none subtree but still 
+need to leave the space as large as that for the other subtree. However, if two subtrees are 
+none, then you don't need to leave space for both of them.
+Each unused space should contain an empty string "".
+Print the subtrees following the same rules.
+Example 1:
+Input:
+     1
+    /
+   2
+Output:
+[["", "1", ""],
+ ["2", "", ""]]
+Example 2:
+Input:
+     1
+    / \
+   2   3
+    \
+     4
+Output:
+[["", "", "", "1", "", "", ""],
+ ["", "2", "", "", "", "3", ""],
+ ["", "", "4", "", "", "", ""]]
+Example 3:
+Input:
+      1
+     / \
+    2   5
+   / 
+  3 
+ / 
+4 
+Output:
+
+[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+ ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+ ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+ ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+Note: The height of binary tree is in the range of [1, 10].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int depth(TreeNode* root) {
+        if(root == NULL) return -1;
+        return 1 + max(depth(root -> left), depth(root -> right));
+    }
+    
+    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
+        if(root == NULL) return;
+        if(start >= end) return;
+        if(row >= res.size()) return;
+        
+        string val = to_string(root -> val);
+        int mid = start + (end - start)/2;
+        res[row][mid] = val;
+        
+        populate(root -> left, res, row + 1, start, mid);
+        populate(root -> right, res, row + 1, mid + 1, end);
+    }
+    vector<vector<string>> printTree(TreeNode* root) {
+        // get the maximum depth of the tree
+        int rd = depth(root);
+        int col = (1 << (rd + 1)) - 1; 
+        // the matrix has depth rows and 2^(depth + 1) - 1 columns
+        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
+        populate(root, res, 0, 0, col);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 656. Coin Path
 Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
 and an integer B. The integer B denotes that from any place (suppose the index is i) 
@@ -722,224 +936,6 @@ public:
         return seen_others ? res : -1;
     }
 };
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-672. Bulb Switcher II
-There is a room with n lights which are turned on initially and 4 buttons on the 
-wall. After performing exactly m unknown operations towards buttons, you need to 
-
-
-
-Suppose n lights are labeled as number [1, 2, 3 ..., n], function of these 4 
-
-
-Flip all the lights.
-Flip lights with even numbers.
-Flip lights with odd numbers.
-Flip lights with (3k + 1) numbers, k = 0, 1, 2, ...
-
-
-
-
-Example 1:
-Input: n = 1, m = 1.
-Output: 2
-Explanation: Status can be: [on], [off]
-
-
-
-
-Example 2:
-Input: n = 2, m = 1.
-Output: 3
-Explanation: Status can be: [on, off], [off, on], [off, off]
-
-
-
-
-Example 3:
-Input: n = 3, m = 1.
-Output: 4
-Explanation: Status can be: [off, on, off], [on, off, on], [off, off, off], 
-
-
-
-Note:
-n and m both fit in range [0, 1000].
-/*
-    Submission Date: 2018-07-07
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    8 states:
-    All_on, 1, 2, 3, 4, 1+4, 2+4, 3+4
-    
-    m == 0: All_on (no possible moves) => 1
-    m > 0:
-        n == 1: All_on (3 apply odd which doesnt affect anything) or 1 => 2
-        n == 2:
-            m == 1: 1, 2, 3 => 3
-            m >= 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2) => 4
-        n >= 3:
-            m == 1: 1, 2, 3, 4 => 4
-            m == 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2), 1+4, 2+4, 3+4 => 7
-            m > 2: All_on (1 2 3), 1 (1 1 1), 2 (1 1 2), 3 (1 1 2), 4 (1 1 4), 
-                    1+4 (2 3 4), 2+4 (1 3 4), 3+4 (1 2 4) => 8
-        
-    */
-    int flipLights(int n, int m) {
-        if(m == 0) return 1;
-        if(n == 1) return 2;
-        if(n == 2) {
-            if(m == 1) return 3;
-            return 4;
-        } else {
-            if(m == 1) return 4;
-            if(m == 2) return 7;
-            return 8;
-        }
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-674. Longest Continuous Increasing Subsequence
-Given an unsorted array of integers, find the length of longest continuous increasing subsequence (subarray).
-
-Example 1:
-Input: [1,3,5,4,7]
-Output: 3
-Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
-Even though [1,3,5,7] is also an increasing subsequence, it's not a continuous one where 5 and 7 are separated by 4. 
-Example 2:
-Input: [2,2,2,2,2]
-Output: 1
-Explanation: The longest continuous increasing subsequence is [2], its length is 1. 
-Note: Length of the array will not exceed 10,000.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 14 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLengthOfLCIS(vector<int>& nums) {
-        if(nums.empty()) return 0;
-        
-        int res = 1;
-        int pos_res = 1;
-        for(int i = 1; i < nums.size(); i++) {
-            if(nums[i] > nums[i-1]) {
-                pos_res++;
-            } else {
-                pos_res = 1;
-            }
-            res = max(res, pos_res);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-676. Implement Magic Dictionary
-
-Implement a magic directory with buildDict, and search methods.
-
-For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
-
-For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
-character in this word, the modified word is in the dictionary you just built.
-
-Example 1:
-Input: buildDict(["hello", "leetcode"]), Output: Null
-Input: search("hello"), Output: False
-Input: search("hhllo"), Output: True
-Input: search("hell"), Output: False
-Input: search("leetcoded"), Output: False
-Note:
-You may assume that all the inputs are consist of lowercase letters a-z.
-For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
-Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
-across multiple test cases. Please see here for more details.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class MagicDictionary {
-public:
-    /** Initialize your data structure here. */
-    unordered_map<string, vector<pair<char, int>>> m_;
-    MagicDictionary() {
-        
-    }
-    
-    /** Build a dictionary through a list of words */
-    void buildDict(vector<string> dict) {
-        /*
-            N words of size K O(Nk^2)
-            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
-        */
-        m_.clear();
-        for(const auto& s: dict) {
-            for(int i = 0; i < s.size(); i++) {
-                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
-            }
-        }
-        
-    }
-    
-    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
-    bool search(string s) {
-        // O(k^2*M) where M is size of vector for a key in m_
-        for(int i = 0; i < s.size(); i++) {
-            const auto& key = s.substr(0,i) + s.substr(i+1);
-            if(!m_.count(key)) continue;
-            for(const auto& p: m_[key]) {
-                // looking for same index different letter
-                if(p.second == i && p.first != s[i]) return true;
-            }
-        }
-        return false;
-    }
-};
-
-/**
- * Your MagicDictionary object will be instantiated and called as such:
- * MagicDictionary obj = new MagicDictionary();
- * obj.buildDict(dict);
- * bool param_2 = obj.search(word);
- */
 
 int main() {
     return 0;

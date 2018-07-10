@@ -1,6 +1,314 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+599. Minimum Index Sum of Two Lists
+Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
+favorite restaurants represented by strings.
+
+You need to help them find out their common interest with the least list index sum. If there 
+is a choice tie between answers, output all of them with no order requirement. You could assume 
+there always exists an answer.
+
+Example 1:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
+Output: ["Shogun"]
+Explanation: The only restaurant they both like is "Shogun".
+Example 2:
+Input:
+["Shogun", "Tapioca Express", "Burger King", "KFC"]
+["KFC", "Shogun", "Burger King"]
+Output: ["Shogun"]
+Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
+index sum 1 (0+1).
+Note:
+The length of both lists will be in the range of [1, 1000].
+The length of strings in both lists will be in the range of [1, 30].
+The index is starting from 0 to the list length minus 1.
+No duplicates in both lists.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 103 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
+        unordered_map<string, int> m;
+        for(int i = 0; i < list1.size(); i++) {
+            m[list1[i]] = i;
+        }
+        
+        vector<string> res;
+        int min_index_sum = -1;
+        for(int i = 0; i < list2.size(); i++) {
+            string s2 = list2[i];
+            if(m.count(s2)) {
+                int new_sum = i + m[s2];
+                if(min_index_sum == -1) {
+                    min_index_sum = new_sum;
+                    res.push_back(s2);
+                    continue;
+                }
+                
+                if(new_sum == min_index_sum) {
+                    res.push_back(s2);
+                } else if(new_sum < min_index_sum) {
+                    min_index_sum = new_sum;
+                    res.clear();
+                    res.push_back(s2);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
+    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
+    vector<string> t = s.findRestaurant(v1, v2);
+    cout << t.size() << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+604. Design Compressed String Iterator
+Design and implement a data structure for a compressed string iterator. 
+It should support the following operations: next and hasNext.
+
+The given compressed string will be in the form of each letter followed 
+by a positive integer representing the number of this letter existing in 
+the original uncompressed string.
+
+next() - if the original string still has uncompressed characters, return 
+the next letter; Otherwise return a white space.
+hasNext() - Judge whether there is any letter needs to be uncompressed.
+
+Example:
+
+StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
+
+iterator.next(); // return 'L'
+iterator.next(); // return 'e'
+iterator.next(); // return 'e'
+iterator.next(); // return 't'
+iterator.next(); // return 'C'
+iterator.next(); // return 'o'
+iterator.next(); // return 'd'
+iterator.hasNext(); // return true
+iterator.next(); // return 'e'
+iterator.hasNext(); // return false
+iterator.next(); // return ' '
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+
+using namespace std;
+
+class StringIterator {
+vector<pair<char, long long>> v_;
+int index_;
+public:
+    StringIterator(string compressedString) {
+        index_ = 0;
+        int len = compressedString.size();
+        int i = 0;
+        while(i < len) {
+            char c = compressedString[i];
+            i++;
+            string rep = "";
+            while(i < len && isdigit(compressedString[i])) {
+                rep += compressedString[i];
+                i++;
+            }
+            
+            long long times = stoll(rep);
+            // cout << c << ' ' << times << endl;
+            v_.emplace_back(c, times);
+        }
+    }
+    
+    char next() {
+        if(!hasNext()) return ' ';
+        pair<char, long long>& p = v_[index_];
+        p.second--;
+        if(p.second == 0) index_++;
+        return p.first;
+    }
+    
+    bool hasNext() {
+        return index_ < v_.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+605. Can Place Flowers
+Suppose you have a long flowerbed in which some of the plots are planted 
+and some are not. However, flowers cannot be planted in adjacent plots - 
+they would compete for water and both would die.
+
+Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
+empty and 1 means not empty), and a number n, return if n new flowers can be 
+planted in it without violating the no-adjacent-flowers rule.
+
+Example 1:
+Input: flowerbed = [1,0,0,0,1], n = 1
+Output: True
+Example 2:
+Input: flowerbed = [1,0,0,0,1], n = 2
+Output: False
+Note:
+The input array won't violate no-adjacent-flowers rule.
+The input array size is in the range of [1, 20000].
+n is a non-negative integer which won't exceed the input array size.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int len = flowerbed.size();
+        vector<int> v;
+
+        // v.push_back(-1);
+        for(int i = 0; i < len; i++) {
+            if(flowerbed[i]) {
+                v.push_back(i);
+            }
+        }
+        // v.push_back(len);
+
+        int v_len = v.size();
+        for(int i = 1; i < v_len; i++) {
+            int num_zeros = v[i] - v[i-1] - 1;
+            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
+            if(num_zeros > 0) {
+                int diff = (num_zeros - 1)/2;
+                n -= diff;
+            }
+        }
+
+        if(v_len) {
+            n -= v[0]/2;
+            // cout << n << endl;
+            n -= (len - v[v_len - 1] - 1)/2;
+            // cout << n << endl;
+        } else {
+            n -= (len+1)/2;
+        }
+
+        // cout << "n" << n << endl;
+        return n <= 0;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+606. Construct String from Binary Tree
+You need to construct a string consists of parenthesis and integers from a 
+binary tree with the preorder traversing way.
+
+The null node needs to be represented by empty parenthesis pair "()". And you 
+need to omit all the empty parenthesis pairs that don't affect the one-to-one 
+mapping relationship between the string and the original binary tree.
+
+Example 1:
+Input: Binary tree: [1,2,3,4]
+       1
+     /   \
+    2     3
+   /    
+  4     
+
+Output: "1(2(4))(3)"
+
+Explanation: Originallay it needs to be "1(2(4)())(3()())", 
+but you need to omit all the unnecessary empty parenthesis pairs. 
+And it will be "1(2(4))(3)".
+Example 2:
+Input: Binary tree: [1,2,3,null,4]
+       1
+     /   \
+    2     3
+     \  
+      4 
+
+Output: "1(2()(4))(3)"
+
+Explanation: Almost the same as the first example, 
+except we can't omit the first parenthesis pair to break the one-to-one 
+mapping relationship between the input and the output.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string tree2str(TreeNode* t) {
+        if(t == NULL) return "";
+        string root = to_string(t -> val);
+        string left = tree2str(t -> left);
+        string right = tree2str(t -> right);
+        
+        if(left.empty() && right.empty())
+            return root;
+        if(!left.empty() && right.empty())
+            return root + "(" + left + ")";
+        
+        return root + "(" + left + ")" + "(" + right + ")";
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 609. Find Duplicate File in System
 Given a list of directory info including directory path, and all the files 
 with contents in this directory, you need to find out all the groups of 
@@ -645,357 +953,6 @@ public:
         }
 
         return times;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-637. Average of Levels in Binary Tree
-Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
-
-Example 1:
-Input:
-    3
-   / \
-  9  20
-    /  \
-   15   7
-Output: [3, 14.5, 11]
-Explanation:
-The average value of nodes on level 0 is 3,  on level 1 is 14.5, and on level 2 is 11. Hence return 
-[3, 14.5, 11].
-Note:
-The range of node's value is in the range of 32-bit signed integer.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<double> averageOfLevels(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        vector<double> res;
-        
-        while(!q.empty()) {
-            int size = q.size();
-            int size1 = 0;
-            double sum = 0;
-            for(int i = 0; i < size; i++) {
-                TreeNode* f = q.front();
-                if(f) {
-                    sum += f -> val;
-                    size1++;
-                    q.push(f -> left);
-                    q.push(f -> right);
-                }
-                
-                q.pop();
-            }
-            if(size1)
-            res.push_back(sum/size1);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-638. Shopping Offers
-In LeetCode Store, there are some kinds of items to sell. Each item has a price.
-
-However, there are some special offers, and a special offer consists of one or more different kinds of 
-items with a sale price.
-
-You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
-The job is to output the lowest price you have to pay for exactly certain items as given, where you could
- make optimal use of the special offers.
-
-Each special offer is represented in the form of an array, the last number represents the price you need 
-to pay for this special offer, other numbers represents how many specific items you could get if you buy 
-this offer.
-
-You could use any of special offers as many times as you want.
-
-Example 1:
-Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
-Output: 14
-Explanation: 
-There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
-In special offer 1, you can pay $5 for 3A and 0B
-In special offer 2, you can pay $10 for 1A and 2B. 
-You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
-Example 2:
-Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
-Output: 11
-Explanation: 
-The price of A is $2, and $3 for B, $4 for C. 
-You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
-You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
-for 1C. 
-You cannot add more items, though only $9 for 2A ,2B and 1C.
-Note:
-There are at most 6 kinds of items, 100 special offers.
-For each item, you need to buy at most 6 of them.
-You are not allowed to buy more items than you want, even if that would lower the overall price.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-    unordered_map<string, int> m;
-public:
-    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
-        string key = "";
-        
-        int N = needs.size();
-        
-        int res = INT_MAX;
-        
-        int count = 0;
-        int price_cost = 0;
-        for(int i = 0; i < N; i++) {
-            key += to_string(needs[i]);
-            count += needs[i] == 0;
-            price_cost += needs[i]*price[i];
-        }
-        
-        if(m.count(key)) return m[key];
-        
-        if(count == N) return 0;
-        
-        res = min(res, price_cost);
-        
-        vector<vector<int>> restore;
-        for(auto it = special.begin(); it != special.end();) {
-            vector<int> sp = *it;
-            
-            bool should_erase = false;
-            for(int i = 0; i < N; i++) {
-                if(sp[i] > needs[i]) {
-                    should_erase = true;
-                    break;
-                }
-            }
-            
-            if(should_erase) {
-                restore.push_back(sp);
-                it = special.erase(it);
-            } else {
-                // everything in sp[i] <= needs[i] so we can take it
-                for(int i = 0; i < N; i++) {
-                    needs[i] -= sp[i];
-                }
-                
-                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
-                for(int i = 0; i < N; i++) {
-                    needs[i] += sp[i];
-                }
-                it++;
-            }
-        }
-        
-        for(auto e: restore) special.push_back(e);
-        return m[key] = res;
-    }
-    
-    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
-        return shoppingOffersHelper(price, special, needs);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
     }
 };
 

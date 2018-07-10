@@ -1,6 +1,203 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+697. Degree of an Array
+Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
+
+Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
+
+Example 1:
+Input: [1, 2, 2, 3, 1]
+Output: 2
+Explanation: 
+The input array has a degree of 2 because both elements 1 and 2 appear twice.
+Of the subarrays that have the same degree:
+[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
+The shortest length is 2. So return 2.
+Example 2:
+Input: [1,2,2,3,1,4,2]
+Output: 6
+Note:
+
+nums.length will be between 1 and 50,000.
+nums[i] will be an integer between 0 and 49,999.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 59 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
+        then store the first seen and last seen index.
+        Loop through the first seen and last seen indicies to find the shortest one.
+    */
+    int findShortestSubArray(vector<int>& nums) {
+        unordered_map<int,int> val_to_freq;
+        int max_freq = 0;
+        for(const auto& n: nums) {
+            val_to_freq[n]++;
+            max_freq = max(max_freq, val_to_freq[n]);
+        }
+        
+        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
+        for(int i = 0; i < nums.size(); i++) {
+            if(val_to_freq[nums[i]] != max_freq) continue;
+            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
+            val_to_seen_boundaries[nums[i]].second = i;
+        }
+        
+        int res = INT_MAX;
+        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
+        return res + 1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+712. Minimum ASCII Delete Sum for Two Strings
+Given two strings s1, s2, find the lowest ASCII sum of deleted characters to make two strings equal.
+
+Example 1:
+Input: s1 = "sea", s2 = "eat"
+Output: 231
+Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the sum.
+Deleting "t" from "eat" adds 116 to the sum.
+At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum possible to achieve this.
+Example 2:
+Input: s1 = "delete", s2 = "leet"
+Output: 403
+Explanation: Deleting "dee" from "delete" to turn the string into "let",
+adds 100[d]+101[e]+101[e] to the sum.  Deleting "e" from "leet" adds 101[e] to the sum.
+At the end, both strings are equal to "let", and the answer is 100+101+101+101 = 403.
+If instead we turned both strings into "lee" or "eet", we would get answers of 433 or 417, which are higher.
+Note:
+
+0 < s1.length, s2.length <= 1000.
+All elements of each string will have an ASCII value in [97, 122].
+/*
+    Submission Date: 2018-07-01
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    dp[i][j] is minimum cost for s1[0, i) s2[0, j)
+    dp[0][0] = 0
+    dp[0][j] = s2[j-1] + dp[i][j-1] // sum of ascii of s2[0, j)
+    dp[i][0] = s1[i-1] + dp[i-1][j] // sum of ascii of s1[0, i)
+    
+    if s1[i-1] == s2[j-1] 
+        dp[i][j] = dp[i-1][j-1] // this character does not to be deleted so
+                                // it is just excluding the two end characters
+    else
+        dp[i][j] = min(
+            s1[i-1] + dp[i-1][j], // the cost of the end character of s1 + cost of not using that character
+            s2[j-1] + dp[i][j-1] // cost of the end character of s2 + cost of not using that character
+        )
+    */
+    int minimumDeleteSum(string s1, string s2) {
+        int N = s1.size(), M = s2.size();
+        int dp[N+1][M+1];
+        for(int i = 0; i <= N; i++) {
+            for(int j = 0; j <= M; j++) {
+                if(i == 0 && j == 0) {
+                    dp[i][j] = 0;
+                } else if(i == 0) {
+                    dp[i][j] = s2[j-1] + dp[i][j-1];
+                } else if(j == 0) {
+                    dp[i][j] = s1[i-1] + dp[i-1][j];
+                } else if(s1[i-1] == s2[j-1]) {
+                    dp[i][j] = dp[i-1][j-1];
+                } else {
+                    dp[i][j] = min(s1[i-1] + dp[i-1][j], s2[j-1] + dp[i][j-1]);
+                }
+            }
+        }
+        
+        return dp[N][M];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+717. 1-bit and 2-bit Characters
+We have two special characters. The first character can be represented by one bit 0. The second character can be represented by 
+two bits (10 or 11).
+
+Now given a string represented by several bits. Return whether the last character must be a one-bit character or not. The given 
+string will always end with a zero.
+
+Example 1:
+Input: 
+bits = [1, 0, 0]
+Output: True
+Explanation: 
+The only way to decode it is two-bit character and one-bit character. So the last character is one-bit character.
+Example 2:
+Input: 
+bits = [1, 1, 1, 0]
+Output: False
+Explanation: 
+The only way to decode it is two-bit character and two-bit character. So the last character is NOT one-bit character.
+Note:
+
+1 <= len(bits) <= 1000.
+bits[i] is always 0 or 1.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 7 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isOneBitCharacter(vector<int>& bits) {
+        int N = bits.size();
+        vector<bool> dp(N, false);
+        dp[N-1] = true;
+
+        for(int i = N-2; i >= 0; i--) {
+            if(bits[i] == 0) {
+                dp[i] = dp[i+1];
+            } else {
+                if(i + 2 < N) dp[i] = dp[i+2];
+            }
+        }
+
+        return dp[0];
+    }
+};
+
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 720. Longest Word in Dictionary
 Given a list of strings words representing an English Dictionary, find the longest word in words that can be 
 built one character at a time by other words in words. If there is more than one possible answer, return the longest word with 
@@ -602,6 +799,121 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+756. Pyramid Transition Matrix
+We are stacking blocks to form a pyramid.  Each block has a color which is a one 
+
+For every block of color `C` we place not in the bottom row, we are placing it 
+on top of a left block of color `A` and right block of color `B`.  We are 
+
+We start with a bottom row of bottom, represented as a single string.  We also 
+start with a list of allowed triples allowed.  Each allowed triple is 
+
+Return true if we can build the pyramid all the way to the top, otherwise false.
+
+
+Example 1:
+Input: bottom = "XYZ", allowed = ["XYD", "YZE", "DEA", "FFF"]
+Output: true
+Explanation:
+We can stack the pyramid like this:
+    A
+   / \
+  D   E
+ / \ / \
+X   Y   Z
+
+This works because ('X', 'Y', 'D'), ('Y', 'Z', 'E'), and ('D', 'E', 'A') are 
+
+
+
+Example 2:
+Input: bottom = "XXYX", allowed = ["XXX", "XXY", "XYX", "XYY", "YXZ"]
+Output: false
+Explanation:
+We can't stack the pyramid to the top.
+Note that there could be allowed triples (A, B, C) and (A, B, D) with C != D.
+
+
+
+Note:
+
+bottom will be a string with length in range [2, 8].
+allowed will have length in range [0, 200].
+Letters in all strings will be chosen from the set {'A', 'B', 'C', 'D', 'E', 
+/*
+    Submission Date: 2018-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+    TrieNode* children[7];
+    TrieNode() {
+        for(int i = 0; i < 7; i++) {
+            children[i] = NULL;
+        }
+    }
+};
+
+class Solution {
+public:
+    /*
+    loop through s from i = [1,N) and seeing if s[i-1] + s[i] exists
+    if it does then try all combinations of s[i-1] + s[i] + _ where _ is determined from
+    the Trie. base case is when s is just a single letter.
+    
+    building.size() always == i-1 so if building.size() == N-1 (building row is one less than previous row)
+    then i-1 == N-1 or i == N which terminates
+    */
+    bool f(string s, int i, string building, TrieNode* root) {
+        int N = s.size();
+        if(N == 1) return true;
+        
+        if(building.size() == N-1) {
+            return f(building, 1, "", root); // swap building and create a new row
+        }
+        
+        // checking trie if AB exists
+        TrieNode* curr = root;
+        for(int j = 0; j < 2; j++) {
+            if(curr->children[s[i - 1 + j] - 'A'] == NULL) return false; 
+            curr = curr->children[s[i - 1 +j] - 'A'];
+        }
+        
+        // useing all combinations of AB_ to see if _ can work as the character for the building row
+        for(int j = 0; j < 7; j++) {
+            if(curr->children[j] == NULL) continue;
+            if(f(s, i + 1, building + char('A' + j), root)) return true;
+        }
+        
+        return false;
+    }
+    
+    bool pyramidTransition(string bottom, vector<string>& allowed) {
+        TrieNode* root = new TrieNode();
+        for(const auto& s: allowed) {
+            TrieNode* curr = root;
+            for(const auto& c: s) {
+                if(curr->children[c - 'A'] == NULL) 
+                    curr->children[c - 'A'] = new TrieNode();
+                curr = curr->children[c - 'A'];
+            }
+        }
+        
+        return f(bottom, 1, "", root);
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 762. Prime Number of Set Bits in Binary Representation
 Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
 their binary representation.
@@ -672,306 +984,6 @@ public:
             n_to_bits[i] = bits;
             res += primes.count(bits);
         }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-763. Partition Labels
-A string S of lowercase letters is given. We want to partition this string into as many parts 
-as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
-
-Example 1:
-Input: S = "ababcbacadefegdehijhklij"
-Output: [9,7,8]
-Explanation:
-The partition is "ababcbaca", "defegde", "hijhklij".
-This is a partition so that each letter appears in at most one part.
-A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits S into less parts.
-Note:
-
-S will have length in range [1, 500].
-S will consist of lowercase letters ('a' to 'z') only.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    everytime a letter is visited, update right to be max right and
-    the index of the furthest right of this character
-    if i == right it means all the caharacters between i and the previous pushed
-    number contains letters that do not appear in any other part of the string.
-    */
-    vector<int> partitionLabels(string S) {
-        unordered_map<char, int> last_seen;
-        int N = S.size();
-        for(int i = 0; i < N; i++) last_seen[S[i]] = i;
-        int right = 0;
-        
-        vector<int> res;
-        for(int i = 0; i < N; i++) {
-            right = max(right, last_seen[S[i]]);
-            if(i == right) res.push_back(i+1);
-        }
-        
-        for(int i = res.size()-1; i >= 1; i--) res[i] -= res[i-1];
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-766. Toeplitz Matrix
-A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
-
-Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
- 
-
-Example 1:
-
-Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
-Output: True
-Explanation:
-1234
-5123
-9512
-
-In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each 
-diagonal all elements are the same, so the answer is True.
-Example 2:
-
-Input: matrix = [[1,2],[2,2]]
-Output: False
-Explanation:
-The diagonal "[1, 2]" has different elements.
-Note:
-
-matrix will be a 2D array of integers.
-matrix will have a number of rows and columns in range [1, 20].
-matrix[i][j] will be integers in range [0, 99].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isToeplitzMatrix(vector<vector<int>>& matrix) {
-        if(matrix.empty()) return true;
-        int N = matrix.size();
-        int M = matrix[0].size();
-        
-        for(int i = 1; i < N; i++) {
-            for(int j = 1; j < M; j++) {
-                if(matrix[i][j] != matrix[i-1][j-1]) return false;
-            }
-        }
-        
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
-Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
-is considered a different type of stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int numJewelsInStones(string J, string S) {
-        unordered_set<char> jewels(J.begin(), J.end());
-        int res = 0;
-        for(const auto& stone: S) res += jewels.count(stone);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-781. Rabbits in Forest
-In a forest, each rabbit has some color. Some subset of rabbits (possibly all of 
-them) tell you how many other rabbits have the same color as them. Those answers 
-
-Return the minimum number of rabbits that could be in the forest.
-
-Examples:
-Input: answers = [1, 1, 2]
-Output: 5
-Explanation:
-The two rabbits that answered "1" could both be the same color, say red.
-The rabbit than answered "2" can't be red or the answers would be inconsistent.
-Say the rabbit that answered "2" was blue.
-Then there should be 2 other blue rabbits in the forest that didn't answer into 
-The smallest possible number of rabbits in the forest is therefore 5: 3 that 
-
-Input: answers = [10, 10, 10]
-Output: 11
-
-Input: answers = []
-Output: 0
-
-
-Note:
-
-
-    answers will have length at most 1000.
-    Each answers[i] will be an integer in the range [0, 999].
-/*
-    Submission Date: 2018-07-02
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    convert numbers to frequency.
-    if x occurs y times it means each group of size x+1 in y could refer to the same
-    rabbits so find how many x+1 groups are in y and multiply by x+1 to get the total
-    number of rabbits
-    e.g 1 1 1 1 1 1 1
-    x = 1
-    y = 7
-    groups of 2 (1 1) (1 1) (1 1) (1)
-    there are 4 groups of two and multiply this by 1+1 = 8
-    the groups are referring to only rabbits in their own group.
-    */
-    int numRabbits(vector<int>& answers) {
-        unordered_map<int,int> freq;
-        for(const auto& n: answers) freq[n]++;
-        int res = 0;
-        for(const auto& kv: freq) {
-            res += ceil((float)kv.second/(kv.first + 1))*(kv.first + 1);
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-783. Minimum Distance Between BST Nodes
-Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
-values of any two different nodes in the tree.
-
-Example :
-
-Input: root = [4,2,6,1,3,null,null]
-Output: 1
-Explanation:
-Note that root is a TreeNode object, not an array.
-
-The given tree [4,2,6,1,3,null,null] is represented by the following diagram:
-
-          4
-        /   \
-      2      6
-     / \    
-    1   3  
-
-while the minimum difference in this tree is 1, it occurs between node 1 and node 2, also between node 3 and node 2.
-Note:
-
-The size of the BST will be between 2 and 100.
-The BST is always valid, each node's value is an integer, and each node's value is different.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <climits>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    inorder traversal keeping tracking of prev
-    */
-    void help(TreeNode* root, int& res, int& prev) {
-        if(root == NULL) return;
-        help(root->left, res, prev);
-        if(prev != INT_MAX) {
-            res = min(res, root->val - prev);
-        }
-        
-        prev = root->val;
-        help(root->right, res, prev);
-    }
-    
-    int minDiffInBST(TreeNode* root) {
-        int res = INT_MAX, prev = INT_MAX;
-        help(root, res, prev);
         return res;
     }
 };

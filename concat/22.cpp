@@ -1,6 +1,71 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+454. 4Sum II
+Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k, 
+
+To make problem a bit easier, all A, B, C, D have same length of N where 0 ≤ N ≤ 
+500. All integers are in the range of -228 to 228 - 1 and the result is 
+
+Example:
+Input:
+A = [ 1, 2]
+B = [-2,-1]
+C = [-1, 2]
+D = [ 0, 2]
+
+Output:
+2
+
+Explanation:
+The two tuples are:
+1. (0, 0, 0, 1) -> A[0] + B[0] + C[0] + D[1] = 1 + (-2) + (-1) + 2 = 0
+2. (1, 1, 0, 0) -> A[1] + B[1] + C[0] + D[0] = 2 + (-1) + (-1) + 0 = 0
+/*
+    Submission Date: 2018-07-08
+    Runtime: 104 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    O(n^2) generate all n^2 sums of A and B and put in hashmap of sum to frequency
+    generate all n^2 sums of C and D and see if the sum exists in hashmap, if it does
+    then res increases by the frequency as the frequency represents how many ways to 
+    get that sum
+    */
+    int fourSumCount(vector<int>& A, vector<int>& B, vector<int>& C, vector<int>& D) {
+        unordered_map<int, int> sum_A_B;
+        for(const auto& a: A) {
+            for(const auto& b: B) {
+                sum_A_B[a + b]++;
+            }
+        }
+        
+        int res = 0;
+        for(const auto& c: C) {
+            for(const auto& d: D) {
+                if(sum_A_B.count(-c-d)) {
+                    res += sum_A_B[-c-d];
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 455. Assign Cookies
 Assume you are an awesome parent and want to give your children some cookies. But, you should give 
 each child at most one cookie. Each child i has a greed factor gi, which is the minimum size of a cookie that 
@@ -456,6 +521,66 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+477. Total Hamming Distance
+The Hamming distance between two integers is the number of positions at which 
+
+Now your job is to find the total Hamming distance between all pairs of the 
+
+
+Example:
+Input: 4, 14, 2
+
+Output: 6
+
+Explanation: In binary representation, the 4 is 0100, 14 is 1110, and 2 is 0010 
+showing the four bits relevant in this case). So the answer will be:
+HammingDistance(4, 14) + HammingDistance(4, 2) + HammingDistance(14, 2) = 2 + 2 
+
+
+
+Note:
+
+Elements of the given array are in the range of 0  to 10^9
+Length of the array will not exceed 10^4.
+/*
+    Submission Date: 2018-07-08
+    Runtime: 40 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    o(n) for the ith bit count how many 0 and how many 1 there are
+    suppose there are x 0's and y 1's, then there are total x*y pairs
+    because for every value in x, it can pair y values in y.
+    */
+    int totalHammingDistance(vector<int>& nums) {
+        int N = nums.size();
+        int res = 0;
+        for(int i = 0; i < 31; i++) {
+            int one_cnt = 0;
+            for(const auto& n: nums) {
+                bool one = n & (1 << i);
+                one_cnt += one;
+            }
+            
+            res += one_cnt*(N - one_cnt);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 479. Largest Palindrome Product
 Find the largest palindrome made from the product of two n-digit numbers.
 
@@ -872,66 +997,6 @@ public:
         for(const auto& x: findNums) {
             res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
         }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-500. Keyboard Row
-Given a List of words, return the words that can be typed using letters of alphabet on only one row's of American keyboard like the image below.
-
-
-American keyboard
-
-
-Example 1:
-Input: ["Hello", "Alaska", "Dad", "Peace"]
-Output: ["Alaska", "Dad"]
-Note:
-You may use one character in the keyboard more than once.
-You may assume the input string will only contain letters of alphabet.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    // Have a map of character to row. Loop through each string and check if all the characters come from the same row.
-    vector<string> findWords(vector<string>& words) {
-        vector<string> v{"qwertyuiop", "asdfghjkl", "zxcvbnm"};
-        unordered_map<char, int> m;
-
-        for(int i = 0; i < v.size(); i++) {
-            for(const auto& c: v[i]) m[c] = i;
-        }
-
-        vector<string> res;
-        for(const auto& s: words) {
-            int ind = -1;
-            bool can_add = true;
-            for(const auto& c: s) {
-                if(ind == -1) ind = m[tolower(c)];
-                if(m[tolower(c)] != ind) {
-                    can_add = false;
-                    break;
-                }
-            }
-
-            if(can_add) res.push_back(s);
-        }
-
         return res;
     }
 };

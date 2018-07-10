@@ -1,6 +1,437 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+811. Subdomain Visit Count
+A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
+at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
+"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
+
+Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
+followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
+
+We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
+input, and in any order), that explicitly counts the number of visits to each subdomain.
+
+Example 1:
+Input: 
+["9001 discuss.leetcode.com"]
+Output: 
+["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
+Explanation: 
+We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
+So they will all be visited 9001 times.
+
+Example 2:
+Input: 
+["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
+Output: 
+["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
+Explanation: 
+We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
+we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
+
+Notes:
+
+The length of cpdomains will not exceed 100. 
+The length of each domain name will not exceed 100.
+Each address will have either 1 or 2 "." characters.
+The input count in any count-paired domain will not exceed 10000.
+The answer output can be returned in any order.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> subdomainVisits(vector<string>& cpdomains) {
+        unordered_map<string, int> domain_to_count;
+        for(const auto& s: cpdomains) {
+            int num = 0;
+            int i = 0;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    num = num * 10 + (s[i] - '0');
+                } else {
+                    break;
+                }
+                i++;
+            }
+            
+            string domain = s.substr(i + 1);
+            while(domain.find('.') != string::npos) {
+                domain_to_count[domain] += num;
+                domain = domain.substr(domain.find('.') + 1);
+            }
+            
+            domain_to_count[domain] += num;
+        }
+        
+        vector<string> res;
+        for(const auto& kv: domain_to_count) {
+            res.push_back(to_string(kv.second) + " " + kv.first);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+812. Largest Triangle Area
+You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2
+Explanation: 
+The five points are show in the figure below. The red triangle is the largest.
+
+Notes:
+
+3 <= points.length <= 50.
+No points will be duplicated.
+ -50 <= points[i][j] <= 50.
+Answers within 10^-6 of the true value will be accepted as correct.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        int res = 0;
+        int N = points.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                for(int k = j + 1; k < N; k++) {
+                    /*
+                    given points (a,b), (c,d), (e,f)
+                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
+                    cross product of A and B is 
+                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
+                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
+                    magnitude of A cross B is area of parallelogram so divide by half
+                    */
+                    int c_minus_a = points[j][0] - points[i][0];
+                    int d_minus_b = points[j][1] - points[i][1];
+                    int e_minus_a = points[k][0] - points[i][0];
+                    int f_minus_b = points[k][1] - points[i][1];
+                    
+                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
+                }
+            }
+        }
+        return res/2.0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+814. Binary Tree Pruning
+We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
+
+Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
+
+(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
+
+Example 1:
+Input: [1,null,0,0,1]
+Output: [1,null,0,null,1]
+ 
+Explanation: 
+Only the red nodes satisfy the property "every subtree not containing a 1".
+The diagram on the right represents the answer.
+
+
+Example 2:
+Input: [1,0,1,0,0,0,1]
+Output: [1,null,1,null,1]
+
+
+
+Example 3:
+Input: [1,1,0,1,1,0,1,0]
+Output: [1,1,0,1,1,null,1]
+
+
+
+Note:
+
+The binary tree will have at most 100 nodes.
+The value of each node will only be 0 or 1.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    bool HasOne(TreeNode* root) {
+        if(root == NULL) return false;
+        bool l = HasOne(root->left);
+        bool r = HasOne(root->right);
+        
+        if(!l) { delete root->left; root->left = NULL; }
+        if(!r) { delete root->right; root->right = NULL; }
+        
+        return root->val == 1 || l || r;
+    }
+    
+    TreeNode* pruneTree(TreeNode* root) {
+        if(!HasOne(root)) { delete root; return NULL; }
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+817. Linked List Components
+We are given head, the head node of a linked list containing unique integer 
+
+We are also given the list G, a subset of the values in the linked list.
+
+Return the number of connected components in G, where two values are connected 
+
+Example 1:
+
+Input: 
+head: 0->1->2->3
+G = [0, 1, 3]
+Output: 2
+Explanation: 
+0 and 1 are connected, so [0, 1] and [3] are the two connected components.
+
+
+Example 2:
+
+Input: 
+head: 0->1->2->3->4
+G = [0, 3, 1, 4]
+Output: 2
+Explanation: 
+0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two 
+
+
+Note: 
+
+
+    If N is the length of the linked list given by head, 1 <= N <= 10000.
+    The value of each node in the linked list will be in the range [0, N - 1].
+    1 <= G.length <= 10000.
+    G is a subset of all values in the linked list.
+/*
+    Submission Date: 2018-07-02
+    Runtime: 35 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    int numComponents(ListNode* head, vector<int>& G) {
+        unordered_set<int> G_set(G.begin(), G.end());
+        ListNode* curr = head;
+        int res = 0;
+        while(curr) {
+            // looking for the start of a component
+            while(curr && !G_set.count(curr->val)) {
+                curr = curr->next;
+            }
+            
+            if(curr) {
+                res++;
+                // looking for the end of a component
+                while(curr && G_set.count(curr->val)) {
+                    curr = curr->next;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+819. Most Common Word
+Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
+It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
+
+Words in the list of banned words are given in lowercase, and free of punctuation.  Words in the paragraph are not case sensitive.  
+The answer is in lowercase.
+
+Example:
+Input: 
+paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
+banned = ["hit"]
+Output: "ball"
+Explanation: 
+"hit" occurs 3 times, but it is a banned word.
+"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
+Note that words in the paragraph are not case sensitive,
+that punctuation is ignored (even if adjacent to words, such as "ball,"), 
+and that "hit" isn't the answer even though it occurs more because it is banned.
+ 
+
+Note:
+
+1 <= paragraph.length <= 1000.
+1 <= banned.length <= 100.
+1 <= banned[i].length <= 10.
+The answer is unique, and written in lowercase (even if its occurrences in paragraph may have uppercase symbols, and 
+even if it is a proper noun.)
+paragraph only consists of letters, spaces, or the punctuation symbols !?',;.
+Different words in paragraph are always separated by a space.
+There are no hyphens or hyphenated words.
+Words only consist of letters, never apostrophes or other punctuation symbols.
+/*
+    Submission Date: 2018-06-04
+    Runtime:  ms
+    Difficulty: 
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+public:
+    string mostCommonWord(string paragraph, vector<string>& banned) {
+        unordered_set<string> banned_set(banned.begin(), banned.end());
+        unordered_map<string,int> freq;
+        
+        stringstream ss(paragraph);
+        string temp;
+        
+        string res = "";
+        while(getline(ss, temp, ' ')) {
+            for(int i = 0; i < temp.size(); i++) temp[i] = tolower(temp[i]);
+            while(!temp.empty() && !isalpha(temp.back())) temp.pop_back();
+            if(banned_set.count(temp)) continue;
+            freq[temp]++;
+            if(res.empty() || freq[res] < freq[temp]) res = temp;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+821. Shortest Distance to a Character
+Given a string S and a character C, return an array of integers representing the shortest distance from the character C in the string.
+
+Example 1:
+
+Input: S = "loveleetcode", C = 'e'
+Output: [3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0]
+ 
+
+Note:
+
+S string length is in [1, 10000].
+C is a single character, and guaranteed to be in string S.
+All letters in S and C are lowercase.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    keep track of last seen C and use that as the distance
+    then do it from the back and take the min of this value with the previous value
+    */
+    vector<int> shortestToChar(string S, char C) {
+        int N = S.size();
+        vector<int> res(N, INT_MAX);
+        
+        int last_C_forward = -1;
+        int last_C_backward = -1;
+        for(int i = 0; i < N; i++) {
+            if(S[i] == C) last_C_forward = i;
+            if(S[N-i-1] == C) last_C_backward = N-i-1;
+            
+            if(last_C_forward >= 0) {
+                res[i] = min(res[i], i - last_C_forward);
+            }
+            
+            if(last_C_backward >= 0) {
+                res[N-i-1] = min(res[N-i-1], last_C_backward - (N-i-1));
+            }
+            
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 824. Goat Latin
 A sentence S is given, composed of words separated by spaces. Each word consists of lowercase and uppercase letters only.
 
@@ -519,465 +950,6 @@ public:
     }
     bool backspaceCompare(string S, string T) {
         return eval(S) == eval(T);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-849. Maximize Distance to Closest Person
-In a row of seats, 1 represents a person sitting in that seat, and 0 represents that the seat is empty. 
-
-There is at least one empty seat, and at least one person sitting.
-
-Alex wants to sit in the seat such that the distance between him and the closest person to him is maximized. 
-
-Return that maximum distance to closest person.
-
-Example 1:
-
-Input: [1,0,0,0,1,0,1]
-Output: 2
-Explanation: 
-If Alex sits in the second open seat (seats[2]), then the closest person has distance 2.
-If Alex sits in any other open seat, the closest person has distance 1.
-Thus, the maximum distance to the closest person is 2.
-Example 2:
-
-Input: [1,0,0,0]
-Output: 3
-Explanation: 
-If Alex sits in the last seat, the closest person is 3 seats away.
-This is the maximum distance possible, so the answer is 3.
-Note:
-
-1 <= seats.length <= 20000
-seats contains only 0s or 1s, at least one 0, and at least one 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxDistToClosest(vector<int>& seats) {
-        if(seats.empty()) return INT_MAX;
-        
-        int N = seats.size();
-        // left[i] indicates the distance to the closest 1 to the left 
-        vector<int> left(N, INT_MAX);
-        for(int i = 0; i < N; i++) {
-            if(seats[i] == 1) left[i] = 0;
-            else if(i > 0 && left[i-1] < INT_MAX) {
-                left[i] = left[i-1] + 1;
-            }
-        }
-        
-        int right = INT_MAX;
-        int res = INT_MIN;
-        /*
-        if there is at least one 1 and 0
-        left[i] will be INT_MAX until the first 1 then some number after it 
-        
-        hence if starting from the back, the number will not be INT_MAX so right
-        will be correctly minimized.
-        */
-        for(int i = N-1; i >= 0; i--) {
-            if(seats[i] == 1) right = 0;
-            else if(right < INT_MAX) right++;
-            
-            res = max(res, min(left[i], right));
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-852. Peak Index in a Mountain Array
-Let's call an array A a mountain if the following properties hold:
-
-A.length >= 3
-There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1]
-Given an array that is definitely a mountain, return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1].
-
-Example 1:
-
-Input: [0,1,0]
-Output: 1
-Example 2:
-
-Input: [0,2,1,0]
-Output: 1
-Note:
-
-3 <= A.length <= 10000
-0 <= A[i] <= 10^6
-A is a mountain, as defined above.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int peakIndexInMountainArray(vector<int>& A) {
-        int low = 0;
-        int high = A.size() - 1;
-        while(low <= high-2) { // at least 3 elements
-            int mid = low + (high-low)/2;
-            if(A[mid-1] < A[mid] && A[mid] > A[mid+1]) {
-                return mid;
-                
-            /* 
-            a number and the next number has only two conditions < and >
-            if < then it is before the peak, so go right
-            if > then it is after the peak, so go left
-            
-            need to include mid in the search as it can be either the left
-            or right boundary to the peak
-            */
-            } if(A[mid-1] < A[mid]) {
-                low = mid; 
-            } else { // A[mid-1] > A[mid]
-                high = mid;
-            }
-        }
-        
-        return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-856. Score of Parentheses
-Given a balanced parentheses string S, compute the score of the string based on the following rule:
-
-() has score 1
-AB has score A + B, where A and B are balanced parentheses strings.
-(A) has score 2 * A, where A is a balanced parentheses string.
- 
-
-Example 1:
-
-Input: "()"
-Output: 1
-Example 2:
-
-Input: "(())"
-Output: 2
-Example 3:
-
-Input: "()()"
-Output: 2
-Example 4:
-
-Input: "(()(()))"
-Output: 6
- 
-
-Note:
-
-S is a balanced parentheses string, containing only ( and ).
-2 <= S.length <= 50
-/*
-    Submission Date: 2018-06-29
-    Runtime: 4 ms
-    Difficulty:MEDIUM 
-*/
-#include <iostream>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    int scoreOfParentheses(string S) {
-        // first is the value or -1 if it is a character '(' 
-        stack<pair<int, char>> stk;
-        for(const auto& e: S) {
-            if(e == '(') {
-                stk.emplace(-1, '(');
-            } else { // e == ')'
-                // S is balanced so keep going back until '(' (ie not value)
-                // add all the numbers in between and multiply by 2
-                int in_between = 0;
-                while(stk.top().first != -1) {
-                    in_between += stk.top().first;
-                    stk.pop();
-                }
-                
-                stk.pop();
-                stk.emplace(max(1, 2*in_between), 'r');
-            }
-        }
-        
-        int res = 0;
-        // since S is balanced then stk must only contain values so add 
-        // up and return value
-        while(!stk.empty()) {
-            res += stk.top().first;
-            stk.pop();
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-859. Buddy Strings
-Given two strings A and B of lowercase letters, return true if and only if we can swap two letters in A so that the result equals B.
-
- 
-
-Example 1:
-
-Input: A = "ab", B = "ba"
-Output: true
-Example 2:
-
-Input: A = "ab", B = "ab"
-Output: false
-Example 3:
-
-Input: A = "aa", B = "aa"
-Output: true
-Example 4:
-
-Input: A = "aaaaaaabc", B = "aaaaaaacb"
-Output: true
-Example 5:
-
-Input: A = "", B = "aa"
-Output: false
-/*
-    Submission Date: 2018-06-24
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    bool buddyStrings(string A, string B) {
-        if(A.size() != B.size()) return false;
-        
-        vector<int> diff;
-        for(int i = 0; i < A.size(); i++) {
-            if(A[i] != B[i]) {
-                diff.push_back(i);
-                if(diff.size() > 2) return false;
-            }
-        }
-        
-        if(diff.size() == 1) return false;
-        if(diff.size() == 0) return unordered_set<char>(A.begin(), A.end()).size() < A.size();
-        return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-860. Lemonade Change
-At a lemonade stand, each lemonade costs $5. 
-
-Customers are standing in a queue to buy from you, and order one at a time 
-(in the order specified by bills).
-
-Each customer will only buy one lemonade and pay with either a $5, $10, or $20 bill.  
-You must provide the correct change to each customer, so that the net transaction is that the customer pays $5.
-
-Note that you don't have any change in hand at first.
-
-Return true if and only if you can provide every customer with correct change.
-
- 
-
-Example 1:
-
-Input: [5,5,5,10,20]
-Output: true
-Explanation: 
-From the first 3 customers, we collect three $5 bills in order.
-From the fourth customer, we collect a $10 bill and give back a $5.
-From the fifth customer, we give a $10 bill and a $5 bill.
-Since all customers got correct change, we output true.
-Example 2:
-
-Input: [5,5,10]
-Output: true
-Example 3:
-
-Input: [10,10]
-Output: false
-Example 4:
-
-Input: [5,5,10,10,20]
-Output: false
-Explanation: 
-From the first two customers in order, we collect two $5 bills.
-For the next two customers in order, we collect a $10 bill and give back a $5 bill.
-For the last customer, we can't give change of $15 back because we only have two $10 bills.
-Since not every customer received correct change, the answer is false.
- 
-
-Note:
-
-0 <= bills.length <= 10000
-bills[i] will be either 5, 10, or 20.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 30 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool lemonadeChange(vector<int>& bills) {
-        // change[0] is number of 5's and change[1] is number of 10's.
-        // 20's will never be given back so no need to count them.
-        vector<int> change(2, 0);
-        for(const auto& e: bills) {
-            if(e == 5) {
-                change[0]++;
-            } else if(e == 10) { // can only give a 5 back
-                if(change[0] == 0) return false;
-                change[0]--;
-                change[1]++;
-            } else { // e == 20 can give back either 5 and 10 or 3 fives
-                if(change[1] > 0 && change[0] > 0) { // try to give back the 10 first as it is less useful
-                    change[1]--;
-                    change[0]--;
-                } else if(change[0] >= 3) {
-                    change[0] -= 3;
-                } else {
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-861. Score After Flipping Matrix
-We have a two dimensional matrix A where each value is 0 or 1.
-
-A move consists of choosing any row or column, and toggling each value in that row or column: 
-changing all 0s to 1s, and all 1s to 0s.
-
-After making any number of moves, every row of this matrix is interpreted as a binary number, 
-and the score of the matrix is the sum of these numbers.
-
-Return the highest possible score.
-
- 
-
-Example 1:
-
-Input: [[0,0,1,1],[1,0,1,0],[1,1,0,0]]
-Output: 39
-Explanation:
-Toggled to [[1,1,1,1],[1,0,0,1],[1,1,1,1]].
-0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
- 
-
-Note:
-
-1 <= A.length <= 20
-1 <= A[0].length <= 20
-A[i][j] is 0 or 1.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 5 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void FlipRow(vector<vector<int>>& A, int row, int M) {
-        for(int j = 0; j < M; j++) A[row][j] ^= 1;
-    }
-    
-    void FlipCol(vector<vector<int>>& A, int col, int N) {
-        for(int i = 0; i < N; i++) A[i][col] ^= 1;
-    }
-    
-    /*
-    First get all the the elements in A[i][0] to be 1 by toggling rows
-    this is because having a 1 in the left most column gives the greatest value 1000 > 0111
-    Then for each column, flip the column if it gives a greater amount of 1's in that column
-    */
-    int matrixScore(vector<vector<int>>& A) {
-        if(A.empty()) return 0;
-        int N = A.size(), M = A[0].size();
-        for(int i = 0; i < N; i++) {
-            if(A[i][0] == 0) {
-                FlipRow(A, i, M);
-            }
-        }
-        
-        for(int j = 0; j < M; j++) {
-            int one_count = 0;
-            for(int i = 0; i < N; i++) one_count += A[i][j] == 1;
-            if(one_count < N - one_count) {
-                FlipCol(A, j, N);
-            }
-        }
-        
-        int res = 0;
-        for(int i = 0; i < N; i++) {
-            int temp = 0;
-            for(int j = 0; j < M; j++) {
-                temp |= A[i][j];
-                temp <<= 1;
-            }
-            res += temp >> 1;
-        }
-        return res;
     }
 };
 

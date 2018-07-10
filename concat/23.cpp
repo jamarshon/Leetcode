@@ -1,6 +1,183 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+498. Diagonal Traverse
+Given a matrix of M x N elements (M rows, N columns), return all elements of the 
+
+
+Example:
+Input:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+Output:  [1,2,4,7,5,3,6,8,9]
+Explanation:
+
+
+
+
+Note:
+
+The total number of elements of the given matrix will not exceed 10,000.
+/*
+    Submission Date: 2018-07-09
+    Runtime: 52 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    all numbers in a diagonal indices add up to the same number (e.g i + j == x)
+    the max is N-1 + M-1 = N - M - 2
+    so for x = [0, N - M - 2], start from the top row go down i = [0, N) and see if
+    x - i produces a j that is within the bounds [0, M).
+    0 <= x - i < M means 
+    x - M < i && i <= x
+    0 <= i && i < N
+    
+    i > max(-1, x - M)
+    i < min(N, x + 1)
+    
+    This creates all the diagonals going down.
+    reverse the even diagonals and return
+    */
+    vector<int> findDiagonalOrder(vector<vector<int>>& matrix) {
+        if(matrix.empty()) return {};
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        vector<int> res;
+        
+        for(int x = 0; x < N + M - 1; x++) {
+            int sz = res.size();
+            for(int i = max(0, x - M + 1); i < min(N, x + 1); i++) {
+                res.push_back(matrix[i][x-i]); 
+            }
+            if(x % 2 == 0) reverse(res.begin() + sz, res.end());
+        }
+        
+        return res;
+    }
+};
+
+class Solution2 {
+    int d[2][2] = {{-1, 1}, {1,-1}};
+    bool up = true;
+public:
+    /*
+    toggle between going up and down when hit out of bounds
+    to find the new coordinate
+        if going up: 
+            if hits the right boundary then can't keep going right so go down
+            else keep going right
+        if going down:
+            if hits the bottom boundary then can't keep going down so go right
+            else keep going down
+    */
+    vector<int> findDiagonalOrder(vector<vector<int>>& matrix) {
+        if(matrix.empty()) return {};
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        vector<int> res;
+        int x = 0, y = 0;
+        for(int i = 0; i < N*M; i++) {
+            res.push_back(matrix[y][x]);
+            int new_x = x + d[up][0];
+            int new_y = y + d[up][1];
+            if(0 <= new_x && new_x < M && 0 <= new_y && new_y < N) {
+                x = new_x;
+                y = new_y;
+            } else {
+                if(up) {
+                    if(new_x == M) y++;
+                    else x++;
+                } else {
+                    if(new_y == N) x++;
+                    else y++;
+                }
+                up ^= 1;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+500. Keyboard Row
+Given a List of words, return the words that can be typed using letters of alphabet on only one row's of American keyboard like the image below.
+
+
+American keyboard
+
+
+Example 1:
+Input: ["Hello", "Alaska", "Dad", "Peace"]
+Output: ["Alaska", "Dad"]
+Note:
+You may use one character in the keyboard more than once.
+You may assume the input string will only contain letters of alphabet.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    // Have a map of character to row. Loop through each string and check if all the characters come from the same row.
+    vector<string> findWords(vector<string>& words) {
+        vector<string> v{"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+        unordered_map<char, int> m;
+
+        for(int i = 0; i < v.size(); i++) {
+            for(const auto& c: v[i]) m[c] = i;
+        }
+
+        vector<string> res;
+        for(const auto& s: words) {
+            int ind = -1;
+            bool can_add = true;
+            for(const auto& c: s) {
+                if(ind == -1) ind = m[tolower(c)];
+                if(m[tolower(c)] != ind) {
+                    can_add = false;
+                    break;
+                }
+            }
+
+            if(can_add) res.push_back(s);
+        }
+
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 501. Find Mode in Binary Search Tree
 Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
 
@@ -83,6 +260,109 @@ public:
 int main() {
     return 0;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+503. Next Greater Element II
+Given a circular array (the next element of the last element is the first 
+element of the array), print the Next Greater Number for every element. The Next 
+Greater Number of a number x is the first greater number to its traversing-order 
+next in the array, which means you could search circularly to find its next 
+
+
+Example 1:
+Input: [1,2,1]
+Output: [2,-1,2]
+Explanation: The first 1's next greater number is 2; The number 2 can't find 
+next greater number; The second 1's next greater number needs to search 
+
+
+
+Note:
+The length of given array won't exceed 10000.
+/*
+    Submission Date: 2018-07-08
+    Runtime: 68 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <list>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+     stack is in decreasing order, it represents an index which has
+     not met an element greater than it. for all the elements that
+     are smaller than the current element, make res[element] = current element
+     then put current element in the stack
+     
+     if we ensure that the stack only has elements from 0 < N and traverse
+     the array twice then after the first traversal, there will be a stack
+     of elements that have nothing greater than it from [i, N) and in the 
+     second traversal it will try to find [0, i)
+    */
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> res(N, -1);
+        stack<int> stk;
+        for(int i = 0; i < 2 * N; i++) {
+            while(!stk.empty() && nums[stk.top()] < nums[i % N]) {
+                res[stk.top()] = nums[i % N];
+                stk.pop();
+            }
+            
+            if(i < N) stk.push(i);
+        }
+        
+        return res;
+    }
+};
+
+class Solution2 {
+public:
+    /*
+    maintian a stack of increasing numbers similar to before but
+    first prepopulate the stack by running through the array once
+    then run through the array again, and if the back element in the 
+    stack is equal to the current element then remove it from the stk
+    to preserve wraparound that does not exceed index i
+    */
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int N = nums.size();
+        list<int> stk;
+        for(int i = N-1; i >= 0; i--) {
+            while(!stk.empty() && stk.front() <= nums[i]) {
+                stk.pop_front();
+            }
+            stk.push_front(nums[i]);
+        }
+        
+        vector<int> res(N, -1);
+        for(int i = N-1; i >= 0; i--) {
+            if(!stk.empty() && stk.back() == nums[i]) {
+                stk.pop_back();
+            }
+            
+            while(!stk.empty() && stk.front() <= nums[i]) {
+                stk.pop_front();
+            }
+            
+            if(!stk.empty()) {
+                res[i] = stk.front();
+            }
+            stk.push_front(nums[i]);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 504. Base 7
@@ -714,277 +994,6 @@ public:
         }
         
         return board;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-530. Minimum Absolute Difference in BST
-Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
-
-Example:
-
-Input:
-
-   1
-    \
-     3
-    /
-   2
-
-Output:
-1
-
-Explanation:
-The minimum absolute difference is 1, which is the difference between 2 and 1 (or between 2 and 3).
-Note: There are at least two nodes in this BST.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-public:
-    /*
-    help called on node returns the smallest and largest value with node as the root
-    this means for a node, it is help(root->left)'s smallest value and help(root->right)'s largest value
-    if they exist else it is just the node
-    
-    the minimum difference is this node minus largest value in the left subtree or smallest value in right subtree 
-    minus this node
-    */
-    vector<int> help(TreeNode* root, int& res) {
-        if(root == NULL) return {};
-        vector<int> left = help(root->left, res);
-        vector<int> right = help(root->right, res);
-        
-        int min_left = left.empty() ? root->val : left[0];
-        int max_right = right.empty() ? root->val : right[1];
-        
-        if(!left.empty()) res = min(res, root->val - left[1]);
-        if(!right.empty()) res = min(res, right[0] - root->val);
-        
-        return {min_left, max_right};
-    }
-    
-    int getMinimumDifference(TreeNode* root) {
-        int res = INT_MAX;
-        help(root, res);
-        return res;
-    }
-};
-
-class Solution {
-public:
-    /*
-    inorder traversal keeping tracking of prev
-    */
-    void help(TreeNode* root, int& res, int& prev) {
-        if(root == NULL) return;
-        help(root->left, res, prev);
-        if(prev != INT_MAX) {
-            res = min(res, root->val - prev);
-        }
-        
-        prev = root->val;
-        help(root->right, res, prev);
-    }
-    
-    int getMinimumDifference(TreeNode* root) {
-        int res = INT_MAX, prev = INT_MAX;
-        help(root, res, prev);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-532. K-diff Pairs in an Array
-Given an array of integers and an integer k, you need to find the number of unique k-diff pairs in the array. 
-Here a k-diff pair is defined as an integer pair (i, j), where i and j are both numbers in the array and their absolute difference is k.
-
-Example 1:
-Input: [3, 1, 4, 1, 5], k = 2
-Output: 2
-Explanation: There are two 2-diff pairs in the array, (1, 3) and (3, 5).
-Although we have two 1s in the input, we should only return the number of unique pairs.
-Example 2:
-Input:[1, 2, 3, 4, 5], k = 1
-Output: 4
-Explanation: There are four 1-diff pairs in the array, (1, 2), (2, 3), (3, 4) and (4, 5).
-Example 3:
-Input: [1, 3, 1, 5, 4], k = 0
-Output: 1
-Explanation: There is one 0-diff pair in the array, (1, 1).
-Note:
-The pairs (i, j) and (j, i) count as the same pair.
-The length of the array won't exceed 10,000.
-All the integers in the given input belong to the range: [-1e7, 1e7].
-/*
-    Submission Date: 2018-06-24
-    Runtime: 43 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    int findPairs(vector<int>& nums, int k) {
-        if(k < 0) return 0;
-        int res = 0;
-        unordered_set<int> st;
-        unordered_set<int> counted;
-        for(const auto& e: nums) {
-            if(st.count(e)) { counted.insert(e); continue; }
-            res += st.count(e + k);
-            res += st.count(e - k);
-            st.insert(e);
-        }
-        
-        return k == 0 ? counted.size() : res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-535. Encode and Decode TinyURL
-TinyURL is a URL shortening service where you enter a URL such as 
-https://leetcode.com/problems/design-tinyurl and it returns a short URL such as http://tinyurl.com/4e9iAk.
-
-Design the encode and decode methods for the TinyURL service. There is no restriction on how 
-your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to 
-a tiny URL and the tiny URL can be decoded to the original URL.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 7 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-/*
-A vector and return the encoded as an index to retrieve the original string
-The encode called upon the same string should not return the same encoded string
-as it would have collision problems so usually a randomizer and a storage of encoded
-to original is needed.
-*/
-class Solution {
-public:
-    vector<string> m;
-    // Encodes a URL to a shortened URL.
-    string encode(string longUrl) {
-        m.push_back(longUrl);
-        return to_string(m.size());
-    }
-
-    // Decodes a shortened URL to its original URL.
-    string decode(string shortUrl) {
-        return m[stoi(shortUrl)-1];
-    }
-};
-
-// Your Solution object will be instantiated and called as such:
-// Solution solution;
-// solution.decode(solution.encode(url));
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-536. Construct Binary Tree from String
-You need to construct a binary tree from a string consisting of parenthesis and integers.
-
-The whole input represents a binary tree. It contains an integer followed by zero, 
-one or two pairs of parenthesis. The integer represents the root's value and a pair 
-of parenthesis contains a child binary tree with the same structure.
-
-You always start to construct the left child node of the parent first if it exists.
-
-Example:
-Input: "4(2(3)(1))(6(5))"
-Output: return the tree root node representing the following tree:
-
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-Note:
-There will only be '(', ')', '-' and '0' ~ '9' in the input string.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
     }
 };
 

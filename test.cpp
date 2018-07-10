@@ -62,6 +62,19 @@ bool isprime(int x) {
 }
 
 int main() {
+    int N = 3;
+    int M = 3;
+    for(int x = 0; x < N + M - 1; x++) {
+        for(int i = max(0, x - M + 1); i < min(N, x + 1); i++) {
+            cout << i << ' ' << x - i << endl;
+        }
+        cout << endl;
+        for(int i = 0; i < N; i++) {
+            int j = x - i;
+            if(0 <= j && j < M) cout << i << ' ' << j << endl;
+        }
+        cout << "end" << endl;
+    }
     return 0;
 }
 

@@ -1,6 +1,291 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+563. Binary Tree Tilt
+Given a binary tree, return the tilt of the whole tree.
+
+The tilt of a tree node is defined as the absolute difference between the sum of all left subtree node values and 
+the sum of all right subtree node values. Null node has tilt 0.
+
+The tilt of the whole tree is defined as the sum of all nodes' tilt.
+
+Example:
+Input: 
+         1
+       /   \
+      2     3
+Output: 1
+Explanation: 
+Tilt of node 2 : 0
+Tilt of node 3 : 0
+Tilt of node 1 : |2-3| = 1
+Tilt of binary tree : 0 + 0 + 1 = 1
+Note:
+
+The sum of node values in any subtree won't exceed the range of 32-bit integer.
+All the tilt values won't exceed the range of 32-bit integer.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    returns the sum of subtree with node as root
+    */
+    int help(TreeNode* node, int& res) {
+        if(node == NULL) return 0;
+        int left = help(node->left, res);
+        int right = help(node->right, res);
+        res += abs(left - right);
+        return node->val + left + right;
+    }
+    
+    int findTilt(TreeNode* root) {
+        int res = 0;
+        help(root, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+565. Array Nesting
+A zero-indexed array A consisting of N different integers is given. The array contains 
+all integers in the range [0, N - 1].
+
+Sets S[K] for 0 <= K < N are defined as follows:
+
+S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+
+Sets S[K] are finite for each K and should NOT contain duplicates.
+
+Write a function that given an array A consisting of N integers, return the size of 
+the largest set S[K] for this array.
+
+Example 1:
+Input: A = [5,4,0,3,1,6,2]
+Output: 4
+Explanation: 
+A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
+
+One of the longest S[K]:
+S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
+Note:
+N is an integer within the range [1, 20,000].
+The elements of A are all distinct.
+Each element of array A is an integer within the range [0, N-1].
+/*
+    Submission Date: 2017-05-29
+    Runtime: 36 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int arrayNesting(vector<int>& nums) {
+        int N = nums.size();
+        vector<bool> mask(N, true);
+        int max_set = 0;
+        for(int i = 0; i < N; i++) {
+            if(mask[i]) { // hasn't been processed
+                int current = i;
+                int current_set = 0;
+                while(true) {
+                    if(current >= N || !mask[current]) break;
+                    mask[current] = false;
+                    current = nums[current];
+                    current_set++;
+                }
+                max_set = max(current_set, max_set);
+            }
+        }
+        return max_set;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+566. Reshape the Matrix
+In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
+
+You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
+the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example 1:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+Output: 
+[[1,2,3,4]]
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+Example 2:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 2, c = 4
+Output: 
+[[1,2],
+ [3,4]]
+Explanation:
+There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
+Note:
+The height and width of the given matrix is in range [1, 100].
+The given r and c are all positive.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+        if(nums.empty()) return {};
+        int N = nums.size();
+        int M = nums[0].size();
+        
+        // cannot gain or lose elements
+        if(N*M != r*c) return nums;
+        
+        vector<vector<int>> res(r, vector<int>(c));
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < r; i++) {
+            for(int j = 0; j < c; j++) {
+                res[i][j] = nums[y][x];
+                x++;
+                if(x == M) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+567. Permutation in String
+Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
+one of the first string's permutations is the substring of the second string.
+Example 1:
+Input:s1 = "ab" s2 = "eidbaooo"
+Output:True
+Explanation: s2 contains one permutation of s1 ("ba").
+Example 2:
+Input:s1= "ab" s2 = "eidboaoo"
+Output: False
+Note:
+The input strings only contain lower case letters.
+The length of both given strings is in range [1, 10,000].
+/*
+    Submission Date: 2018-06-02
+    Runtime: 18 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    frequency map of s1 with variable to_use as global to check if everything equals 0
+    use sliding window where everything in a window is a valid character and does not 
+    exceed the frequency map limit for certain character
+    for a new character, if it exceeds the limit or its not a valid character than keep
+    moving front (restoring freq map). if it is not a valid character, the map will be
+    restored and to_do = original
+    Check if character is valid, if it is use it else move front so that it is not
+    included
+    */
+    bool checkInclusion(string s1, string s2) {
+        vector<int> freq(26 , 0);
+        unordered_set<char> letters(s1.begin(), s1.end());
+        for(const auto& c: s1) freq[c - 'a']++;
+        
+        int front = 0;
+        int back = 0;
+        
+        int N = s2.size();
+        int to_use = s1.size();
+        
+        while(back < N) {
+            if(to_use == 0) return true;
+            // slide the front until the letter is removed
+            int back_val = s2[back] - 'a';
+            while(front < back && freq[back_val] == 0) {
+                freq[s2[front] - 'a']++;
+                front++;
+                to_use++;
+            }
+            
+            /* if the back letter is in s1, decrease the frequency and to_use
+                else it means front == back as freq[s2[back]] == 0 so increase front 
+                to not include this letter
+            */
+            if(letters.count(s2[back])) {
+                freq[back_val]--;
+                to_use--;
+            } else {
+                front++;
+            }
+            
+            back++;
+        }
+        
+        return to_use == 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 572. Subtree of Another Tree
 Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
 with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
@@ -444,57 +729,6 @@ int main() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double eucl_sq(vector<int>& p1, vector<int>& p2) {
-        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-    }
-
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        // distance squared
-        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
-
-        sort(dist.begin(), dist.end());
-
-        // should result in 4 equal length sides and two longer sides that are the diagonals 
-        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-        bool non_zero_sides = dist[0] > 0;
-
-        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
-        return equal_sides && non_zero_sides && correct_diagonals;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
 Given the coordinates of four points in 2D space, return whether the 
 four points could construct a square.
 
@@ -555,6 +789,57 @@ public:
 
 int main() {
     Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double eucl_sq(vector<int>& p1, vector<int>& p2) {
+        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
+    }
+
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        // distance squared
+        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
+
+        sort(dist.begin(), dist.end());
+
+        // should result in 4 equal length sides and two longer sides that are the diagonals 
+        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
+        bool non_zero_sides = dist[0] > 0;
+
+        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
+        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
+        return equal_sides && non_zero_sides && correct_diagonals;
+    }
+};
+
+int main() {
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -679,313 +964,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
-favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index sum. If there 
-is a choice tie between answers, output all of them with no order requirement. You could assume 
-there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is "Shogun" with 
-index sum 1 (0+1).
-Note:
-The length of both lists will be in the range of [1, 1000].
-The length of strings in both lists will be in the range of [1, 30].
-The index is starting from 0 to the list length minus 1.
-No duplicates in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-        unordered_map<string, int> m;
-        for(int i = 0; i < list1.size(); i++) {
-            m[list1[i]] = i;
-        }
-        
-        vector<string> res;
-        int min_index_sum = -1;
-        for(int i = 0; i < list2.size(); i++) {
-            string s2 = list2[i];
-            if(m.count(s2)) {
-                int new_sum = i + m[s2];
-                if(min_index_sum == -1) {
-                    min_index_sum = new_sum;
-                    res.push_back(s2);
-                    continue;
-                }
-                
-                if(new_sum == min_index_sum) {
-                    res.push_back(s2);
-                } else if(new_sum < min_index_sum) {
-                    min_index_sum = new_sum;
-                    res.clear();
-                    res.push_back(s2);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<string> v1{"Shogun","Tapioca Express","Burger King","KFC"};
-    vector<string> v2{"Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"};
-    vector<string> t = s.findRestaurant(v1, v2);
-    cout << t.size() << endl;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator. 
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed 
-by a positive integer representing the number of this letter existing in 
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return 
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-
-using namespace std;
-
-class StringIterator {
-vector<pair<char, long long>> v_;
-int index_;
-public:
-    StringIterator(string compressedString) {
-        index_ = 0;
-        int len = compressedString.size();
-        int i = 0;
-        while(i < len) {
-            char c = compressedString[i];
-            i++;
-            string rep = "";
-            while(i < len && isdigit(compressedString[i])) {
-                rep += compressedString[i];
-                i++;
-            }
-            
-            long long times = stoll(rep);
-            // cout << c << ' ' << times << endl;
-            v_.emplace_back(c, times);
-        }
-    }
-    
-    char next() {
-        if(!hasNext()) return ' ';
-        pair<char, long long>& p = v_[index_];
-        p.second--;
-        if(p.second == 0) index_++;
-        return p.first;
-    }
-    
-    bool hasNext() {
-        return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-606. Construct String from Binary Tree
-You need to construct a string consists of parenthesis and integers from a 
-binary tree with the preorder traversing way.
-
-The null node needs to be represented by empty parenthesis pair "()". And you 
-need to omit all the empty parenthesis pairs that don't affect the one-to-one 
-mapping relationship between the string and the original binary tree.
-
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
-
-Output: "1(2(4))(3)"
-
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
-
-Output: "1(2()(4))(3)"
-
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one 
-mapping relationship between the input and the output.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string tree2str(TreeNode* t) {
-        if(t == NULL) return "";
-        string root = to_string(t -> val);
-        string left = tree2str(t -> left);
-        string right = tree2str(t -> right);
-        
-        if(left.empty() && right.empty())
-            return root;
-        if(!left.empty() && right.empty())
-            return root + "(" + left + ")";
-        
-        return root + "(" + left + ")" + "(" + right + ")";
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

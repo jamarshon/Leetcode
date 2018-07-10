@@ -1,6 +1,224 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+672. Bulb Switcher II
+There is a room with n lights which are turned on initially and 4 buttons on the 
+wall. After performing exactly m unknown operations towards buttons, you need to 
+
+
+
+Suppose n lights are labeled as number [1, 2, 3 ..., n], function of these 4 
+
+
+Flip all the lights.
+Flip lights with even numbers.
+Flip lights with odd numbers.
+Flip lights with (3k + 1) numbers, k = 0, 1, 2, ...
+
+
+
+
+Example 1:
+Input: n = 1, m = 1.
+Output: 2
+Explanation: Status can be: [on], [off]
+
+
+
+
+Example 2:
+Input: n = 2, m = 1.
+Output: 3
+Explanation: Status can be: [on, off], [off, on], [off, off]
+
+
+
+
+Example 3:
+Input: n = 3, m = 1.
+Output: 4
+Explanation: Status can be: [off, on, off], [on, off, on], [off, off, off], 
+
+
+
+Note:
+n and m both fit in range [0, 1000].
+/*
+    Submission Date: 2018-07-07
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    8 states:
+    All_on, 1, 2, 3, 4, 1+4, 2+4, 3+4
+    
+    m == 0: All_on (no possible moves) => 1
+    m > 0:
+        n == 1: All_on (3 apply odd which doesnt affect anything) or 1 => 2
+        n == 2:
+            m == 1: 1, 2, 3 => 3
+            m >= 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2) => 4
+        n >= 3:
+            m == 1: 1, 2, 3, 4 => 4
+            m == 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2), 1+4, 2+4, 3+4 => 7
+            m > 2: All_on (1 2 3), 1 (1 1 1), 2 (1 1 2), 3 (1 1 2), 4 (1 1 4), 
+                    1+4 (2 3 4), 2+4 (1 3 4), 3+4 (1 2 4) => 8
+        
+    */
+    int flipLights(int n, int m) {
+        if(m == 0) return 1;
+        if(n == 1) return 2;
+        if(n == 2) {
+            if(m == 1) return 3;
+            return 4;
+        } else {
+            if(m == 1) return 4;
+            if(m == 2) return 7;
+            return 8;
+        }
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+674. Longest Continuous Increasing Subsequence
+Given an unsorted array of integers, find the length of longest continuous increasing subsequence (subarray).
+
+Example 1:
+Input: [1,3,5,4,7]
+Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
+Even though [1,3,5,7] is also an increasing subsequence, it's not a continuous one where 5 and 7 are separated by 4. 
+Example 2:
+Input: [2,2,2,2,2]
+Output: 1
+Explanation: The longest continuous increasing subsequence is [2], its length is 1. 
+Note: Length of the array will not exceed 10,000.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 14 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        
+        int res = 1;
+        int pos_res = 1;
+        for(int i = 1; i < nums.size(); i++) {
+            if(nums[i] > nums[i-1]) {
+                pos_res++;
+            } else {
+                pos_res = 1;
+            }
+            res = max(res, pos_res);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+676. Implement Magic Dictionary
+
+Implement a magic directory with buildDict, and search methods.
+
+For the method buildDict, you'll be given a list of non-repetitive words to build a dictionary.
+
+For the method search, you'll be given a word, and judge whether if you modify exactly one character into another 
+character in this word, the modified word is in the dictionary you just built.
+
+Example 1:
+Input: buildDict(["hello", "leetcode"]), Output: Null
+Input: search("hello"), Output: False
+Input: search("hhllo"), Output: True
+Input: search("hell"), Output: False
+Input: search("leetcoded"), Output: False
+Note:
+You may assume that all the inputs are consist of lowercase letters a-z.
+For contest purpose, the test data is rather small by now. You could think about highly efficient algorithm after the contest.
+Please remember to RESET your class variables declared in class MagicDictionary, as static/class variables are persisted 
+across multiple test cases. Please see here for more details.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class MagicDictionary {
+public:
+    /** Initialize your data structure here. */
+    unordered_map<string, vector<pair<char, int>>> m_;
+    MagicDictionary() {
+        
+    }
+    
+    /** Build a dictionary through a list of words */
+    void buildDict(vector<string> dict) {
+        /*
+            N words of size K O(Nk^2)
+            hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]], [hell, [o, 4]]
+        */
+        m_.clear();
+        for(const auto& s: dict) {
+            for(int i = 0; i < s.size(); i++) {
+                m_[s.substr(0, i) + s.substr(i+1)].emplace_back(s[i], i);
+            }
+        }
+        
+    }
+    
+    /** Returns if there is any word in the trie that equals to the given word after modifying exactly one character */
+    bool search(string s) {
+        // O(k^2*M) where M is size of vector for a key in m_
+        for(int i = 0; i < s.size(); i++) {
+            const auto& key = s.substr(0,i) + s.substr(i+1);
+            if(!m_.count(key)) continue;
+            for(const auto& p: m_[key]) {
+                // looking for same index different letter
+                if(p.second == i && p.first != s[i]) return true;
+            }
+        }
+        return false;
+    }
+};
+
+/**
+ * Your MagicDictionary object will be instantiated and called as such:
+ * MagicDictionary obj = new MagicDictionary();
+ * obj.buildDict(dict);
+ * bool param_2 = obj.search(word);
+ */
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 677. Map Sum Pairs
 Implement a MapSum class with insert, and sum methods.
 
@@ -737,203 +955,6 @@ public:
         return res;
     }
 };
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-697. Degree of an Array
-Given a non-empty array of non-negative integers nums, the degree of this array is defined as the maximum frequency of any one of its elements.
-
-Your task is to find the smallest possible length of a (contiguous) subarray of nums, that has the same degree as nums.
-
-Example 1:
-Input: [1, 2, 2, 3, 1]
-Output: 2
-Explanation: 
-The input array has a degree of 2 because both elements 1 and 2 appear twice.
-Of the subarrays that have the same degree:
-[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
-The shortest length is 2. So return 2.
-Example 2:
-Input: [1,2,2,3,1,4,2]
-Output: 6
-Note:
-
-nums.length will be between 1 and 50,000.
-nums[i] will be an integer between 0 and 49,999.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 59 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        Find the maximum frequency, loop through and if the number occurs as many times as max frequency
-        then store the first seen and last seen index.
-        Loop through the first seen and last seen indicies to find the shortest one.
-    */
-    int findShortestSubArray(vector<int>& nums) {
-        unordered_map<int,int> val_to_freq;
-        int max_freq = 0;
-        for(const auto& n: nums) {
-            val_to_freq[n]++;
-            max_freq = max(max_freq, val_to_freq[n]);
-        }
-        
-        unordered_map<int, pair<int, int>> val_to_seen_boundaries;
-        for(int i = 0; i < nums.size(); i++) {
-            if(val_to_freq[nums[i]] != max_freq) continue;
-            if(!val_to_seen_boundaries.count(nums[i])) val_to_seen_boundaries[nums[i]] = {i, i};
-            val_to_seen_boundaries[nums[i]].second = i;
-        }
-        
-        int res = INT_MAX;
-        for(const auto& kv: val_to_seen_boundaries) res = min(res, kv.second.second - kv.second.first);
-        return res + 1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-712. Minimum ASCII Delete Sum for Two Strings
-Given two strings s1, s2, find the lowest ASCII sum of deleted characters to make two strings equal.
-
-Example 1:
-Input: s1 = "sea", s2 = "eat"
-Output: 231
-Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the sum.
-Deleting "t" from "eat" adds 116 to the sum.
-At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum possible to achieve this.
-Example 2:
-Input: s1 = "delete", s2 = "leet"
-Output: 403
-Explanation: Deleting "dee" from "delete" to turn the string into "let",
-adds 100[d]+101[e]+101[e] to the sum.  Deleting "e" from "leet" adds 101[e] to the sum.
-At the end, both strings are equal to "let", and the answer is 100+101+101+101 = 403.
-If instead we turned both strings into "lee" or "eet", we would get answers of 433 or 417, which are higher.
-Note:
-
-0 < s1.length, s2.length <= 1000.
-All elements of each string will have an ASCII value in [97, 122].
-/*
-    Submission Date: 2018-07-01
-    Runtime: 15 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    dp[i][j] is minimum cost for s1[0, i) s2[0, j)
-    dp[0][0] = 0
-    dp[0][j] = s2[j-1] + dp[i][j-1] // sum of ascii of s2[0, j)
-    dp[i][0] = s1[i-1] + dp[i-1][j] // sum of ascii of s1[0, i)
-    
-    if s1[i-1] == s2[j-1] 
-        dp[i][j] = dp[i-1][j-1] // this character does not to be deleted so
-                                // it is just excluding the two end characters
-    else
-        dp[i][j] = min(
-            s1[i-1] + dp[i-1][j], // the cost of the end character of s1 + cost of not using that character
-            s2[j-1] + dp[i][j-1] // cost of the end character of s2 + cost of not using that character
-        )
-    */
-    int minimumDeleteSum(string s1, string s2) {
-        int N = s1.size(), M = s2.size();
-        int dp[N+1][M+1];
-        for(int i = 0; i <= N; i++) {
-            for(int j = 0; j <= M; j++) {
-                if(i == 0 && j == 0) {
-                    dp[i][j] = 0;
-                } else if(i == 0) {
-                    dp[i][j] = s2[j-1] + dp[i][j-1];
-                } else if(j == 0) {
-                    dp[i][j] = s1[i-1] + dp[i-1][j];
-                } else if(s1[i-1] == s2[j-1]) {
-                    dp[i][j] = dp[i-1][j-1];
-                } else {
-                    dp[i][j] = min(s1[i-1] + dp[i-1][j], s2[j-1] + dp[i][j-1]);
-                }
-            }
-        }
-        
-        return dp[N][M];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-717. 1-bit and 2-bit Characters
-We have two special characters. The first character can be represented by one bit 0. The second character can be represented by 
-two bits (10 or 11).
-
-Now given a string represented by several bits. Return whether the last character must be a one-bit character or not. The given 
-string will always end with a zero.
-
-Example 1:
-Input: 
-bits = [1, 0, 0]
-Output: True
-Explanation: 
-The only way to decode it is two-bit character and one-bit character. So the last character is one-bit character.
-Example 2:
-Input: 
-bits = [1, 1, 1, 0]
-Output: False
-Explanation: 
-The only way to decode it is two-bit character and two-bit character. So the last character is NOT one-bit character.
-Note:
-
-1 <= len(bits) <= 1000.
-bits[i] is always 0 or 1.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 7 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isOneBitCharacter(vector<int>& bits) {
-        int N = bits.size();
-        vector<bool> dp(N, false);
-        dp[N-1] = true;
-
-        for(int i = N-2; i >= 0; i--) {
-            if(bits[i] == 0) {
-                dp[i] = dp[i+1];
-            } else {
-                if(i + 2 < N) dp[i] = dp[i+2];
-            }
-        }
-
-        return dp[0];
-    }
-};
-
 
 int main() {
     return 0;

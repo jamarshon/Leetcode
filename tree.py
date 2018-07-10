@@ -39,11 +39,20 @@ def drawtree(root):
     t = turtle.Turtle()
     t.speed(0); turtle.delay(0)
     h = height(root)
+    t.hideturtle()
     jumpto(0, 30*h)
     draw(root, 0, 30*h, 40*h)
-    t.hideturtle()
-    turtle.mainloop()
-    
+    turtle.exitonclick()
+
 if __name__ == '__main__':
     # drawtree(deserialize('[1,2,3,null,null,4,null,null,5]'))
-    drawtree(deserialize('[2,1,3,0,7,9,1,2,null,1,0,null,null,8,8,null,null,null,null,7]'))
+    while True:
+        s = raw_input('s:')
+        if s == 'x': break
+        print s
+        if s[0] == 'c':
+            t = {'[': '{', ']': '}'}
+            print ''.join([t[c] if c in t else c for c in s][1:])
+        else:
+            drawtree(deserialize(s))
+            turtle.TurtleScreen._RUNNING = True

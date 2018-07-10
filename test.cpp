@@ -30,51 +30,86 @@ struct Compare {
     bool operator()(const int& left, const int& right) const { return left < right; }
 };
 
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
 
-double my_root(int x, double epsilon=1e-9) {
-    if(x < 0) return -1;
-    double xn = 0;
-    double xn_plus_1 = x;
-    while(abs(xn - xn_plus_1) >= epsilon) {
-        xn = xn_plus_1;
-        xn_plus_1 = (xn + x/xn)/2.0;
-    } 
-
-    return xn_plus_1;
-}
-
-void isqrt(int x){
-    int xn = 0;
-    int xn_plus_1 = x;
-    while(abs(xn - xn_plus_1) > 1) {
-        xn = xn_plus_1;
-        xn_plus_1 = (xn + x/xn)/2;
-    } 
-
-}
-
-bool isprime(int x) {
-    if(x < 2) return false;
-    for(int i = 2; i <= sqrt(x); i++) {
-        if(x % i == 0) return false;
+void preorder(TreeNode* root) {
+    if(root == NULL) {
+        cout << "NULL ";
+        return;
     }
-    return true;
+    cout << root -> val << ' ';
+    preorder(root -> left);
+    preorder(root -> right);
 }
+
+// level order
+string serialize(TreeNode* node){
+    queue<TreeNode*> q;
+    q.push(node);
+    string res = "";
+    while(!q.empty()) {
+        TreeNode* curr = q.front();
+        q.pop();
+        if(!res.empty()) res += ",";
+        res += curr == NULL ? "null" : to_string(curr->val);
+        if(curr) {
+            q.push(curr->left);
+            q.push(curr->right);
+        }
+    }
+    return res;
+}
+
+TreeNode* deserialize(string s) {
+    if(s.front() == '[' && s.back() == ']') s = s.substr(1, s.size() - 2);
+    stringstream ss(s);
+    string temp;
+
+    vector<TreeNode*> nodes;
+    while(getline(ss, temp, ',')) {
+        if(temp == "null") nodes.push_back(NULL);
+        else nodes.push_back(new TreeNode(stoi(temp)));
+    }
+
+    TreeNode* root = nodes[0];
+    int N = nodes.size();
+    int curr = 0;
+    for(int i = 1;  i < N; i += 2) {
+        while(curr < N && nodes[curr] == NULL) curr++;
+        nodes[curr]->left = nodes[i];
+        if(i + 1 < N) nodes[curr]->right = nodes[i+1];
+        curr++;
+    }
+    return root;
+}
+
+void fix(string arr) {
+    replace(arr.begin(), arr.end(), '[', '{');
+    replace(arr.begin(), arr.end(), ']', '}');
+    cout << arr << endl;
+}
+
+template <typename T>
+void print(vector<T> v) { for(auto e: v) cout << e << ' '; cout << endl; }
+
+template <typename T> 
+void print2(vector<vector<T>> v) { for(auto v2: v) print(v2); }
+
+/*
+void preorder(TreeNode* root)
+string serialize(TreeNode* node)
+TreeNode* deserialize(string s)
+void fix(string arr)
+void print(vector<T> v)
+void print2(vector<vector<T>> v)
+*/
 
 int main() {
-    int N = 3;
-    int M = 3;
-    for(int x = 0; x < N + M - 1; x++) {
-        for(int i = max(0, x - M + 1); i < min(N, x + 1); i++) {
-            cout << i << ' ' << x - i << endl;
-        }
-        cout << endl;
-        for(int i = 0; i < N; i++) {
-            int j = x - i;
-            if(0 <= j && j < M) cout << i << ' ' << j << endl;
-        }
-        cout << "end" << endl;
-    }
     return 0;
 }
 

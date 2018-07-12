@@ -1,6 +1,445 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+513. Find Bottom Left Tree Value
+Given a binary tree, find the leftmost value in the last row of the tree.
+
+Example 1:
+Input:
+
+    2
+   / \
+  1   3
+
+Output:
+1
+Example 2: 
+Input:
+
+        1
+       / \
+      2   3
+     /   / \
+    4   5   6
+       /
+      7
+
+Output:
+7
+Note: You may assume the tree (i.e., the given root node) is not NULL.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 12 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        
+        TreeNode* res =  NULL;
+        while(!q.empty()) {
+            res = q.front();
+            
+            int level = q.size();
+            for(int i = 0; i < level; i++) {
+                TreeNode* node = q.front();
+                q.pop();
+                if(node->left) q.push(node->left);
+                if(node->right) q.push(node->right);
+            }
+        }
+        
+        return res->val;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+515. Find Largest Value in Each Tree Row
+You need to find the largest value in each row of a binary tree.
+
+Example:
+Input: 
+
+          1
+         / \
+        3   2
+       / \   \  
+      5   3   9 
+
+Output: [1, 3, 9]
+
+/*
+    Submission Date: 2018-06-29
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        if(root == NULL) return {};
+        vector<int> res;
+        queue<TreeNode*> q;
+        q.push(root);
+        
+        while(!q.empty()) {
+            int n = q.size();
+            int max_level = q.front()->val;
+            for(int i = 0; i < n; i++) {
+                TreeNode* curr = q.front();
+                q.pop();
+                max_level = max(max_level, curr->val);
+                if(curr->left) q.push(curr->left);
+                if(curr->right) q.push(curr->right);
+            }
+            res.push_back(max_level);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals 
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one 
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than 
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a 
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase 
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    bool detectCapitalUse(string word) {
+        int N = word.size();
+        int capital_count = 0, lower_count = 0;
+        for(auto c: word) {
+            capital_count += isupper(c) != 0;
+            lower_count += islower(c) != 0;
+        }
+        
+        return capital_count == N || lower_count == N || 
+            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+521. Longest Uncommon Subsequence I
+Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
+The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
+should not be any subsequence of the other strings.
+
+A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
+order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
+
+The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
+uncommon subsequence doesn't exist, return -1.
+
+Example 1:
+Input: "aba", "cdc"
+Output: 3
+Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
+because "aba" is a subsequence of "aba", 
+but not a subsequence of any other strings in the group of two strings. 
+Note:
+
+Both strings' lengths will not exceed 100.
+Only letters from a ~ z will appear in input strings.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
+      what is the longest ss_A that is not ss_B and vice versa
+
+      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
+      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
+      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
+      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
+      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
+    */
+    int findLUSlength(string a, string b) {
+        if(a == b) return -1;
+        return max(a.size(), b.size());
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+525. Contiguous Array
+Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
+
+Example 1:
+Input: [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
+Example 2:
+Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+Note: The length of the given binary array will not exceed 50,000.
+
+/*
+    Submission Date: 2017-04-01
+    Runtime: 162 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+class Solution {
+public:
+    int findMaxLength(vector<int>& nums) {
+        int maxLen = 0;
+        int currentSum = 0;
+        
+        // unordered_map has key to currentSum and value to earliest index seen with that 
+        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
+        // elements between those two indices is zero meaning equal number of 0's and 1's
+        // so finding the smallest index with the same currentSum results in the largest subarray
+        unordered_map<int, int> m = {{0, -1}};
+    
+        for(int i = 0, len = nums.size(); i < len; i++) {
+            if(nums[i] == 0) {
+                currentSum--;
+            } else {
+                currentSum++;
+            }
+            
+            if(m.find(currentSum) == m.end()) {
+                m[currentSum] = i;
+            } else {
+                maxLen = max(maxLen, i - m[currentSum]);
+            }
+        }
+        
+        return maxLen;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+529. Minesweeper
+Let's play the minesweeper game (Wikipedia, online game)! 
+
+You are given a 2D char matrix representing the game board. 'M' represents an 
+unrevealed mine, 'E' represents an unrevealed empty square, 'B' represents a 
+revealed blank square that has no adjacent (above, below, left, right, and all 4 
+diagonals) mines, digit ('1' to '8') represents how many mines are adjacent to 
+
+Now given the next click position (row and column indices) among all the 
+unrevealed squares ('M' or 'E'), return the board after revealing this position 
+
+
+
+If a mine ('M') is revealed, then the game is over - change it to 'X'.
+If an empty square ('E') with no adjacent mines is revealed, then change it to 
+revealed blank ('B') and all of its adjacent unrevealed squares should be 
+If an empty square ('E') with at least one adjacent mine is revealed, then 
+Return the board when no more squares will be revealed.
+
+
+
+Example 1:
+Input: 
+
+[['E', 'E', 'E', 'E', 'E'],
+ ['E', 'E', 'M', 'E', 'E'],
+ ['E', 'E', 'E', 'E', 'E'],
+ ['E', 'E', 'E', 'E', 'E']]
+
+Click : [3,0]
+
+Output: 
+
+[['B', '1', 'E', '1', 'B'],
+ ['B', '1', 'M', '1', 'B'],
+ ['B', '1', '1', '1', 'B'],
+ ['B', 'B', 'B', 'B', 'B']]
+
+Explanation:
+
+
+
+
+Example 2:
+Input: 
+
+[['B', '1', 'E', '1', 'B'],
+ ['B', '1', 'M', '1', 'B'],
+ ['B', '1', '1', '1', 'B'],
+ ['B', 'B', 'B', 'B', 'B']]
+
+Click : [1,2]
+
+Output: 
+
+[['B', '1', 'E', '1', 'B'],
+ ['B', '1', 'X', '1', 'B'],
+ ['B', '1', '1', '1', 'B'],
+ ['B', 'B', 'B', 'B', 'B']]
+
+Explanation:
+
+
+
+
+
+
+Note:
+
+The range of the input matrix's height and width is [1,50].
+The click position will only be an unrevealed square ('M' or 'E'), which also 
+The input board won't be a stage when game is over (some mines have been 
+For simplicity, not mentioned rules should be ignored in this problem. For 
+example, you don't need to reveal all the unrevealed mines when the game is 
+/*
+    Submission Date: 2018-07-05
+    Runtime: 16 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void dfs(vector<vector<char>>& board, const int i, const int j, int N, int M) {
+        if(board[i][j] == 'B') return;
+        
+        int mine_count = 0;
+        vector<pair<int,int>> to_visit;
+        
+        for(int ii = -1; ii <= 1; ii++) {
+            int new_i = i + ii;
+            if(!(0 <= new_i && new_i < N)) continue;
+            for(int jj = -1; jj <= 1; jj++) {
+                if(ii == 0 && jj == 0) continue;
+                int new_j = j + jj;
+                if(!(0 <= new_j && new_j < M)) continue;
+                
+                if(board[new_i][new_j] == 'M') {
+                    mine_count++;
+                } else if(board[new_i][new_j] == 'B') {
+                    continue;
+                } else { // board[new_i][new_j] == 'E'
+                    to_visit.emplace_back(new_i, new_j);
+                }
+            }
+        }
+        
+        if(mine_count > 0) {
+            board[i][j] = mine_count + '0';
+        } else {
+            board[i][j] = 'B';
+            for(const auto& kv: to_visit) {
+                dfs(board, kv.first, kv.second, N, M);
+            }
+        }
+    }
+    
+    vector<vector<char>> updateBoard(vector<vector<char>>& board, vector<int>& click) {
+        int N = board.size();
+        int M = board[0].size();
+        int y = click[0];
+        int x = click[1];
+        
+        if(board[y][x] == 'M') {
+            board[y][x] = 'X';
+        } else { // board[y][x] == 'E'
+            dfs(board, y, x, N, M);
+        }
+        
+        return board;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 530. Minimum Absolute Difference in BST
 Given a binary search tree with non-negative values, find the minimum absolute difference between values of any two nodes.
 
@@ -526,441 +965,6 @@ public:
         }
         
         return finalStr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-543. Diameter of Binary Tree
-Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary 
-tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
-
-Example:
-Given a binary tree 
-          1
-         / \
-        2   3
-       / \     
-      4   5    
-Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
-
-Note: The length of path between two nodes is represented by the number of edges between them.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    returns the height of a node so height(root) = 1 + max(height(left), height(right))
-    res can be updated to 2 + height(left) + height(right) as the longest path in the left
-    and right go through this node.
-    */
-    int help(TreeNode* root, int& res) {
-        if(root == NULL) return -1;
-        int left = help(root->left, res);
-        int right = help(root->right, res);
-        res = max(res, 2 + left + right);
-        return 1 + max(left, right);
-    }
-    
-    int diameterOfBinaryTree(TreeNode* root) {
-        int res = 0;
-        help(root, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-547. Friend Circles
-There are N students in a class. Some of them are friends, while some are not. 
-Their friendship is transitive in nature. For example, if A is a direct friend 
-of B, and B is a direct friend of C, then A is an indirect friend of C. And we 
-defined a friend circle is a group of students who are direct or indirect 
-
-
-
-Given a N*N matrix M representing the friend relationship between students in 
-the class. If M[i][j] = 1, then the ith and jth students are direct friends with 
-each other, otherwise not. And you have to output the total number of friend 
-
-
-Example 1:
-Input: 
-[[1,1,0],
- [1,1,0],
- [0,0,1]]
-Output: 2
-Explanation:The 0th and 1st students are direct friends, so they are in a friend 
-
-
-
-Example 2:
-Input: 
-[[1,1,0],
- [1,1,1],
- [0,1,1]]
-Output: 1
-Explanation:The 0th and 1st students are direct friends, the 1st and 2nd 
-students are direct friends, so the 0th and 2nd students are indirect friends. 
-
-
-
-
-Note:
-
-N is in range [1,200].
-M[i][i] = 1 for all students.
-If M[i][j] = 1, then M[j][i] = 1.
-/*
-    Submission Date: 2018-07-05
-    Runtime: 20 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-#include <unordered_set>
-#include <cassert>
-
-using namespace std;
-
-template <typename T>
-class UnionFind {
-    // key is element, value is rank
-    unordered_map<T, int> rank_;
-    // key is element, value is parent
-    unordered_map<T, T> parent_;
-public:
-    bool IsWithinSet(T e) {
-        return parent_.count(e);
-    }
- 
-    void CreateSet(T e) {
-        assert(!IsWithinSet(e));
-        parent_[e] = e;
-        rank_[e] = 0;
-    }
- 
-    // finds the root of e
-    T Find(T e) {
-        if(parent_[e] != e) {
-            // this is not a root (root has parent to be equal itself)
-            // so find root and apply path compression along path
-            parent_[e] = Find(parent_[e]);
-        }
-        return parent_[e];
-    }
- 
-    // unions the sets of e1 and e2 if necessary
-    // return whether an union took place
-    bool Union(T e1, T e2) {
-        T e1_root = Find(e1);
-        T e2_root = Find(e2);
- 
-        if(e1_root == e2_root) return false; // same root
- 
-        // Attach smaller rank tree under root of high rank tree
-        // (Union by Rank)
-        if(rank_[e1_root] < rank_[e2_root]) {
-            parent_[e1_root] = e2_root;
-        } else {
-            parent_[e2_root] = e1_root;
-            if(rank_[e1_root] == rank_[e2_root]) {
-                rank_[e1_root]++;
-            }
-        }
- 
-        return true;
-    }
-};
-
-class Solution {
-public:
-    /*
-    basically find how many connected graphs there are
-    so use union-find, for every edge from u to v, merge the sets u and v
-    at the end find how many sets there are by finding the root of all
-    the nodes and counting the distinct ones.
-    
-    O(N^2) as Union and Find are O(1)
-    */
-    int findCircleNum(vector<vector<int>>& M) {
-        int N = M.size();
-        UnionFind<int> uf;
-        for(int i = 0; i < N; i++) uf.CreateSet(i);
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < N; j++) {
-                if(M[i][j] == 0) continue;
-                uf.Union(i, j);
-            }
-        }
-        
-        unordered_set<int> roots;
-        for(int i = 0; i < N; i++) roots.insert(uf.Find(i));
-        return roots.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-551. Student Attendance Record I
-You are given a string representing an attendance record for a student. The record only contains the following three characters:
-'A' : Absent.
-'L' : Late.
-'P' : Present.
-A student could be rewarded if his attendance record doesn't contain more than one 'A' (absent) or more than two continuous 'L' (late).
-
-You need to return whether the student could be rewarded according to his attendance record.
-
-Example 1:
-Input: "PPALLP"
-Output: True
-Example 2:
-Input: "PPALLL"
-Output: False
-/*
-    Submission Date: 2018-06-08
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool checkRecord(string s) {
-        int l_streak = 0;
-        bool seen_absent = false;
-        for(const auto& c: s) {
-            if(c == 'L') {
-                if(l_streak == 2) return false;
-                l_streak++;
-            } else {
-                if(c == 'A') {
-                    if(seen_absent) return false;
-                    seen_absent = true;
-                } // c == 'P'
-                
-                l_streak = 0;
-            }
-        }
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-553. Optimal Division
-Given a list of positive integers, the adjacent integers will perform the float division. 
-For example, [2,3,4] -> 2 / 3 / 4.
-
-However, you can add any number of parenthesis at any position to change the priority of operations. 
-You should find out how to add parenthesis to get the maximum result, and return the corresponding expression 
-in string format. Your expression should NOT contain redundant parenthesis.
-
-Example:
-Input: [1000,100,10,2]
-Output: "1000/(100/10/2)"
-Explanation:
-1000/(100/10/2) = 1000/((100/10)/2) = 200
-However, the bold parenthesis in "1000/((100/10)/2)" are redundant, 
-since they don't influence the operation priority. So you should return "1000/(100/10/2)". 
-
-Other cases:
-1000/(100/10)/2 = 50
-1000/(100/(10/2)) = 50
-1000/100/10/2 = 0.5
-1000/100/(10/2) = 2
-Note:
-
-The length of the input array is [1, 10].
-Elements in the given array will be in range [2, 1000].
-There is only one optimal division for each test case.
-/*
-    Submission Date: 2018-06-30
-    Runtime: 5 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    o(n) for a series of number dp_max[i] = nums[i]/dp_min[i+1]
-    the minimum would be just divide all the numbers from [1,N)
-    as they are all integers meaning its some number divide by all integers 
-    in the denominator which would be the smallest. if nums[i] had
-    decimals than the smallest would not be dividing all the numbers as it could
-    be equivalent to putting a integer number in the numerator
-    
-    so return nums[0] / (nums[1]/nums[2]/ .... /nums[N-1])
-    */
-    string optimalDivision(vector<int>& nums) {
-        int N = nums.size();
-        string res = to_string(nums[0]);
-        if(N == 1) return res;
-        if(N == 2) return res + "/" + to_string(nums[1]);
-        
-        res += "/(";
-        for(int i = 1; i < N; i++) {
-            res += to_string(nums[i]) + (i == N-1 ? ")" : "/");
-        }
-        
-        return res;
-    }
-    
-    /*
-    o(n^2) dp where dp_max[i] is the largest number created from [i, N) and dp_min[i] is the smallest
-    then dp_max[i] is max(product of numbers between [i, j) /dp_min[j]) for j > i 
-    and dp_min[i] is min(product of numbers between [i, j) /dp_max[j]) for j > i 
-    
-    strings in dp_max and dp_min are surrounded by parenthesis while product of numbers aren't
-    
-    return dp_max[0]
-    */
-    string optimalDivision2(vector<int>& nums) {
-        int N = nums.size();
-        vector<pair<string, double>> dp_max(N, {"", INT_MIN}), dp_min(N, {"", INT_MAX});
-        dp_max[N-1] = {to_string(nums[N-1]), nums[N-1]};
-        dp_min[N-1] = dp_max[N-1];
-        
-        if(N == 1) return dp_max[0].first;
-        
-        for(int i = N-2; i >= 0; i--) {
-            string curr_s = to_string(nums[i]);
-            double curr = nums[i];
-            for(int j = i + 1; j < N; j++) {
-                if(dp_max[i].second < curr/dp_min[j].second) {
-                    dp_max[i] = {
-                        "(" + curr_s + "/" + dp_min[j].first + ")",
-                        curr/dp_min[j].second
-                    };
-                }
-                
-                if(dp_min[i].second > curr/dp_max[j].second) {
-                    dp_min[i] = {
-                        "(" + curr_s + "/" + dp_max[j].first + ")",
-                        curr/dp_max[j].second
-                    };
-                }
-                
-                curr /= nums[j];
-                curr_s += "/" + to_string(nums[j]);
-            }
-        }
-        
-        return dp_max[0].first.substr(1, dp_max[0].first.size() - 2);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-557. Reverse Words in a String III
-Given a string, you need to reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
-
-Example 1:
-Input: "Let's take LeetCode contest"
-Output: "s'teL ekat edoCteeL tsetnoc"
-Note: In the string, each word is separated by single space and there will not be any extra space in the string.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    // from index 'start', find a space and reverse everything between start and space. change start to space + 1.
-    string reverseWords(string s) {
-        int start = 0;
-        while(s.find(' ', start) != string::npos) {
-            int space_ind = s.find(' ', start);
-            reverse(s.begin() + start, s.begin() + space_ind);
-            start = space_ind + 1;
-        }
-            
-        reverse(s.begin() + start, s.end());
-        return s;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-561. Array Partition I
-Given an array of 2n integers, your task is to group these integers into n pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) 
-which makes sum of min(ai, bi) for all i from 1 to n as large as possible.
-
-Example 1:
-Input: [1,4,3,2]
-
-Output: 4
-Explanation: n is 2, and the maximum sum of pairs is 4 = min(1, 2) + min(3, 4).
-Note:
-n is a positive integer, which is in the range of [1, 10000].
-All the integers in the array will be in the range of [-10000, 10000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 85 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-     for a pair ai and bi where bi is not used, it means bi should be the smallest element > ai
-     in order to maximize the rest of the result
-    */
-    int arrayPairSum(vector<int>& nums) {
-        int res = 0;
-        sort(nums.begin(), nums.end());
-        for(int i = 0; i < nums.size(); i+= 2) res += nums[i];
-        return res;
     }
 };
 

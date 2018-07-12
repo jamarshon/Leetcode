@@ -1,6 +1,423 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+485. Max Consecutive Ones
+Given a binary array, find the maximum number of consecutive 1s in this array.
+
+Example 1:
+Input: [1,1,0,1,1,1]
+Output: 3
+Explanation: The first two digits or the last three digits are consecutive 1s.
+    The maximum number of consecutive 1s is 3.
+Note:
+
+The input array will only contain 0 and 1.
+The length of input array is a positive integer and will not exceed 10,000
+/*
+    Submission Date: 2018-06-03
+    Runtime: 37 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findMaxConsecutiveOnes(vector<int>& nums) {
+        int curr = 0;
+        int res = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            if(nums[i] == 1) {
+                curr++;
+                res = max(res, curr);
+            } else {
+                curr = 0;
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+486. Predict the Winner
+Given an array of scores that are non-negative integers. Player 1 picks one of 
+the numbers from either end of the array followed by the player 2 and then 
+player 1 and so on. Each time a player picks a number, that number will not be 
+available for the next player. This continues until all the scores have been 
+
+Given an array of scores, predict whether player 1 is the winner. You can assume 
+
+Example 1:
+Input: [1, 5, 2]
+Output: False
+Explanation: Initially, player 1 can choose between 1 and 2. If he chooses 2 (or 
+1), then player 2 can choose from 1 (or 2) and 5. If player 2 chooses 5, then 
+player 1 will be left with 1 (or 2). So, final score of player 1 is 1 + 2 = 3, 
+and player 2 is 5. Hence, player 1 will never be the winner and you need to 
+
+
+
+Example 2:
+Input: [1, 5, 233, 7]
+Output: True
+Explanation: Player 1 first chooses 1. Then player 2 have to choose between 5 
+and 7. No matter which number player 2 choose, player 1 can choose 233.Finally, 
+player 1 has more score (234) than player 2 (12), so you need to return True 
+
+
+
+Note:
+
+1 <= length of the array <= 20. 
+Any scores in the given array are non-negative integers and will not exceed 
+If the scores of both players are equal, then player 1 is still the winner.
+/*
+    Submission Date: 2018-07-10
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution2 {
+public:
+    /*
+    dp[i][j] is the maximum value from [i, j]. 
+    it is either take from the left :
+        nums[i] + min <- because opponent wants to minimize your next score
+            dp[i+2][j] // opponent chose nums[i+1] from dp[i+1][j]
+            dp[i+1][j-1] // opponent chose nums[j-1] from dp[i+1][j]
+    or take from the right
+        nums[j] + min <- because opponent wants to minimize your next score
+            dp[i][j-2] // opponent chose nums[j-1] from dp[i][j-1]
+            dp[i+1][j-1] // opponent chose nums[i] from dp[i][j-1]
+    
+    return the best score you can get dp[0][N-1] and the best score the opponent can
+    get which is just sum - your score
+    */
+    bool PredictTheWinner(vector<int>& nums) {
+        typedef long long ll;
+        int N = nums.size();
+        if(N == 0) return false;
+        if(N == 1) return true;
+        
+        vector<vector<ll>> dp(N, vector<ll>(N));
+        for(int gap = 0; gap < N; gap++) {
+            for(int i = 0; i + gap < N; i++) {
+                int j = i + gap;
+                if(gap == 0) dp[i][j] = nums[i];
+                else if(gap == 1) dp[i][j] = max(nums[i], nums[j]);
+                else { // j - i = gap >= 2 
+                    dp[i][j] = max(
+                        nums[i] + min(dp[i+2][j], dp[i+1][j-1]),
+                        nums[j] + min(dp[i][j-2], dp[i+1][j-1])
+                    );
+                }
+            }
+        }
+        
+        ll sum = 0;
+        for(const auto& e: nums) sum += e;
+        return dp[0][N-1] >= sum - dp[0][N-1]; 
+    }
+};
+
+class Solution {
+public:
+    /*
+    same as before except using a sum array cause if take left
+    nums[i] then opponent will get the value dp[i+1][j] hence you get sum from [0,j] - opponent value
+    and same if take right
+    */
+    typedef long long ll;
+    
+    // sum from [i, j]
+    ll GetSum(const vector<ll>& sum, int i, int j) {
+        return i == 0 ? sum[j] : sum[j] - sum[i-1];
+    }
+    
+    bool PredictTheWinner(vector<int>& nums) {
+        int N = nums.size();
+        if(N == 0) return false;
+        if(N == 1) return true;
+        
+        vector<ll> sum(N); // sum[i] = sum from [0, i]
+        sum[0] = nums[0];
+        for(int i = 1; i < N; i++) sum[i] = sum[i-1] + nums[i];
+        
+        vector<vector<ll>> dp(N, vector<ll>(N));
+        for(int gap = 0; gap < N; gap++) {
+            for(int i = 0; i + gap < N; i++) {
+                int j = i + gap;
+                if(gap == 0) dp[i][j] = nums[i];
+                else {
+                    dp[i][j] = max(
+                        nums[i] + GetSum(sum, i+1, j) - dp[i+1][j],
+                        nums[j] + GetSum(sum, i, j-1) - dp[i][j-1]
+                    );
+                }
+            }
+        }
+        
+        return dp[0][N-1] >= sum[N-1] - dp[0][N-1]; 
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+491. Increasing Subsequences
+Given an integer array, your task is to find all the different possible increasing 
+subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
+
+Example:
+Input: [4, 6, 7, 7]
+Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
+Note:
+The length of the given array will not exceed 15.
+The range of integer in the given array is [-100,100].
+The given array may contain duplicates, and two equal integers should also be considered 
+as a special case of increasing sequence.
+/*
+    Submission Date: 2017-03-11
+    Runtime: 286 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <set>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> findSubsequences(const vector<int>& nums) {
+        int N = nums.size();
+        vector<vector<vector<int>>> dp(N);
+        vector<vector<int>> res;
+        set<vector<int>> used;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < i; j++) {
+                if(nums[i] >= nums[j]) {
+                    for(auto seq: dp[j]) {
+                        seq.push_back(nums[i]);
+                        dp[i].push_back(seq);
+                    }
+                }
+            }
+            dp[i].push_back({nums[i]});
+        }
+        
+        for(auto vec: dp) {
+            for(auto seq: vec) {
+                if(seq.size() >= 2 && !used.count(seq)) {
+                    res.push_back(seq);
+                    used.insert(seq);
+                }
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+492. Construct the Rectangle
+For a web developer, it is very important to know how to design a web page's size. So, given a specific rectangular web 
+page’s area, your job by now is to design a rectangular web page, whose length L and width W satisfy the following requirements:
+
+1. The area of the rectangular web page you designed must equal to the given target area.
+
+2. The width W should not be larger than the length L, which means L >= W.
+
+3. The difference between length L and width W should be as small as possible.
+You need to output the length L and the width W of the web page you designed in sequence.
+Example:
+Input: 4
+Output: [2, 2]
+Explanation: The target area is 4, and all the possible ways to construct it are [1,4], [2,2], [4,1]. 
+But according to requirement 2, [1,4] is illegal; according to requirement 3,  [4,1] is not optimal compared to [2,2]. So the 
+length L is 2, and the width W is 2.
+Note:
+The given area won't exceed 10,000,000 and is a positive integer
+The web page's width and length you designed must be positive integers.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 2 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> constructRectangle(int area) {
+        for(int i = sqrt(area); i >= 1; i--) {
+            if(area % i == 0) return {area/i, i};
+        }
+        return {};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+495. Teemo Attacking
+In LOL world, there is a hero called Teemo and his attacking can make his enemy Ashe be in 
+poisoned condition. Now, given the Teemo's attacking ascending time series towards Ashe and 
+the poisoning time duration per Teemo's attacking, you need to output the total time that Ashe is in poisoned condition.
+
+You may assume that Teemo attacks at the very beginning of a specific time point, and makes 
+Ashe be in poisoned condition immediately.
+
+Example 1:
+Input: [1,4], 2
+Output: 4
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned immediately. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+And at time point 4, Teemo attacks Ashe again, and causes Ashe to be in poisoned status for another 2 seconds. 
+So you finally need to output 4.
+Example 2:
+Input: [1,2], 2
+Output: 3
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned. 
+This poisoned status will last 2 seconds until the end of time point 2. 
+However, at the beginning of time point 2, Teemo attacks Ashe again who is already in 
+poisoned status. 
+Since the poisoned status won't add up together, though the second poisoning attack will 
+still work at time point 2, it will stop at the end of time point 3. 
+So you finally need to output 3.
+Note:
+You may assume the length of given time series array won't exceed 10000.
+You may assume the numbers in the Teemo's attacking time series and his poisoning time duration 
+per attacking are non-negative integers, which won't exceed 10,000,000.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 103 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findPoisonedDuration(vector<int>& timeSeries, int duration) {
+        if(timeSeries.empty()) return 0;
+        
+        int N = timeSeries.size();
+        
+        int res = duration;
+        for(int i = 1; i < N; i++) {
+            res += min(duration, timeSeries[i] - timeSeries[i-1]);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+496. Next Greater Element I
+You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. Find all the next greater numbers for 
+nums1's elements in the corresponding places of nums2.
+
+The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. If it does not exist, output -1 for this number.
+
+Example 1:
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
+Output: [-1,3,-1]
+Explanation:
+    For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
+    For number 1 in the first array, the next greater number for it in the second array is 3.
+    For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
+Example 2:
+Input: nums1 = [2,4], nums2 = [1,2,3,4].
+Output: [3,-1]
+Explanation:
+    For number 2 in the first array, the next greater number for it in the second array is 3.
+    For number 4 in the first array, there is no next greater number for it in the second array, so output -1.
+Note:
+All elements in nums1 and nums2 are unique.
+The length of both nums1 and nums2 would not exceed 1000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 11 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <stack>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+        For a stack of decreasing number, if there is a number x encountered.
+        All the numbers in the stack that x is greater than will have their return value to be x
+        and x is placed in the stack. This means there is no number in the stack that is less than x
+        eg [1,3,4,2,3]
+         []     1 => [1]
+         [1]    3 => [3]    update greater(1) = 3
+         [3]    4 => [4]    update greater(3) = 4
+         [4]    2 => [4,2]
+         [4,2]  3 => [4,3]  update greater(2) = 3
+    */
+    vector<int> nextGreaterElement(vector<int>& findNums, vector<int>& nums) {
+        if(nums.empty()) return {};
+        
+        int N = findNums.size();
+        // decreasing numbers
+        stack<int> stk;
+        
+        unordered_map<int,int> val_to_greater_val;
+        for(const auto& x: nums) {
+            while(!stk.empty() && stk.top() < x) {
+                val_to_greater_val[stk.top()] = x;
+                stk.pop();
+            }
+            
+            stk.push(x);
+        }
+        
+        vector<int> res;
+        for(const auto& x: findNums) {
+            res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 498. Diagonal Traverse
 Given a matrix of M x N elements (M rows, N columns), return all elements of the 
 
@@ -555,445 +972,6 @@ public:
         for(const auto& kv: sum_to_freq) 
             if(kv.second == max_freq) res.push_back(kv.first);
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-513. Find Bottom Left Tree Value
-Given a binary tree, find the leftmost value in the last row of the tree.
-
-Example 1:
-Input:
-
-    2
-   / \
-  1   3
-
-Output:
-1
-Example 2: 
-Input:
-
-        1
-       / \
-      2   3
-     /   / \
-    4   5   6
-       /
-      7
-
-Output:
-7
-Note: You may assume the tree (i.e., the given root node) is not NULL.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 12 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int findBottomLeftValue(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        TreeNode* res =  NULL;
-        while(!q.empty()) {
-            res = q.front();
-            
-            int level = q.size();
-            for(int i = 0; i < level; i++) {
-                TreeNode* node = q.front();
-                q.pop();
-                if(node->left) q.push(node->left);
-                if(node->right) q.push(node->right);
-            }
-        }
-        
-        return res->val;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-515. Find Largest Value in Each Tree Row
-You need to find the largest value in each row of a binary tree.
-
-Example:
-Input: 
-
-          1
-         / \
-        3   2
-       / \   \  
-      5   3   9 
-
-Output: [1, 3, 9]
-
-/*
-    Submission Date: 2018-06-29
-    Runtime: 15 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    vector<int> largestValues(TreeNode* root) {
-        if(root == NULL) return {};
-        vector<int> res;
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        while(!q.empty()) {
-            int n = q.size();
-            int max_level = q.front()->val;
-            for(int i = 0; i < n; i++) {
-                TreeNode* curr = q.front();
-                q.pop();
-                max_level = max(max_level, curr->val);
-                if(curr->left) q.push(curr->left);
-                if(curr->right) q.push(curr->right);
-            }
-            res.push_back(max_level);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-520. Detect Capital
-Given a word, you need to judge whether the usage of capitals 
-in it is right or not.
-
-We define the usage of capitals in a word to be right when one 
-of the following cases holds:
-
-All letters in this word are capitals, like "USA".
-All letters in this word are not capitals, like "leetcode".
-Only the first letter in this word is capital if it has more than 
-one letter, like "Google".
-Otherwise, we define that this word doesn't use capitals in a 
-right way.
-Example 1:
-Input: "USA"
-Output: True
-Example 2:
-Input: "FlaG"
-Output: False
-Note: The input will be a non-empty word consisting of uppercase 
-and lowercase latin letters.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <cctype>
-
-using namespace std;
-
-class Solution {
-public:
-    bool detectCapitalUse(string word) {
-        int N = word.size();
-        int capital_count = 0, lower_count = 0;
-        for(auto c: word) {
-            capital_count += isupper(c) != 0;
-            lower_count += islower(c) != 0;
-        }
-        
-        return capital_count == N || lower_count == N || 
-            (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-521. Longest Uncommon Subsequence I
-Given a group of two strings, you need to find the longest uncommon subsequence of this group of two strings. 
-The longest uncommon subsequence is defined as the longest subsequence of one of these strings and this subsequence 
-should not be any subsequence of the other strings.
-
-A subsequence is a sequence that can be derived from one sequence by deleting some characters without changing the 
-order of the remaining elements. Trivially, any string is a subsequence of itself and an empty string is a subsequence of any string.
-
-The input will be two strings, and the output needs to be the length of the longest uncommon subsequence. If the longest 
-uncommon subsequence doesn't exist, return -1.
-
-Example 1:
-Input: "aba", "cdc"
-Output: 3
-Explanation: The longest uncommon subsequence is "aba" (or "cdc"), 
-because "aba" is a subsequence of "aba", 
-but not a subsequence of any other strings in the group of two strings. 
-Note:
-
-Both strings' lengths will not exceed 100.
-Only letters from a ~ z will appear in input strings.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-      question is asking if for all subsequences of A (ss_A) and all subsequences of B (ss_B)
-      what is the longest ss_A that is not ss_B and vice versa
-
-      if A == B, then no matter what subsequence of A is made, it can be made in B so return -1
-      if len(A) > len(B) then removing letters from B will always be smaller than A so return A
-      if len(A) < len(B) then removing letters from A will always be smaller than B  so return B
-      if len(A) == len(B), since they are not the same if we arbitrarily choose A and start removing letters from B
-      it will always be smaller than A, so return A. the samething can occur if choose B arbitrarily.
-    */
-    int findLUSlength(string a, string b) {
-        if(a == b) return -1;
-        return max(a.size(), b.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0 and 1.
-Example 2:
-Input: [0,1,0]
-Output: 2
-Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
-Note: The length of the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-class Solution {
-public:
-    int findMaxLength(vector<int>& nums) {
-        int maxLen = 0;
-        int currentSum = 0;
-        
-        // unordered_map has key to currentSum and value to earliest index seen with that 
-        // currentSum. the idea is that if the cumulative sum is the same then the sum of 
-        // elements between those two indices is zero meaning equal number of 0's and 1's
-        // so finding the smallest index with the same currentSum results in the largest subarray
-        unordered_map<int, int> m = {{0, -1}};
-    
-        for(int i = 0, len = nums.size(); i < len; i++) {
-            if(nums[i] == 0) {
-                currentSum--;
-            } else {
-                currentSum++;
-            }
-            
-            if(m.find(currentSum) == m.end()) {
-                m[currentSum] = i;
-            } else {
-                maxLen = max(maxLen, i - m[currentSum]);
-            }
-        }
-        
-        return maxLen;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-529. Minesweeper
-Let's play the minesweeper game (Wikipedia, online game)! 
-
-You are given a 2D char matrix representing the game board. 'M' represents an 
-unrevealed mine, 'E' represents an unrevealed empty square, 'B' represents a 
-revealed blank square that has no adjacent (above, below, left, right, and all 4 
-diagonals) mines, digit ('1' to '8') represents how many mines are adjacent to 
-
-Now given the next click position (row and column indices) among all the 
-unrevealed squares ('M' or 'E'), return the board after revealing this position 
-
-
-
-If a mine ('M') is revealed, then the game is over - change it to 'X'.
-If an empty square ('E') with no adjacent mines is revealed, then change it to 
-revealed blank ('B') and all of its adjacent unrevealed squares should be 
-If an empty square ('E') with at least one adjacent mine is revealed, then 
-Return the board when no more squares will be revealed.
-
-
-
-Example 1:
-Input: 
-
-[['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'M', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E']]
-
-Click : [3,0]
-
-Output: 
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'M', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Explanation:
-
-
-
-
-Example 2:
-Input: 
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'M', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Click : [1,2]
-
-Output: 
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'X', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Explanation:
-
-
-
-
-
-
-Note:
-
-The range of the input matrix's height and width is [1,50].
-The click position will only be an unrevealed square ('M' or 'E'), which also 
-The input board won't be a stage when game is over (some mines have been 
-For simplicity, not mentioned rules should be ignored in this problem. For 
-example, you don't need to reveal all the unrevealed mines when the game is 
-/*
-    Submission Date: 2018-07-05
-    Runtime: 16 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void dfs(vector<vector<char>>& board, const int i, const int j, int N, int M) {
-        if(board[i][j] == 'B') return;
-        
-        int mine_count = 0;
-        vector<pair<int,int>> to_visit;
-        
-        for(int ii = -1; ii <= 1; ii++) {
-            int new_i = i + ii;
-            if(!(0 <= new_i && new_i < N)) continue;
-            for(int jj = -1; jj <= 1; jj++) {
-                if(ii == 0 && jj == 0) continue;
-                int new_j = j + jj;
-                if(!(0 <= new_j && new_j < M)) continue;
-                
-                if(board[new_i][new_j] == 'M') {
-                    mine_count++;
-                } else if(board[new_i][new_j] == 'B') {
-                    continue;
-                } else { // board[new_i][new_j] == 'E'
-                    to_visit.emplace_back(new_i, new_j);
-                }
-            }
-        }
-        
-        if(mine_count > 0) {
-            board[i][j] = mine_count + '0';
-        } else {
-            board[i][j] = 'B';
-            for(const auto& kv: to_visit) {
-                dfs(board, kv.first, kv.second, N, M);
-            }
-        }
-    }
-    
-    vector<vector<char>> updateBoard(vector<vector<char>>& board, vector<int>& click) {
-        int N = board.size();
-        int M = board[0].size();
-        int y = click[0];
-        int x = click[1];
-        
-        if(board[y][x] == 'M') {
-            board[y][x] = 'X';
-        } else { // board[y][x] == 'E'
-            dfs(board, y, x, N, M);
-        }
-        
-        return board;
     }
 };
 

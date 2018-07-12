@@ -67,6 +67,7 @@ string serialize(TreeNode* node){
 
 TreeNode* deserialize(string s) {
     if(s.front() == '[' && s.back() == ']') s = s.substr(1, s.size() - 2);
+    else if(s.front() == '{' && s.back() == '}') s = s.substr(1, s.size() - 2);
     stringstream ss(s);
     string temp;
 
@@ -94,6 +95,27 @@ void fix(string arr) {
     cout << arr << endl;
 }
 
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+ListNode* tolist(const vector<int>& v) {
+    ListNode* head = NULL, *curr = NULL;
+    for(const auto& n: v) {
+        if(curr == NULL) {
+            curr = new ListNode(n);
+            head = curr;
+        } else {
+            curr->next = new ListNode(n);
+            curr = curr->next;
+        }
+    }
+
+    return head;
+}
+
 template <typename T>
 void print(vector<T> v) { for(auto e: v) cout << e << ' '; cout << endl; }
 
@@ -105,9 +127,29 @@ void preorder(TreeNode* root)
 string serialize(TreeNode* node)
 TreeNode* deserialize(string s)
 void fix(string arr)
+ListNode* tolist(const vector<int>& v)
 void print(vector<T> v)
 void print2(vector<vector<T>> v)
 */
+
+void f(const vector<string>& s) {
+    double s1 = 0;
+    double s2 = 0;
+
+    for(const auto& e: s) {
+        string f = e.substr(e.find(' ') + 1);
+        int ind = f.find('/');
+
+        double x = stod(f.substr(0, ind));
+        double y = stod(f.substr(ind + 1));
+        cout << x << ' ' << y << endl;
+        s1 += x;
+        s2 += y;
+    }    
+
+    cout << "s1= " << s1 << ' ' << s2 << endl;
+}
+
 
 int main() {
     return 0;

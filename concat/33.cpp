@@ -1,6 +1,682 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+821. Shortest Distance to a Character
+Given a string S and a character C, return an array of integers representing the shortest distance from the character C in the string.
+
+Example 1:
+
+Input: S = "loveleetcode", C = 'e'
+Output: [3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0]
+ 
+
+Note:
+
+S string length is in [1, 10000].
+C is a single character, and guaranteed to be in string S.
+All letters in S and C are lowercase.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <climits>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    keep track of last seen C and use that as the distance
+    then do it from the back and take the min of this value with the previous value
+    */
+    vector<int> shortestToChar(string S, char C) {
+        int N = S.size();
+        vector<int> res(N, INT_MAX);
+        
+        int last_C_forward = -1;
+        int last_C_backward = -1;
+        for(int i = 0; i < N; i++) {
+            if(S[i] == C) last_C_forward = i;
+            if(S[N-i-1] == C) last_C_backward = N-i-1;
+            
+            if(last_C_forward >= 0) {
+                res[i] = min(res[i], i - last_C_forward);
+            }
+            
+            if(last_C_backward >= 0) {
+                res[N-i-1] = min(res[N-i-1], last_C_backward - (N-i-1));
+            }
+            
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+824. Goat Latin
+A sentence S is given, composed of words separated by spaces. Each word consists of lowercase and uppercase letters only.
+
+We would like to convert the sentence to "Goat Latin" (a made-up language similar to Pig Latin.)
+
+The rules of Goat Latin are as follows:
+
+If a word begins with a vowel (a, e, i, o, or u), append "ma" to the end of the word.
+For example, the word 'apple' becomes 'applema'.
+ 
+If a word begins with a consonant (i.e. not a vowel), remove the first letter and append it to the end, then add "ma".
+For example, the word "goat" becomes "oatgma".
+ 
+Add one letter 'a' to the end of each word per its word index in the sentence, starting with 1.
+For example, the first word gets "a" added to the end, the second word gets "aa" added to the end and so on.
+Return the final sentence representing the conversion from S to Goat Latin. 
+
+Example 1:
+
+Input: "I speak Goat Latin"
+Output: "Imaa peaksmaaa oatGmaaaa atinLmaaaaa"
+Example 2:
+
+Input: "The quick brown fox jumped over the lazy dog"
+Output: "heTmaa uickqmaaa rownbmaaaa oxfmaaaaa umpedjmaaaaaa overmaaaaaaa hetmaaaaaaaa azylmaaaaaaaaa ogdmaaaaaaaaaa"
+ 
+
+Notes:
+
+S contains only uppercase, lowercase and spaces. Exactly one space between each word.
+1 <= S.length <= 150.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <sstream>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+    unordered_set<char> vowels = {'a', 'e', 'i', 'o', 'u'};
+public:
+    string toGoatLatin(string S) {
+        stringstream ss(S);
+        string token;
+        string res = "";
+        int i = 1;
+        while(getline(ss, token, ' ')) {
+            if(!res.empty()) res += ' ';
+            if(vowels.count(tolower(token[0]))) {
+                res += token;
+            } else {
+                res += token.substr(1) + string(1, token[0]); 
+            }
+            
+            res += "ma" + string(i, 'a');
+            i++;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+825. Friends Of Appropriate Ages
+Some people will make friend requests. The list of their ages is given and ages[i] 
+is the age of the ith person. 
+
+Person A will NOT friend request person B (B != A) if any of the following conditions are true:
+
+age[B] <= 0.5 * age[A] + 7
+age[B] > age[A]
+age[B] > 100 && age[A] < 100
+Otherwise, A will friend request B.
+
+Note that if A requests B, B does not necessarily request A.  Also, people will not 
+friend request themselves.
+
+How many total friend requests are made?
+
+Example 1:
+
+Input: [16,16]
+Output: 2
+Explanation: 2 people friend request each other.
+Example 2:
+
+Input: [16,17,18]
+Output: 2
+Explanation: Friend requests are made 17 -> 16, 18 -> 17.
+Example 3:
+
+Input: [20,30,100,110,120]
+Output: 
+Explanation: Friend requests are made 110 -> 100, 120 -> 110, 120 -> 100.
+ 
+
+Notes:
+
+1 <= ages.length <= 20000.
+1 <= ages[i] <= 120.
+/*
+    Submission Date: 2018-06-29
+    Runtime: 39 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    1 <= ages[i] <= 120
+    so have a[i] be the frequency of age i
+    for an age i, there should be an age j <= i which can be friends with
+    j > 0.5*i + 7     ie. j = 0.5*i + 8
+    j must be !(j > 100 && i < 100) note this will never occur as j <= i
+    
+    so for every person of age i (a[i]) and every person of age j (a[j])
+    there can be a[j] * a[i] friend requests made as for a person in j
+    can make friend with every person in i (a[i] times) and there are a[j] of these people
+    
+    if j == i, then it is a[i] * (a[i] - 1) as every person in i 
+    can make friends with a[i] - 1 people as they cannot make friends with themself
+    */
+    int numFriendRequests(vector<int>& ages) {
+        vector<int> a(121, 0);
+        
+        for(const auto& e: ages) a[e]++;
+        
+        int res = 0;
+        for(int i = 1; i < 121; i++) {
+            for(int j = 0.5*i + 8; j <= i; j++) res += a[j] * (a[i] - (i == j));
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+830. Positions of Large Groups
+In a string S of lowercase letters, these letters form consecutive groups of the same character.
+
+For example, a string like S = "abbxxxxzyy" has the groups "a", "bb", "xxxx", "z" and "yy".
+
+Call a group large if it has 3 or more characters.  We would like the starting and ending positions of every large group.
+
+The final answer should be in lexicographic order.
+
+ 
+
+Example 1:
+
+Input: "abbxxxxzzy"
+Output: [[3,6]]
+Explanation: "xxxx" is the single large group with starting  3 and ending positions 6.
+Example 2:
+
+Input: "abc"
+Output: []
+Explanation: We have "a","b" and "c" but no large group.
+Example 3:
+
+Input: "abcdddeeeeaabbbcd"
+Output: [[3,5],[6,9],[12,14]]
+ 
+
+Note:  1 <= S.length <= 1000
+/*
+    Submission Date: 2018-06-08
+    Runtime: 12 ms
+    Difficulty: EASY 
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> largeGroupPositions(string S) {
+        vector<vector<int>> res;
+        for(int i = 0; i < S.size();) {
+            int j = i;
+            while(j < S.size() && S[i] == S[j]) j++;
+            if(j - i >= 3) {
+                res.push_back({i, j-1});
+            }
+            i = j;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+832. Flipping an Image
+Given a binary matrix A, we want to flip the image horizontally, then invert it, and return the resulting image.
+
+To flip an image horizontally means that each row of the image is reversed.  For example, flipping [1, 1, 0] horizontally results in [0, 1, 1].
+
+To invert an image means that each 0 is replaced by 1, and each 1 is replaced by 0. For example, inverting [0, 1, 1] results in [1, 0, 0].
+
+Example 1:
+
+Input: [[1,1,0],[1,0,1],[0,0,0]]
+Output: [[1,0,0],[0,1,0],[1,1,1]]
+Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
+Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
+Example 2:
+
+Input: [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
+Output: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Explanation: First reverse each row: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]].
+Then invert the image: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Notes:
+
+1 <= A.length = A[0].length <= 20
+0 <= A[i][j] <= 1
+/*
+    Submission Date: 2018-05-31
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+        for(auto& row: A) {
+            reverse(row.begin(), row.end());
+            for(auto& el: row) el ^= 1;
+        }
+        
+        return A;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+836. Rectangle Overlap
+A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the coordinates of its bottom-left corner, and (x2, y2) are 
+the coordinates of its top-right corner.
+
+Two rectangles overlap if the area of their intersection is positive.  To be clear, two rectangles that only touch at the corner or edges do not overlap.
+
+Given two rectangles, return whether they overlap.
+
+Example 1:
+
+Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
+Output: true
+Example 2:
+
+Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
+Output: false
+Notes:
+
+Both rectangles rec1 and rec2 are lists of 4 integers.
+All coordinates in rectangles will be between -10^9 and 10^9.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool intersects(int a1, int a2, int b1, int b2) {
+        return !(b1 >= a2 || a1 >= b2);
+    }
+    
+    // Check if x intervals intersect and y intervals intersect
+    bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
+        return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+840. Magic Squares In Grid
+A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
+
+Given an grid of integers, how many 3 x 3 "magic square" subgrids are there?  (Each subgrid is contiguous).
+Example 1:
+
+Input: [[4,3,8,4],
+        [9,5,1,9],
+        [2,7,6,2]]
+Output: 1
+Explanation: 
+The following subgrid is a 3 x 3 magic square:
+438
+951
+276
+
+while this one is not:
+384
+519
+762
+
+In total, there is only one magic square inside the given grid.
+Note:
+
+1 <= grid.length <= 10
+1 <= grid[0].length <= 10
+0 <= grid[i][j] <= 15
+/*
+    Submission Date: 2018-06-24
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    bool IsMagicSquare(const vector<vector<int>>& grid, int i, int j) {
+        unordered_set<int> st;
+        vector<int> row_sum(3, 0), col_sum(3, 0);
+        int diag1 = 0, diag2 = 0;
+        for(int x = 0; x < 3; x++) {
+            for(int y = 0; y < 3; y++) {
+                int e = grid[i+y][j+x];
+                if(e < 1 || e > 9 || st.count(e)) return false;
+                row_sum[y] += e;
+                col_sum[x] += e;
+                if(y == x) diag1 += e;
+                if(x + y == 2) diag2 += e;
+            }
+        }
+        
+        for(int x = 1; x < 3; x++) {
+            if(row_sum[x] != row_sum[x-1]) return false;
+            if(col_sum[x] != col_sum[x-1]) return false;
+        }
+        
+        return diag1 == diag2;
+    }
+    int numMagicSquaresInside(vector<vector<int>>& grid) {
+        int N = grid.size();
+        int M = grid[0].size();
+        int res = 0;
+        for(int i = 0; i < N - 2; i++) {
+            for(int j = 0; j < M - 2; j++) {
+                res += IsMagicSquare(grid, i, j);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+841. Keys and Rooms
+There are N rooms and you start in room 0.  Each room has a distinct number in 0, 1, 2, ..., N-1, 
+and each room may have some keys to access the next room. 
+
+Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is an integer in [0, 1, ..., N-1] 
+where N = rooms.length.  A key rooms[i][j] = v opens the room with number v.
+
+Initially, all the rooms start locked (except for room 0). 
+
+You can walk back and forth between rooms freely.
+
+Return true if and only if you can enter every room.
+
+Example 1:
+
+Input: [[1],[2],[3],[]]
+Output: true
+Explanation:  
+We start in room 0, and pick up key 1.
+We then go to room 1, and pick up key 2.
+We then go to room 2, and pick up key 3.
+We then go to room 3.  Since we were able to go to every room, we return true.
+Example 2:
+
+Input: [[1,3],[3,0,1],[2],[0]]
+Output: false
+Explanation: We can't enter the room with number 2.
+Note:
+
+1 <= rooms.length <= 1000
+0 <= rooms[i].length <= 1000
+The number of keys in all rooms combined is at most 3000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+public:
+    bool canVisitAllRooms(vector<vector<int>>& rooms) {
+        queue<int> q;
+        unordered_set<int> visited;
+        
+        q.push(0);
+        visited.insert(0);
+        while(!q.empty()) {
+            int curr = q.front();
+            q.pop();
+            for(auto e: rooms[curr]) {
+                if(!visited.count(e)) {
+                    q.push(e);
+                    visited.insert(e);
+                }
+            }
+        }
+        
+        return visited.size() == rooms.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+844. Backspace String Compare
+Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
+
+Example 1:
+
+Input: S = "ab#c", T = "ad#c"
+Output: true
+Explanation: Both S and T become "ac".
+Example 2:
+
+Input: S = "ab##", T = "c#d#"
+Output: true
+Explanation: Both S and T become "".
+Example 3:
+
+Input: S = "a##c", T = "#a#c"
+Output: true
+Explanation: Both S and T become "c".
+Example 4:
+
+Input: S = "a#c", T = "b"
+Output: false
+Explanation: S becomes "c" while T becomes "b".
+ 
+
+Note:
+
+1 <= S.length <= 200
+1 <= T.length <= 200
+S and T only contain lowercase letters and '#' characters.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string eval(string s) {
+        string res = "";
+        for(const auto& c: s) {
+            if(c == '#') {
+                if(!res.empty()) res.pop_back();
+            } else {
+                res.push_back(c);
+            }
+        }
+        return res;
+    }
+    bool backspaceCompare(string S, string T) {
+        return eval(S) == eval(T);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+846. Hand of Straights
+Alice has a hand of cards, given as an array of integers.
+
+Now she wants to rearrange the cards into groups so that each group is size W, 
+
+Return true if and only if she can.
+
+ 
+
+
+
+
+Example 1:
+
+Input: hand = [1,2,3,6,2,3,4,7,8], W = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8].
+
+Example 2:
+
+Input: hand = [1,2,3,4,5], W = 4
+Output: false
+Explanation: Alice's hand can't be rearranged into groups of 4.
+
+ 
+
+Note:
+
+
+    1 <= hand.length <= 10000
+    0 <= hand[i] <= 10^9
+    1 <= W <= hand.length
+/*
+    Submission Date: 2018-07-11
+    Runtime: 44 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <map>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    create a frequency map. have a sorted queue of ends and loop through freq map
+    if the ends isn't empty (meaning it is a part of some interval) and previous value in freq map 
+    doesn't equal current value - 1, it means a jump occured without interval ending so return false
+    
+    if the frequency is less than the number of intervals (ends.size()), return false as more of 
+    this number is needed
+    
+    if the frequency is greater than the number of intervals, then add this number + W - 1 as
+    the end interval and do this freq - number of intervals times.
+    
+    remove all the ends that equal the current value
+    
+    finally return if ends is empty meaning all the intervals have been completed.
+    */
+    bool isNStraightHand(vector<int>& hand, int W) {
+        map<int,int> freq;
+        for(const auto& h: hand) freq[h]++;
+        queue<int> ends;
+        
+        pair<int,int> prev = {-1, -1};
+        for(const auto& kv: freq) {
+            if(prev.first != -1 && kv.first != prev.first + 1 && !ends.empty()) return false;
+            prev = kv;
+            int diff = kv.second - ends.size();
+            if(diff < 0) return false; // too many numbers needed
+            if(diff > 0) {
+                // new ends
+                for(int i = 0; i < diff; i++)
+                    ends.push(kv.first + W - 1);
+            }
+            
+            while(!ends.empty() && kv.first == ends.front()) ends.pop();
+        }
+        
+        return ends.empty();
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 849. Maximize Distance to Closest Person
 In a row of seats, 1 represents a person sitting in that seat, and 0 represents that the seat is empty. 
 
@@ -274,705 +950,6 @@ public:
         if(diff.size() == 1) return false;
         if(diff.size() == 0) return unordered_set<char>(A.begin(), A.end()).size() < A.size();
         return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-860. Lemonade Change
-At a lemonade stand, each lemonade costs $5. 
-
-Customers are standing in a queue to buy from you, and order one at a time 
-(in the order specified by bills).
-
-Each customer will only buy one lemonade and pay with either a $5, $10, or $20 bill.  
-You must provide the correct change to each customer, so that the net transaction is that the customer pays $5.
-
-Note that you don't have any change in hand at first.
-
-Return true if and only if you can provide every customer with correct change.
-
- 
-
-Example 1:
-
-Input: [5,5,5,10,20]
-Output: true
-Explanation: 
-From the first 3 customers, we collect three $5 bills in order.
-From the fourth customer, we collect a $10 bill and give back a $5.
-From the fifth customer, we give a $10 bill and a $5 bill.
-Since all customers got correct change, we output true.
-Example 2:
-
-Input: [5,5,10]
-Output: true
-Example 3:
-
-Input: [10,10]
-Output: false
-Example 4:
-
-Input: [5,5,10,10,20]
-Output: false
-Explanation: 
-From the first two customers in order, we collect two $5 bills.
-For the next two customers in order, we collect a $10 bill and give back a $5 bill.
-For the last customer, we can't give change of $15 back because we only have two $10 bills.
-Since not every customer received correct change, the answer is false.
- 
-
-Note:
-
-0 <= bills.length <= 10000
-bills[i] will be either 5, 10, or 20.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 30 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool lemonadeChange(vector<int>& bills) {
-        // change[0] is number of 5's and change[1] is number of 10's.
-        // 20's will never be given back so no need to count them.
-        vector<int> change(2, 0);
-        for(const auto& e: bills) {
-            if(e == 5) {
-                change[0]++;
-            } else if(e == 10) { // can only give a 5 back
-                if(change[0] == 0) return false;
-                change[0]--;
-                change[1]++;
-            } else { // e == 20 can give back either 5 and 10 or 3 fives
-                if(change[1] > 0 && change[0] > 0) { // try to give back the 10 first as it is less useful
-                    change[1]--;
-                    change[0]--;
-                } else if(change[0] >= 3) {
-                    change[0] -= 3;
-                } else {
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-861. Score After Flipping Matrix
-We have a two dimensional matrix A where each value is 0 or 1.
-
-A move consists of choosing any row or column, and toggling each value in that row or column: 
-changing all 0s to 1s, and all 1s to 0s.
-
-After making any number of moves, every row of this matrix is interpreted as a binary number, 
-and the score of the matrix is the sum of these numbers.
-
-Return the highest possible score.
-
- 
-
-Example 1:
-
-Input: [[0,0,1,1],[1,0,1,0],[1,1,0,0]]
-Output: 39
-Explanation:
-Toggled to [[1,1,1,1],[1,0,0,1],[1,1,1,1]].
-0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
- 
-
-Note:
-
-1 <= A.length <= 20
-1 <= A[0].length <= 20
-A[i][j] is 0 or 1.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 5 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void FlipRow(vector<vector<int>>& A, int row, int M) {
-        for(int j = 0; j < M; j++) A[row][j] ^= 1;
-    }
-    
-    void FlipCol(vector<vector<int>>& A, int col, int N) {
-        for(int i = 0; i < N; i++) A[i][col] ^= 1;
-    }
-    
-    /*
-    First get all the the elements in A[i][0] to be 1 by toggling rows
-    this is because having a 1 in the left most column gives the greatest value 1000 > 0111
-    Then for each column, flip the column if it gives a greater amount of 1's in that column
-    */
-    int matrixScore(vector<vector<int>>& A) {
-        if(A.empty()) return 0;
-        int N = A.size(), M = A[0].size();
-        for(int i = 0; i < N; i++) {
-            if(A[i][0] == 0) {
-                FlipRow(A, i, M);
-            }
-        }
-        
-        for(int j = 0; j < M; j++) {
-            int one_count = 0;
-            for(int i = 0; i < N; i++) one_count += A[i][j] == 1;
-            if(one_count < N - one_count) {
-                FlipCol(A, j, N);
-            }
-        }
-        
-        int res = 0;
-        for(int i = 0; i < N; i++) {
-            int temp = 0;
-            for(int j = 0; j < M; j++) {
-                temp |= A[i][j];
-                temp <<= 1;
-            }
-            res += temp >> 1;
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-865. Shortest Path to Get All Keys
-We are given a 2-dimensional grid. "." is an empty cell, "#" is a wall, "@" is 
-
-We start at the starting point, and one move consists of walking one space in 
-one of the 4 cardinal directions.  We cannot walk outside the grid, or walk into 
-a wall.  If we walk over a key, we pick it up.  We can't walk over a lock unless 
-
-For some 1 <= K <= 6, there is exactly one lowercase and one uppercase letter of 
-the first K letters of the English alphabet in the grid.  This means that there 
-is exactly one key for each lock, and one lock for each key; and also that the 
-letters used to represent the keys and locks were chosen in the same order as 
-
-Return the lowest number of moves to acquire all keys.  If it's impossible, 
-
- 
-
-
-Example 1:
-
-Input: ["@.a.#","###.#","b.A.B"]
-Output: 8
-
-
-
-Example 2:
-
-Input: ["@..aA","..B#.","....b"]
-Output: 6
-
-
-
- 
-
-Note:
-
-
-    1 <= grid.length <= 30
-    1 <= grid[0].length <= 30
-    grid[i][j] contains only '.', '#', '@', 'a'-'f' and 'A'-'F'
-    The number of keys is in [1, 6].  Each key has a different letter and opens 
-/*
-    Submission Date: 2018-07-08
-    Runtime: 164 ms
-    Difficulty: HARD
-*/
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_set>
-
-using namespace std;
-
-struct Item {
-    int x;
-    int y;
-    int dist;
-    int key;
-    Item(int _x, int _y, int _dist, int _key): x(_x), y(_y), dist(_dist), key(_key) {}
-};
-
-class Solution {
-    int dx[4] = {1, -1, 0, 0};
-    int dy[4] = {0, 0, 1, -1};
-public:
-    string GetVisitKey(const int& x, const int& y, const int& key) {
-        return to_string(x) + "," + to_string(y) + "," + to_string(key);
-    }
-    
-    /*
-    do a bfs by marking visited as x,y,key where key represents the keys that we have
-    look in the 4 directions, 
-        if it is '.' or '@'
-            go(new_x, new_y, key) if not visited
-        if 'a' - 'z'
-            go(new_x, new_y, key | (1 << (grid[new_y][new_x] - 'a'))) if not visited (ie add key)
-        if 'A' - 'Z'
-            go(new_x, new_y, key) if not visited and has required key (key & 1 << (grid[new_y][new_x] - 'A') 
-    terminate once reach x,y,key where key == (2^K-1) meaning has all keys
-    */
-    int shortestPathAllKeys(vector<string>& grid) {
-        int N = grid.size();
-        int M = grid[0].size();
-        
-        int K = 0;
-        int start_x = 0;
-        int start_y = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if('a' <= grid[i][j] && grid[i][j] <= 'f') K++;
-                if(grid[i][j] == '@') {
-                    start_y = i;
-                    start_x = j;
-                }
-            }
-        }
-        
-        unordered_set<string> visited;
-        int all_key = (1 << K) - 1;
-        queue<Item> q;
-        q.emplace(start_x, start_y, 0, 0);
-        visited.insert(GetVisitKey(start_x, start_y, 0));
-        while(!q.empty()) {
-            Item item = q.front();
-            q.pop();
-            if(item.key == all_key) return item.dist;
-            for(int i = 0; i < 4; i++) {
-                int new_x = item.x + dx[i];
-                int new_y = item.y + dy[i];
-                if(new_x < 0 || new_x >= M) continue;
-                if(new_y < 0 || new_y >= N) continue;
-                if(grid[new_y][new_x] == '#') continue;
-                if(grid[new_y][new_x] == '.' || grid[new_y][new_x] == '@') {
-                    string v_key = GetVisitKey(new_x, new_y, item.key);
-                    if(!visited.count(v_key)) { // can visit if not visited
-                        q.emplace(new_x, new_y, item.dist + 1, item.key);
-                        visited.insert(v_key);
-                    }
-                } else if('a' <= grid[new_y][new_x] && grid[new_y][new_x] <= 'f') { // key
-                    int new_key = item.key | (1 << (grid[new_y][new_x] - 'a'));
-                    string v_key = GetVisitKey(new_x, new_y, new_key);
-                    if(!visited.count(v_key)) { // see if picking up key is already visited
-                        q.emplace(new_x, new_y, item.dist + 1, new_key);
-                        visited.insert(v_key);
-                    }
-                } else { // lock
-                    int req_key = 1 << (grid[new_y][new_x] - 'A');
-                    string v_key = GetVisitKey(new_x, new_y, item.key);
-                    if((req_key & item.key) && !visited.count(v_key)){ // have required key and not visited
-                        q.emplace(new_x, new_y, item.dist + 1, item.key);
-                        visited.insert(v_key);
-                    }
-                }
-            }
-        }
-        return -1;
-    }
-};
-
-struct Node {
-    vector<Node*> adj;
-    int dist = 0;
-};
-
-class Solution2 {
-    int dx[4] = {1, -1, 0, 0};
-    int dy[4] = {0, 0, 1, -1};
-public:
-    bool IsKey(const char& c) { return 'a' <= c && c <= 'f'; }
-    bool IsLock(const char& c) { return 'A' <= c && c <= 'F'; }
-    
-    /*
-    dp[i][j][k] is a node representing grid[i][j] where k is the current status of keys
-    there are up to 2^k status of keys
-    
-    create adj for dp[i][j][k] by looking at 4 neighbors 
-    do bfs starting from dp[start_y][start_x][0], if a node dp[i][j][k] is already visited
-    ie. dist != 0, then visiting it again with the same state will have a larger distance
-    so don't visit it again
-    
-    now for all dp[i][j][(2^k) - 1] ie when all the keys are collected, find the minimum
-    distance it took
-    */
-    int shortestPathAllKeys(vector<string>& grid) {
-        int N = grid.size();
-        int M = grid[0].size();
-        
-        int K = 0;
-        int start_x = 0;
-        int start_y = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(IsKey(grid[i][j])) K++;
-                if(grid[i][j] == '@') {
-                    start_y = i;
-                    start_x = j;
-                }
-            }
-        }
-        
-        int k_limit = 1 << K;
-        vector<vector<vector<Node*>>> dp(N, vector<vector<Node*>>(M, vector<Node*>(k_limit)));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                for(int k = 0; k < k_limit; k++) {
-                    dp[i][j][k] = new Node();
-                }
-            }
-        }
-        
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                for(int k = 0; k < k_limit; k++) {
-                    for(int l = 0; l < 4; l++) {
-                        int new_y = i + dy[l];
-                        int new_x = j + dx[l];
-                        
-                        if(!(0 <= new_y && new_y < N)) continue;
-                        if(!(0 <= new_x && new_x < M)) continue;
-                        
-                        if(IsKey(grid[new_y][new_x])) {
-                            // add key
-                            int new_key = k | (1 << (grid[new_y][new_x] - 'a'));
-                            dp[i][j][k]->adj.push_back(dp[new_y][new_x][new_key]);
-                        } else if(IsLock(grid[new_y][new_x])) {
-                            // check if we have key
-                            int needed_key = 1 << (grid[new_y][new_x] - 'A');
-                            if(k & needed_key) {
-                                dp[i][j][k]->adj.push_back(dp[new_y][new_x][k]);
-                            }
-                        } else if(grid[new_y][new_x] != '#') { // '@' or '.'
-                            dp[i][j][k]->adj.push_back(dp[new_y][new_x][k]);
-                        }
-                    }
-                }
-            }
-        }
-        
-        queue<Node*> q;
-        q.push(dp[start_y][start_x][0]);
-        while(!q.empty()) {
-            Node* curr = q.front();
-            q.pop();
-            for(auto* neighbor: curr->adj) {
-                if(neighbor->dist != 0) continue; // visited already
-                neighbor->dist = curr->dist + 1;
-                q.push(neighbor);
-            }
-        }
-        
-        int all_keys = k_limit - 1;
-        int res = -1;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if(dp[i][j][all_keys]->dist == 0) continue; // this node isnt visitable
-                if(res == -1) res = dp[i][j][all_keys]->dist;
-                res = min(res, dp[i][j][all_keys]->dist);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-866. Smallest Subtree with all the Deepest Nodes
-Given a binary tree rooted at root, the depth of each node is the shortest 
-
-A node is deepest if it has the largest depth possible among any node in the 
-
-The subtree of a node is that node, plus the set of all descendants of that 
-
-Return the node with the largest depth such that it contains all the deepest 
-
- 
-
-Example 1:
-
-Input: [3,5,1,6,2,0,8,null,null,7,4]
-Output: [2,7,4]
-Explanation:
-
-
-
-We return the node with value 2, colored in yellow in the diagram.
-The nodes colored in blue are the deepest nodes of the tree.
-The input "[3, 5, 1, 6, 2, 0, 8, null, null, 7, 4]" is a serialization of the 
-The output "[2, 7, 4]" is a serialization of the subtree rooted at the node with 
-Both the input and output have TreeNode type.
-
-
- 
-
-Note:
-
-
-    The number of nodes in the tree will be between 1 and 500.
-    The values of each node are unique.
-/*
-    Submission Date: 2018-07-08
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* lca(TreeNode* root, TreeNode* A, TreeNode* B) {
-        if(root == NULL) return NULL;
-        if(root == A || root == B) return root;
-        TreeNode* l = lca(root->left, A, B);
-        TreeNode* r = lca(root->right, A, B);
-        if(l && r) return root;
-        return l ? l: r;
-    }
-    
-    /*
-    do level order search and keep track of the deepest nodes
-    then for all the deepest nodes do lca and return that result.
-    by folding lca, curr goes higher and higher such that further
-    calls to lca are faster (does not reprocess same nodes)
-    */
-    TreeNode* subtreeWithAllDeepest(TreeNode* root) {
-        if(root == NULL) return root;
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        vector<TreeNode*> last;
-        
-        while(!q.empty()) {
-            last.clear();
-            int q_size = q.size();
-            for(int i = 0; i < q_size; i++) {
-                TreeNode* temp = q.front();
-                last.push_back(temp);
-                q.pop();
-                if(temp->left) q.push(temp->left);
-                if(temp->right) q.push(temp->right);
-            }
-        }
-        
-        TreeNode* curr = last[0];
-        for(int i = 1; i < last.size(); i++) {
-            curr = lca(root, curr, last[i]);
-        }
-        
-        return curr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-867. Prime Palindrome
-Find the smallest prime palindrome greater than or equal to N.
-
-Recall that a number is prime if it's only divisors are 1 and itself, and it is 
-
-For example, 2,3,5,7,11 and 13 are primes.
-
-Recall that a number is a palindrome if it reads the same from left to right as 
-
-For example, 12321 is a palindrome.
-
- 
-
-
-Example 1:
-
-Input: 6
-Output: 7
-
-
-
-Example 2:
-
-Input: 8
-Output: 11
-
-
-
-Example 3:
-
-Input: 13
-Output: 101
-
-
-
-
- 
-
-Note:
-
-
-    1 <= N <= 10^8
-    The answer is guaranteed to exist and be less than 2 * 10^8.
-/*
-    Submission Date: 2018-07-08
-    Runtime: 172 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <cmath>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isprime(int x) {
-        if(x < 2) return false;
-        for(int i = 2; i <= sqrt(x); i++) {
-            if(x % i == 0) return false;
-        }
-        return true;
-    }
-    
-    typedef long long ll;
-    /*
-    generate increasing palindrome as odd or even by taking a number, reversing it and appending
-    to self. find the first palindrome that is >= N and prime then break compare the even and odd
-    result to see which is smaller and return that.
-    */
-    int primePalindrome(int N) {
-        int res = INT_MAX;
-       // odd
-        for(int i = 0; i < INT_MAX; i++) {
-            string s = to_string(i);
-            string rev = s;
-            reverse(rev.begin(), rev.end());
-            string pal = s + rev.substr(1);
-            
-            ll pal_long = stoll(pal);
-            if(pal_long >= INT_MAX) break;
-            
-            int pal_int = pal_long;
-            if(pal_int >= N && isprime(pal_int)) {
-                res = pal_int;
-                break;
-            }
-        }
-        // even
-        for(int i = 0; i < INT_MAX; i++) {
-            string s = to_string(i);
-            string rev = s;
-            reverse(rev.begin(), rev.end());
-            string pal = s + rev;
-            
-            ll pal_long = stoll(pal);
-            
-            if(pal_long >= INT_MAX) break;
-            int pal_int = pal_long;
-
-            if(pal_int >= N && isprime(pal_int)) {
-                res = min(pal_int, res);
-                break;
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-868. Transpose Matrix
-Given a matrix A, return the transpose of A.
-
-The transpose of a matrix is the matrix flipped over it's main diagonal, 
-
- 
-
-
-Example 1:
-
-Input: [[1,2,3],[4,5,6],[7,8,9]]
-Output: [[1,4,7],[2,5,8],[3,6,9]]
-
-
-
-Example 2:
-
-Input: [[1,2,3],[4,5,6]]
-Output: [[1,4],[2,5],[3,6]]
-
-
- 
-
-Note:
-
-
-    1 <= A.length <= 1000
-    1 <= A[0].length <= 1000
-/*
-    Submission Date: 2018-07-08
-    Runtime: 20 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> transpose(vector<vector<int>>& A) {
-        int N = A.size();
-        int M = A[0].size();
-        vector<vector<int>> res(M, vector<int>(N));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[j][i] = A[i][j];
-            }
-        }
-        
-        return res;
     }
 };
 

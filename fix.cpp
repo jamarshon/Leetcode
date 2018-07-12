@@ -44,6 +44,7 @@ string serialize(TreeNode* node){
 
 TreeNode* deserialize(string s) {
     if(s.front() == '[' && s.back() == ']') s = s.substr(1, s.size() - 2);
+    else if(s.front() == '{' && s.back() == '}') s = s.substr(1, s.size() - 2);
     stringstream ss(s);
     string temp;
 
@@ -71,16 +72,53 @@ void fix(string arr) {
     cout << arr << endl;
 }
 
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+ListNode* tolist(const vector<int>& v) {
+    ListNode* head = NULL, *curr = NULL;
+    for(const auto& n: v) {
+        if(curr == NULL) {
+            curr = new ListNode(n);
+            head = curr;
+        } else {
+            curr->next = new ListNode(n);
+            curr = curr->next;
+        }
+    }
+
+    return head;
+}
+
 template <typename T>
 void print(vector<T> v) { for(auto e: v) cout << e << ' '; cout << endl; }
 
 template <typename T> 
 void print2(vector<vector<T>> v) { for(auto v2: v) print(v2); }
 
+/*
+void preorder(TreeNode* root)
+string serialize(TreeNode* node)
+TreeNode* deserialize(string s)
+void fix(string arr)
+ListNode* tolist(const vector<int>& v)
+void print(vector<T> v)
+void print2(vector<vector<T>> v)
+*/
+
 int main() {
     fix("[[-6,9],[1,6],[8,10],[-1,4],[-6,-2],[-9,8],[-5,3],[0,3]]");
     TreeNode* root = deserialize("[1,2,3,4,null,2,4,null,null,4]");
     serialize(root);
+
+    ListNode* temp = tolist(vector<int>{1,2,3,4});
+    while(temp) {
+        cout << (temp->val) << endl;
+        temp = temp->next;
+    }
     return 0;
 }
 

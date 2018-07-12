@@ -1,6 +1,426 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+583. Delete Operation for Two Strings
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
+
+Example 1:
+Input: "sea", "eat"
+Output: 2
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
+Note:
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 29 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
+
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
+        }
+        
+        return dp[row - 1][col - 1];
+    }
+};
+
+int main() {
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+592. Fraction Addition and Subtraction
+Given a string representing an expression of fraction addition 
+and subtraction, you need to return the calculation result in string 
+format. The final result should be irreducible fraction. If your final 
+result is an integer, say 2, you need to change it to the format of 
+fraction that has denominator 1. So in this case, 2 should be 
+converted to 2/1.
+
+Example 1:
+Input:"-1/2+1/2"
+Output: "0/1"
+Example 2:
+Input:"-1/2+1/2+1/3"
+Output: "1/3"
+Example 3:
+Input:"1/3-1/2"
+Output: "-1/6"
+Example 4:
+Input:"5/3+1/3"
+Output: "2/1"
+Note:
+The input string only contains '0' to '9', '/', '+' and '-'. 
+So does the output.
+Each fraction (input and output) has format ±numerator/denominator. 
+If the first input fraction or the output is positive, then '+' will 
+be omitted.
+The input only contains valid irreducible fractions, where the 
+numerator and denominator of each fraction will always be in the 
+range [1,10]. If the denominator is 1, it means this fraction is 
+actually an integer in a fraction format defined above.
+The number of given fractions will be in the range [1,10].
+The numerator and denominator of the final result are guaranteed 
+to be valid and in the range of 32-bit int.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <cassert>
+
+using namespace std;
+
+typedef long long ll;
+struct Fraction {
+    ll num, den;
+};
+
+class Solution {
+public:
+    ll gcd(ll a, ll b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
+
+    ll lcm(ll a, ll b) {
+        return a*b/gcd(a,b);
+    }
+
+    // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
+    // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
+    // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
+
+    // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
+    // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
+    // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
+    // (a*d + b*c)/(b*d)
+    Fraction add(Fraction a, Fraction b) {
+        return {a.num*b.den + a.den*b.num, a.den*b.den};
+    }
+
+    Fraction reduce(Fraction a) {
+        int gcd_num_den = gcd(abs(a.num), a.den);
+        return {a.num/gcd_num_den, a.den/gcd_num_den};
+    }
+
+    string fractionAddition(string s) {
+        vector<Fraction> v;
+        int N = s.size();
+        bool is_negative = false;
+        for(int i = 0; i < N;) {
+            // s[i] is beginning of numerator which is either '-' (negative num), '+' (positive num) or
+            // a number (positive num and is start of string)
+            Fraction fr;
+            is_negative = s[i] == '-';
+
+            if(s[i] == '+' || is_negative) {
+                i++;
+            }
+
+            ll curr = 0;
+            while(isdigit(s[i])) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.num = is_negative ? -curr : curr;
+            // s[i] is the '/' followed by a number so end i where the next operator starts
+            assert(s[i++] == '/');
+
+            curr = 0;
+            while(isdigit(s[i]) && i < N) {
+                curr = curr*10 + (s[i] - '0');
+                i++;
+            }
+
+            fr.den = curr;
+            v.push_back(fr);
+        }
+
+        Fraction res = v.front();
+        res = reduce(res);
+        for(int i = 1; i < v.size(); i++) {
+            res = add(res, v[i]);
+            res = reduce(res);
+        }
+
+        return to_string(res.num) + "/" + to_string(res.den);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double eucl_sq(vector<int>& p1, vector<int>& p2) {
+        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
+    }
+
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        // distance squared
+        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
+
+        sort(dist.begin(), dist.end());
+
+        // should result in 4 equal length sides and two longer sides that are the diagonals 
+        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
+        bool non_zero_sides = dist[0] > 0;
+
+        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
+        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
+        return equal_sides && non_zero_sides && correct_diagonals;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
+Given the coordinates of four points in 2D space, return whether the 
+four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array 
+with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four 
+equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-08-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <cassert>
+#include <map>
+
+using namespace std;
+
+class Solution {
+public:
+    int distSq(vector<int>& a, vector<int>& b) {
+        return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
+    }
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        vector<int> dist;
+        vector<vector<int>> v{p1, p2, p3, p4};
+        for(int i = 0; i < 4; i++) {
+            for(int j = i + 1; j < 4; j++) {
+                dist.push_back(distSq(v[i], v[j]));
+            }
+        }
+
+        // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
+        // out of these 6 distances, there are 4 distances which are the side distances (s)
+        // and 2 that are hypotenuse (h)
+        // s^2 + s^2 = h^2
+
+        assert(dist.size() == 6);
+        map<int,int> freq;
+        for(auto e: dist) freq[e]++;
+
+        if(freq.size() != 2) return false;
+        int s = freq.begin() -> first;
+        int h = next(freq.begin(), 1) -> first;
+        return 2*s == h;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+594. Longest Harmonious Subsequence
+We define a harmonious array is an array where the difference between its maximum value and its minimum 
+value is exactly 1.
+
+Now, given an integer array, you need to find the length of its longest harmonious subsequence among all 
+its possible subsequences.
+
+Example 1:
+Input: [1,3,2,2,5,2,3,7]
+Output: 5
+Explanation: The longest harmonious subsequence is [3,2,2,2,3].
+Note: The length of the input array will not exceed 20,000.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 109 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLHS(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        int max_len = 0;
+        for(int d: nums) {
+            int current = 0;
+            if(freq.find(d) != freq.end()) {
+                current += freq[d];
+                freq[d] += 1;
+            } else {
+                freq[d] = 1;
+            }
+
+            int adj = 0;
+            if(freq.find(d-1) != freq.end()) {
+                adj = max(adj, freq[d-1]);
+            }
+
+            if(freq.find(d+1) != freq.end()) {
+                adj = max(adj, freq[d+1]);
+            }
+
+            if(adj == 0) continue;
+            current += adj + 1;
+            max_len = max(current, max_len);
+        }
+        return max_len;
+    }
+};
+
+int main() {
+    vector<int> v{1,3,2,2,5,2,3,7};
+    Solution s;
+    cout << s.findLHS(v) << endl;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+598. Range Addition II
+Given an m * n matrix M initialized with all 0's and several update operations.
+
+Operations are represented by a 2D array, and each operation is represented by an array with 
+two positive integers a and b, which means M[i][j] should be added by one for all 0 <= i < a 
+and 0 <= j < b.
+
+You need to count and return the number of maximum integers in the matrix after performing 
+all the operations.
+
+Example 1:
+Input: 
+m = 3, n = 3
+operations = [[2,2],[3,3]]
+Output: 4
+Explanation: 
+Initially, M = 
+[[0, 0, 0],
+ [0, 0, 0],
+ [0, 0, 0]]
+
+After performing [2,2], M = 
+[[1, 1, 0],
+ [1, 1, 0],
+ [0, 0, 0]]
+
+After performing [3,3], M = 
+[[2, 2, 1],
+ [2, 2, 1],
+ [1, 1, 1]]
+
+So the maximum integer in M is 2, and there are four of it in M. So return 4.
+Note:
+The range of m and n is [1,40000].
+The range of a is [1,m], and the range of b is [1,n].
+The range of operations size won't exceed 10,000.
+/*
+    Submission Date: 2017-05-29
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxCount(int m, int n, vector<vector<int>>& ops) {
+        for(vector<int> op: ops) {
+            m = min(m, op[0]);
+            n = min(n, op[1]);
+        }
+        return m*n;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 599. Minimum Index Sum of Two Lists
 Suppose Andy and Doris want to choose a restaurant for dinner, and they both have a list of 
 favorite restaurants represented by strings.
@@ -550,412 +970,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-623. Add One Row to Tree
-Given the root of a binary tree, then value v and depth d, you need to add a row of 
-nodes with value v at the given depth d. The root node is at depth 1.
-
-The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
-N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
-subtree root. And N's original left subtree should be the left subtree of the new left 
-subtree root, its original right subtree should be the right subtree of the new right 
-subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
-tree node with value v as the new root of the whole original tree, and the original 
-tree is the new root's left subtree.
-
-Example 1:
-Input: 
-A binary tree as following:
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-v = 1
-
-d = 2
-
-Output: 
-       4
-      / \
-     1   1
-    /     \
-   2       6
-  / \     / 
- 3   1   5   
-
-Example 2:
-Input: 
-A binary tree as following:
-      4
-     /   
-    2    
-   / \   
-  3   1    
-
-v = 1
-
-d = 3
-
-Output: 
-      4
-     /   
-    2
-   / \    
-  1   1
- /     \  
-3       1
-Note:
-The given d is in range [1, maximum depth of the given tree + 1].
-The given binary tree has at least one tree node.
-
-/*
-    Submission Date: 2017-06-18
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
-        if(root == NULL) return;
-        if(d == 0) {
-            vec.push_back(root);
-            return;
-        }
-        
-        getRow(root -> left, d - 1, vec);
-        getRow(root -> right, d - 1, vec);
-    }
-public:
-    TreeNode* addOneRow(TreeNode* root, int v, int d) {
-        // get all nodes at depth d - 1
-        vector<TreeNode*> vec;
-        if(d == 1) {
-            TreeNode* new_root = new TreeNode(v);
-            new_root -> left = root;
-            root = new_root;
-        } else {
-            getRow(root, d - 2, vec);
-            for(auto t: vec) {
-                TreeNode* left = t -> left;
-                TreeNode* right = t -> right;
-                t -> left = new TreeNode(v);
-                t -> right = new TreeNode(v);
-                t -> left -> left = left;
-                t -> right -> right = right;
-            }
-        }
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-624. Maximum Distance in Arrays
-Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
-integers from two different arrays (each array picks one) and calculate the distance. 
-We define the distance between two integers a and b to be their absolute difference 
-|a-b|. Your task is to find the maximum distance.
-
-Example 1:
-Input: 
-[[1,2,3],
- [4,5],
- [1,2,3]]
-Output: 4
-Explanation: 
-One way to reach the maximum distance 4 is to pick 1 in the first or third array 
-and pick 5 in the second array.
-Note:
-Each given array will have at least 1 number. There will be at least two non-empty arrays.
-The total number of the integers in all the m arrays will be in the range of [2, 10000].
-The integers in the m arrays will be in the range of [-10000, 10000].
-
-/*
-    Submission Date: 2017-06-18
-    Runtime: 32 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-struct Start {
-    int index;
-    int first_value;
-};
-
-struct End {
-    int index;
-    int last_value;
-};
-
-class Solution {
-public:
-    int maxDistance(vector<vector<int>>& arrays) {
-        int N = arrays.size();
-        vector<Start> v;
-        vector<End> v2;
-        for(int i = 0; i < N; i++) {
-            Start e = {i, arrays[i][0]};
-            End e2 = {i, arrays[i].back()};
-            v.push_back(e);
-            v2.push_back(e2);
-        }
-
-        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
-        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
-
-        int max_dist = -1;
-        int max_search = N;
-
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < max_search; j++) {
-                if(v[i].index != v2[j].index) {
-                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
-                    max_search = j;
-                    break;
-                }
-            }
-        }
-        return max_dist;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-628. Maximum Product of Three Numbers
-Given an integer array, find three numbers whose product is maximum and output the maximum product.
-
-Example 1:
-Input: [1,2,3]
-Output: 6
-Example 2:
-Input: [1,2,3,4]
-Output: 24
-Note:
-The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
-Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 79 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int maximumProduct(vector<int>& nums) {
-        int N = nums.size();
-        
-        if(N < 3) return INT_MIN;
-        
-        sort(nums.begin(), nums.end());
-        
-        // three largest or 1 largest and 2 smallest
-        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-633. Sum of Square Numbers
-Given a non-negative integer c, your task is to decide whether there're two integers a and b such that a2 + b2 = c.
-
-Example 1:
-Input: 5
-Output: True
-Explanation: 1 * 1 + 2 * 2 = 5
-Example 2:
-Input: 3
-Output: False
-/*
-    Submission Date: 2018-05-30
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-/*
-    use newton's method to find roots where xn_plus_1 = (xn + x/xn)/2
-*/
-class Solution2 {
-    bool is_square(int x){
-        if(x < 0) return -1;
-        int xn = 0;
-        int xn_plus_1 = x;
-        while(abs(xn - xn_plus_1) > 1) {
-            xn = xn_plus_1;
-            xn_plus_1 = (xn + x/xn)/2;
-        } 
-
-        return xn*xn == x || xn_plus_1*xn_plus_1 == x;
-    }
-    
-public:
-    bool judgeSquareSum(int c) {
-        for(int i = 0; i <= sqrt(c); i++) {
-            if(is_square(c - i*i)) return true;
-        }
-        return false;
-    }
-};
-
-class Solution {
-public:
-    /*
-        two pointers. if a^2 + b^2 > c then increasing a will not help so decrease b
-        if it is < c then decreasing b will not help so increase a
-    */
-    bool judgeSquareSum(int c) {
-        int low = 0;
-        int high = sqrt(c);
-        while(low <= high) {
-            int x = low * low + high * high;
-            if(x == c) return true;
-            if(x < c) {
-                low++;
-            } else {
-                high--;
-            }
-        }
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-636. Exclusive Time of Functions
-Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
-find the exclusive time of these functions.
-
-Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
-another function.
-
-A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
-means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
-very end of time 0.
-
-Exclusive time of a function is defined as the time spent within this function, the time spent by 
-calling other functions should not be considered as this function's exclusive time. You should 
-return the exclusive time of each function sorted by their function id.
-
-Example 1:
-Input:
-n = 2
-logs = 
-["0:start:0",
- "1:start:2",
- "1:end:5",
- "0:end:6"]
-Output:[3, 4]
-Explanation:
-Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
-Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
-Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
-So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
-Note:
-Input logs will be sorted by timestamp, NOT log id.
-Your output should be sorted by function id, which means the 0th element of your output corresponds 
-to the exclusive time of function 0.
-Two functions won't start or end at the same time.
-Functions could be called recursively, and will always end.
-1 <= n <= 100
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 63 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <sstream>
-#include <cassert>
-
-using namespace std;
-
-struct Log {
-    int id;
-    string status;
-    int timestamp;
-};
-
-class Solution {
-public:
-    vector<int> exclusiveTime(int n, vector<string>& logs) {
-        vector<int> times(n, 0);
-        stack<Log> st;
-        for(string log: logs) {
-            stringstream ss(log);
-            string temp, temp2, temp3;
-            getline(ss, temp, ':');
-            getline(ss, temp2, ':');
-            getline(ss, temp3, ':');
-
-            Log item = {stoi(temp), temp2, stoi(temp3)};
-            if(item.status == "start") {
-                st.push(item);
-            } else {
-                assert(st.top().id == item.id);
-
-                int time_added = item.timestamp - st.top().timestamp + 1;
-                times[item.id] += item.timestamp - st.top().timestamp + 1;
-                st.pop();
-
-                if(!st.empty()) {
-                    assert(st.top().status == "start");
-                    times[st.top().id] -= time_added;
-                }
-            }
-        }
-
-        return times;
-    }
-};
-
-int main() {
     return 0;
 }

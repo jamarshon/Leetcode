@@ -1,6 +1,413 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+623. Add One Row to Tree
+Given the root of a binary tree, then value v and depth d, you need to add a row of 
+nodes with value v at the given depth d. The root node is at depth 1.
+
+The adding rule is: given a positive integer depth d, for each NOT null tree nodes 
+N in depth d-1, create two tree nodes with value v as N's left subtree root and right 
+subtree root. And N's original left subtree should be the left subtree of the new left 
+subtree root, its original right subtree should be the right subtree of the new right 
+subtree root. If depth d is 1 that means there is no depth d-1 at all, then create a 
+tree node with value v as the new root of the whole original tree, and the original 
+tree is the new root's left subtree.
+
+Example 1:
+Input: 
+A binary tree as following:
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+v = 1
+
+d = 2
+
+Output: 
+       4
+      / \
+     1   1
+    /     \
+   2       6
+  / \     / 
+ 3   1   5   
+
+Example 2:
+Input: 
+A binary tree as following:
+      4
+     /   
+    2    
+   / \   
+  3   1    
+
+v = 1
+
+d = 3
+
+Output: 
+      4
+     /   
+    2
+   / \    
+  1   1
+ /     \  
+3       1
+Note:
+The given d is in range [1, maximum depth of the given tree + 1].
+The given binary tree has at least one tree node.
+
+/*
+    Submission Date: 2017-06-18
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+    void getRow(TreeNode* root, int d, vector<TreeNode*>& vec) {
+        if(root == NULL) return;
+        if(d == 0) {
+            vec.push_back(root);
+            return;
+        }
+        
+        getRow(root -> left, d - 1, vec);
+        getRow(root -> right, d - 1, vec);
+    }
+public:
+    TreeNode* addOneRow(TreeNode* root, int v, int d) {
+        // get all nodes at depth d - 1
+        vector<TreeNode*> vec;
+        if(d == 1) {
+            TreeNode* new_root = new TreeNode(v);
+            new_root -> left = root;
+            root = new_root;
+        } else {
+            getRow(root, d - 2, vec);
+            for(auto t: vec) {
+                TreeNode* left = t -> left;
+                TreeNode* right = t -> right;
+                t -> left = new TreeNode(v);
+                t -> right = new TreeNode(v);
+                t -> left -> left = left;
+                t -> right -> right = right;
+            }
+        }
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+624. Maximum Distance in Arrays
+Given m arrays, and each array is sorted in ascending order. Now you can pick up two 
+integers from two different arrays (each array picks one) and calculate the distance. 
+We define the distance between two integers a and b to be their absolute difference 
+|a-b|. Your task is to find the maximum distance.
+
+Example 1:
+Input: 
+[[1,2,3],
+ [4,5],
+ [1,2,3]]
+Output: 4
+Explanation: 
+One way to reach the maximum distance 4 is to pick 1 in the first or third array 
+and pick 5 in the second array.
+Note:
+Each given array will have at least 1 number. There will be at least two non-empty arrays.
+The total number of the integers in all the m arrays will be in the range of [2, 10000].
+The integers in the m arrays will be in the range of [-10000, 10000].
+
+/*
+    Submission Date: 2017-06-18
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Start {
+    int index;
+    int first_value;
+};
+
+struct End {
+    int index;
+    int last_value;
+};
+
+class Solution {
+public:
+    int maxDistance(vector<vector<int>>& arrays) {
+        int N = arrays.size();
+        vector<Start> v;
+        vector<End> v2;
+        for(int i = 0; i < N; i++) {
+            Start e = {i, arrays[i][0]};
+            End e2 = {i, arrays[i].back()};
+            v.push_back(e);
+            v2.push_back(e2);
+        }
+
+        sort(v.begin(), v.end(), [](Start e, Start b){ return e.first_value < b.first_value; });
+        sort(v2.begin(), v2.end(), [](End e, End b){ return e.last_value > b.last_value; });
+
+        int max_dist = -1;
+        int max_search = N;
+
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < max_search; j++) {
+                if(v[i].index != v2[j].index) {
+                    max_dist = max(abs(v2[j].last_value - v[i].first_value), max_dist);
+                    max_search = j;
+                    break;
+                }
+            }
+        }
+        return max_dist;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+628. Maximum Product of Three Numbers
+Given an integer array, find three numbers whose product is maximum and output the maximum product.
+
+Example 1:
+Input: [1,2,3]
+Output: 6
+Example 2:
+Input: [1,2,3,4]
+Output: 24
+Note:
+The length of the given array will be in range [3,104] and all elements are in the range [-1000, 1000].
+Multiplication of any three numbers in the input won't exceed the range of 32-bit signed integer.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 79 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int maximumProduct(vector<int>& nums) {
+        int N = nums.size();
+        
+        if(N < 3) return INT_MIN;
+        
+        sort(nums.begin(), nums.end());
+        
+        // three largest or 1 largest and 2 smallest
+        return max(nums[N-1]*nums[N-2]*nums[N-3], nums[N-1]*nums[0]*nums[1]);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+633. Sum of Square Numbers
+Given a non-negative integer c, your task is to decide whether there're two integers a and b such that a2 + b2 = c.
+
+Example 1:
+Input: 5
+Output: True
+Explanation: 1 * 1 + 2 * 2 = 5
+Example 2:
+Input: 3
+Output: False
+/*
+    Submission Date: 2018-05-30
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+/*
+    use newton's method to find roots where xn_plus_1 = (xn + x/xn)/2
+*/
+class Solution2 {
+    bool is_square(int x){
+        if(x < 0) return -1;
+        int xn = 0;
+        int xn_plus_1 = x;
+        while(abs(xn - xn_plus_1) > 1) {
+            xn = xn_plus_1;
+            xn_plus_1 = (xn + x/xn)/2;
+        } 
+
+        return xn*xn == x || xn_plus_1*xn_plus_1 == x;
+    }
+    
+public:
+    bool judgeSquareSum(int c) {
+        for(int i = 0; i <= sqrt(c); i++) {
+            if(is_square(c - i*i)) return true;
+        }
+        return false;
+    }
+};
+
+class Solution {
+public:
+    /*
+        two pointers. if a^2 + b^2 > c then increasing a will not help so decrease b
+        if it is < c then decreasing b will not help so increase a
+    */
+    bool judgeSquareSum(int c) {
+        int low = 0;
+        int high = sqrt(c);
+        while(low <= high) {
+            int x = low * low + high * high;
+            if(x == c) return true;
+            if(x < c) {
+                low++;
+            } else {
+                high--;
+            }
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+636. Exclusive Time of Functions
+Given the running logs of n functions that are executed in a nonpreemptive single threaded CPU, 
+find the exclusive time of these functions.
+
+Each function has a unique id, start from 0 to n-1. A function may be called recursively or by 
+another function.
+
+A log is a string has this format : function_id:start_or_end:timestamp. For example, "0:start:0" 
+means function 0 starts from the very beginning of time 0. "0:end:0" means function 0 ends to the 
+very end of time 0.
+
+Exclusive time of a function is defined as the time spent within this function, the time spent by 
+calling other functions should not be considered as this function's exclusive time. You should 
+return the exclusive time of each function sorted by their function id.
+
+Example 1:
+Input:
+n = 2
+logs = 
+["0:start:0",
+ "1:start:2",
+ "1:end:5",
+ "0:end:6"]
+Output:[3, 4]
+Explanation:
+Function 0 starts at time 0, then it executes 2 units of time and reaches the end of time 1. 
+Now function 0 calls function 1, function 1 starts at time 2, executes 4 units of time and end at time 5.
+Function 0 is running again at time 6, and also end at the time 6, thus executes 1 unit of time. 
+So function 0 totally execute 2 + 1 = 3 units of time, and function 1 totally execute 4 units of time.
+Note:
+Input logs will be sorted by timestamp, NOT log id.
+Your output should be sorted by function id, which means the 0th element of your output corresponds 
+to the exclusive time of function 0.
+Two functions won't start or end at the same time.
+Functions could be called recursively, and will always end.
+1 <= n <= 100
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 63 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <sstream>
+#include <cassert>
+
+using namespace std;
+
+struct Log {
+    int id;
+    string status;
+    int timestamp;
+};
+
+class Solution {
+public:
+    vector<int> exclusiveTime(int n, vector<string>& logs) {
+        vector<int> times(n, 0);
+        stack<Log> st;
+        for(string log: logs) {
+            stringstream ss(log);
+            string temp, temp2, temp3;
+            getline(ss, temp, ':');
+            getline(ss, temp2, ':');
+            getline(ss, temp3, ':');
+
+            Log item = {stoi(temp), temp2, stoi(temp3)};
+            if(item.status == "start") {
+                st.push(item);
+            } else {
+                assert(st.top().id == item.id);
+
+                int time_added = item.timestamp - st.top().timestamp + 1;
+                times[item.id] += item.timestamp - st.top().timestamp + 1;
+                st.pop();
+
+                if(!st.empty()) {
+                    assert(st.top().status == "start");
+                    times[st.top().id] -= time_added;
+                }
+            }
+        }
+
+        return times;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 637. Average of Levels in Binary Tree
 Given a non-empty binary tree, return the average value of the nodes on each level in the form of an array.
 
@@ -562,412 +969,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-648. Replace Words
-In English, we have a concept called root, which can be followed by some other words to form another 
-longer word - let's call this word successor. For example, the root an, followed by other, which can 
-form another word another.
-
-Now, given a dictionary consisting of many roots and a sentence. You need to replace all the successor 
-in the sentence with the root forming it. If a successor has many roots can form it, replace it with the 
-root with the shortest length.
-
-You need to output the sentence after the replacement.
-
-Example 1:
-Input: dict = ["cat", "bat", "rat"]
-sentence = "the cattle was rattled by the battery"
-Output: "the cat was rat by the bat"
-Note:
-The input will only have lower-case letters.
-1 <= dict words number <= 1000
-1 <= sentence words number <= 1000
-1 <= root length <= 100
-1 <= sentence words length <= 1000
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 159 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_set>
-#include <set>
-#include <algorithm>
-#include <sstream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    string replaceWords(vector<string>& dict, string sentence) {
-        unordered_set<string> ds(dict.begin(), dict.end());
-        set<int> word_size;
-        for(auto ds_e: ds) {
-            word_size.insert(ds_e.size());
-        }
-
-        stringstream ss(sentence);
-        string temp;
-
-        vector<string> res;
-        while(getline(ss, temp, ' ')) {
-            bool found = false;
-            for(auto len: word_size) {
-                if(len > temp.size()) {
-                    res.push_back(temp);
-                    found = true;
-                    break;
-                } else {
-                    if(ds.count(temp.substr(0, len))) {
-                        res.push_back(temp.substr(0, len));
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if(!found) {
-                res.push_back(temp);
-            }
-        }
-
-        return accumulate(res.begin(), res.end(), string(), [](string memo, string a){
-            return memo.empty() ? a : memo + " " + a;
-        });
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-649. Dota2 Senate
-In the world of Dota2, there are two parties: the Radiant and the Dire.
-
-The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
-a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
-can exercise one of the two rights:
-
-Ban one senator's right: 
-A senator can make another senator lose all his rights in this and all the following rounds.
-Announce the victory: 
-If this senator found the senators who still have rights to vote are all from the same party, he can announce 
-the victory and make the decision about the change in the game.
-Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
-party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
-
-The round-based procedure starts from the first senator to the last senator in the given order. This 
-procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
-during the procedure.
-
-Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
-which party will finally announce the victory and make the change in the Dota2 game. The output should be 
-Radiant or Dire.
-
-Example 1:
-Input: "RD"
-Output: "Radiant"
-Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights any more since his right has been banned. 
-And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Example 2:
-Input: "RDD"
-Output: "Dire"
-Explanation: 
-The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
-And the second senator can't exercise any rights anymore since his right has been banned. 
-And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
-And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
-who can vote.
-Note:
-The length of the given string will in the range [1, 10,000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 69 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string predictPartyVictory(string senate) {
-        while(!senate.empty()) {
-            for(int i = 0; i < senate.size();) {
-                char curr = senate[i];
-                int j = i;
-                for(; j < senate.size(); j++) {
-                    if(senate[j] != curr) {
-                        break;
-                    }
-                }
-            
-                if(j == senate.size()) {
-                    j = 0;
-                    for(; j < i; j++) {
-                        if(senate[j] != curr) {
-                            break;
-                        }
-                    }
-
-                    if(j == i) {
-                        if(curr == 'R') return "Radiant";
-                        return "Dire";
-                    } else {
-                        senate = senate.substr(0, j) + senate.substr(j + 1);
-                    }
-                } else {
-                    senate = senate.substr(0, j) + senate.substr(j + 1);
-                    i++;
-                }
-            }
-        }
-        return "";
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-650. 2 Keys Keyboard
-Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
-for each step:
-
-Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
-Paste: You can paste the characters which are copied last time.
-Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
-permitted. Output the minimum number of steps to get n 'A'.
-
-Example 1:
-Input: 3
-Output: 3
-Explanation:
-Intitally, we have one character 'A'.
-In step 1, we use Copy All operation.
-In step 2, we use Paste operation to get 'AA'.
-In step 3, we use Paste operation to get 'AAA'.
-Note:
-The n will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <climits>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minSteps(int n) {
-        vector<int> dp(n + 1, INT_MAX);
-        dp[0] = dp[1] = 0;
-
-        for(int i = 1; i <= n; i++) {
-            int cost = dp[i] + 1;
-            int temp = i*2;
-            if(temp > n) break; 
-            while(temp <= n) {
-                dp[temp] = min(dp[temp], ++cost);
-                temp += i;
-            }
-        }
-
-        return dp[n];
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-652. Find Duplicate Subtrees
-Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
-return the root node of any one of them.
-
-Two trees are duplicate if they have the same structure with same node values.
-
-Example 1: 
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-The following are two duplicate subtrees:
-      2
-     /
-    4
-and
-    4
-Therefore, you need to return above trees' root in the form of a list.
-
-/*
-    Submission Date: 2017-07-30
-    Runtime: 45 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
-        if(root != NULL) {
-            string left = preorder(root -> left, freq, res);
-            string right = preorder(root -> right, freq, res);
-            
-            string str = to_string(root -> val) + " " + left + right;
-            
-            if(freq[str] == 1) res.push_back(root);
-            freq[str]++;
-            return str;
-        } else {
-            return "null ";
-        }
-    }
-    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
-        unordered_map<string, int> freq;
-        vector<TreeNode*> res;
-        preorder(root, freq, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-653. Two Sum IV - Input is a BST
-Given a Binary Search Tree and a target number, return true if there exist two 
-elements in the BST such that their sum is equal to the given target.
-
-Example 1:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 9
-
-Output: True
-Example 2:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 28
-
-Output: False
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-    unordered_map<int, vector<TreeNode*>> visited;
-public:
-    bool findTarget(TreeNode* root, int k) {
-        if(root == NULL) return false;
-        int target = k - (root -> val);
-        
-        if(visited.count(target)) {
-            for(auto l: visited[target]) {
-                if(l != root) return true;
-            }
-        }
-        
-        TreeNode* curr = root;
-        while(curr) {
-            if(curr != root && curr -> val == target) return true;
-            visited[curr -> val].push_back(curr);
-            if(curr -> val > target) {
-                curr = curr -> right;
-            } else {
-                curr = curr -> left;
-            }
-        }
-        
-        return findTarget(root -> left, k) || findTarget(root -> right, k);
-    }
-};
-
-class Solution {
-public:
-    void inorder(TreeNode* curr, vector<int>& res) {
-        if(curr == NULL) return;
-        inorder(curr -> left, res);
-        res.push_back(curr -> val);
-        inorder(curr -> right, res);
-    }
-    bool findTarget(TreeNode* root, int k) {
-        vector<int> sorted_arr;
-        inorder(root, sorted_arr);
-        int low = 0;
-        int high = sorted_arr.size() - 1;
-        
-        while(low < high) {
-            int sum = sorted_arr[low] + sorted_arr[high];
-            if(sum == k) return true;
-            if(sum < k) low++;
-            else high--;
-        }
-        return false;
     }
 };
 

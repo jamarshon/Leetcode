@@ -1,6 +1,72 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+413. Arithmetic Slices
+A sequence of number is called arithmetic if it consists of at least three elements and if the 
+difference between any two consecutive elements is the same.
+
+For example, these are arithmetic sequence:
+
+1, 3, 5, 7, 9
+7, 7, 7, 7
+3, -1, -5, -9
+The following sequence is not arithmetic.
+
+1, 1, 2, 5, 7
+
+A zero-indexed array A consisting of N numbers is given. A slice of that array is any 
+pair of integers (P, Q) such that 0 <= P < Q < N.
+
+A slice (P, Q) of array A is called arithmetic if the sequence:
+A[P], A[p + 1], ..., A[Q - 1], A[Q] is arithmetic. In particular, this means that P + 1 < Q.
+
+The function should return the number of arithmetic slices in the array A.
+
+
+Example:
+
+A = [1, 2, 3, 4]
+
+return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4] itself.
+/*
+    Submission Date: 2018-06-30
+    Runtime:  ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    find the length of sequence where A[i+1] - A[i] is the same for all numbers in the sequence
+    let this length be called len, then there are len - 2 subarrays of size 3, len - 3 subarrays
+    of size 4 and so on. so the sum of 0 to len - 2 is just n*(n+1)/2 or (len - 2)*(len - 1)/2
+    */
+    int numberOfArithmeticSlices(vector<int>& A) {
+        int res = 0;
+        int N = A.size();
+        for(int i = 0; i + 1 < N;) {
+            int diff = A[i+1] - A[i];
+            int start = i;
+            while(i + 1 < N && A[i+1] - A[i] == diff) i++;
+            int len = i - start + 1;
+            if(len >= 3) {
+                res += (len - 2)*(len - 1)/2;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 414. Third Maximum Number
 Given a non-empty array of integers, return the third maximum number in this array. 
 If it does not exist, return the maximum number. The time complexity must be in O(n).
@@ -757,6 +823,114 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+445. Add Two Numbers II
+You are given two non-empty linked lists representing two non-negative integers. 
+The most significant digit comes first and each of their nodes contain a single 
+
+You may assume the two numbers do not contain any leading zero, except the 
+
+Follow up:
+What if you cannot modify the input lists? In other words, reversing the lists 
+
+
+
+Example:
+Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 8 -> 0 -> 7
+/*
+    Submission Date: 2018-07-10
+    Runtime: 28 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    int GetLength(ListNode* node) {
+        int res = 0;
+        while(node) {
+            node = node->next;
+            res++;
+        }
+        return res;
+    }
+    
+    
+    /*
+    create list where head is lsb by traversing the nodes and adding up corresponding l1, l2
+    nodes. the list may have numbers >= 10. traverse the list from lsb to msb and move
+    the carry through the list and at the same time reverse it.
+    */
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        int N = GetLength(l1);
+        int M = GetLength(l2);
+        
+        ListNode* res = NULL;
+        // assuming N > 0 && M > 0 initially, then they will both hit 0 at the same
+        // time as the longer one keeps getting trimmed
+        while(N > 0 && M > 0) {
+            int sum = 0;
+            // if N == M, both if will execute moving both pointers and adding both sums
+            // if N > M, just the first will execute
+            // if N < M, just the second will execute
+            // both these last condition will ensure the longer is trimmed
+            if(N >= M) {
+                sum += l1->val;
+                l1 = l1->next;
+                N--;
+            }
+            
+            if(N < M) {
+                sum += l2->val;
+                l2 = l2->next;
+                M--;
+            }
+            
+            ListNode* head = new ListNode(sum);
+            head->next = res;
+            res = head;
+        }
+        
+        
+        // need to reverse the list and do carry through
+        int carry = 0;
+        ListNode* prev = NULL;
+        ListNode* temp;
+        while(res) {
+            res->val += carry;
+            carry = res->val / 10;
+            res->val %= 10;
+            
+            temp = res->next;
+            res->next = prev;
+            prev = res;
+            res = temp;
+        }
+        
+        if(carry) {
+            ListNode* head = new ListNode(carry);
+            head->next = prev;
+            prev = head;
+        }
+        
+        return prev;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 447. Number of Boomerangs
 Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) 
 such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
@@ -809,200 +983,6 @@ public:
                 if(kv.second < 2) continue;
                 res += kv.second*(kv.second - 1);
             }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-448. Find All Numbers Disappeared in an Array
-Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
-
-Find all the elements of [1, n] inclusive that do not appear in this array.
-
-Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
-
-Example:
-
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[5,6]
-/*
-    Submission Date: 2018-06-04
-    Runtime: 155 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findDisappearedNumbers(vector<int>& nums) {
-        for(int i = 0; i < nums.size(); i++) {
-            while(nums[nums[i]-1] != nums[i]) swap(nums[nums[i]-1], nums[i]);
-        }
-        
-        vector<int> res;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i + 1 != nums[i]) res.push_back(i+1);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-451. Sort Characters By Frequency
-Given a string, sort it in decreasing order based on the frequency of characters.
-
-Example 1:
-
-Input:
-"tree"
-
-Output:
-"eert"
-
-Explanation:
-'e' appears twice while 'r' and 't' both appear once.
-So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid answer.
-Example 2:
-
-Input:
-"cccaaa"
-
-Output:
-"cccaaa"
-
-Explanation:
-Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
-Note that "cacaca" is incorrect, as the same characters must be together.
-Example 3:
-
-Input:
-"Aabb"
-
-Output:
-"bbAa"
-
-Explanation:
-"bbaA" is also a valid answer, but "Aabb" is incorrect.
-Note that 'A' and 'a' are treated as two different characters.
-/*
-    Submission Date: 2018-06-30
-    Runtime: 201 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    string frequencySort(string s) {
-        unordered_map<char, int> letter_to_freq;
-        for(const auto& c: s) letter_to_freq[c]++;
-        sort(s.begin(), s.end(), [&letter_to_freq](const char& lhs, const char& rhs) {
-            return letter_to_freq[lhs] == letter_to_freq[rhs] ? lhs > rhs : letter_to_freq[lhs] > letter_to_freq[rhs];
-        });
-        return s;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-453. Minimum Moves to Equal Array Elements
-Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
-where a move is incrementing n - 1 elements by 1.
-
-Example:
-
-Input:
-[1,2,3]
-
-Output:
-3
-
-Explanation:
-Only three moves are needed (remember each move increments two elements):
-
-[1,2,3]  =>  [2,3,3]  =>  [3,4,3]  =>  [4,4,4]
-/*
-    Submission Date: 2018-06-07
-    Runtime: 51 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    increasing everything besides a number is equivalent to decreasing the number by 1
-    so if all the numbers have to be decreased to equal the same
-    value, then they should all be decreased until it reaches the smallest element in 
-    the array
-    
-    e.g 1 4 7
-    the 4 needs to be decreased 3 times and the 7 decreased 6 times to get 
-    (4-1) + (7-1) = 9
-    
-    or
-    
-    let an array be A = {A[0], A[1], A[2], ... A[N]} and Z = {Z[0], Z[1], Z[2], Z[N]}
-    where Z[i] means the number of rows where the element at i is zero then if x is
-    the final value which all the elements equal to then
-    
-    A[0] + Z[1] + Z[2] + ... + Z[N] = x
-    Z[0] + A[1] + Z[2] + ... + Z[N] = x
-    Z[0] + Z[1] + A[2] + ... + Z[N] = x
-    ...
-    
-    subtracting one row from another gets
-    Z[0] - Z[1] + A[1] - A[0] = 0
-    Z[1] - Z[0] = A[1] - A[0]
-    
-    let Z[0] = 0, 
-    Z[i] = A[i] - A[i-1] + Z[i-1]
-        = A[i] - A[i-1] + (A[i-1] - A[i-2] + Z[i-2])
-        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + Z[i-3]))
-        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + .... -A[1] + (A[1] - A[0] + Z[0])))
-        ...
-        = A[i] + (A[i-1] - A[i-1]) + (A[i-2] - A[i-2]) + .... (A[1] - A[1]) - A[0]
-        = A[i] - A[0]
-    
-    The result is number of rows or sum Z[i] from i = [0, N]
-    Z[i] must be >= 0 as number of rows can't be negative. to minimize then
-    A[i] - A[0] should have A[0] as large as possible with having A[i] become < 0
-    so A[0] should be the smallest in the array as A[min_ind] - A[min_ind] >= 0
-    */
-    int minMoves(vector<int>& nums) {
-        if(nums.empty()) return 0;
-        int min_el = *min_element(nums.begin(), nums.end());
-        int res = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            res += nums[i] - min_el;
         }
         
         return res;

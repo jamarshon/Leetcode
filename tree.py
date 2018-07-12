@@ -48,10 +48,15 @@ if __name__ == '__main__':
     # drawtree(deserialize('[1,2,3,null,null,4,null,null,5]'))
     while True:
         s = raw_input('s:')
+        s = s.strip()
         if s == 'x': break
         print s
         if s[0] == 'c':
-            t = {'[': '{', ']': '}'}
+            t = {}
+            if '[' in s:
+                t = {'[': '{', ']': '}'}
+            else:
+                t = {'{': '[', '}': ']'}
             print ''.join([t[c] if c in t else c for c in s][1:])
         else:
             drawtree(deserialize(s))

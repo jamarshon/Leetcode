@@ -1,6 +1,200 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+448. Find All Numbers Disappeared in an Array
+Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
+
+Find all the elements of [1, n] inclusive that do not appear in this array.
+
+Could you do it without extra space and in O(n) runtime? You may assume the returned list does not count as extra space.
+
+Example:
+
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[5,6]
+/*
+    Submission Date: 2018-06-04
+    Runtime: 155 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findDisappearedNumbers(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++) {
+            while(nums[nums[i]-1] != nums[i]) swap(nums[nums[i]-1], nums[i]);
+        }
+        
+        vector<int> res;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i + 1 != nums[i]) res.push_back(i+1);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+451. Sort Characters By Frequency
+Given a string, sort it in decreasing order based on the frequency of characters.
+
+Example 1:
+
+Input:
+"tree"
+
+Output:
+"eert"
+
+Explanation:
+'e' appears twice while 'r' and 't' both appear once.
+So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid answer.
+Example 2:
+
+Input:
+"cccaaa"
+
+Output:
+"cccaaa"
+
+Explanation:
+Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
+Note that "cacaca" is incorrect, as the same characters must be together.
+Example 3:
+
+Input:
+"Aabb"
+
+Output:
+"bbAa"
+
+Explanation:
+"bbaA" is also a valid answer, but "Aabb" is incorrect.
+Note that 'A' and 'a' are treated as two different characters.
+/*
+    Submission Date: 2018-06-30
+    Runtime: 201 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    string frequencySort(string s) {
+        unordered_map<char, int> letter_to_freq;
+        for(const auto& c: s) letter_to_freq[c]++;
+        sort(s.begin(), s.end(), [&letter_to_freq](const char& lhs, const char& rhs) {
+            return letter_to_freq[lhs] == letter_to_freq[rhs] ? lhs > rhs : letter_to_freq[lhs] > letter_to_freq[rhs];
+        });
+        return s;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+453. Minimum Moves to Equal Array Elements
+Given a non-empty integer array of size n, find the minimum number of moves required to make all array elements equal, 
+where a move is incrementing n - 1 elements by 1.
+
+Example:
+
+Input:
+[1,2,3]
+
+Output:
+3
+
+Explanation:
+Only three moves are needed (remember each move increments two elements):
+
+[1,2,3]  =>  [2,3,3]  =>  [3,4,3]  =>  [4,4,4]
+/*
+    Submission Date: 2018-06-07
+    Runtime: 51 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    increasing everything besides a number is equivalent to decreasing the number by 1
+    so if all the numbers have to be decreased to equal the same
+    value, then they should all be decreased until it reaches the smallest element in 
+    the array
+    
+    e.g 1 4 7
+    the 4 needs to be decreased 3 times and the 7 decreased 6 times to get 
+    (4-1) + (7-1) = 9
+    
+    or
+    
+    let an array be A = {A[0], A[1], A[2], ... A[N]} and Z = {Z[0], Z[1], Z[2], Z[N]}
+    where Z[i] means the number of rows where the element at i is zero then if x is
+    the final value which all the elements equal to then
+    
+    A[0] + Z[1] + Z[2] + ... + Z[N] = x
+    Z[0] + A[1] + Z[2] + ... + Z[N] = x
+    Z[0] + Z[1] + A[2] + ... + Z[N] = x
+    ...
+    
+    subtracting one row from another gets
+    Z[0] - Z[1] + A[1] - A[0] = 0
+    Z[1] - Z[0] = A[1] - A[0]
+    
+    let Z[0] = 0, 
+    Z[i] = A[i] - A[i-1] + Z[i-1]
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + Z[i-2])
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + Z[i-3]))
+        = A[i] - A[i-1] + (A[i-1] - A[i-2] + (A[i-2] - A[i-3] + .... -A[1] + (A[1] - A[0] + Z[0])))
+        ...
+        = A[i] + (A[i-1] - A[i-1]) + (A[i-2] - A[i-2]) + .... (A[1] - A[1]) - A[0]
+        = A[i] - A[0]
+    
+    The result is number of rows or sum Z[i] from i = [0, N]
+    Z[i] must be >= 0 as number of rows can't be negative. to minimize then
+    A[i] - A[0] should have A[0] as large as possible with having A[i] become < 0
+    so A[0] should be the smallest in the array as A[min_ind] - A[min_ind] >= 0
+    */
+    int minMoves(vector<int>& nums) {
+        if(nums.empty()) return 0;
+        int min_el = *min_element(nums.begin(), nums.end());
+        int res = 0;
+        for(int i = 0; i < nums.size(); i++) {
+            res += nums[i] - min_el;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 454. 4Sum II
 Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k, 
 
@@ -654,6 +848,97 @@ int main() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+481. Magical String
+A magical string S consists of only '1' and '2' and obeys the following rules:
+
+
+The string S is magical because concatenating the number of contiguous 
+
+
+
+The first few elements of string S is the following:
+S = "1221121221221121122……"
+
+
+
+If we group the consecutive '1's and '2's in S, it will be:
+
+
+1   22  11  2  1  22  1  22  11  2  11  22 ......
+
+
+and the occurrences of '1's or '2's in each group are:
+
+
+1   2      2    1   1    2     1    2     2    1    2    2 ......
+
+
+
+You can see that the occurrence sequence above is the S itself. 
+
+
+
+Given an integer N as input, return the number of '1's in the first N number in 
+
+
+Note:
+N will not exceed 100,000.
+
+
+
+Example 1:
+Input: 6
+Output: 3
+Explanation: The first 6 elements of magical string S is "12211" and it contains 
+/*
+    Submission Date: 2018-07-10
+    Runtime: 8 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<char, char> t{{'1', '2'}, {'2', '1'}};
+public:
+    /*
+    if(s[i] == '1') the last character should only occur once so push the opposite
+    else the last character should occur twice so push the same then the opposite
+    
+    keep track of s.size() as well as the one_cnt
+    */
+    int magicalString(int n) {
+        if(n == 0) return 0;
+        int one_cnt = 1;
+        string s = "1";
+        int i = 0;
+        while(s.size() < n) {
+            if(s[i] == '1') {
+                s.push_back(t[s.back()]);
+                if(s.back() == '1') one_cnt++;
+            } else { // s[i] == '2'
+                s.push_back(s.back());
+                if(s.back() == '1') one_cnt++;
+                if(s.size() < n) { 
+                    s.push_back(t[s.back()]);
+                    if(s.back() == '1') one_cnt++;
+                }
+            }
+            i++;
+        }
+        
+        return one_cnt;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 482. License Key Formatting
 You are given a license key represented as a string S which consists only alphanumeric character and dashes. 
 The string is separated into N+1 groups by N dashes.
@@ -712,291 +997,6 @@ public:
             res.push_back(s[i]);
         }
         
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-485. Max Consecutive Ones
-Given a binary array, find the maximum number of consecutive 1s in this array.
-
-Example 1:
-Input: [1,1,0,1,1,1]
-Output: 3
-Explanation: The first two digits or the last three digits are consecutive 1s.
-    The maximum number of consecutive 1s is 3.
-Note:
-
-The input array will only contain 0 and 1.
-The length of input array is a positive integer and will not exceed 10,000
-/*
-    Submission Date: 2018-06-03
-    Runtime: 37 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findMaxConsecutiveOnes(vector<int>& nums) {
-        int curr = 0;
-        int res = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            if(nums[i] == 1) {
-                curr++;
-                res = max(res, curr);
-            } else {
-                curr = 0;
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible increasing 
-subsequences of the given array, and the length of an increasing subsequence should be at least 2 .
-
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
-Note:
-The length of the given array will not exceed 15.
-The range of integer in the given array is [-100,100].
-The given array may contain duplicates, and two equal integers should also be considered 
-as a special case of increasing sequence.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <set>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> findSubsequences(const vector<int>& nums) {
-        int N = nums.size();
-        vector<vector<vector<int>>> dp(N);
-        vector<vector<int>> res;
-        set<vector<int>> used;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < i; j++) {
-                if(nums[i] >= nums[j]) {
-                    for(auto seq: dp[j]) {
-                        seq.push_back(nums[i]);
-                        dp[i].push_back(seq);
-                    }
-                }
-            }
-            dp[i].push_back({nums[i]});
-        }
-        
-        for(auto vec: dp) {
-            for(auto seq: vec) {
-                if(seq.size() >= 2 && !used.count(seq)) {
-                    res.push_back(seq);
-                    used.insert(seq);
-                }
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-492. Construct the Rectangle
-For a web developer, it is very important to know how to design a web page's size. So, given a specific rectangular web 
-page’s area, your job by now is to design a rectangular web page, whose length L and width W satisfy the following requirements:
-
-1. The area of the rectangular web page you designed must equal to the given target area.
-
-2. The width W should not be larger than the length L, which means L >= W.
-
-3. The difference between length L and width W should be as small as possible.
-You need to output the length L and the width W of the web page you designed in sequence.
-Example:
-Input: 4
-Output: [2, 2]
-Explanation: The target area is 4, and all the possible ways to construct it are [1,4], [2,2], [4,1]. 
-But according to requirement 2, [1,4] is illegal; according to requirement 3,  [4,1] is not optimal compared to [2,2]. So the 
-length L is 2, and the width W is 2.
-Note:
-The given area won't exceed 10,000,000 and is a positive integer
-The web page's width and length you designed must be positive integers.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 2 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> constructRectangle(int area) {
-        for(int i = sqrt(area); i >= 1; i--) {
-            if(area % i == 0) return {area/i, i};
-        }
-        return {};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-495. Teemo Attacking
-In LOL world, there is a hero called Teemo and his attacking can make his enemy Ashe be in 
-poisoned condition. Now, given the Teemo's attacking ascending time series towards Ashe and 
-the poisoning time duration per Teemo's attacking, you need to output the total time that Ashe is in poisoned condition.
-
-You may assume that Teemo attacks at the very beginning of a specific time point, and makes 
-Ashe be in poisoned condition immediately.
-
-Example 1:
-Input: [1,4], 2
-Output: 4
-Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned immediately. 
-This poisoned status will last 2 seconds until the end of time point 2. 
-And at time point 4, Teemo attacks Ashe again, and causes Ashe to be in poisoned status for another 2 seconds. 
-So you finally need to output 4.
-Example 2:
-Input: [1,2], 2
-Output: 3
-Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be poisoned. 
-This poisoned status will last 2 seconds until the end of time point 2. 
-However, at the beginning of time point 2, Teemo attacks Ashe again who is already in 
-poisoned status. 
-Since the poisoned status won't add up together, though the second poisoning attack will 
-still work at time point 2, it will stop at the end of time point 3. 
-So you finally need to output 3.
-Note:
-You may assume the length of given time series array won't exceed 10000.
-You may assume the numbers in the Teemo's attacking time series and his poisoning time duration 
-per attacking are non-negative integers, which won't exceed 10,000,000.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 103 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findPoisonedDuration(vector<int>& timeSeries, int duration) {
-        if(timeSeries.empty()) return 0;
-        
-        int N = timeSeries.size();
-        
-        int res = duration;
-        for(int i = 1; i < N; i++) {
-            res += min(duration, timeSeries[i] - timeSeries[i-1]);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-496. Next Greater Element I
-You are given two arrays (without duplicates) nums1 and nums2 where nums1’s elements are subset of nums2. Find all the next greater numbers for 
-nums1's elements in the corresponding places of nums2.
-
-The Next Greater Number of a number x in nums1 is the first greater number to its right in nums2. If it does not exist, output -1 for this number.
-
-Example 1:
-Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
-Output: [-1,3,-1]
-Explanation:
-    For number 4 in the first array, you cannot find the next greater number for it in the second array, so output -1.
-    For number 1 in the first array, the next greater number for it in the second array is 3.
-    For number 2 in the first array, there is no next greater number for it in the second array, so output -1.
-Example 2:
-Input: nums1 = [2,4], nums2 = [1,2,3,4].
-Output: [3,-1]
-Explanation:
-    For number 2 in the first array, the next greater number for it in the second array is 3.
-    For number 4 in the first array, there is no next greater number for it in the second array, so output -1.
-Note:
-All elements in nums1 and nums2 are unique.
-The length of both nums1 and nums2 would not exceed 1000.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 11 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-        For a stack of decreasing number, if there is a number x encountered.
-        All the numbers in the stack that x is greater than will have their return value to be x
-        and x is placed in the stack. This means there is no number in the stack that is less than x
-        eg [1,3,4,2,3]
-         []     1 => [1]
-         [1]    3 => [3]    update greater(1) = 3
-         [3]    4 => [4]    update greater(3) = 4
-         [4]    2 => [4,2]
-         [4,2]  3 => [4,3]  update greater(2) = 3
-    */
-    vector<int> nextGreaterElement(vector<int>& findNums, vector<int>& nums) {
-        if(nums.empty()) return {};
-        
-        int N = findNums.size();
-        // decreasing numbers
-        stack<int> stk;
-        
-        unordered_map<int,int> val_to_greater_val;
-        for(const auto& x: nums) {
-            while(!stk.empty() && stk.top() < x) {
-                val_to_greater_val[stk.top()] = x;
-                stk.pop();
-            }
-            
-            stk.push(x);
-        }
-        
-        vector<int> res;
-        for(const auto& x: findNums) {
-            res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
-        }
         return res;
     }
 };

@@ -1,6 +1,641 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+783. Minimum Distance Between BST Nodes
+Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
+values of any two different nodes in the tree.
+
+Example :
+
+Input: root = [4,2,6,1,3,null,null]
+Output: 1
+Explanation:
+Note that root is a TreeNode object, not an array.
+
+The given tree [4,2,6,1,3,null,null] is represented by the following diagram:
+
+          4
+        /   \
+      2      6
+     / \    
+    1   3  
+
+while the minimum difference in this tree is 1, it occurs between node 1 and node 2, also between node 3 and node 2.
+Note:
+
+The size of the BST will be between 2 and 100.
+The BST is always valid, each node's value is an integer, and each node's value is different.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <climits>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    inorder traversal keeping tracking of prev
+    */
+    void help(TreeNode* root, int& res, int& prev) {
+        if(root == NULL) return;
+        help(root->left, res, prev);
+        if(prev != INT_MAX) {
+            res = min(res, root->val - prev);
+        }
+        
+        prev = root->val;
+        help(root->right, res, prev);
+    }
+    
+    int minDiffInBST(TreeNode* root) {
+        int res = INT_MAX, prev = INT_MAX;
+        help(root, res, prev);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+784. Letter Case Permutation
+Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  
+Return a list of all possible strings we could create.
+
+Examples:
+Input: S = "a1b2"
+Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
+
+Input: S = "3z4"
+Output: ["3z4", "3Z4"]
+
+Input: S = "12345"
+Output: ["12345"]
+Note:
+
+S will be a string with length at most 12.
+S will consist only of letters or digits.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, vector<string>> dp_;
+public:
+    /*
+     find the first alphabetical letter. get the vector for the remaining string
+     add prefix with the letter lower case and upper case to each element from the vector
+    */
+    vector<string> letterCasePermutation(string S) {
+        if(dp_.count(S)) return dp_[S];
+        
+        int N = S.size();
+        int i = 0;
+        for(; i < N; i++) {
+            if(isalpha(S[i])) break;
+        }
+        
+        if(i >= N) return { S };
+        vector<string> rem = letterCasePermutation(S.substr(i + 1));
+        int M = rem.size();
+        rem.reserve(2*M);
+        
+        string s1 = S.substr(0, i) + string(1, toupper(S[i]));
+        string s2 = S.substr(0, i) + string(1, tolower(S[i]));
+        for(int j = 0; j < M; j++) {
+            rem.push_back(s2 + rem[j]);
+            rem[j] = s1 + rem[j];
+        }
+        return rem;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+788. Rotated Digits
+X is a good number if after rotating each digit individually by 180 degrees, we get a valid number that is different from X.  
+Each digit must be rotated - we cannot choose to leave it alone.
+
+A number is valid if each digit remains a digit after rotation. 0, 1, and 8 rotate to themselves; 2 and 5 rotate to each other; 
+6 and 9 rotate to each other, and the rest of the numbers do not rotate to any other number and become invalid.
+
+Now given a positive number N, how many numbers X from 1 to N are good?
+
+Example:
+Input: 10
+Output: 4
+Explanation: 
+There are four good numbers in the range [1, 10] : 2, 5, 6, 9.
+Note that 1 and 10 are not good numbers, since they remain unchanged after rotating.
+Note:
+
+N  will be in range [1, 10000].
+/*
+    Submission Date: 2018-06-04
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    dp[i] = -1 if i cannot be rotated else it equals the rotated number of i
+    therefore dp[i] = dp[i/10] + rot[i % 10] as i/10 gets the rotated version i
+    without the last number and rot[i % 10] gets the rotated version of the last number
+    of i
+    */
+    int rotatedDigits(int N) {
+        vector<int> dp(N + 1, -1);
+        unordered_map<int,int> rot{{0, 0}, {1, 1}, {8, 8}, 
+                                   {2, 5}, {5, 2}, {6, 9}, {9, 6}};
+        int res = 0;
+        for(int i = 1; i <= N; i++) {
+            if(!rot.count(i % 10)) continue;
+            if(i < 10) {
+                dp[i] = rot[i];
+                res += dp[i] != i;
+            } else {
+                if(dp[i/10] == -1) continue;
+                dp[i] = dp[i/10] * 10 + rot[i % 10];
+                res += dp[i] != i;
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+789. Escape The Ghosts
+You are playing a simplified Pacman game. You start at the point (0, 0), and your 
+destination is (target[0], target[1]). There are several ghosts on the map, the i-th ghost 
+starts at (ghosts[i][0], ghosts[i][1]).
+
+Each turn, you and all ghosts simultaneously *may* move in one of 4 cardinal directions: 
+north, east, west, or south, going from the previous point to a new point 1 unit of distance away.
+
+You escape if and only if you can reach the target before any ghost reaches you (for any given 
+moves the ghosts may take.)  If you reach any square (including the target) at the same time as 
+a ghost, it doesn't count as an escape.
+
+Return True if and only if it is possible to escape.
+
+Example 1:
+Input: 
+ghosts = [[1, 0], [0, 3]]
+target = [0, 1]
+Output: true
+Explanation: 
+You can directly reach the destination (0, 1) at time 1, while the ghosts located at (1, 0) or 
+(0, 3) have no way to catch up with you.
+Example 2:
+Input: 
+ghosts = [[1, 0]]
+target = [2, 0]
+Output: false
+Explanation: 
+You need to reach the destination (2, 0), but the ghost at (1, 0) lies between you and the destination.
+Example 3:
+Input: 
+ghosts = [[2, 0]]
+target = [1, 0]
+Output: false
+Explanation: 
+The ghost can reach the target at the same time as you.
+Note:
+
+All points have coordinates with absolute value <= 10000.
+The number of ghosts will not exceed 100.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    if the manhattan distance (abs horizontal + abs vertical) of the target
+    from the origin is less than or equal to the manhattan distance of the 
+    target with the ghost, then return false as the ghost can get there
+    faster and just wait indefinitely.
+
+    why ghost intercept is not good?
+    if a ghost can intercept you, it means they can reach the target faster than
+    you. the shortest path between two points is straight line so if ghost can
+    take detour and intercept then it means if they just went straight, they
+    would be there before you.
+              if ghost gets here before you, they would already be at target
+              x   
+    you --------------- target
+              |         |
+              |         |
+    ghost--------------
+    */
+    bool escapeGhosts(vector<vector<int>>& ghosts, vector<int>& target) {
+        int mine = abs(target[0]) + abs(target[1]);
+        for(const auto& e: ghosts) {
+            int dist = abs(e[0]-target[0]) + abs(e[1]-target[1]);
+            if(dist <= mine) return false;
+        }
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+791. Custom Sort String
+S and T are strings composed of lowercase letters. In S, no letter occurs more than once.
+
+S was sorted in some custom order previously. We want to permute the characters of T so that 
+they match the order that S was sorted. More specifically, if x occurs before y in S, then x should occur before y in the returned string.
+
+Return any permutation of T (as a string) that satisfies this property.
+
+Example :
+Input: 
+S = "cba"
+T = "abcd"
+Output: "cbad"
+Explanation: 
+"a", "b", "c" appear in S, so the order of "a", "b", "c" should be "c", "b", and "a". 
+Since "d" does not appear in S, it can be at any position in T. "dcba", "cdba", "cbda" are also valid outputs.
+ 
+
+Note:
+
+S has length at most 26, and no character is repeated in S.
+T has length at most 200.
+S and T consist of lowercase letters only.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    string customSortString(string S, string T) {
+        int N = S.size();
+        
+        vector<int> letter_to_ind(26, N);
+        for(int i = 0; i < N; i++) letter_to_ind[S[i] - 'a'] = i;
+        
+        sort(T.begin(), T.end(), [&letter_to_ind](const char& lhs, const char& rhs){
+            return letter_to_ind[lhs - 'a'] < letter_to_ind[rhs - 'a'];
+        });
+        
+        return T;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+796. Rotate String
+We are given two strings, A and B.
+
+A shift on A consists of taking string A and moving the leftmost character to the rightmost position. 
+For example, if A = 'abcde', then it will be 'bcdea' after one shift on A. Return True if and only if A can 
+become B after some number of shifts on A.
+
+Example 1:
+Input: A = 'abcde', B = 'cdeab'
+Output: true
+
+Example 2:
+Input: A = 'abcde', B = 'abced'
+Output: false
+Note:
+
+A and B will have length at most 100.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    bool rotateString(string A, string B) {
+        if(A.size() != B.size()) return false;
+        string A2 = A + A;
+        return A2.find(B) != string::npos;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+797. All Paths From Source to Target
+Given a directed, acyclic graph of N nodes.  Find all possible paths from node 0 to node N-1, and return them in any order.
+
+The graph is given as follows:  the nodes are 0, 1, ..., graph.length - 1.  graph[i] is a list of all nodes j for which the edge (i, j) exists.
+
+Example:
+Input: [[1,2], [3], [3], []] 
+Output: [[0,1,3],[0,2,3]] 
+Explanation: The graph looks like this:
+0--->1
+|    |
+v    v
+2--->3
+There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
+Note:
+
+The number of nodes in the graph will be in the range [2, 15].
+You can print different paths in any order, but you should keep the order of nodes inside one path.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 103 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void dfs(int from, const vector<vector<int>>& graph, vector<int>& curr, vector<vector<int>>& res) {
+        if(graph[from].empty()) {
+            res.push_back(curr);
+        } else {
+            for(auto e: graph[from]) {
+                curr.push_back(e);
+                dfs(e, graph, curr, res);
+                curr.pop_back();
+            }
+        }
+    }
+    
+    vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
+        vector<int> curr{0};
+        vector<vector<int>> res;
+        dfs(0, graph, curr, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+804. Unique Morse Code Words
+International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
+follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
+
+For convenience, the full table for the 26 letters of the English alphabet is given below:
+
+[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
+Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
+For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
+such a concatenation, the transformation of a word.
+
+Return the number of different transformations among all words we have.
+
+Example:
+Input: words = ["gin", "zen", "gig", "msg"]
+Output: 2
+Explanation: 
+The transformation of each word is:
+"gin" -> "--...-."
+"zen" -> "--...-."
+"gig" -> "--...--."
+"msg" -> "--...--."
+
+There are 2 different transformations, "--...-." and "--...--.".
+ 
+
+Note:
+
+The length of words will be at most 100.
+Each words[i] will have length in range [1, 12].
+words[i] will only consist of lowercase letters.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
+public:
+    int uniqueMorseRepresentations(vector<string>& words) {
+        unordered_set<string> comb;
+        for(const auto& s: words) {
+            string curr = "";
+            for(const auto& c: s) {
+                curr += morse_[c - 'a'];
+            }
+            comb.insert(curr);
+        }
+        return comb.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+806. Number of Lines To Write String
+We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
+and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
+an array widths, an array where widths[0] is the width of 'a', widths[1] is the width of 'b', ..., and widths[25] is the width of 'z'.
+
+Now answer two questions: how many lines have at least one character from S, and what is the width used by the last such line? 
+Return your answer as an integer list of length 2.
+
+Example :
+Input: 
+widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "abcdefghijklmnopqrstuvwxyz"
+Output: [3, 60]
+Explanation: 
+All letters have the same length of 10. To write all 26 letters,
+we need two full lines and one line with 60 units.
+Example :
+Input: 
+widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "bbbcccdddaaa"
+Output: [2, 4]
+Explanation: 
+All letters except 'a' have the same length of 10, and 
+"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
+For the last 'a', it is written on the second line because
+there is only 2 units left in the first line.
+So the answer is 2 lines, plus 4 units in the second line.
+ 
+Note:
+
+The length of S will be in the range [1, 1000].
+S will only contain lowercase letters.
+widths is an array of length 26.
+widths[i] will be in the range of [2, 10].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> numberOfLines(vector<int>& widths, string S) {
+        int current_len = 0;
+        int num_lines = 0;
+        for(const auto& c: S) {
+            if(current_len + widths[c - 'a'] > 100) {
+                num_lines++;
+                current_len = 0;
+            }
+            current_len += widths[c - 'a'];
+        }
+        return {num_lines+1, current_len};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+807. Max Increase to Keep City Skyline
+In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
+We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
+different for different buildings). Height 0 is considered to be a building as well. 
+
+At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
+and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
+of the rectangles formed by all the buildings when viewed from a distance. See the following example.
+
+What is the maximum total sum that the height of the buildings can be increased?
+
+Example:
+Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
+Output: 35
+Explanation: 
+The grid is:
+[ [3, 0, 8, 4], 
+  [2, 4, 5, 7],
+  [9, 2, 6, 3],
+  [0, 3, 1, 0] ]
+
+The skyline viewed from top or bottom is: [9, 4, 8, 7]
+The skyline viewed from left or right is: [8, 7, 9, 3]
+
+The grid after increasing the height of buildings without affecting skylines is:
+
+gridNew = [ [8, 4, 8, 7],
+            [7, 4, 7, 7],
+            [9, 4, 8, 7],
+            [3, 3, 3, 3] ]
+
+Notes:
+
+1 < grid.length = grid[0].length <= 50.
+All heights grid[i][j] are in the range [0, 100].
+All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
+        if(grid.empty()) return 0;
+        int N = grid.size();
+        int M = grid[0].size();
+        vector<int> max_col(M, 0), max_row(N, 0);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                max_col[j] = max(max_col[j], grid[i][j]);
+                max_row[i] = max(max_row[i], grid[i][j]);
+            }
+        }
+        
+        int res = 0;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                res += min(max_col[j], max_row[i]) - grid[i][j];
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 811. Subdomain Visit Count
 A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
 at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
@@ -364,592 +999,6 @@ public:
         }
         
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-821. Shortest Distance to a Character
-Given a string S and a character C, return an array of integers representing the shortest distance from the character C in the string.
-
-Example 1:
-
-Input: S = "loveleetcode", C = 'e'
-Output: [3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0]
- 
-
-Note:
-
-S string length is in [1, 10000].
-C is a single character, and guaranteed to be in string S.
-All letters in S and C are lowercase.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <climits>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    keep track of last seen C and use that as the distance
-    then do it from the back and take the min of this value with the previous value
-    */
-    vector<int> shortestToChar(string S, char C) {
-        int N = S.size();
-        vector<int> res(N, INT_MAX);
-        
-        int last_C_forward = -1;
-        int last_C_backward = -1;
-        for(int i = 0; i < N; i++) {
-            if(S[i] == C) last_C_forward = i;
-            if(S[N-i-1] == C) last_C_backward = N-i-1;
-            
-            if(last_C_forward >= 0) {
-                res[i] = min(res[i], i - last_C_forward);
-            }
-            
-            if(last_C_backward >= 0) {
-                res[N-i-1] = min(res[N-i-1], last_C_backward - (N-i-1));
-            }
-            
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-824. Goat Latin
-A sentence S is given, composed of words separated by spaces. Each word consists of lowercase and uppercase letters only.
-
-We would like to convert the sentence to "Goat Latin" (a made-up language similar to Pig Latin.)
-
-The rules of Goat Latin are as follows:
-
-If a word begins with a vowel (a, e, i, o, or u), append "ma" to the end of the word.
-For example, the word 'apple' becomes 'applema'.
- 
-If a word begins with a consonant (i.e. not a vowel), remove the first letter and append it to the end, then add "ma".
-For example, the word "goat" becomes "oatgma".
- 
-Add one letter 'a' to the end of each word per its word index in the sentence, starting with 1.
-For example, the first word gets "a" added to the end, the second word gets "aa" added to the end and so on.
-Return the final sentence representing the conversion from S to Goat Latin. 
-
-Example 1:
-
-Input: "I speak Goat Latin"
-Output: "Imaa peaksmaaa oatGmaaaa atinLmaaaaa"
-Example 2:
-
-Input: "The quick brown fox jumped over the lazy dog"
-Output: "heTmaa uickqmaaa rownbmaaaa oxfmaaaaa umpedjmaaaaaa overmaaaaaaa hetmaaaaaaaa azylmaaaaaaaaa ogdmaaaaaaaaaa"
- 
-
-Notes:
-
-S contains only uppercase, lowercase and spaces. Exactly one space between each word.
-1 <= S.length <= 150.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-    unordered_set<char> vowels = {'a', 'e', 'i', 'o', 'u'};
-public:
-    string toGoatLatin(string S) {
-        stringstream ss(S);
-        string token;
-        string res = "";
-        int i = 1;
-        while(getline(ss, token, ' ')) {
-            if(!res.empty()) res += ' ';
-            if(vowels.count(tolower(token[0]))) {
-                res += token;
-            } else {
-                res += token.substr(1) + string(1, token[0]); 
-            }
-            
-            res += "ma" + string(i, 'a');
-            i++;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-825. Friends Of Appropriate Ages
-Some people will make friend requests. The list of their ages is given and ages[i] 
-is the age of the ith person. 
-
-Person A will NOT friend request person B (B != A) if any of the following conditions are true:
-
-age[B] <= 0.5 * age[A] + 7
-age[B] > age[A]
-age[B] > 100 && age[A] < 100
-Otherwise, A will friend request B.
-
-Note that if A requests B, B does not necessarily request A.  Also, people will not 
-friend request themselves.
-
-How many total friend requests are made?
-
-Example 1:
-
-Input: [16,16]
-Output: 2
-Explanation: 2 people friend request each other.
-Example 2:
-
-Input: [16,17,18]
-Output: 2
-Explanation: Friend requests are made 17 -> 16, 18 -> 17.
-Example 3:
-
-Input: [20,30,100,110,120]
-Output: 
-Explanation: Friend requests are made 110 -> 100, 120 -> 110, 120 -> 100.
- 
-
-Notes:
-
-1 <= ages.length <= 20000.
-1 <= ages[i] <= 120.
-/*
-    Submission Date: 2018-06-29
-    Runtime: 39 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    1 <= ages[i] <= 120
-    so have a[i] be the frequency of age i
-    for an age i, there should be an age j <= i which can be friends with
-    j > 0.5*i + 7     ie. j = 0.5*i + 8
-    j must be !(j > 100 && i < 100) note this will never occur as j <= i
-    
-    so for every person of age i (a[i]) and every person of age j (a[j])
-    there can be a[j] * a[i] friend requests made as for a person in j
-    can make friend with every person in i (a[i] times) and there are a[j] of these people
-    
-    if j == i, then it is a[i] * (a[i] - 1) as every person in i 
-    can make friends with a[i] - 1 people as they cannot make friends with themself
-    */
-    int numFriendRequests(vector<int>& ages) {
-        vector<int> a(121, 0);
-        
-        for(const auto& e: ages) a[e]++;
-        
-        int res = 0;
-        for(int i = 1; i < 121; i++) {
-            for(int j = 0.5*i + 8; j <= i; j++) res += a[j] * (a[i] - (i == j));
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-830. Positions of Large Groups
-In a string S of lowercase letters, these letters form consecutive groups of the same character.
-
-For example, a string like S = "abbxxxxzyy" has the groups "a", "bb", "xxxx", "z" and "yy".
-
-Call a group large if it has 3 or more characters.  We would like the starting and ending positions of every large group.
-
-The final answer should be in lexicographic order.
-
- 
-
-Example 1:
-
-Input: "abbxxxxzzy"
-Output: [[3,6]]
-Explanation: "xxxx" is the single large group with starting  3 and ending positions 6.
-Example 2:
-
-Input: "abc"
-Output: []
-Explanation: We have "a","b" and "c" but no large group.
-Example 3:
-
-Input: "abcdddeeeeaabbbcd"
-Output: [[3,5],[6,9],[12,14]]
- 
-
-Note:  1 <= S.length <= 1000
-/*
-    Submission Date: 2018-06-08
-    Runtime: 12 ms
-    Difficulty: EASY 
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> largeGroupPositions(string S) {
-        vector<vector<int>> res;
-        for(int i = 0; i < S.size();) {
-            int j = i;
-            while(j < S.size() && S[i] == S[j]) j++;
-            if(j - i >= 3) {
-                res.push_back({i, j-1});
-            }
-            i = j;
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-832. Flipping an Image
-Given a binary matrix A, we want to flip the image horizontally, then invert it, and return the resulting image.
-
-To flip an image horizontally means that each row of the image is reversed.  For example, flipping [1, 1, 0] horizontally results in [0, 1, 1].
-
-To invert an image means that each 0 is replaced by 1, and each 1 is replaced by 0. For example, inverting [0, 1, 1] results in [1, 0, 0].
-
-Example 1:
-
-Input: [[1,1,0],[1,0,1],[0,0,0]]
-Output: [[1,0,0],[0,1,0],[1,1,1]]
-Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
-Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
-Example 2:
-
-Input: [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
-Output: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
-Explanation: First reverse each row: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]].
-Then invert the image: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
-Notes:
-
-1 <= A.length = A[0].length <= 20
-0 <= A[i][j] <= 1
-/*
-    Submission Date: 2018-05-31
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
-        for(auto& row: A) {
-            reverse(row.begin(), row.end());
-            for(auto& el: row) el ^= 1;
-        }
-        
-        return A;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-836. Rectangle Overlap
-A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the coordinates of its bottom-left corner, and (x2, y2) are 
-the coordinates of its top-right corner.
-
-Two rectangles overlap if the area of their intersection is positive.  To be clear, two rectangles that only touch at the corner or edges do not overlap.
-
-Given two rectangles, return whether they overlap.
-
-Example 1:
-
-Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
-Output: true
-Example 2:
-
-Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
-Output: false
-Notes:
-
-Both rectangles rec1 and rec2 are lists of 4 integers.
-All coordinates in rectangles will be between -10^9 and 10^9.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool intersects(int a1, int a2, int b1, int b2) {
-        return !(b1 >= a2 || a1 >= b2);
-    }
-    
-    // Check if x intervals intersect and y intervals intersect
-    bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
-        return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-840. Magic Squares In Grid
-A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
-
-Given an grid of integers, how many 3 x 3 "magic square" subgrids are there?  (Each subgrid is contiguous).
-Example 1:
-
-Input: [[4,3,8,4],
-        [9,5,1,9],
-        [2,7,6,2]]
-Output: 1
-Explanation: 
-The following subgrid is a 3 x 3 magic square:
-438
-951
-276
-
-while this one is not:
-384
-519
-762
-
-In total, there is only one magic square inside the given grid.
-Note:
-
-1 <= grid.length <= 10
-1 <= grid[0].length <= 10
-0 <= grid[i][j] <= 15
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    bool IsMagicSquare(const vector<vector<int>>& grid, int i, int j) {
-        unordered_set<int> st;
-        vector<int> row_sum(3, 0), col_sum(3, 0);
-        int diag1 = 0, diag2 = 0;
-        for(int x = 0; x < 3; x++) {
-            for(int y = 0; y < 3; y++) {
-                int e = grid[i+y][j+x];
-                if(e < 1 || e > 9 || st.count(e)) return false;
-                row_sum[y] += e;
-                col_sum[x] += e;
-                if(y == x) diag1 += e;
-                if(x + y == 2) diag2 += e;
-            }
-        }
-        
-        for(int x = 1; x < 3; x++) {
-            if(row_sum[x] != row_sum[x-1]) return false;
-            if(col_sum[x] != col_sum[x-1]) return false;
-        }
-        
-        return diag1 == diag2;
-    }
-    int numMagicSquaresInside(vector<vector<int>>& grid) {
-        int N = grid.size();
-        int M = grid[0].size();
-        int res = 0;
-        for(int i = 0; i < N - 2; i++) {
-            for(int j = 0; j < M - 2; j++) {
-                res += IsMagicSquare(grid, i, j);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-841. Keys and Rooms
-There are N rooms and you start in room 0.  Each room has a distinct number in 0, 1, 2, ..., N-1, 
-and each room may have some keys to access the next room. 
-
-Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is an integer in [0, 1, ..., N-1] 
-where N = rooms.length.  A key rooms[i][j] = v opens the room with number v.
-
-Initially, all the rooms start locked (except for room 0). 
-
-You can walk back and forth between rooms freely.
-
-Return true if and only if you can enter every room.
-
-Example 1:
-
-Input: [[1],[2],[3],[]]
-Output: true
-Explanation:  
-We start in room 0, and pick up key 1.
-We then go to room 1, and pick up key 2.
-We then go to room 2, and pick up key 3.
-We then go to room 3.  Since we were able to go to every room, we return true.
-Example 2:
-
-Input: [[1,3],[3,0,1],[2],[0]]
-Output: false
-Explanation: We can't enter the room with number 2.
-Note:
-
-1 <= rooms.length <= 1000
-0 <= rooms[i].length <= 1000
-The number of keys in all rooms combined is at most 3000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-#include <queue>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canVisitAllRooms(vector<vector<int>>& rooms) {
-        queue<int> q;
-        unordered_set<int> visited;
-        
-        q.push(0);
-        visited.insert(0);
-        while(!q.empty()) {
-            int curr = q.front();
-            q.pop();
-            for(auto e: rooms[curr]) {
-                if(!visited.count(e)) {
-                    q.push(e);
-                    visited.insert(e);
-                }
-            }
-        }
-        
-        return visited.size() == rooms.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-844. Backspace String Compare
-Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
-
-Example 1:
-
-Input: S = "ab#c", T = "ad#c"
-Output: true
-Explanation: Both S and T become "ac".
-Example 2:
-
-Input: S = "ab##", T = "c#d#"
-Output: true
-Explanation: Both S and T become "".
-Example 3:
-
-Input: S = "a##c", T = "#a#c"
-Output: true
-Explanation: Both S and T become "c".
-Example 4:
-
-Input: S = "a#c", T = "b"
-Output: false
-Explanation: S becomes "c" while T becomes "b".
- 
-
-Note:
-
-1 <= S.length <= 200
-1 <= T.length <= 200
-S and T only contain lowercase letters and '#' characters.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string eval(string s) {
-        string res = "";
-        for(const auto& c: s) {
-            if(c == '#') {
-                if(!res.empty()) res.pop_back();
-            } else {
-                res.push_back(c);
-            }
-        }
-        return res;
-    }
-    bool backspaceCompare(string S, string T) {
-        return eval(S) == eval(T);
     }
 };
 

@@ -1,6 +1,239 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+566. Reshape the Matrix
+In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
+
+You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
+the wanted reshaped matrix, respectively.
+
+The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
+
+If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
+
+Example 1:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 1, c = 4
+Output: 
+[[1,2,3,4]]
+Explanation:
+The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
+Example 2:
+Input: 
+nums = 
+[[1,2],
+ [3,4]]
+r = 2, c = 4
+Output: 
+[[1,2],
+ [3,4]]
+Explanation:
+There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
+Note:
+The height and width of the given matrix is in range [1, 100].
+The given r and c are all positive.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 39 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
+        if(nums.empty()) return {};
+        int N = nums.size();
+        int M = nums[0].size();
+        
+        // cannot gain or lose elements
+        if(N*M != r*c) return nums;
+        
+        vector<vector<int>> res(r, vector<int>(c));
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < r; i++) {
+            for(int j = 0; j < c; j++) {
+                res[i][j] = nums[y][x];
+                x++;
+                if(x == M) {
+                    x = 0;
+                    y++;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+567. Permutation in String
+Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
+one of the first string's permutations is the substring of the second string.
+Example 1:
+Input:s1 = "ab" s2 = "eidbaooo"
+Output:True
+Explanation: s2 contains one permutation of s1 ("ba").
+Example 2:
+Input:s1= "ab" s2 = "eidboaoo"
+Output: False
+Note:
+The input strings only contain lower case letters.
+The length of both given strings is in range [1, 10,000].
+/*
+    Submission Date: 2018-06-02
+    Runtime: 18 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    frequency map of s1 with variable to_use as global to check if everything equals 0
+    use sliding window where everything in a window is a valid character and does not 
+    exceed the frequency map limit for certain character
+    for a new character, if it exceeds the limit or its not a valid character than keep
+    moving front (restoring freq map). if it is not a valid character, the map will be
+    restored and to_do = original
+    Check if character is valid, if it is use it else move front so that it is not
+    included
+    */
+    bool checkInclusion(string s1, string s2) {
+        vector<int> freq(26 , 0);
+        unordered_set<char> letters(s1.begin(), s1.end());
+        for(const auto& c: s1) freq[c - 'a']++;
+        
+        int front = 0;
+        int back = 0;
+        
+        int N = s2.size();
+        int to_use = s1.size();
+        
+        while(back < N) {
+            if(to_use == 0) return true;
+            // slide the front until the letter is removed
+            int back_val = s2[back] - 'a';
+            while(front < back && freq[back_val] == 0) {
+                freq[s2[front] - 'a']++;
+                front++;
+                to_use++;
+            }
+            
+            /* if the back letter is in s1, decrease the frequency and to_use
+                else it means front == back as freq[s2[back]] == 0 so increase front 
+                to not include this letter
+            */
+            if(letters.count(s2[back])) {
+                freq[back_val]--;
+                to_use--;
+            } else {
+                front++;
+            }
+            
+            back++;
+        }
+        
+        return to_use == 0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+572. Subtree of Another Tree
+Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
+with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
+tree s could also be considered as a subtree of itself.
+
+Example 1:
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+Given tree t:
+   4 
+  / \
+ 1   2
+Return true, because t has the same structure and node values with a subtree of s.
+Example 2:
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+    /
+   0
+Given tree t:
+   4
+  / \
+ 1   2
+Return false.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 29 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    void serialize(TreeNode* node, string& res) {
+        if(node == NULL) {
+            res += "null,";
+        } else {
+            res += to_string(node->val) + ",";
+            serialize(node->left, res);
+            serialize(node->right, res);
+        }
+    }
+    
+    // check if s == t or s contains a subtree t
+    bool isSubtree(TreeNode* s, TreeNode* t) {
+        string s1 = "", s2 = "";
+        serialize(s, s1);
+        serialize(t, s2);
+        return s1 == s2 || s1.find("," + s2) != string::npos;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 575. Distribute Candies
 Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
 Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
@@ -764,153 +997,5 @@ public:
 };
 
 int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-606. Construct String from Binary Tree
-You need to construct a string consists of parenthesis and integers from a 
-binary tree with the preorder traversing way.
-
-The null node needs to be represented by empty parenthesis pair "()". And you 
-need to omit all the empty parenthesis pairs that don't affect the one-to-one 
-mapping relationship between the string and the original binary tree.
-
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
-
-Output: "1(2(4))(3)"
-
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
-
-Output: "1(2()(4))(3)"
-
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one 
-mapping relationship between the input and the output.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string tree2str(TreeNode* t) {
-        if(t == NULL) return "";
-        string root = to_string(t -> val);
-        string left = tree2str(t -> left);
-        string right = tree2str(t -> right);
-        
-        if(left.empty() && right.empty())
-            return root;
-        if(!left.empty() && right.empty())
-            return root + "(" + left + ")";
-        
-        return root + "(" + left + ")" + "(" + right + ")";
-    }
-};
-
-int main() {
-    Solution s;
     return 0;
 }

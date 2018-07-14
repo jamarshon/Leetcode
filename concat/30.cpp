@@ -1,6 +1,83 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+671. Second Minimum Node In a Binary Tree
+Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in 
+this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes.
+
+Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
+
+If no such second minimum value exists, output -1 instead.
+
+Example 1:
+Input: 
+    2
+   / \
+  2   5
+     / \
+    5   7
+
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+Example 2:
+Input: 
+    2
+   / \
+  2   2
+
+Output: -1
+Explanation: The smallest value is 2, but there isn't any second smallest value.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    bfs that once reaches a different node->val than root->val will stop putting that node's
+    children. result is the minimum of all these first encountered different node-> val
+    */
+    int findSecondMinimumValue(TreeNode* root) {
+        queue<TreeNode*> q;
+        q.push(root);
+        int res = INT_MAX;
+        bool seen_others = false;
+        
+        while(!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
+            if(node->val == root->val) {
+                if(node->left) q.push(node->left);
+                if(node->right) q.push(node->right);
+            } else {
+                // found node that does not equal root->val, no need to go deeper as they will be >= node->val
+                res = min(res, node->val);
+                seen_others = true;
+            }
+        }
+        
+        return seen_others ? res : -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 672. Bulb Switcher II
 There is a room with n lights which are turned on initially and 4 buttons on the 
 wall. After performing exactly m unknown operations towards buttons, you need to 
@@ -879,68 +956,6 @@ public:
         for(int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
         
         return dfs(id, id_to_ind, employees);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-692. Top K Frequent Words
-Given a non-empty list of words, return the k most frequent elements.
-
-Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
-with the lower alphabetical order comes first.
-
-Example 1:
-Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
-Output: ["i", "love"]
-Explanation: "i" and "love" are the two most frequent words.
-    Note that "i" comes before "love" due to a lower alphabetical order.
-Example 2:
-Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
-Output: ["the", "is", "sunny", "day"]
-Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
-    with the number of occurrence being 4, 3, 2 and 1 respectively.
-Note:
-You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
-Input words contain only lowercase letters.
-Follow up:
-Try to solve it in O(n log k) time and O(n) extra space.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> topKFrequent(vector<string>& words, int k) {
-        unordered_map<string,int> freq_map;
-        for(auto e: words) freq_map[e]++;
-        
-        map<int, vector<string>> grouped_map;
-        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
-        
-        vector<string> res;
-        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
-            sort(it->second.begin(), it->second.end());
-            for(auto e: it->second) {
-                res.push_back(e);
-                if(res.size() == k) break;
-            }
-            if(res.size() == k) break;
-        }
-        
-        return res;
     }
 };
 

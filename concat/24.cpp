@@ -1,6 +1,193 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+501. Find Mode in Binary Search Tree
+Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
+
+Assume a BST is defined as follows:
+
+The left subtree of a node contains only nodes with keys less than or equal to the node's key.
+The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
+Both the left and right subtrees must also be binary search trees.
+For example:
+Given BST [1,null,2,2],
+   1
+    \
+     2
+    /
+   2
+return [2].
+
+Note: If a tree has more than one mode, you can return them in any order.
+
+Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
+/*
+    Submission Date: 2018-06-09
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    typedef pair<int,int> pii;
+    
+    /*
+    inorder traversal where if the current element is the same as the last then
+    increase the frequency else reset it. if the frequency is greater than res
+    frequency, then change res else if the frequency is the same than push back
+    to res
+    */
+    void help(TreeNode* node, pii& curr, vector<pii>& res) {
+        if(node == NULL) return;
+        help(node->left, curr, res);
+        
+        if(curr.first == -1 || curr.second != node->val) {
+            curr = {1, node->val};
+        } else {
+            curr.first++;
+        }
+        
+        if(curr.first > res[0].first) {
+            res = {curr};
+        } else if(curr.first == res[0].first) {
+            res.push_back(curr);
+        }
+        
+        help(node->right, curr, res);
+    }
+    
+    vector<int> findMode(TreeNode* root) {
+        if(root == NULL) return {};
+        
+        vector<pii> res = {{0, INT_MIN}};
+        pii curr = {-1, INT_MIN};
+        help(root, curr, res);
+    
+        vector<int> v_i;
+        v_i.reserve(res.size());
+        for(const auto& p: res) v_i.push_back(p.second);
+        return v_i;
+    }
+};
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+503. Next Greater Element II
+Given a circular array (the next element of the last element is the first 
+element of the array), print the Next Greater Number for every element. The Next 
+Greater Number of a number x is the first greater number to its traversing-order 
+next in the array, which means you could search circularly to find its next 
+
+
+Example 1:
+Input: [1,2,1]
+Output: [2,-1,2]
+Explanation: The first 1's next greater number is 2; The number 2 can't find 
+next greater number; The second 1's next greater number needs to search 
+
+
+
+Note:
+The length of given array won't exceed 10000.
+/*
+    Submission Date: 2018-07-08
+    Runtime: 68 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <list>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+     stack is in decreasing order, it represents an index which has
+     not met an element greater than it. for all the elements that
+     are smaller than the current element, make res[element] = current element
+     then put current element in the stack
+     
+     if we ensure that the stack only has elements from 0 < N and traverse
+     the array twice then after the first traversal, there will be a stack
+     of elements that have nothing greater than it from [i, N) and in the 
+     second traversal it will try to find [0, i)
+    */
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int N = nums.size();
+        vector<int> res(N, -1);
+        stack<int> stk;
+        for(int i = 0; i < 2 * N; i++) {
+            while(!stk.empty() && nums[stk.top()] < nums[i % N]) {
+                res[stk.top()] = nums[i % N];
+                stk.pop();
+            }
+            
+            if(i < N) stk.push(i);
+        }
+        
+        return res;
+    }
+};
+
+class Solution2 {
+public:
+    /*
+    maintian a stack of increasing numbers similar to before but
+    first prepopulate the stack by running through the array once
+    then run through the array again, and if the back element in the 
+    stack is equal to the current element then remove it from the stk
+    to preserve wraparound that does not exceed index i
+    */
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int N = nums.size();
+        list<int> stk;
+        for(int i = N-1; i >= 0; i--) {
+            while(!stk.empty() && stk.front() <= nums[i]) {
+                stk.pop_front();
+            }
+            stk.push_front(nums[i]);
+        }
+        
+        vector<int> res(N, -1);
+        for(int i = N-1; i >= 0; i--) {
+            if(!stk.empty() && stk.back() == nums[i]) {
+                stk.pop_back();
+            }
+            
+            while(!stk.empty() && stk.front() <= nums[i]) {
+                stk.pop_front();
+            }
+            
+            if(!stk.empty()) {
+                res[i] = stk.front();
+            }
+            stk.push_front(nums[i]);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 504. Base 7
 Given an integer, return its base 7 string representation.
 
@@ -781,181 +968,6 @@ public:
         }
         
         return k == 0 ? counted.size() : res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-535. Encode and Decode TinyURL
-TinyURL is a URL shortening service where you enter a URL such as 
-https://leetcode.com/problems/design-tinyurl and it returns a short URL such as http://tinyurl.com/4e9iAk.
-
-Design the encode and decode methods for the TinyURL service. There is no restriction on how 
-your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to 
-a tiny URL and the tiny URL can be decoded to the original URL.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 7 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-/*
-A vector and return the encoded as an index to retrieve the original string
-The encode called upon the same string should not return the same encoded string
-as it would have collision problems so usually a randomizer and a storage of encoded
-to original is needed.
-*/
-class Solution {
-public:
-    vector<string> m;
-    // Encodes a URL to a shortened URL.
-    string encode(string longUrl) {
-        m.push_back(longUrl);
-        return to_string(m.size());
-    }
-
-    // Decodes a shortened URL to its original URL.
-    string decode(string shortUrl) {
-        return m[stoi(shortUrl)-1];
-    }
-};
-
-// Your Solution object will be instantiated and called as such:
-// Solution solution;
-// solution.decode(solution.encode(url));
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-536. Construct Binary Tree from String
-You need to construct a binary tree from a string consisting of parenthesis and integers.
-
-The whole input represents a binary tree. It contains an integer followed by zero, 
-one or two pairs of parenthesis. The integer represents the root's value and a pair 
-of parenthesis contains a child binary tree with the same structure.
-
-You always start to construct the left child node of the parent first if it exists.
-
-Example:
-Input: "4(2(3)(1))(6(5))"
-Output: return the tree root node representing the following tree:
-
-       4
-     /   \
-    2     6
-   / \   / 
-  3   1 5   
-
-Note:
-There will only be '(', ')', '-' and '0' ~ '9' in the input string.
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* str2tree(string s) {
-        int len = s.size();
-        if(len == 0) return NULL;
-
-        int firstBracketIndex = s.find('(');
-        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
-
-        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
-        int count = 1;
-        int offset = firstBracketIndex + 1;
-        int i = offset;
-
-        while(count != 0) {
-            if(s[i] == ')') count--;
-            else if(s[i] == '(') count++;
-            i++;
-        }
-
-        string leftExpression = s.substr(offset, i - 1 - offset);
-        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
-
-        node -> left = str2tree(leftExpression);
-        node -> right = str2tree(rightExpression);
-
-        return node;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-537. Complex Number Multiplication
-Given two strings representing two complex numbers.
-
-You need to return a string representing their multiplication. Note i2 = -1 according to the definition.
-
-Example 1:
-Input: "1+1i", "1+1i"
-Output: "0+2i"
-Explanation: (1 + i) * (1 + i) = 1 + i2 + 2 * i = 2i, and you need convert it to the form of 0+2i.
-Example 2:
-Input: "1+-1i", "1+-1i"
-Output: "0+-2i"
-Explanation: (1 - i) * (1 - i) = 1 + i2 - 2 * i = -2i, and you need convert it to the form of 0+-2i.
-Note:
-
-The input strings will not have extra blank.
-The input strings will be given in the form of a+bi, where the integer a and b will both belong to the range of 
-[-100, 100]. And the output should be also in this form.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 4 ms
-    Difficulty: MEDIUM 
-*/
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<int,int> Extract(string S) {
-        int plus_S_ind = S.find("+");
-        string a = S.substr(0, plus_S_ind);
-        string b = S.substr(plus_S_ind + 1, S.size() - (plus_S_ind + 1) - 1);
-        return {stoi(a), stoi(b)};
-    }
-    string complexNumberMultiply(string S1, string S2) {
-        int a, b, c, d;
-        tie(a,b) = Extract(S1);
-        tie(c,d) = Extract(S2);
-        
-        int real = a*c - b*d;
-        int imag = b*c + d*a;
-        
-        string res = to_string(real) + "+" + to_string(imag) + "i";
-        return res;
-        
     }
 };
 

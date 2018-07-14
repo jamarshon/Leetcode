@@ -1,6 +1,194 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+475. Heaters
+Winter is coming! Your first job during the contest is to design a standard heater with fixed warm radius to warm all the houses.
+
+Now, you are given positions of houses and heaters on a horizontal line, find out minimum radius of heaters so that all houses could be covered by those heaters.
+
+So, your input will be the positions of houses and heaters seperately, and your expected output will be the minimum radius standard of heaters.
+
+Note:
+Numbers of houses and heaters you are given are non-negative and will not exceed 25000.
+Positions of houses and heaters you are given are non-negative and will not exceed 10^9.
+As long as a house is in the heaters' warm radius range, it can be warmed.
+All the heaters follow your radius standard and the warm radius will the same.
+Example 1:
+Input: [1,2,3],[2]
+Output: 1
+Explanation: The only heater was placed in the position 2, and if we use the radius 1 standard, then all the houses can be warmed.
+Example 2:
+Input: [1,2,3,4],[1,4]
+Output: 1
+Explanation: The two heater was placed in the position 1 and 4. We need to use radius 1 standard, then all the houses can be wa
+/*
+    Submission Date: 2018-06-24
+    Runtime: 73 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution2 {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        if(houses.empty()) return 0;
+        
+        sort(houses.begin(), houses.end());
+        sort(heaters.begin(), heaters.end());
+        
+        int N = houses.size();
+        int M = heaters.size();
+        vector<int> dp(N, INT_MAX);
+        // heaters[j] is the smallest heater greater than houses[i]
+        for(int i = 0, j = 0; i < N && j < M;) {
+            if(heaters[j] >= houses[i]) {
+                dp[i] = heaters[j] - houses[i];
+                i++;
+            } else {
+                j++;
+            }
+        }
+        
+        // heaters[j] is the largest element smaller than houses[i]
+        for(int i = N-1, j = M-1; i >= 0 && j >= 0;) {
+            if(heaters[j] <= houses[i]) {
+                dp[i] = min(dp[i], houses[i] - heaters[j]);
+                i--;
+            } else {
+                j--;
+            }
+        }
+        
+        return *max_element(dp.begin(), dp.end());
+    }
+};
+
+class Solution {
+public:
+    int findRadius(vector<int>& houses, vector<int>& heaters) {
+        if(houses.empty()) return 0;
+        
+        sort(houses.begin(), houses.end());
+        sort(heaters.begin(), heaters.end());
+        
+        int i = 0;
+        int N = heaters.size();
+        
+        int res = -1;
+        for(const auto& house: houses) {
+            while(i + 1 < N && abs(heaters[i+1] - house) <= abs(heaters[i] - house)) i++;
+            res = max(res, abs(heaters[i] - house));
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+476. Number Complement
+Given a positive integer, output its complement number. The complement strategy is to flip the bits of its binary representation.
+
+Note:
+The given integer is guaranteed to fit within the range of a 32-bit signed integer.
+You could assume no leading zero bit in the integer’s binary representation.
+Example 1:
+Input: 5
+Output: 2
+Explanation: The binary representation of 5 is 101 (no leading zero bits), and its complement is 010. So you need to output 2.
+Example 2:
+Input: 1
+Output: 0
+Explanation: The binary representation of 1 is 1 (no leading zero bits), and its complement is 0. So you need to output 0.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
+    int findComplement(int num) {
+        return ~num & ((1 << (int)log2(num) + 1) - 1);
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+477. Total Hamming Distance
+The Hamming distance between two integers is the number of positions at which 
+
+Now your job is to find the total Hamming distance between all pairs of the 
+
+
+Example:
+Input: 4, 14, 2
+
+Output: 6
+
+Explanation: In binary representation, the 4 is 0100, 14 is 1110, and 2 is 0010 
+showing the four bits relevant in this case). So the answer will be:
+HammingDistance(4, 14) + HammingDistance(4, 2) + HammingDistance(14, 2) = 2 + 2 
+
+
+
+Note:
+
+Elements of the given array are in the range of 0  to 10^9
+Length of the array will not exceed 10^4.
+/*
+    Submission Date: 2018-07-08
+    Runtime: 40 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    o(n) for the ith bit count how many 0 and how many 1 there are
+    suppose there are x 0's and y 1's, then there are total x*y pairs
+    because for every value in x, it can pair y values in y.
+    */
+    int totalHammingDistance(vector<int>& nums) {
+        int N = nums.size();
+        int res = 0;
+        for(int i = 0; i < 31; i++) {
+            int one_cnt = 0;
+            for(const auto& n: nums) {
+                bool one = n & (1 << i);
+                one_cnt += one;
+            }
+            
+            res += one_cnt*(N - one_cnt);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 479. Largest Palindrome Product
 Find the largest palindrome made from the product of two n-digit numbers.
 
@@ -817,192 +1005,6 @@ public:
             if(can_add) res.push_back(s);
         }
 
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-501. Find Mode in Binary Search Tree
-Given a binary search tree (BST) with duplicates, find all the mode(s) (the most frequently occurred element) in the given BST.
-
-Assume a BST is defined as follows:
-
-The left subtree of a node contains only nodes with keys less than or equal to the node's key.
-The right subtree of a node contains only nodes with keys greater than or equal to the node's key.
-Both the left and right subtrees must also be binary search trees.
-For example:
-Given BST [1,null,2,2],
-   1
-    \
-     2
-    /
-   2
-return [2].
-
-Note: If a tree has more than one mode, you can return them in any order.
-
-Follow up: Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
-/*
-    Submission Date: 2018-06-09
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    typedef pair<int,int> pii;
-    
-    /*
-    inorder traversal where if the current element is the same as the last then
-    increase the frequency else reset it. if the frequency is greater than res
-    frequency, then change res else if the frequency is the same than push back
-    to res
-    */
-    void help(TreeNode* node, pii& curr, vector<pii>& res) {
-        if(node == NULL) return;
-        help(node->left, curr, res);
-        
-        if(curr.first == -1 || curr.second != node->val) {
-            curr = {1, node->val};
-        } else {
-            curr.first++;
-        }
-        
-        if(curr.first > res[0].first) {
-            res = {curr};
-        } else if(curr.first == res[0].first) {
-            res.push_back(curr);
-        }
-        
-        help(node->right, curr, res);
-    }
-    
-    vector<int> findMode(TreeNode* root) {
-        if(root == NULL) return {};
-        
-        vector<pii> res = {{0, INT_MIN}};
-        pii curr = {-1, INT_MIN};
-        help(root, curr, res);
-    
-        vector<int> v_i;
-        v_i.reserve(res.size());
-        for(const auto& p: res) v_i.push_back(p.second);
-        return v_i;
-    }
-};
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-503. Next Greater Element II
-Given a circular array (the next element of the last element is the first 
-element of the array), print the Next Greater Number for every element. The Next 
-Greater Number of a number x is the first greater number to its traversing-order 
-next in the array, which means you could search circularly to find its next 
-
-
-Example 1:
-Input: [1,2,1]
-Output: [2,-1,2]
-Explanation: The first 1's next greater number is 2; The number 2 can't find 
-next greater number; The second 1's next greater number needs to search 
-
-
-
-Note:
-The length of given array won't exceed 10000.
-/*
-    Submission Date: 2018-07-08
-    Runtime: 68 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <list>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-     stack is in decreasing order, it represents an index which has
-     not met an element greater than it. for all the elements that
-     are smaller than the current element, make res[element] = current element
-     then put current element in the stack
-     
-     if we ensure that the stack only has elements from 0 < N and traverse
-     the array twice then after the first traversal, there will be a stack
-     of elements that have nothing greater than it from [i, N) and in the 
-     second traversal it will try to find [0, i)
-    */
-    vector<int> nextGreaterElements(vector<int>& nums) {
-        int N = nums.size();
-        vector<int> res(N, -1);
-        stack<int> stk;
-        for(int i = 0; i < 2 * N; i++) {
-            while(!stk.empty() && nums[stk.top()] < nums[i % N]) {
-                res[stk.top()] = nums[i % N];
-                stk.pop();
-            }
-            
-            if(i < N) stk.push(i);
-        }
-        
-        return res;
-    }
-};
-
-class Solution2 {
-public:
-    /*
-    maintian a stack of increasing numbers similar to before but
-    first prepopulate the stack by running through the array once
-    then run through the array again, and if the back element in the 
-    stack is equal to the current element then remove it from the stk
-    to preserve wraparound that does not exceed index i
-    */
-    vector<int> nextGreaterElements(vector<int>& nums) {
-        int N = nums.size();
-        list<int> stk;
-        for(int i = N-1; i >= 0; i--) {
-            while(!stk.empty() && stk.front() <= nums[i]) {
-                stk.pop_front();
-            }
-            stk.push_front(nums[i]);
-        }
-        
-        vector<int> res(N, -1);
-        for(int i = N-1; i >= 0; i--) {
-            if(!stk.empty() && stk.back() == nums[i]) {
-                stk.pop_back();
-            }
-            
-            while(!stk.empty() && stk.front() <= nums[i]) {
-                stk.pop_front();
-            }
-            
-            if(!stk.empty()) {
-                res[i] = stk.front();
-            }
-            stk.push_front(nums[i]);
-        }
         return res;
     }
 };

@@ -1,6 +1,177 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+445. Add Two Numbers II
+You are given two non-empty linked lists representing two non-negative integers. 
+The most significant digit comes first and each of their nodes contain a single 
+
+You may assume the two numbers do not contain any leading zero, except the 
+
+Follow up:
+What if you cannot modify the input lists? In other words, reversing the lists 
+
+
+
+Example:
+Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
+Output: 7 -> 8 -> 0 -> 7
+/*
+    Submission Date: 2018-07-10
+    Runtime: 28 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    int GetLength(ListNode* node) {
+        int res = 0;
+        while(node) {
+            node = node->next;
+            res++;
+        }
+        return res;
+    }
+    
+    
+    /*
+    create list where head is lsb by traversing the nodes and adding up corresponding l1, l2
+    nodes. the list may have numbers >= 10. traverse the list from lsb to msb and move
+    the carry through the list and at the same time reverse it.
+    */
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        int N = GetLength(l1);
+        int M = GetLength(l2);
+        
+        ListNode* res = NULL;
+        // assuming N > 0 && M > 0 initially, then they will both hit 0 at the same
+        // time as the longer one keeps getting trimmed
+        while(N > 0 && M > 0) {
+            int sum = 0;
+            // if N == M, both if will execute moving both pointers and adding both sums
+            // if N > M, just the first will execute
+            // if N < M, just the second will execute
+            // both these last condition will ensure the longer is trimmed
+            if(N >= M) {
+                sum += l1->val;
+                l1 = l1->next;
+                N--;
+            }
+            
+            if(N < M) {
+                sum += l2->val;
+                l2 = l2->next;
+                M--;
+            }
+            
+            ListNode* head = new ListNode(sum);
+            head->next = res;
+            res = head;
+        }
+        
+        
+        // need to reverse the list and do carry through
+        int carry = 0;
+        ListNode* prev = NULL;
+        ListNode* temp;
+        while(res) {
+            res->val += carry;
+            carry = res->val / 10;
+            res->val %= 10;
+            
+            temp = res->next;
+            res->next = prev;
+            prev = res;
+            res = temp;
+        }
+        
+        if(carry) {
+            ListNode* head = new ListNode(carry);
+            head->next = prev;
+            prev = head;
+        }
+        
+        return prev;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+447. Number of Boomerangs
+Given n points in the plane that are all pairwise distinct, a "boomerang" is a tuple of points (i, j, k) 
+such that the distance between i and j equals the distance between i and k (the order of the tuple matters).
+
+Find the number of boomerangs. You may assume that n will be at most 500 and coordinates of points are all in the range [-10000, 10000] (inclusive).
+
+Example:
+Input:
+[[0,0],[1,0],[2,0]]
+
+Output:
+2
+
+Explanation:
+The two boomerangs are [[1,0],[0,0],[2,0]] and [[1,0],[2,0],[0,0]]
+/*
+    Submission Date: 2018-06-08
+    Runtime: 284 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    int numberOfBoomerangs(vector<pair<int, int>>& points) {
+        int res = 0;
+        int N = points.size();
+        
+        for(int i = 0; i < N; i++) {
+            /*
+            From this point find the distance of all points from this point.
+            if there are m points that are at the same distance from this point,
+            if m is less than 2 then it can't be used else it is permutation without
+            repetition which is n!/(n-r)! = m!/(m-2)! = m*(m-1)
+            */
+            unordered_map<int, int> dist_sq_m;
+            for(int j = 0; j < N; j++) {
+                if(j == i) continue;
+                int dist_sq = pow(points[i].first - points[j].first, 2) + 
+                    pow(points[i].second - points[j].second, 2);
+                dist_sq_m[dist_sq]++;
+            }
+            
+            for(const auto& kv: dist_sq_m) {
+                if(kv.second < 2) continue;
+                res += kv.second*(kv.second - 1);
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 448. Find All Numbers Disappeared in an Array
 Given an array of integers where 1 ≤ a[i] ≤ n (n = size of array), some elements appear twice and others appear once.
 
@@ -806,194 +977,6 @@ public:
         }
         
         return f(0, v, N, m, n);
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-475. Heaters
-Winter is coming! Your first job during the contest is to design a standard heater with fixed warm radius to warm all the houses.
-
-Now, you are given positions of houses and heaters on a horizontal line, find out minimum radius of heaters so that all houses could be covered by those heaters.
-
-So, your input will be the positions of houses and heaters seperately, and your expected output will be the minimum radius standard of heaters.
-
-Note:
-Numbers of houses and heaters you are given are non-negative and will not exceed 25000.
-Positions of houses and heaters you are given are non-negative and will not exceed 10^9.
-As long as a house is in the heaters' warm radius range, it can be warmed.
-All the heaters follow your radius standard and the warm radius will the same.
-Example 1:
-Input: [1,2,3],[2]
-Output: 1
-Explanation: The only heater was placed in the position 2, and if we use the radius 1 standard, then all the houses can be warmed.
-Example 2:
-Input: [1,2,3,4],[1,4]
-Output: 1
-Explanation: The two heater was placed in the position 1 and 4. We need to use radius 1 standard, then all the houses can be wa
-/*
-    Submission Date: 2018-06-24
-    Runtime: 73 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution2 {
-public:
-    int findRadius(vector<int>& houses, vector<int>& heaters) {
-        if(houses.empty()) return 0;
-        
-        sort(houses.begin(), houses.end());
-        sort(heaters.begin(), heaters.end());
-        
-        int N = houses.size();
-        int M = heaters.size();
-        vector<int> dp(N, INT_MAX);
-        // heaters[j] is the smallest heater greater than houses[i]
-        for(int i = 0, j = 0; i < N && j < M;) {
-            if(heaters[j] >= houses[i]) {
-                dp[i] = heaters[j] - houses[i];
-                i++;
-            } else {
-                j++;
-            }
-        }
-        
-        // heaters[j] is the largest element smaller than houses[i]
-        for(int i = N-1, j = M-1; i >= 0 && j >= 0;) {
-            if(heaters[j] <= houses[i]) {
-                dp[i] = min(dp[i], houses[i] - heaters[j]);
-                i--;
-            } else {
-                j--;
-            }
-        }
-        
-        return *max_element(dp.begin(), dp.end());
-    }
-};
-
-class Solution {
-public:
-    int findRadius(vector<int>& houses, vector<int>& heaters) {
-        if(houses.empty()) return 0;
-        
-        sort(houses.begin(), houses.end());
-        sort(heaters.begin(), heaters.end());
-        
-        int i = 0;
-        int N = heaters.size();
-        
-        int res = -1;
-        for(const auto& house: houses) {
-            while(i + 1 < N && abs(heaters[i+1] - house) <= abs(heaters[i] - house)) i++;
-            res = max(res, abs(heaters[i] - house));
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-476. Number Complement
-Given a positive integer, output its complement number. The complement strategy is to flip the bits of its binary representation.
-
-Note:
-The given integer is guaranteed to fit within the range of a 32-bit signed integer.
-You could assume no leading zero bit in the integer’s binary representation.
-Example 1:
-Input: 5
-Output: 2
-Explanation: The binary representation of 5 is 101 (no leading zero bits), and its complement is 010. So you need to output 2.
-Example 2:
-Input: 1
-Output: 0
-Explanation: The binary representation of 1 is 1 (no leading zero bits), and its complement is 0. So you need to output 0.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    // flip all bits then find the highest power of 2. Make that and all bits below it to 1 and AND it with the previous number.
-    int findComplement(int num) {
-        return ~num & ((1 << (int)log2(num) + 1) - 1);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-477. Total Hamming Distance
-The Hamming distance between two integers is the number of positions at which 
-
-Now your job is to find the total Hamming distance between all pairs of the 
-
-
-Example:
-Input: 4, 14, 2
-
-Output: 6
-
-Explanation: In binary representation, the 4 is 0100, 14 is 1110, and 2 is 0010 
-showing the four bits relevant in this case). So the answer will be:
-HammingDistance(4, 14) + HammingDistance(4, 2) + HammingDistance(14, 2) = 2 + 2 
-
-
-
-Note:
-
-Elements of the given array are in the range of 0  to 10^9
-Length of the array will not exceed 10^4.
-/*
-    Submission Date: 2018-07-08
-    Runtime: 40 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    o(n) for the ith bit count how many 0 and how many 1 there are
-    suppose there are x 0's and y 1's, then there are total x*y pairs
-    because for every value in x, it can pair y values in y.
-    */
-    int totalHammingDistance(vector<int>& nums) {
-        int N = nums.size();
-        int res = 0;
-        for(int i = 0; i < 31; i++) {
-            int one_cnt = 0;
-            for(const auto& n: nums) {
-                bool one = n & (1 << i);
-                one_cnt += one;
-            }
-            
-            res += one_cnt*(N - one_cnt);
-        }
-        return res;
     }
 };
 

@@ -1,6 +1,109 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
+public:
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
+        
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
+            }
+        }
+        
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
+            }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 654. Maximum Binary Tree
 Given an integer array with no duplicates. A maximum tree building on this array is defined as 
 follow:
@@ -860,83 +963,6 @@ public:
         }
     }
 };
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-671. Second Minimum Node In a Binary Tree
-Given a non-empty special binary tree consisting of nodes with the non-negative value, where each node in 
-this tree has exactly two or zero sub-node. If the node has two sub-nodes, then this node's value is the smaller value among its two sub-nodes.
-
-Given such a binary tree, you need to output the second minimum value in the set made of all the nodes' value in the whole tree.
-
-If no such second minimum value exists, output -1 instead.
-
-Example 1:
-Input: 
-    2
-   / \
-  2   5
-     / \
-    5   7
-
-Output: 5
-Explanation: The smallest value is 2, the second smallest value is 5.
-Example 2:
-Input: 
-    2
-   / \
-  2   2
-
-Output: -1
-Explanation: The smallest value is 2, but there isn't any second smallest value.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    /*
-    bfs that once reaches a different node->val than root->val will stop putting that node's
-    children. result is the minimum of all these first encountered different node-> val
-    */
-    int findSecondMinimumValue(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        int res = INT_MAX;
-        bool seen_others = false;
-        
-        while(!q.empty()) {
-            TreeNode* node = q.front();
-            q.pop();
-            if(node->val == root->val) {
-                if(node->left) q.push(node->left);
-                if(node->right) q.push(node->right);
-            } else {
-                // found node that does not equal root->val, no need to go deeper as they will be >= node->val
-                res = min(res, node->val);
-                seen_others = true;
-            }
-        }
-        
-        return seen_others ? res : -1;
-    }
-};
-
 int main() {
     return 0;
 }

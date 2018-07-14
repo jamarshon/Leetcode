@@ -1,6 +1,68 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+692. Top K Frequent Words
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words have the same frequency, then the word 
+with the lower alphabetical order comes first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]
+Explanation: "the", "is", "sunny" and "day" are the four most frequent words,
+    with the number of occurrence being 4, 3, 2 and 1 respectively.
+Note:
+You may assume k is always valid, 1 ≤ k ≤ number of unique elements.
+Input words contain only lowercase letters.
+Follow up:
+Try to solve it in O(n log k) time and O(n) extra space.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> topKFrequent(vector<string>& words, int k) {
+        unordered_map<string,int> freq_map;
+        for(auto e: words) freq_map[e]++;
+        
+        map<int, vector<string>> grouped_map;
+        for(auto kv: freq_map) grouped_map[kv.second].push_back(kv.first);
+        
+        vector<string> res;
+        for(auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
+            sort(it->second.begin(), it->second.end());
+            for(auto e: it->second) {
+                res.push_back(e);
+                if(res.size() == k) break;
+            }
+            if(res.size() == k) break;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 693. Binary Number with Alternating Bits
 Given a positive integer, check whether it has alternating bits: namely, if two adjacent bits will always have different values.
 
@@ -274,6 +336,66 @@ public:
 int main() {
     return 0;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+704. Binary Search
+Given a sorted (in ascending order) integer array nums of n elements and a 
+target value, write a function to search target in nums. If target exists, then 
+
+
+Example 1:
+
+Input: nums = [-1,0,3,5,9,12], target = 9
+Output: 4
+Explanation: 9 exists in nums and its index is 4
+
+
+
+Example 2:
+
+Input: nums = [-1,0,3,5,9,12], target = 2
+Output: -1
+Explanation: 2 does not exist in nums so return -1
+
+
+ 
+
+Note:
+
+
+    You may assume that all elements in nums are unique.
+    n will be in the range [1, 10000].
+    The value of each element in nums will be in the range [-9999, 9999].
+/*
+    Submission Date: 2018-07-13
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int low = 0;
+        int high = nums.size() - 1;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+            if(nums[mid] == target) return mid;
+            else if(nums[mid] > target) high = mid - 1;
+            else low = mid + 1;
+        }
+        
+        return -1;
+    }
+};
+
+int main() {
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 709. To Lower Case
@@ -877,74 +999,6 @@ public:
         }
         
         return N == 1 ? dp[0] : min(dp[0], dp[1]);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-747. Largest Number At Least Twice of Others
-In a given integer array nums, there is always exactly one largest element.
-
-Find whether the largest element in the array is at least twice as much as every other number in the array.
-
-If it is, return the index of the largest element, otherwise return -1.
-
-Example 1:
-
-Input: nums = [3, 6, 1, 0]
-Output: 1
-Explanation: 6 is the largest integer, and for every other number in the array x,
-6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
- 
-
-Example 2:
-
-Input: nums = [1, 2, 3, 4]
-Output: -1
-Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
- 
-
-Note:
-
-nums will have a length in the range [1, 50].
-Every nums[i] will be an integer in the range [0, 99].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    priority queue minheap to get the 2 largest element along with their index
-    compare if the largest element is > second largest element * 2 then return index of largest element
-    else -1
-    */
-    typedef pair<int,int> pii;
-    int dominantIndex(vector<int>& nums) {
-        if(nums.empty()) return -1;
-        
-        priority_queue<pii, vector<pii>, greater<pii>> pq;
-        for(int i = 0; i < nums.size(); i++) {
-            pq.emplace(nums[i], i);
-            if(pq.size() > 2) pq.pop();
-        }
-        
-        int top_ind = pq.top().second;
-        pq.pop();
-        
-        if(pq.empty()) return top_ind;
-        
-        return nums[top_ind] > nums[pq.top().second]/2 ? -1 : pq.top().second;
     }
 };
 

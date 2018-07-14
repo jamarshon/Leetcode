@@ -1,6 +1,181 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+535. Encode and Decode TinyURL
+TinyURL is a URL shortening service where you enter a URL such as 
+https://leetcode.com/problems/design-tinyurl and it returns a short URL such as http://tinyurl.com/4e9iAk.
+
+Design the encode and decode methods for the TinyURL service. There is no restriction on how 
+your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to 
+a tiny URL and the tiny URL can be decoded to the original URL.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 7 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/*
+A vector and return the encoded as an index to retrieve the original string
+The encode called upon the same string should not return the same encoded string
+as it would have collision problems so usually a randomizer and a storage of encoded
+to original is needed.
+*/
+class Solution {
+public:
+    vector<string> m;
+    // Encodes a URL to a shortened URL.
+    string encode(string longUrl) {
+        m.push_back(longUrl);
+        return to_string(m.size());
+    }
+
+    // Decodes a shortened URL to its original URL.
+    string decode(string shortUrl) {
+        return m[stoi(shortUrl)-1];
+    }
+};
+
+// Your Solution object will be instantiated and called as such:
+// Solution solution;
+// solution.decode(solution.encode(url));
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+536. Construct Binary Tree from String
+You need to construct a binary tree from a string consisting of parenthesis and integers.
+
+The whole input represents a binary tree. It contains an integer followed by zero, 
+one or two pairs of parenthesis. The integer represents the root's value and a pair 
+of parenthesis contains a child binary tree with the same structure.
+
+You always start to construct the left child node of the parent first if it exists.
+
+Example:
+Input: "4(2(3)(1))(6(5))"
+Output: return the tree root node representing the following tree:
+
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+Note:
+There will only be '(', ')', '-' and '0' ~ '9' in the input string.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    TreeNode* str2tree(string s) {
+        int len = s.size();
+        if(len == 0) return NULL;
+
+        int firstBracketIndex = s.find('(');
+        if(firstBracketIndex == string::npos) return new TreeNode(stoi(s));
+
+        TreeNode* node = new TreeNode(stoi(s.substr(0, firstBracketIndex)));
+        int count = 1;
+        int offset = firstBracketIndex + 1;
+        int i = offset;
+
+        while(count != 0) {
+            if(s[i] == ')') count--;
+            else if(s[i] == '(') count++;
+            i++;
+        }
+
+        string leftExpression = s.substr(offset, i - 1 - offset);
+        string rightExpression = (i == len) ? "" : s.substr(i + 1, len - i - 2);
+
+        node -> left = str2tree(leftExpression);
+        node -> right = str2tree(rightExpression);
+
+        return node;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+537. Complex Number Multiplication
+Given two strings representing two complex numbers.
+
+You need to return a string representing their multiplication. Note i2 = -1 according to the definition.
+
+Example 1:
+Input: "1+1i", "1+1i"
+Output: "0+2i"
+Explanation: (1 + i) * (1 + i) = 1 + i2 + 2 * i = 2i, and you need convert it to the form of 0+2i.
+Example 2:
+Input: "1+-1i", "1+-1i"
+Output: "0+-2i"
+Explanation: (1 - i) * (1 - i) = 1 + i2 - 2 * i = -2i, and you need convert it to the form of 0+-2i.
+Note:
+
+The input strings will not have extra blank.
+The input strings will be given in the form of a+bi, where the integer a and b will both belong to the range of 
+[-100, 100]. And the output should be also in this form.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: MEDIUM 
+*/
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<int,int> Extract(string S) {
+        int plus_S_ind = S.find("+");
+        string a = S.substr(0, plus_S_ind);
+        string b = S.substr(plus_S_ind + 1, S.size() - (plus_S_ind + 1) - 1);
+        return {stoi(a), stoi(b)};
+    }
+    string complexNumberMultiply(string S1, string S2) {
+        int a, b, c, d;
+        tie(a,b) = Extract(S1);
+        tie(c,d) = Extract(S2);
+        
+        int real = a*c - b*d;
+        int imag = b*c + d*a;
+        
+        string res = to_string(real) + "+" + to_string(imag) + "i";
+        return res;
+        
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 538. Convert BST to Greater Tree
 Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
 original key plus sum of all keys greater than the original key in BST.
@@ -762,239 +937,6 @@ public:
             }
         }
         return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-566. Reshape the Matrix
-In MATLAB, there is a very useful function called 'reshape', which can reshape a matrix into a new one with different size but keep its original data.
-
-You're given a matrix represented by a two-dimensional array, and two positive integers r and c representing the row number and column number of 
-the wanted reshaped matrix, respectively.
-
-The reshaped matrix need to be filled with all the elements of the original matrix in the same row-traversing order as they were.
-
-If the 'reshape' operation with given parameters is possible and legal, output the new reshaped matrix; Otherwise, output the original matrix.
-
-Example 1:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 1, c = 4
-Output: 
-[[1,2,3,4]]
-Explanation:
-The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4 matrix, fill it row by row by using the previous list.
-Example 2:
-Input: 
-nums = 
-[[1,2],
- [3,4]]
-r = 2, c = 4
-Output: 
-[[1,2],
- [3,4]]
-Explanation:
-There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the original matrix.
-Note:
-The height and width of the given matrix is in range [1, 100].
-The given r and c are all positive.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 39 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
-        if(nums.empty()) return {};
-        int N = nums.size();
-        int M = nums[0].size();
-        
-        // cannot gain or lose elements
-        if(N*M != r*c) return nums;
-        
-        vector<vector<int>> res(r, vector<int>(c));
-        int x = 0;
-        int y = 0;
-        
-        for(int i = 0; i < r; i++) {
-            for(int j = 0; j < c; j++) {
-                res[i][j] = nums[y][x];
-                x++;
-                if(x == M) {
-                    x = 0;
-                    y++;
-                }
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-567. Permutation in String
-Given two strings s1 and s2, write a function to return true if s2 contains the permutation of s1. In other words, 
-one of the first string's permutations is the substring of the second string.
-Example 1:
-Input:s1 = "ab" s2 = "eidbaooo"
-Output:True
-Explanation: s2 contains one permutation of s1 ("ba").
-Example 2:
-Input:s1= "ab" s2 = "eidboaoo"
-Output: False
-Note:
-The input strings only contain lower case letters.
-The length of both given strings is in range [1, 10,000].
-/*
-    Submission Date: 2018-06-02
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    frequency map of s1 with variable to_use as global to check if everything equals 0
-    use sliding window where everything in a window is a valid character and does not 
-    exceed the frequency map limit for certain character
-    for a new character, if it exceeds the limit or its not a valid character than keep
-    moving front (restoring freq map). if it is not a valid character, the map will be
-    restored and to_do = original
-    Check if character is valid, if it is use it else move front so that it is not
-    included
-    */
-    bool checkInclusion(string s1, string s2) {
-        vector<int> freq(26 , 0);
-        unordered_set<char> letters(s1.begin(), s1.end());
-        for(const auto& c: s1) freq[c - 'a']++;
-        
-        int front = 0;
-        int back = 0;
-        
-        int N = s2.size();
-        int to_use = s1.size();
-        
-        while(back < N) {
-            if(to_use == 0) return true;
-            // slide the front until the letter is removed
-            int back_val = s2[back] - 'a';
-            while(front < back && freq[back_val] == 0) {
-                freq[s2[front] - 'a']++;
-                front++;
-                to_use++;
-            }
-            
-            /* if the back letter is in s1, decrease the frequency and to_use
-                else it means front == back as freq[s2[back]] == 0 so increase front 
-                to not include this letter
-            */
-            if(letters.count(s2[back])) {
-                freq[back_val]--;
-                to_use--;
-            } else {
-                front++;
-            }
-            
-            back++;
-        }
-        
-        return to_use == 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-572. Subtree of Another Tree
-Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values 
-with a subtree of s. A subtree of s is a tree consists of a node in s and all of this node's descendants. The 
-tree s could also be considered as a subtree of itself.
-
-Example 1:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-Given tree t:
-   4 
-  / \
- 1   2
-Return true, because t has the same structure and node values with a subtree of s.
-Example 2:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-    /
-   0
-Given tree t:
-   4
-  / \
- 1   2
-Return false.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 29 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    void serialize(TreeNode* node, string& res) {
-        if(node == NULL) {
-            res += "null,";
-        } else {
-            res += to_string(node->val) + ",";
-            serialize(node->left, res);
-            serialize(node->right, res);
-        }
-    }
-    
-    // check if s == t or s contains a subtree t
-    bool isSubtree(TreeNode* s, TreeNode* t) {
-        string s1 = "", s2 = "";
-        serialize(s, s1);
-        serialize(t, s2);
-        return s1 == s2 || s1.find("," + s2) != string::npos;
     }
 };
 

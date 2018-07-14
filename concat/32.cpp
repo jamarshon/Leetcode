@@ -1,6 +1,74 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+747. Largest Number At Least Twice of Others
+In a given integer array nums, there is always exactly one largest element.
+
+Find whether the largest element in the array is at least twice as much as every other number in the array.
+
+If it is, return the index of the largest element, otherwise return -1.
+
+Example 1:
+
+Input: nums = [3, 6, 1, 0]
+Output: 1
+Explanation: 6 is the largest integer, and for every other number in the array x,
+6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
+ 
+
+Example 2:
+
+Input: nums = [1, 2, 3, 4]
+Output: -1
+Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
+ 
+
+Note:
+
+nums will have a length in the range [1, 50].
+Every nums[i] will be an integer in the range [0, 99].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    priority queue minheap to get the 2 largest element along with their index
+    compare if the largest element is > second largest element * 2 then return index of largest element
+    else -1
+    */
+    typedef pair<int,int> pii;
+    int dominantIndex(vector<int>& nums) {
+        if(nums.empty()) return -1;
+        
+        priority_queue<pii, vector<pii>, greater<pii>> pq;
+        for(int i = 0; i < nums.size(); i++) {
+            pq.emplace(nums[i], i);
+            if(pq.size() > 2) pq.pop();
+        }
+        
+        int top_ind = pq.top().second;
+        pq.pop();
+        
+        if(pq.empty()) return top_ind;
+        
+        return nums[top_ind] > nums[pq.top().second]/2 ? -1 : pq.top().second;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 748. Shortest Completing Word
 Find the minimum length word from a given dictionary words, which has all the letters from the string 
 licensePlate. Such a word is said to complete the given string licensePlate
@@ -910,101 +978,6 @@ public:
         });
         
         return T;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-796. Rotate String
-We are given two strings, A and B.
-
-A shift on A consists of taking string A and moving the leftmost character to the rightmost position. 
-For example, if A = 'abcde', then it will be 'bcdea' after one shift on A. Return True if and only if A can 
-become B after some number of shifts on A.
-
-Example 1:
-Input: A = 'abcde', B = 'cdeab'
-Output: true
-
-Example 2:
-Input: A = 'abcde', B = 'abced'
-Output: false
-Note:
-
-A and B will have length at most 100.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    bool rotateString(string A, string B) {
-        if(A.size() != B.size()) return false;
-        string A2 = A + A;
-        return A2.find(B) != string::npos;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-797. All Paths From Source to Target
-Given a directed, acyclic graph of N nodes.  Find all possible paths from node 0 to node N-1, and return them in any order.
-
-The graph is given as follows:  the nodes are 0, 1, ..., graph.length - 1.  graph[i] is a list of all nodes j for which the edge (i, j) exists.
-
-Example:
-Input: [[1,2], [3], [3], []] 
-Output: [[0,1,3],[0,2,3]] 
-Explanation: The graph looks like this:
-0--->1
-|    |
-v    v
-2--->3
-There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
-Note:
-
-The number of nodes in the graph will be in the range [2, 15].
-You can print different paths in any order, but you should keep the order of nodes inside one path.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 103 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    void dfs(int from, const vector<vector<int>>& graph, vector<int>& curr, vector<vector<int>>& res) {
-        if(graph[from].empty()) {
-            res.push_back(curr);
-        } else {
-            for(auto e: graph[from]) {
-                curr.push_back(e);
-                dfs(e, graph, curr, res);
-                curr.pop_back();
-            }
-        }
-    }
-    
-    vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
-        vector<int> curr{0};
-        vector<vector<int>> res;
-        dfs(0, graph, curr, res);
-        return res;
     }
 };
 

@@ -1,6 +1,237 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+479. Largest Palindrome Product
+Find the largest palindrome made from the product of two n-digit numbers.
+
+Since the result could be very large, you should return the largest palindrome mod 1337.
+
+Example:
+
+Input: 2
+
+Output: 987
+
+Explanation: 99 x 91 = 9009, 9009 % 1337 = 987
+
+Note:
+
+The range of n is [1,8].
+/*
+    Submission Date: 2018-06-24
+    Runtime: 713 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    typedef long long ll;
+    int largestPalindrome(int n) {
+        if(n == 1) return 9;
+        
+        ll x = pow(10, n) - 1LL; // 99
+        ll max_x = x*x;
+        
+        ll lower = pow(10, n-1); // 10
+        ll upper = x; // 99
+        while(x) {
+            // take a string of n digits and reverse + concat to get string of 2n digits
+            string s = to_string(x);
+            string rev = s;
+            reverse(rev.begin(), rev.end());
+            ll num = stoll(s + rev);
+            if(num > max_x) { x--; continue; }
+            
+            // use upper instead of sqrt(num) as upper is larger
+            for(ll fact = upper; fact > lower; fact--) {
+                /* fact*fact >= num ensures that fact is greater than the second factor and
+                    we do not redo calculation on the lower factors e.g num = 20 fact = 5
+                    5*5 >= 20 (takes in 5 and 4)
+                    fact = 4
+                    4*4 < 20 (does not reconsider lower factors as they have already been checked)
+                    
+                    fact*fact >= num
+                    fact >= num/fact (upper > num/fact)
+                */
+                if(num/fact < lower || fact*fact < num) break;
+                
+                if(num % fact == 0) {
+                    return num % 1337;
+                }
+            }
+            x--;
+        }
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+481. Magical String
+A magical string S consists of only '1' and '2' and obeys the following rules:
+
+
+The string S is magical because concatenating the number of contiguous 
+
+
+
+The first few elements of string S is the following:
+S = "1221121221221121122……"
+
+
+
+If we group the consecutive '1's and '2's in S, it will be:
+
+
+1   22  11  2  1  22  1  22  11  2  11  22 ......
+
+
+and the occurrences of '1's or '2's in each group are:
+
+
+1   2      2    1   1    2     1    2     2    1    2    2 ......
+
+
+
+You can see that the occurrence sequence above is the S itself. 
+
+
+
+Given an integer N as input, return the number of '1's in the first N number in 
+
+
+Note:
+N will not exceed 100,000.
+
+
+
+Example 1:
+Input: 6
+Output: 3
+Explanation: The first 6 elements of magical string S is "12211" and it contains 
+/*
+    Submission Date: 2018-07-10
+    Runtime: 8 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<char, char> t{{'1', '2'}, {'2', '1'}};
+public:
+    /*
+    if(s[i] == '1') the last character should only occur once so push the opposite
+    else the last character should occur twice so push the same then the opposite
+    
+    keep track of s.size() as well as the one_cnt
+    */
+    int magicalString(int n) {
+        if(n == 0) return 0;
+        int one_cnt = 1;
+        string s = "1";
+        int i = 0;
+        while(s.size() < n) {
+            if(s[i] == '1') {
+                s.push_back(t[s.back()]);
+                if(s.back() == '1') one_cnt++;
+            } else { // s[i] == '2'
+                s.push_back(s.back());
+                if(s.back() == '1') one_cnt++;
+                if(s.size() < n) { 
+                    s.push_back(t[s.back()]);
+                    if(s.back() == '1') one_cnt++;
+                }
+            }
+            i++;
+        }
+        
+        return one_cnt;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+482. License Key Formatting
+You are given a license key represented as a string S which consists only alphanumeric character and dashes. 
+The string is separated into N+1 groups by N dashes.
+
+Given a number K, we would want to reformat the strings such that each group contains exactly K characters, 
+except for the first group which could be shorter than K, but still must contain at least one character. 
+Furthermore, there must be a dash inserted between two groups and all lowercase letters should be converted to uppercase.
+
+Given a non-empty string S and a number K, format the string according to the rules described above.
+
+Example 1:
+Input: S = "5F3Z-2e-9-w", K = 4
+
+Output: "5F3Z-2E9W"
+
+Explanation: The string S has been split into two parts, each part has 4 characters.
+Note that the two extra dashes are not needed and can be removed.
+Example 2:
+Input: S = "2-5g-3-J", K = 2
+
+Output: "2-5G-3J"
+
+Explanation: The string S has been split into three parts, each part has 2 characters except the first part as 
+it could be shorter as mentioned above.
+Note:
+The length of string S will not exceed 12,000, and K is a positive integer.
+String S consists only of alphanumerical characters (a-z and/or A-Z and/or 0-9) and dashes(-).
+String S is non-empty.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <cctype>
+
+using namespace std;
+
+class Solution {
+public:
+    string licenseKeyFormatting(string S, int K) {
+        string s = "";
+        // remove dashes and lower case letter
+        for(const auto& c: S) {
+            if(c == '-') continue;
+            s.push_back(toupper(c));
+        }
+        
+        int N = s.size();
+        int first_size = N % K;
+        
+        string res = "";
+        res.reserve(N + (N - 1)/2);
+        for(int i = 0; i < N; i++) {
+            if(i > 0 && (i - first_size) % K == 0) res.push_back('-');
+            res.push_back(s[i]);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 485. Max Consecutive Ones
 Given a binary array, find the maximum number of consecutive 1s in this array.
 
@@ -772,205 +1003,6 @@ public:
             }
             stk.push_front(nums[i]);
         }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-504. Base 7
-Given an integer, return its base 7 string representation.
-
-Example 1:
-Input: 100
-Output: "202"
-Example 2:
-Input: -7
-Output: "-10"
-Note: The input will be in range of [-1e7, 1e7].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 8 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    string convertToBase7(int num) {
-        if(num == 0) return "0";
-        
-        string sgn = num < 0 ? "-" : "";
-        num = abs(num);
-        
-        string res = "";
-        while(num) {
-            res.push_back((num % 7) + '0');
-            num /= 7;
-        }
-        
-        reverse(res.begin(), res.end());
-        return sgn + res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-506. Relative Ranks
-Given scores of N athletes, find their relative ranks and the people with the top three highest scores, who 
-will be awarded medals: "Gold Medal", "Silver Medal" and "Bronze Medal".
-
-Example 1:
-Input: [5, 4, 3, 2, 1]
-Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
-Explanation: The first three athletes got the top three highest scores, so they got "Gold Medal", "Silver Medal" and "Bronze Medal". 
-For the left two athletes, you just need to output their relative ranks according to their scores.
-Note:
-N is a positive integer and won't exceed 10,000.
-All the scores of athletes are guaranteed to be unique.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 24 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> findRelativeRanks(vector<int>& nums) {
-        map<int,int, greater<int>> m;
-        for(int i = 0; i < nums.size(); i++) m[nums[i]] = i;
-        
-        vector<string> rep{"Gold Medal", "Silver Medal", "Bronze Medal"};
-        
-        vector<string> res(nums.size());
-        int ind = 0;
-        for(const auto& kv: m) {
-            res[kv.second] = ind < 3 ? rep[ind] : to_string(ind+1);
-            ind++;
-        }
-        
-        return res;
-    }
-};
-
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-507. Perfect Number
-We define the Perfect Number is a positive integer that is equal to the sum of all its positive divisors except itself.
-
-Now, given an integer n, write a function that returns true when it is a perfect number and false when it is not.
-Example:
-Input: 28
-Output: True
-Explanation: 28 = 1 + 2 + 4 + 7 + 14
-Note: The input number n will not exceed 100,000,000. (1e8)
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <cmath>
-
-using namespace std;
-
-class Solution {
-public:
-    bool checkPerfectNumber(int num) {
-        if(num < 2) return false;
-        int res = 1;
-        for(int i = 2; i <= sqrt(num); i++) {
-            if(num % i == 0) {
-                res += i;
-                res += num/i;
-            }
-        }
-        
-        return res == num;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-508. Most Frequent Subtree Sum
-Given the root of a tree, you are asked to find the most frequent subtree sum. The 
-subtree sum of a node is defined as the sum of all the node values formed by the subtree 
-rooted at that node (including the node itself). So what is the most frequent subtree sum value? If there is a tie, 
-return all the values with the highest frequency in any order.
-
-Examples 1
-Input:
-
-  5
- /  \
-2   -3
-return [2, -3, 4], since all the values happen only once, return all of them in any order.
-Examples 2
-Input:
-
-  5
- /  \
-2   -5
-return [2], since 2 happens twice, however -5 only occur once.
-Note: You may assume the sum of values in any subtree is in the range of 32-bit signed integer.
-/*
-    Submission Date: 2018-06-30
-    Runtime: 16 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int f(TreeNode* node, unordered_map<int,int>& sum_to_freq, int& max_freq) {
-        if(node == NULL) return 0;
-        
-        int sum = node->val + f(node->left, sum_to_freq, max_freq) + f(node->right, sum_to_freq, max_freq);
-        sum_to_freq[sum]++;
-        max_freq = max(max_freq, sum_to_freq[sum]);
-        return sum;
-    }
-    
-    vector<int> findFrequentTreeSum(TreeNode* root) {
-        unordered_map<int,int> sum_to_freq;
-        int max_freq = 0;
-        f(root, sum_to_freq, max_freq);
-        vector<int> res;
-        for(const auto& kv: sum_to_freq) 
-            if(kv.second == max_freq) res.push_back(kv.first);
         return res;
     }
 };

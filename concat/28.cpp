@@ -1,6 +1,526 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+640. Solve the Equation
+Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
+only '+', '-' operation, the variable x and its coefficient.
+
+If there is no solution for the equation, return "No solution".
+
+If there are infinite solutions for the equation, return "Infinite solutions".
+
+If there is exactly one solution for the equation, we ensure that the value of x is an integer.
+
+Example 1:
+Input: "x+5-3+x=6+x-2"
+Output: "x=2"
+Example 2:
+Input: "x=x"
+Output: "Infinite solutions"
+Example 3:
+Input: "2x=x"
+Output: "x=0"
+Example 4:
+Input: "2x+3x-6x=x+2"
+Output: "x=-1"
+Example 5:
+Input: "x=x+2"
+Output: "No solution"
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<long long, long long> getCount(string s) {
+        long long x_count = 0;
+        long long c_count = 0;
+        for(int i = 0; i < s.size();) {
+            string prev = "";
+            bool seen_number = false;
+            bool end_x = false;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    prev += s[i];
+                    seen_number = true;
+                    i++;
+                } else if(s[i] == '+' || s[i] == '-') {
+                    if(!seen_number) {
+                        prev += s[i];
+                        i++;
+                    } else {
+                        break;
+                    }
+                } else if(s[i] == 'x') {
+                    end_x = true;
+                    i++;
+                    break;
+                }
+            }
+
+            if(end_x) {
+                if(prev == "+") x_count++;
+                else if(prev == "-") x_count--;
+                else if(prev == "") x_count++;
+                else x_count += stoll(prev);
+            } else {
+                if(prev == "+") c_count++;
+                else if(prev == "-") c_count--;
+                else if(prev == "") c_count++;
+                else c_count += stoll(prev);
+            }
+        }
+
+        return {x_count, c_count};
+    }
+    string solveEquation(string equation) {
+        // put all the x on the left side and all the numbers on the right side
+        string s = equation;
+        string inf = "Infinite solutions";
+        string none = "No solution";
+
+        int eq_ind = s.find("=");
+        if(eq_ind == string::npos) return none;
+
+        string left = s.substr(0, eq_ind);
+        string right = s.substr(eq_ind + 1);
+
+        
+        long long x_count1, c_count1;
+        tie(x_count1, c_count1) = getCount(left);
+
+        long long x_count2, c_count2;
+        tie(x_count2, c_count2) = getCount(right);
+
+        long long left_x_count = x_count1 - x_count2;
+        long long right_c_count = c_count2 - c_count1;
+
+        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
+
+        return "x=" + to_string(right_c_count/left_x_count);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+641. Design Circular Deque
+Design your implementation of the circular double-ended queue (deque).
+Your implementation should support following operations:
+
+
+    MyCircularDeque(k): Constructor, set the size of the deque to be k.
+    insertFront(): Adds an item at the front of Deque. Return true if the operation 
+    insertLast(): Adds an item at the rear of Deque. Return true if the operation 
+    deleteFront(): Deletes an item from the front of Deque. Return true if the 
+    deleteLast(): Deletes an item from the rear of Deque. Return true if the 
+    getFront(): Gets the front item from the Deque. If the deque is empty, return 
+    getRear(): Gets the last item from Deque. If the deque is empty, return -1.
+    isEmpty(): Checks whether Deque is empty or not. 
+    isFull(): Checks whether Deque is full or not.
+
+
+Example:
+
+MyCircularDeque circularDeque = new MycircularDeque(3); // set the size to be 3
+circularDeque.insertLast(1);            // return true
+circularDeque.insertLast(2);            // return true
+circularDeque.insertFront(3);           // return true
+circularDeque.insertFront(4);           // return false, the queue is full
+circularDeque.getRear();                // return 32
+circularDeque.isFull();             // return true
+circularDeque.deleteLast();         // return true
+circularDeque.insertFront(4);           // return true
+circularDeque.getFront();               // return 4
+ 
+ 
+
+Note:
+
+
+    All values will be in the range of [1, 1000].
+    The number of operations will be in the range of [1, 1000].
+    Please do not use the built-in Deque library.
+/*
+    Submission Date: 2018-07-12
+    Runtime: 24 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class MyCircularDeque {
+    int k_;
+    int size_;
+    int front_;
+    int back_;
+    vector<int> dq_;
+    
+    int mod(int a, int b) { return (b + (a % b)) % b; }
+public:
+    /** Initialize your data structure here. Set the size of the deque to be k. */
+    MyCircularDeque(int k) {
+        k_ = k;
+        size_ = 0;
+        front_ = 0;
+        back_ = k-1;
+        dq_.resize(k);
+    }
+    
+    /** Adds an item at the front of Deque. Return true if the operation is successful. */
+    bool insertFront(int value) {
+        if(isFull()) return false;
+        front_ = mod(front_ - 1, k_);
+        dq_[front_] = value;
+        size_++;
+        return true;
+    }
+    
+    /** Adds an item at the rear of Deque. Return true if the operation is successful. */
+    bool insertLast(int value) {
+        if(isFull()) return false;
+        back_ = mod(back_ + 1, k_);
+        dq_[back_] = value;
+        size_++;
+        return true;
+    }
+    
+    /** Deletes an item from the front of Deque. Return true if the operation is successful. */
+    bool deleteFront() {
+        if(isEmpty()) return false;
+        front_ = mod(front_ + 1, k_);
+        size_--;
+        return true;
+    }
+    
+    /** Deletes an item from the rear of Deque. Return true if the operation is successful. */
+    bool deleteLast() {
+        if(isEmpty()) return false;
+        back_ = mod(back_ - 1, k_);
+        size_--;
+        return true;
+    }
+    
+    /** Get the front item from the deque. */
+    int getFront() {
+        if(isEmpty()) return -1;
+        return dq_[front_];
+    }
+    
+    /** Get the last item from the deque. */
+    int getRear() {
+        if(isEmpty()) return -1;
+        return dq_[back_];
+    }
+    
+    /** Checks whether the circular deque is empty or not. */
+    bool isEmpty() {
+        return size_ == 0;
+    }
+    
+    /** Checks whether the circular deque is full or not. */
+    bool isFull() {
+        return size_ == k_;
+    }
+};
+
+/**
+ * Your MyCircularDeque object will be instantiated and called as such:
+ * MyCircularDeque obj = new MyCircularDeque(k);
+ * bool param_1 = obj.insertFront(value);
+ * bool param_2 = obj.insertLast(value);
+ * bool param_3 = obj.deleteFront();
+ * bool param_4 = obj.deleteLast();
+ * int param_5 = obj.getFront();
+ * int param_6 = obj.getRear();
+ * bool param_7 = obj.isEmpty();
+ * bool param_8 = obj.isFull();
+ */
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+643. Maximum Average Subarray I
+Given an array consisting of n integers, find the contiguous subarray of given length k that 
+has the maximum average value. And you need to output the maximum average value.
+
+Example 1:
+Input: [1,12,-5,-6,50,3], k = 4
+Output: 12.75
+Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
+Note:
+1 <= k <= n <= 30,000.
+Elements of the given array will be in the range [-10,000, 10,000].
+
+/*
+    Submission Date: 2017-07-15
+    Runtime: 199 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double findMaxAverage(vector<int>& nums, int k) {
+        int sum = 0;
+        int max_average = INT_MIN;
+        for(int i = 0; i < nums.size(); i++) {
+            if(i < k) {
+                sum += nums[i];
+            } else {
+                if(i == k) max_average = max(max_average, sum);
+                sum = sum - nums[i - k] + nums[i];
+                max_average = max(max_average, sum);
+            }
+        }
+        if(k == nums.size()) return (double)sum/k;
+        return (double)max_average/k;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+645. Set Mismatch
+The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
+the numbers in the set got duplicated to another number in the set, which results in repetition of one 
+number and loss of another number.
+
+Given an array nums representing the data status of this set after the error. Your task is to firstly 
+find the number occurs twice and then find the number that is missing. Return them in the form of an array.
+
+Example 1:
+Input: nums = [1,2,2,4]
+Output: [2,3]
+Note:
+The given array size will in the range [2, 10000].
+The given array's numbers won't have any order.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 62 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> findErrorNums(vector<int>& nums) {
+        unordered_map<int, int> freq;
+        for(auto num: nums) freq[num]++;
+        
+        int N = nums.size();
+        int duplicate = -1;
+        int missing = -1;
+        for(int i = 1; i <= N; i++) {
+            if(missing != -1 && duplicate != -1) break;
+            if(!freq.count(i)) {
+                missing = i;
+            } else if(freq[i] >= 2) {
+                duplicate = i;
+            }
+        }
+        return {duplicate, missing};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+646. Maximum Length of Pair Chain
+You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
+
+Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
+formed in this fashion.
+
+Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
+pairs. You can select pairs in any order.
+
+Example 1:
+Input: [[1,2], [2,3], [3,4]]
+Output: 2
+Explanation: The longest chain is [1,2] -> [3,4]
+Note:
+The number of given pairs will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 82 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int findLongestChain(vector<vector<int>>& pairs) {
+        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
+            return v1[1] < v2[1];
+        });
+        
+        vector<vector<int>> res;
+        
+        for(auto p: pairs) {
+            if(res.empty() || res.back()[1] < p[0]) {
+                res.push_back(p);
+            }
+        }
+        
+        return res.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+647. Palindromic Substrings
+Given a string, your task is to count how many palindromic substrings in this string.
+
+The substrings with different start indexes or end indexes are counted as different substrings even 
+they consist of same characters.
+
+Example 1:
+Input: "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+Example 2:
+Input: "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+Note:
+The input string length won't exceed 1000.
+
+/*
+    Submission Date: 2017-07-23
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int Manacher(string s) {
+        const char kNullChar = '\0';
+        string str = string(1, kNullChar);
+
+        for(auto c: s) str += string(1, c) + kNullChar;
+
+        string max_str = "";
+        int len = str.size();
+        int right = 0;
+        int center = 0;
+        vector<int> dp(len, 0);
+
+        for(int i = 1; i < len; i++) {
+            int mirr = 2*center - i;
+
+            // i is within right so can take the minimum of the mirror or distance from right
+            if(i < right) {
+                dp[i] = min(right - i, dp[mirr]);
+            }
+
+            // keep expanding around i while it is the same and increment P[i]
+            int left_index = i - (1 + dp[i]);
+            int right_index = i + (1 + dp[i]);
+            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
+                left_index--;
+                right_index++;
+                dp[i]++;
+            }
+
+            // i goes beyond current right so it is the new center
+            if(i + dp[i] > right) {
+                center = i;
+                right = i + dp[i];
+            }
+        }
+        
+        int count = 0;
+        for(int i = 0; i < len; i++) {
+            count += ceil((double)dp[i]/2.0);
+        }
+        return count;
+    }
+
+    int countSubstrings(string s) {
+        return Manacher(s);
+    }
+
+    int countSubstrings2(string s) {
+        int res = 0;
+        int N = s.size();
+        int left, right;
+        for(int i = 0; i < N; i++) {
+            res++;
+            
+            // treat as odd
+            left = i - 1;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+            
+            // treat as even
+            left = i;
+            right = i + 1;
+            while(left >= 0 && right < N && s[left] == s[right]) {
+                left--;
+                right++;
+                res++;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 648. Replace Words
 In English, we have a concept called root, which can be followed by some other words to form another 
 longer word - let's call this word successor. For example, the root an, followed by other, which can 
@@ -399,526 +919,6 @@ public:
             else high--;
         }
         return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-654. Maximum Binary Tree
-Given an integer array with no duplicates. A maximum tree building on this array is defined as 
-follow:
-
-The root is the maximum number in the array.
-The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
-number.
-The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
-number.
-Construct the maximum tree by the given array and output the root node of this tree.
-
-Example 1:
-Input: [3,2,1,6,0,5]
-Output: return the tree root node representing the following tree:
-
-      6
-    /   \
-   3     5
-    \    / 
-     2  0   
-       \
-        1
-Note:
-The size of the given array will be in the range [1,1000].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        int N = nums.size();
-        
-        int top = -1;
-        vector<int> st(N, 0);
-        vector<int> T(N, 0);
-        for(int i = 0; i < N; i++) {
-            int temp_top = top;
-            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
-                temp_top--;
-            }
-            
-            if(temp_top != -1) T[i] = st[temp_top];
-            
-            if(temp_top < top) {
-                T[st[temp_top + 1]] = i;
-            }
-            st[++temp_top] = i;
-            top = temp_top;
-        }
-        
-        T[st[0]] = -1;
-        
-        TreeNode* nodes[N];
-        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
-        
-        TreeNode* root;
-        for(int i = 0; i < N; i++) {
-            int parent_ind = T[i];
-            if(parent_ind == -1) root = nodes[i];
-            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
-            else nodes[parent_ind] -> right = nodes[i];
-        }
-        
-        return root;
-    }
-};
-
-class Solution {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        vector<TreeNode*> stk;
-        for(auto num: nums) {
-            TreeNode* curr = new TreeNode(num);
-            TreeNode* left = NULL;
-            while(!stk.empty() && stk.back() -> val < num) {
-                left = stk.back();
-                stk.pop_back();
-            }
-
-            curr -> left = left;
-            if(!stk.empty()) {
-                stk.back() -> right = curr;
-            }
-            stk.push_back(curr);
-        }
-        return stk.front();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-655. Print Binary Tree
-Print a binary tree in an m*n 2D string array following these rules:
-
-The row number m should be equal to the height of the given binary tree.
-The column number n should always be an odd number.
-The root node's value (in string format) should be put in the exactly middle of the 
-first row it can be put. The column and the row where the root node belongs will separate 
-the rest space into two parts (left-bottom part and right-bottom part). You should print the 
-left subtree in the left-bottom part and print the right subtree in the right-bottom part. The 
-left-bottom part and the right-bottom part should have the same size. Even if one subtree is 
-none while the other is not, you don't need to print anything for the none subtree but still 
-need to leave the space as large as that for the other subtree. However, if two subtrees are 
-none, then you don't need to leave space for both of them.
-Each unused space should contain an empty string "".
-Print the subtrees following the same rules.
-Example 1:
-Input:
-     1
-    /
-   2
-Output:
-[["", "1", ""],
- ["2", "", ""]]
-Example 2:
-Input:
-     1
-    / \
-   2   3
-    \
-     4
-Output:
-[["", "", "", "1", "", "", ""],
- ["", "2", "", "", "", "3", ""],
- ["", "", "4", "", "", "", ""]]
-Example 3:
-Input:
-      1
-     / \
-    2   5
-   / 
-  3 
- / 
-4 
-Output:
-
-[["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
- ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
- ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
- ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
-Note: The height of binary tree is in the range of [1, 10].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    int depth(TreeNode* root) {
-        if(root == NULL) return -1;
-        return 1 + max(depth(root -> left), depth(root -> right));
-    }
-    
-    void populate(TreeNode* root, vector<vector<string>>& res, int row, int start, int end) {
-        if(root == NULL) return;
-        if(start >= end) return;
-        if(row >= res.size()) return;
-        
-        string val = to_string(root -> val);
-        int mid = start + (end - start)/2;
-        res[row][mid] = val;
-        
-        populate(root -> left, res, row + 1, start, mid);
-        populate(root -> right, res, row + 1, mid + 1, end);
-    }
-    vector<vector<string>> printTree(TreeNode* root) {
-        // get the maximum depth of the tree
-        int rd = depth(root);
-        int col = (1 << (rd + 1)) - 1; 
-        // the matrix has depth rows and 2^(depth + 1) - 1 columns
-        vector<vector<string>> res(rd + 1, vector<string>(col, "")); 
-        populate(root, res, 0, 0, col);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-656. Coin Path
-Given an array A (index starts at 1) consisting of N integers: A1, A2, ..., AN 
-and an integer B. The integer B denotes that from any place (suppose the index is i) 
-in the array A, you can jump to any one of the place in the array A indexed i+1, i+2, …, 
-i+B if this place can be jumped to. Also, if you step on the index i, you have to pay Ai 
-coins. If Ai is -1, it means you can’t jump to the place indexed i in the array.
-
-Now, you start from the place indexed 1 in the array A, and your aim is to reach the place 
-indexed N using the minimum coins. You need to return the path of indexes (starting from 1 to N) 
-in the array you should take to get to the place indexed N using minimum coins.
-
-If there are multiple paths with the same cost, return the lexicographically smallest such path.
-
-If it's not possible to reach the place indexed N then you need to return an empty array.
-
-Example 1:
-Input: [1,2,4,-1,2], 2
-Output: [1,3,5]
-Example 2:
-Input: [1,2,4,-1,2], 1
-Output: []
-Note:
-Path Pa1, Pa2, ..., Pan is lexicographically smaller than Pb1, Pb2, ..., Pbm, if and only if at 
-the first i where Pai and Pbi differ, Pai < Pbi; when no such i exists, then n < m.
-A1 >= 0. A2, ..., AN (if exist) will in the range of [-1, 100].
-Length of A is in the range of [1, 1000].
-B is in the range of [1, 100].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 12 ms
-    Difficulty: HARD
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <climits>
-
-using namespace std;
-
-struct Compare {
-    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) const {
-        return (lhs.first == rhs.first) ? (lhs.second < rhs.second) : (lhs.first < rhs.first);
-    }
-};
-
-class Solution2 {
-public:
-    vector<vector<int>> createPath(int curr, unordered_map<int, vector<int>>& parent) {
-        if(curr == 0) return {{}};
-
-        vector<vector<int>> res;
-        for(auto prev: parent[curr]) {
-            vector<vector<int>> path = createPath(prev, parent);
-            for(auto p: path) {
-                p.push_back(curr);
-                res.push_back(p);
-            }
-        }
-
-        return res;
-    }
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        
-        // id is index, pair weight, to
-        vector<vector<pair<int, int>>> graph(N + 1);
-        
-        graph[0] = {{A[0], 1}};
-        for(int i = 0; i < N; i++) {
-            if(A[i] == -1) continue;
-            for(int j = 1; j <= B; j++) {
-                if(i + j >= N) break;
-                if(A[i + j] == -1) continue;
-                // connect vertex i with vertex i + j by weight A[i + j]
-                graph[i + 1].emplace_back(A[i + j], i + 1 + j);
-            }
-        }
-        
-        unordered_map<int, vector<int>> parent;
-        set<pair<int, int>, Compare> edges_to_process;
-        unordered_map<int, int> min_distance;
-        
-        for(int i = 1; i <= N; i++) {
-            edges_to_process.emplace(INT_MAX, i);
-            min_distance[i] = INT_MAX;
-        }
-        
-        edges_to_process.emplace(0, 0);
-        min_distance[0] = 0;
-        parent[0] = {0};
-
-        while(!edges_to_process.empty()) {
-            // Minimum weight edge
-            pair<int,int> min_edge = *edges_to_process.begin();
-            edges_to_process.erase(edges_to_process.begin());
-
-            int current_vertex = min_edge.second;
-            int current_weight = min_edge.first;
-
-            if(current_weight == INT_MAX) break;
-
-            vector<pair<int,int>> neighbors = graph[current_vertex];
-            for(pair<int,int> neighbor: neighbors) {
-                auto edge_set_it = edges_to_process.find({min_distance[neighbor.second], neighbor.second});
-                // done processing already
-                if(edge_set_it == edges_to_process.end()) continue;
-
-                // found a smaller distance
-                if(current_weight + neighbor.first <= min_distance[neighbor.second]) {
-                    if(current_weight + neighbor.first == min_distance[neighbor.second]) {
-                        parent[neighbor.second].push_back(current_vertex);
-                    } else {
-                        min_distance[neighbor.second] = current_weight + neighbor.first;
-                        parent[neighbor.second].push_back(current_vertex);
-                        edges_to_process.erase(edge_set_it);
-                        edges_to_process.emplace(min_distance[neighbor.second], neighbor.second);
-                    }
-                }
-            }
-        }
-            
-        if(min_distance[N] == INT_MAX) return {};
-
-        vector<vector<int>> v = createPath(N, parent);
-        return *min_element(v.begin(), v.end(), [](const vector<int>& lhs, const vector<int>& rhs){
-            int M = lhs.size();
-            int N = rhs.size();
-            for(int i = 0; i < min(M,N); i++) {
-                if(lhs[i] != rhs[i]) return lhs[i] < rhs[i];
-            }
-            return M < N;
-        });
-    }
-};
-
-class Solution {
-public:
-    vector<int> cheapestJump(vector<int>& A, int B) {
-        int N = A.size();
-        if(N == 0 || A[N-1] == -1) return {};
-        // dp[i] represents cost of i to N-1
-        vector<int> dp(N, INT_MAX), to(N, -1);
-        
-        dp[N-1] = A[N-1];
-        for(int i = N-2; i >= 0; i--) {
-            if(A[i] == -1) continue;
-            // if we try smaller jumps first, don't need to worry about lexicographical order
-            // [P0, P1, P2, ... i+j] choosing smallest j minimizes i + j
-            // Clearly, when k = n-1, it is true because there is only 1 possible path, which is [n]. 
-            // When k = i and i < n-1, we search for an index j, which has smallest cost or 
-            // smallest j if the same cost. If there are >= 2 paths having the same minimum cost, 
-            // for example,
-            // P = [k+1, j+1, ..., n]
-            // Q = [k+1, m+1, ..., n] (m > j)
-            // The path P with smaller index j is always the lexicographically smaller path.
-            // So the argument is true by induction.
-            for(int j = 1; j <= B && i + j < N; j++) { 
-                if(dp[i + j] == INT_MAX) continue;
-                // cost of taking this jump is smaller
-                if(A[i] + dp[i + j] < dp[i]) {
-                    dp[i] = A[i] + dp[i + j];
-                    to[i] = i + j;
-                }
-            }
-        }
-        
-        vector<int> res;
-        if(dp[0] == INT_MAX) return res; // no path to the end
-
-        for(int i = 0; i >= 0; i = to[i])
-            res.push_back(i + 1);
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{1,2,4,-1,2};
-    s.cheapestJump(v, 2);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-657. Judge Route Circle
-Initially, there is a Robot at position (0, 0). Given a sequence of its moves, judge if this robot makes 
-a circle, which means it moves back to the original place.
-
-The move sequence is represented by a string. And each move is represent by a character. The valid robot moves are 
-R (Right), L (Left), U (Up) and D (down). The output should be true or false representing whether the robot makes a circle.
-
-Example 1:
-Input: "UD"
-Output: true
-Example 2:
-Input: "LL"
-Output: false
-/*
-    Submission Date: 2018-05-31
-    Runtime: 43 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    unordered_map<char, vector<int>> m_{
-        {'U', {0,1}},
-        {'D', {0,-1}},
-        {'L', {-1,0}},
-        {'R', {1,0}},
-    };
-public:
-    bool judgeCircle(string moves) {
-        int x = 0;
-        int y = 0;
-        for(const auto& c: moves) {
-            x += m_[c][0];
-            y += m_[c][1];
-        }
-        return x == 0 && y == 0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-661. Image Smoother
-Given a 2D integer matrix M representing the gray scale of an image, you need to design a smoother to make the gray 
-scale of each cell becomes the average gray scale (rounding down) of all the 8 surrounding cells and itself. If a cell has 
-less than 8 surrounding cells, then use as many as you can.
-
-Example 1:
-Input:
-[[1,1,1],
- [1,0,1],
- [1,1,1]]
-Output:
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-Explanation:
-For the point (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
-For the point (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
-For the point (1,1): floor(8/9) = floor(0.88888889) = 0
-Note:
-The value in the given matrix is in the range of [0, 255].
-The length and width of the given matrix are in the range of [1, 150].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 178 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int help(const vector<vector<int>>& A, int i, int j, int N, int M) {
-        int sum = 0;
-        int points = 0;
-        for(int k = -1; k <= 1; k++) {
-            for(int l = -1; l <= 1; l++) {
-                int new_i = i + k;
-                int new_j = j + l;
-                if(0 <= new_i && new_i < N && 0 <= new_j && new_j < M) {
-                    points++;
-                    sum += A[new_i][new_j];
-                }
-            }
-        }
-        
-        return sum/points;
-    }
-    
-    vector<vector<int>> imageSmoother(vector<vector<int>>& A) {
-        if(A.empty()) return A;
-        int N = A.size();
-        int M = A[0].size();
-        
-        vector<vector<int>> res(N, vector<int>(M));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[i][j] = help(A, i, j, N, M);
-            }
-        }
-        
-        return res;
     }
 };
 

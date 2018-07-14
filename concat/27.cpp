@@ -1,6 +1,383 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+609. Find Duplicate File in System
+Given a list of directory info including directory path, and all the files 
+with contents in this directory, you need to find out all the groups of 
+duplicate files in the file system in terms of their paths.
+
+A group of duplicate files consists of at least two files that have exactly 
+the same content.
+
+A single directory info string in the input list has the following format:
+
+"root/d1/d2/.../dm f1.txt(f1_content) f2.txt(f2_content) ... fn.txt(fn_content)"
+
+It means there are n files (f1.txt, f2.txt ... fn.txt with content f1_content, 
+f2_content ... fn_content, respectively) in directory root/d1/d2/.../dm. Note 
+that n >= 1 and m >= 0. If m = 0, it means the directory is just the root 
+directory.
+
+The output is a list of group of duplicate file paths. For each group, it 
+contains all the file paths of the files that have the same content. A 
+file path is a string that has the following format:
+
+"directory_path/file_name.txt"
+
+Example 1:
+Input:
+["root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)", 
+"root 4.txt(efgh)"]
+Output:  
+[["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
+
+Note:
+No order is required for the final output.
+
+You may assume the directory name, file name and file content only has letters 
+and digits, and the length of file content is in the range of [1,50].
+
+The number of files given is in the range of [1,20000].
+
+You may assume no files or directories share the same name in the same directory.
+
+You may assume each given directory info represents a unique directory. Directory 
+path and file info are separated by a single blank space.
+
+Follow-up beyond contest:
+Imagine you are given a real file system, how will you search files? DFS or BFS?
+
+If the file content is very large (GB level), how will you modify your solution?
+
+If you can only read the file by 1kb each time, how will you modify your solution?
+
+What is the time complexity of your modified solution? 
+
+What is the most time-consuming part and memory consuming part of it? 
+
+How to optimize?
+
+How to make sure the duplicated files you find are not false positive?
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 19 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+    pair<string, string> getContent(string& s) {
+        int bracket_ind = s.rfind("(") + 1;
+        string content = s.substr(bracket_ind, s.size() - bracket_ind - 1);
+        string filename = s.substr(0, bracket_ind - 1);
+        return make_pair(filename, content);
+    }
+public:
+    vector<vector<string>> findDuplicate(vector<string>& paths) {
+        // key content, value file
+        unordered_map<string, vector<string>> m;
+        for(string path: paths) {
+            stringstream ss(path);
+            string token;
+            string dir = "";
+            while(getline(ss, token, ' ')) {
+                if(dir.empty()) {
+                    dir = token;
+                } else {
+                    string file = token;
+                    pair<string, string> p = getContent(file);
+                    if(m.count(p.second)) {
+                        m[p.second].push_back(dir + "/" + p.first);
+                    } else {
+                        m[p.second] = {dir + "/" + p.first};
+                    }
+                }
+            }
+        }
+        
+        vector<vector<string>> res;
+        for(pair<string, vector<string>> p: m) {
+            if(p.second.size() > 1) res.push_back(p.second);
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+611. Valid Triangle Number
+Given an array consists of non-negative integers, your task is to count 
+the number of triplets chosen from the array that can make triangles if we 
+take them as side lengths of a triangle.
+
+Example 1:
+Input: [2,2,3,4]
+Output: 3
+Explanation:
+Valid combinations are: 
+2,3,4 (using the first 2)
+2,3,4 (using the second 2)
+2,2,3
+Note:
+The length of the given array won't exceed 1000.
+The integers in the given array are in the range of [0, 1000].
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 442 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int triangleNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        
+        int count = 0;
+        int len = nums.size();
+        for(int i = 0; i < len; i++) {
+            if(nums[i] == 0) continue;
+            for(int j = i + 1; j < len; j++) {
+                int sum = nums[i] + nums[j];
+                vector<int>::iterator it = lower_bound(nums.begin(), nums.end(), sum);
+                
+                int index = it - nums.begin() - 1;
+                count += max(index - j, 0);
+                // cout << index << ' '  << j << ' ' <<count<< endl;
+            }
+        }
+        return count;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+617. Merge Two Binary Trees
+Given two binary trees and imagine that when you put one of them to cover the 
+other, some nodes of the two trees are overlapped while the others are not.
+
+You need to merge them into a new binary tree. The merge rule is that if two 
+nodes overlap, then sum node values up as the new value of the merged node. 
+Otherwise, the NOT null node will be used as the node of new tree.
+
+Example 1:
+Input: 
+    Tree 1                     Tree 2                  
+          1                         2                             
+         / \                       / \                            
+        3   2                     1   3                        
+       /                           \   \                      
+      5                             4   7                  
+Output: 
+Merged tree:
+         3
+        / \
+       4   5
+      / \   \ 
+     5   4   7
+Note: The merging process must start from the root nodes of both trees.
+
+/*
+    Submission Date: 2017-06-11
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+    TreeNode* mergeTreesHelper(TreeNode* t1, TreeNode* t2) {
+        if(t1 == NULL && t2 == NULL) return NULL;
+        
+        TreeNode* curr = new TreeNode(-1);
+        int new_val = -1;
+        if(t1 != NULL && t2 != NULL) {
+            new_val = t1 -> val + t2 -> val;
+        } else if(t1 != NULL) {
+            new_val = t1 -> val;
+        } else {
+            new_val = t2 -> val;
+        }
+        
+        curr -> val = new_val;
+        
+        TreeNode* left = mergeTreesHelper(t1 ? t1 -> left : NULL, t2 ? t2 -> left : NULL);
+        TreeNode* right = mergeTreesHelper(t1 ? t1 -> right : NULL, t2 ? t2 -> right : NULL);
+        curr -> left = left;
+        curr -> right = right;
+        return curr;
+    }
+public:
+    TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
+        return mergeTreesHelper(t1, t2);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+622. Design Circular Queue
+Design your implementation of the circular queue. The circular queue is a linear 
+data structure in which the operations are performed based on FIFO (First In 
+First Out) principle and the last position is connected back to the first 
+One of the Benefits of the circular queue is that we can make use of the spaces 
+in front of the queue. In a normal queue, once the queue becomes full, we can 
+not insert the next element even if there is a space in front of the queue. But 
+Your implementation should support following operations:
+
+
+    MyCircularQueue(k): Constructor, set the size of the queue to be k.
+    Front: Get the front item from the queue. If the queue is empty, return -1.
+    Rear: Get the last item from the queue. If the queue is empty, return -1.
+    enQueue(value): Insert an element into the circular queue. Return true if the 
+    deQueue(): Delete an element from the circular queue. Return true if the 
+    isEmpty(): Checks whether the circular queue is empty or not.
+    isFull(): Checks whether the circular queue is full or not.
+
+
+Example:
+
+MyCircularQueue circularQueue = new MycircularQueue(3); // set the size to be 3
+
+circularQueue.enQueue(1);  // return true
+
+circularQueue.enQueue(2);  // return true
+
+circularQueue.enQueue(3);  // return true
+
+circularQueue.enQueue(4);  // return false, the queue is full
+
+circularQueue.Rear();  // return 3
+
+circularQueue.isFull();  // return true
+
+circularQueue.deQueue();  // return true
+
+circularQueue.enQueue(4);  // return true
+
+circularQueue.Rear();  // return 4
+ 
+ 
+
+Note:
+
+
+    All values will be in the range of [1, 1000].
+    The number of operations will be in the range of [1, 1000].
+    Please do not use the built-in Queue library.
+/*
+    Submission Date: 2018-07-12
+    Runtime: 20 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class MyCircularQueue {
+    vector<int> q_;
+    int k_;
+    int front_;
+    int back_;
+    int size_;
+public:
+    /** Initialize your data structure here. Set the size of the queue to be k. */
+    MyCircularQueue(int k) {
+        q_.assign(k, 0);
+        front_ = 0;
+        back_ = -1;
+        k_ = k;
+        size_ = 0;
+    }
+    
+    /** Insert an element into the circular queue. Return true if the operation is successful. */
+    bool enQueue(int value) {
+        if(isFull()) return false;
+        back_ = (back_ + 1) % k_;
+        q_[back_] = value;
+        size_++;
+        return true;
+    }
+    
+    /** Delete an element from the circular queue. Return true if the operation is successful. */
+    bool deQueue() {
+        if(isEmpty()) return false;
+        front_ = (front_ + 1) % k_;
+        size_--;
+        return true;
+    }
+    
+    /** Get the front item from the queue. */
+    int Front() {
+        if(isEmpty()) return -1;
+        return q_[front_];
+    }
+    
+    /** Get the last item from the queue. */
+    int Rear() {
+        if(isEmpty()) return -1;
+        return q_[back_];
+    }
+    
+    /** Checks whether the circular queue is empty or not. */
+    bool isEmpty() {
+        return size_ == 0;
+    }
+    
+    /** Checks whether the circular queue is full or not. */
+    bool isFull() {
+        return size_ == k_;
+    }
+};
+
+/**
+ * Your MyCircularQueue object will be instantiated and called as such:
+ * MyCircularQueue obj = new MyCircularQueue(k);
+ * bool param_1 = obj.enQueue(value);
+ * bool param_2 = obj.deQueue();
+ * int param_3 = obj.Front();
+ * int param_4 = obj.Rear();
+ * bool param_5 = obj.isEmpty();
+ * bool param_6 = obj.isFull();
+ */
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 623. Add One Row to Tree
 Given the root of a binary tree, then value v and depth d, you need to add a row of 
 nodes with value v at the given depth d. The root node is at depth 1.
@@ -594,384 +971,5 @@ public:
 
 int main() {
     Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-640. Solve the Equation
-Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
-only '+', '-' operation, the variable x and its coefficient.
-
-If there is no solution for the equation, return "No solution".
-
-If there are infinite solutions for the equation, return "Infinite solutions".
-
-If there is exactly one solution for the equation, we ensure that the value of x is an integer.
-
-Example 1:
-Input: "x+5-3+x=6+x-2"
-Output: "x=2"
-Example 2:
-Input: "x=x"
-Output: "Infinite solutions"
-Example 3:
-Input: "2x=x"
-Output: "x=0"
-Example 4:
-Input: "2x+3x-6x=x+2"
-Output: "x=-1"
-Example 5:
-Input: "x=x+2"
-Output: "No solution"
-
-/*
-    Submission Date: 2017-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <tuple>
-
-using namespace std;
-
-class Solution {
-public:
-    pair<long long, long long> getCount(string s) {
-        long long x_count = 0;
-        long long c_count = 0;
-        for(int i = 0; i < s.size();) {
-            string prev = "";
-            bool seen_number = false;
-            bool end_x = false;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    prev += s[i];
-                    seen_number = true;
-                    i++;
-                } else if(s[i] == '+' || s[i] == '-') {
-                    if(!seen_number) {
-                        prev += s[i];
-                        i++;
-                    } else {
-                        break;
-                    }
-                } else if(s[i] == 'x') {
-                    end_x = true;
-                    i++;
-                    break;
-                }
-            }
-
-            if(end_x) {
-                if(prev == "+") x_count++;
-                else if(prev == "-") x_count--;
-                else if(prev == "") x_count++;
-                else x_count += stoll(prev);
-            } else {
-                if(prev == "+") c_count++;
-                else if(prev == "-") c_count--;
-                else if(prev == "") c_count++;
-                else c_count += stoll(prev);
-            }
-        }
-
-        return {x_count, c_count};
-    }
-    string solveEquation(string equation) {
-        // put all the x on the left side and all the numbers on the right side
-        string s = equation;
-        string inf = "Infinite solutions";
-        string none = "No solution";
-
-        int eq_ind = s.find("=");
-        if(eq_ind == string::npos) return none;
-
-        string left = s.substr(0, eq_ind);
-        string right = s.substr(eq_ind + 1);
-
-        
-        long long x_count1, c_count1;
-        tie(x_count1, c_count1) = getCount(left);
-
-        long long x_count2, c_count2;
-        tie(x_count2, c_count2) = getCount(right);
-
-        long long left_x_count = x_count1 - x_count2;
-        long long right_c_count = c_count2 - c_count1;
-
-        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
-
-        return "x=" + to_string(right_c_count/left_x_count);
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-643. Maximum Average Subarray I
-Given an array consisting of n integers, find the contiguous subarray of given length k that 
-has the maximum average value. And you need to output the maximum average value.
-
-Example 1:
-Input: [1,12,-5,-6,50,3], k = 4
-Output: 12.75
-Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75
-Note:
-1 <= k <= n <= 30,000.
-Elements of the given array will be in the range [-10,000, 10,000].
-
-/*
-    Submission Date: 2017-07-15
-    Runtime: 199 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double findMaxAverage(vector<int>& nums, int k) {
-        int sum = 0;
-        int max_average = INT_MIN;
-        for(int i = 0; i < nums.size(); i++) {
-            if(i < k) {
-                sum += nums[i];
-            } else {
-                if(i == k) max_average = max(max_average, sum);
-                sum = sum - nums[i - k] + nums[i];
-                max_average = max(max_average, sum);
-            }
-        }
-        if(k == nums.size()) return (double)sum/k;
-        return (double)max_average/k;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-645. Set Mismatch
-The set S originally contains numbers from 1 to n. But unfortunately, due to the data error, one of 
-the numbers in the set got duplicated to another number in the set, which results in repetition of one 
-number and loss of another number.
-
-Given an array nums representing the data status of this set after the error. Your task is to firstly 
-find the number occurs twice and then find the number that is missing. Return them in the form of an array.
-
-Example 1:
-Input: nums = [1,2,2,4]
-Output: [2,3]
-Note:
-The given array size will in the range [2, 10000].
-The given array's numbers won't have any order.
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 62 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> findErrorNums(vector<int>& nums) {
-        unordered_map<int, int> freq;
-        for(auto num: nums) freq[num]++;
-        
-        int N = nums.size();
-        int duplicate = -1;
-        int missing = -1;
-        for(int i = 1; i <= N; i++) {
-            if(missing != -1 && duplicate != -1) break;
-            if(!freq.count(i)) {
-                missing = i;
-            } else if(freq[i] >= 2) {
-                duplicate = i;
-            }
-        }
-        return {duplicate, missing};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-646. Maximum Length of Pair Chain
-You are given n pairs of numbers. In every pair, the first number is always smaller than the second number.
-
-Now, we define a pair (c, d) can follow another pair (a, b) if and only if b < c. Chain of pairs can be 
-formed in this fashion.
-
-Given a set of pairs, find the length longest chain which can be formed. You needn't use up all the given 
-pairs. You can select pairs in any order.
-
-Example 1:
-Input: [[1,2], [2,3], [3,4]]
-Output: 2
-Explanation: The longest chain is [1,2] -> [3,4]
-Note:
-The number of given pairs will be in the range [1, 1000].
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 82 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int findLongestChain(vector<vector<int>>& pairs) {
-        sort(pairs.begin(), pairs.end(), [](vector<int> v1, vector<int> v2){
-            return v1[1] < v2[1];
-        });
-        
-        vector<vector<int>> res;
-        
-        for(auto p: pairs) {
-            if(res.empty() || res.back()[1] < p[0]) {
-                res.push_back(p);
-            }
-        }
-        
-        return res.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-647. Palindromic Substrings
-Given a string, your task is to count how many palindromic substrings in this string.
-
-The substrings with different start indexes or end indexes are counted as different substrings even 
-they consist of same characters.
-
-Example 1:
-Input: "abc"
-Output: 3
-Explanation: Three palindromic strings: "a", "b", "c".
-Example 2:
-Input: "aaa"
-Output: 6
-Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
-Note:
-The input string length won't exceed 1000.
-
-/*
-    Submission Date: 2017-07-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int Manacher(string s) {
-        const char kNullChar = '\0';
-        string str = string(1, kNullChar);
-
-        for(auto c: s) str += string(1, c) + kNullChar;
-
-        string max_str = "";
-        int len = str.size();
-        int right = 0;
-        int center = 0;
-        vector<int> dp(len, 0);
-
-        for(int i = 1; i < len; i++) {
-            int mirr = 2*center - i;
-
-            // i is within right so can take the minimum of the mirror or distance from right
-            if(i < right) {
-                dp[i] = min(right - i, dp[mirr]);
-            }
-
-            // keep expanding around i while it is the same and increment P[i]
-            int left_index = i - (1 + dp[i]);
-            int right_index = i + (1 + dp[i]);
-            while(left_index != -1 && right_index != len && str[left_index] == str[right_index]) {
-                left_index--;
-                right_index++;
-                dp[i]++;
-            }
-
-            // i goes beyond current right so it is the new center
-            if(i + dp[i] > right) {
-                center = i;
-                right = i + dp[i];
-            }
-        }
-        
-        int count = 0;
-        for(int i = 0; i < len; i++) {
-            count += ceil((double)dp[i]/2.0);
-        }
-        return count;
-    }
-
-    int countSubstrings(string s) {
-        return Manacher(s);
-    }
-
-    int countSubstrings2(string s) {
-        int res = 0;
-        int N = s.size();
-        int left, right;
-        for(int i = 0; i < N; i++) {
-            res++;
-            
-            // treat as odd
-            left = i - 1;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-            
-            // treat as even
-            left = i;
-            right = i + 1;
-            while(left >= 0 && right < N && s[left] == s[right]) {
-                left--;
-                right++;
-                res++;
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
     return 0;
 }

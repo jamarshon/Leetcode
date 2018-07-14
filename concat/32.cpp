@@ -1,6 +1,587 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+748. Shortest Completing Word
+Find the minimum length word from a given dictionary words, which has all the letters from the string 
+licensePlate. Such a word is said to complete the given string licensePlate
+
+Here, for letters we ignore case. For example, "P" on the licensePlate still matches "p" on the word.
+
+It is guaranteed an answer exists. If there are multiple answers, return the one that occurs first in the array.
+
+The license plate might have the same letter occurring multiple times. For example, given a licensePlate of 
+"PP", the word "pair" does not complete the licensePlate, but the word "supper" does.
+
+Example 1:
+Input: licensePlate = "1s3 PSt", words = ["step", "steps", "stripe", "stepple"]
+Output: "steps"
+Explanation: The smallest length word that contains the letters "S", "P", "S", and "T".
+Note that the answer is not "step", because the letter "s" must occur in the word twice.
+Also note that we ignored case for the purposes of comparing whether a letter exists in the word.
+Example 2:
+Input: licensePlate = "1s3 456", words = ["looks", "pest", "stew", "show"]
+Output: "pest"
+Explanation: There are 3 smallest length words that contains the letters "s".
+We return the one that occurred first.
+Note:
+licensePlate will be a string with length in range [1, 7].
+licensePlate will contain digits, spaces, or letters (uppercase or lowercase).
+words will have a length in the range [10, 1000].
+Every words[i] will consist of lowercase letters, and have length in range [1, 15].
+/*
+    Submission Date: 2018-06-30
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    licensePlate size M, words size N, words[i] size k
+    
+    generate a frequency of character for licensePlate O(M)
+    for each word, loop through character and decrease frequency of character if it exists
+    if the frequency is zero, remove it and if the hashmap is empty than all the characters
+    are needed in this string so update res if it is shorter O(N*k)
+    
+    O(N*k + M)
+    */
+    string shortestCompletingWord(string licensePlate, vector<string>& words) {
+        unordered_map<char, int> letters;
+        for(const auto& c: licensePlate) if(isalpha(c)) letters[tolower(c)]++;
+        
+        string res = "";
+        for(const auto& word: words) {
+            unordered_map<char, int> letters_copy = letters;
+            for(const auto& c: word) {
+                if(letters_copy.count(c)) {
+                    letters_copy[c]--;
+                    if(letters_copy[c] == 0) {
+                        letters_copy.erase(c);
+                        if(letters_copy.empty()) break;
+                    }
+                }
+            }
+            
+            if(letters_copy.empty() && (res.empty() || word.size() < res.size())) {
+                res = word;
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+756. Pyramid Transition Matrix
+We are stacking blocks to form a pyramid.  Each block has a color which is a one 
+
+For every block of color `C` we place not in the bottom row, we are placing it 
+on top of a left block of color `A` and right block of color `B`.  We are 
+
+We start with a bottom row of bottom, represented as a single string.  We also 
+start with a list of allowed triples allowed.  Each allowed triple is 
+
+Return true if we can build the pyramid all the way to the top, otherwise false.
+
+
+Example 1:
+Input: bottom = "XYZ", allowed = ["XYD", "YZE", "DEA", "FFF"]
+Output: true
+Explanation:
+We can stack the pyramid like this:
+    A
+   / \
+  D   E
+ / \ / \
+X   Y   Z
+
+This works because ('X', 'Y', 'D'), ('Y', 'Z', 'E'), and ('D', 'E', 'A') are 
+
+
+
+Example 2:
+Input: bottom = "XXYX", allowed = ["XXX", "XXY", "XYX", "XYY", "YXZ"]
+Output: false
+Explanation:
+We can't stack the pyramid to the top.
+Note that there could be allowed triples (A, B, C) and (A, B, D) with C != D.
+
+
+
+Note:
+
+bottom will be a string with length in range [2, 8].
+allowed will have length in range [0, 200].
+Letters in all strings will be chosen from the set {'A', 'B', 'C', 'D', 'E', 
+/*
+    Submission Date: 2018-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+    TrieNode* children[7];
+    TrieNode() {
+        for(int i = 0; i < 7; i++) {
+            children[i] = NULL;
+        }
+    }
+};
+
+class Solution {
+public:
+    /*
+    loop through s from i = [1,N) and seeing if s[i-1] + s[i] exists
+    if it does then try all combinations of s[i-1] + s[i] + _ where _ is determined from
+    the Trie. base case is when s is just a single letter.
+    
+    building.size() always == i-1 so if building.size() == N-1 (building row is one less than previous row)
+    then i-1 == N-1 or i == N which terminates
+    */
+    bool f(string s, int i, string building, TrieNode* root) {
+        int N = s.size();
+        if(N == 1) return true;
+        
+        if(building.size() == N-1) {
+            return f(building, 1, "", root); // swap building and create a new row
+        }
+        
+        // checking trie if AB exists
+        TrieNode* curr = root;
+        for(int j = 0; j < 2; j++) {
+            if(curr->children[s[i - 1 + j] - 'A'] == NULL) return false; 
+            curr = curr->children[s[i - 1 +j] - 'A'];
+        }
+        
+        // useing all combinations of AB_ to see if _ can work as the character for the building row
+        for(int j = 0; j < 7; j++) {
+            if(curr->children[j] == NULL) continue;
+            if(f(s, i + 1, building + char('A' + j), root)) return true;
+        }
+        
+        return false;
+    }
+    
+    bool pyramidTransition(string bottom, vector<string>& allowed) {
+        TrieNode* root = new TrieNode();
+        for(const auto& s: allowed) {
+            TrieNode* curr = root;
+            for(const auto& c: s) {
+                if(curr->children[c - 'A'] == NULL) 
+                    curr->children[c - 'A'] = new TrieNode();
+                curr = curr->children[c - 'A'];
+            }
+        }
+        
+        return f(bottom, 1, "", root);
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+762. Prime Number of Set Bits in Binary Representation
+Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
+their binary representation.
+
+(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
+10101 which has 3 set bits. Also, 1 is not a prime.)
+
+Example 1:
+
+Input: L = 6, R = 10
+Output: 4
+Explanation:
+6 -> 110 (2 set bits, 2 is prime)
+7 -> 111 (3 set bits, 3 is prime)
+9 -> 1001 (2 set bits , 2 is prime)
+10->1010 (2 set bits , 2 is prime)
+Example 2:
+
+Input: L = 10, R = 15
+Output: 5
+Explanation:
+10 -> 1010 (2 set bits, 2 is prime)
+11 -> 1011 (3 set bits, 3 is prime)
+12 -> 1100 (2 set bits, 2 is prime)
+13 -> 1101 (3 set bits, 3 is prime)
+14 -> 1110 (3 set bits, 3 is prime)
+15 -> 1111 (4 set bits, 4 is not prime)
+Note:
+
+L, R will be integers L <= R in the range [1, 10^6].
+R - L will be at most 10000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 105 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    int numbits(int x) {
+        int res = 0;
+        while(x) {
+            x &= (x-1);
+            res++;
+        }
+        return res;
+    }
+public:
+    /*
+        the number of bits for a number i = number of bits for i/2 + the last bit of i
+        e.g 10101 = number of bits for 1010 + last bit which is 1
+    */
+    int countPrimeSetBits(int L, int R) {
+        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+        unordered_map<int,int> n_to_bits;
+        int res = 0;
+        for(int i = L; i <= R; i++) {
+            int bits;
+            if(n_to_bits.count(i)) {
+                bits = n_to_bits[i/2] + (i % 2);
+            } else {
+                bits = numbits(i);
+            }
+            n_to_bits[i] = bits;
+            res += primes.count(bits);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+763. Partition Labels
+A string S of lowercase letters is given. We want to partition this string into as many parts 
+as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.
+
+Example 1:
+Input: S = "ababcbacadefegdehijhklij"
+Output: [9,7,8]
+Explanation:
+The partition is "ababcbaca", "defegde", "hijhklij".
+This is a partition so that each letter appears in at most one part.
+A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits S into less parts.
+Note:
+
+S will have length in range [1, 500].
+S will consist of lowercase letters ('a' to 'z') only.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    everytime a letter is visited, update right to be max right and
+    the index of the furthest right of this character
+    if i == right it means all the caharacters between i and the previous pushed
+    number contains letters that do not appear in any other part of the string.
+    */
+    vector<int> partitionLabels(string S) {
+        unordered_map<char, int> last_seen;
+        int N = S.size();
+        for(int i = 0; i < N; i++) last_seen[S[i]] = i;
+        int right = 0;
+        
+        vector<int> res;
+        for(int i = 0; i < N; i++) {
+            right = max(right, last_seen[S[i]]);
+            if(i == right) res.push_back(i+1);
+        }
+        
+        for(int i = res.size()-1; i >= 1; i--) res[i] -= res[i-1];
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+766. Toeplitz Matrix
+A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same element.
+
+Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
+ 
+
+Example 1:
+
+Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
+Output: True
+Explanation:
+1234
+5123
+9512
+
+In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]", and in each 
+diagonal all elements are the same, so the answer is True.
+Example 2:
+
+Input: matrix = [[1,2],[2,2]]
+Output: False
+Explanation:
+The diagonal "[1, 2]" has different elements.
+Note:
+
+matrix will be a 2D array of integers.
+matrix will have a number of rows and columns in range [1, 20].
+matrix[i][j] will be integers in range [0, 99].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 22 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    bool isToeplitzMatrix(vector<vector<int>>& matrix) {
+        if(matrix.empty()) return true;
+        int N = matrix.size();
+        int M = matrix[0].size();
+        
+        for(int i = 1; i < N; i++) {
+            for(int j = 1; j < M; j++) {
+                if(matrix[i][j] != matrix[i-1][j-1]) return false;
+            }
+        }
+        
+        return true;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+769. Max Chunks To Make Sorted
+Given an array arr that is a permutation of [0, 1, ..., arr.length - 1], we 
+split the array into some number of "chunks" (partitions), and individually sort 
+
+What is the most number of chunks we could have made?
+
+Example 1:
+
+Input: arr = [4,3,2,1,0]
+Output: 1
+Explanation:
+Splitting into two or more chunks will not return the required result.
+For example, splitting into [4, 3], [2, 1, 0] will result in [3, 4, 0, 1, 2], 
+
+
+Example 2:
+
+Input: arr = [1,0,2,3,4]
+Output: 4
+Explanation:
+We can split into two chunks, such as [1, 0], [2, 3, 4].
+However, splitting into [1, 0], [2], [3], [4] is the highest number of chunks 
+
+
+Note:
+
+
+    arr will have length in range [1, 10].
+    arr[i] will be a permutation of [0, 1, ..., arr.length - 1].
+/*
+    Submission Date: 2018-07-08
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    nums[i] must be moved to the index nums[i] so keep track of right
+    boundary, once i > right boundary it means all the number from the previous
+    right boundary this right boundary can be sorted such that nums[i] == i
+    so increase res by 1
+    
+    proof that nums[i] will never get sorted to a number of a previous boundary
+    all numbers from [0, i) all smaller than i as i was the previous boundary
+    hence nums[i] must be >= i (ie you won't find any smaller number outside
+    of the boundary as all of them are already in boundary since there are
+    exactly i numbers < i)
+    */
+    int maxChunksToSorted(vector<int>& arr) {
+        int right = 0;
+        int N = arr.size();
+        int res = 1;
+        for(int i = 0; i < N; i++) {
+            if(i > right) {
+                res++;
+                
+            }
+            right = max(right, arr[i]);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+771. Jewels and Stones
+You're given strings J representing the types of stones that are jewels, and S representing the stones you have.  
+Each character in S is a type of stone you have.  You want to know how many of the stones you have are also jewels.
+
+The letters in J are guaranteed distinct, and all characters in J and S are letters. Letters are case sensitive, so "a" 
+is considered a different type of stone from "A".
+
+Example 1:
+
+Input: J = "aA", S = "aAAbbbb"
+Output: 3
+Example 2:
+
+Input: J = "z", S = "ZZ"
+Output: 0
+Note:
+
+S and J will consist of letters and have length at most 50.
+The characters in J are distinct.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    int numJewelsInStones(string J, string S) {
+        unordered_set<char> jewels(J.begin(), J.end());
+        int res = 0;
+        for(const auto& stone: S) res += jewels.count(stone);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+781. Rabbits in Forest
+In a forest, each rabbit has some color. Some subset of rabbits (possibly all of 
+them) tell you how many other rabbits have the same color as them. Those answers 
+
+Return the minimum number of rabbits that could be in the forest.
+
+Examples:
+Input: answers = [1, 1, 2]
+Output: 5
+Explanation:
+The two rabbits that answered "1" could both be the same color, say red.
+The rabbit than answered "2" can't be red or the answers would be inconsistent.
+Say the rabbit that answered "2" was blue.
+Then there should be 2 other blue rabbits in the forest that didn't answer into 
+The smallest possible number of rabbits in the forest is therefore 5: 3 that 
+
+Input: answers = [10, 10, 10]
+Output: 11
+
+Input: answers = []
+Output: 0
+
+
+Note:
+
+
+    answers will have length at most 1000.
+    Each answers[i] will be an integer in the range [0, 999].
+/*
+    Submission Date: 2018-07-02
+    Runtime: 6 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    convert numbers to frequency.
+    if x occurs y times it means each group of size x+1 in y could refer to the same
+    rabbits so find how many x+1 groups are in y and multiply by x+1 to get the total
+    number of rabbits
+    e.g 1 1 1 1 1 1 1
+    x = 1
+    y = 7
+    groups of 2 (1 1) (1 1) (1 1) (1)
+    there are 4 groups of two and multiply this by 1+1 = 8
+    the groups are referring to only rabbits in their own group.
+    */
+    int numRabbits(vector<int>& answers) {
+        unordered_map<int,int> freq;
+        for(const auto& n: answers) freq[n]++;
+        int res = 0;
+        for(const auto& kv: freq) {
+            res += ceil((float)kv.second/(kv.first + 1))*(kv.first + 1);
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 783. Minimum Distance Between BST Nodes
 Given a Binary Search Tree (BST) with the root node root, return the minimum difference between the 
 values of any two different nodes in the tree.
@@ -423,581 +1004,6 @@ public:
         vector<int> curr{0};
         vector<vector<int>> res;
         dfs(0, graph, curr, res);
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-804. Unique Morse Code Words
-International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
-follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
-
-For convenience, the full table for the 26 letters of the English alphabet is given below:
-
-[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
-Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
-For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
-such a concatenation, the transformation of a word.
-
-Return the number of different transformations among all words we have.
-
-Example:
-Input: words = ["gin", "zen", "gig", "msg"]
-Output: 2
-Explanation: 
-The transformation of each word is:
-"gin" -> "--...-."
-"zen" -> "--...-."
-"gig" -> "--...--."
-"msg" -> "--...--."
-
-There are 2 different transformations, "--...-." and "--...--.".
- 
-
-Note:
-
-The length of words will be at most 100.
-Each words[i] will have length in range [1, 12].
-words[i] will only consist of lowercase letters.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
-public:
-    int uniqueMorseRepresentations(vector<string>& words) {
-        unordered_set<string> comb;
-        for(const auto& s: words) {
-            string curr = "";
-            for(const auto& c: s) {
-                curr += morse_[c - 'a'];
-            }
-            comb.insert(curr);
-        }
-        return comb.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-806. Number of Lines To Write String
-We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
-and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
-an array widths, an array where widths[0] is the width of 'a', widths[1] is the width of 'b', ..., and widths[25] is the width of 'z'.
-
-Now answer two questions: how many lines have at least one character from S, and what is the width used by the last such line? 
-Return your answer as an integer list of length 2.
-
-Example :
-Input: 
-widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "abcdefghijklmnopqrstuvwxyz"
-Output: [3, 60]
-Explanation: 
-All letters have the same length of 10. To write all 26 letters,
-we need two full lines and one line with 60 units.
-Example :
-Input: 
-widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
-S = "bbbcccdddaaa"
-Output: [2, 4]
-Explanation: 
-All letters except 'a' have the same length of 10, and 
-"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
-For the last 'a', it is written on the second line because
-there is only 2 units left in the first line.
-So the answer is 2 lines, plus 4 units in the second line.
- 
-Note:
-
-The length of S will be in the range [1, 1000].
-S will only contain lowercase letters.
-widths is an array of length 26.
-widths[i] will be in the range of [2, 10].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> numberOfLines(vector<int>& widths, string S) {
-        int current_len = 0;
-        int num_lines = 0;
-        for(const auto& c: S) {
-            if(current_len + widths[c - 'a'] > 100) {
-                num_lines++;
-                current_len = 0;
-            }
-            current_len += widths[c - 'a'];
-        }
-        return {num_lines+1, current_len};
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-807. Max Increase to Keep City Skyline
-In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
-We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
-different for different buildings). Height 0 is considered to be a building as well. 
-
-At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
-and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
-of the rectangles formed by all the buildings when viewed from a distance. See the following example.
-
-What is the maximum total sum that the height of the buildings can be increased?
-
-Example:
-Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
-Output: 35
-Explanation: 
-The grid is:
-[ [3, 0, 8, 4], 
-  [2, 4, 5, 7],
-  [9, 2, 6, 3],
-  [0, 3, 1, 0] ]
-
-The skyline viewed from top or bottom is: [9, 4, 8, 7]
-The skyline viewed from left or right is: [8, 7, 9, 3]
-
-The grid after increasing the height of buildings without affecting skylines is:
-
-gridNew = [ [8, 4, 8, 7],
-            [7, 4, 7, 7],
-            [9, 4, 8, 7],
-            [3, 3, 3, 3] ]
-
-Notes:
-
-1 < grid.length = grid[0].length <= 50.
-All heights grid[i][j] are in the range [0, 100].
-All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
-        if(grid.empty()) return 0;
-        int N = grid.size();
-        int M = grid[0].size();
-        vector<int> max_col(M, 0), max_row(N, 0);
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                max_col[j] = max(max_col[j], grid[i][j]);
-                max_row[i] = max(max_row[i], grid[i][j]);
-            }
-        }
-        
-        int res = 0;
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res += min(max_col[j], max_row[i]) - grid[i][j];
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-811. Subdomain Visit Count
-A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
-at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
-"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
-
-Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
-followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
-
-We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
-input, and in any order), that explicitly counts the number of visits to each subdomain.
-
-Example 1:
-Input: 
-["9001 discuss.leetcode.com"]
-Output: 
-["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
-Explanation: 
-We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
-So they will all be visited 9001 times.
-
-Example 2:
-Input: 
-["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
-Output: 
-["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
-Explanation: 
-We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
-we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
-
-Notes:
-
-The length of cpdomains will not exceed 100. 
-The length of each domain name will not exceed 100.
-Each address will have either 1 or 2 "." characters.
-The input count in any count-paired domain will not exceed 10000.
-The answer output can be returned in any order.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <cctype>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<string> subdomainVisits(vector<string>& cpdomains) {
-        unordered_map<string, int> domain_to_count;
-        for(const auto& s: cpdomains) {
-            int num = 0;
-            int i = 0;
-            while(i < s.size()) {
-                if(isdigit(s[i])) {
-                    num = num * 10 + (s[i] - '0');
-                } else {
-                    break;
-                }
-                i++;
-            }
-            
-            string domain = s.substr(i + 1);
-            while(domain.find('.') != string::npos) {
-                domain_to_count[domain] += num;
-                domain = domain.substr(domain.find('.') + 1);
-            }
-            
-            domain_to_count[domain] += num;
-        }
-        
-        vector<string> res;
-        for(const auto& kv: domain_to_count) {
-            res.push_back(to_string(kv.second) + " " + kv.first);
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-812. Largest Triangle Area
-You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
-
-Example:
-Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
-Output: 2
-Explanation: 
-The five points are show in the figure below. The red triangle is the largest.
-
-Notes:
-
-3 <= points.length <= 50.
-No points will be duplicated.
- -50 <= points[i][j] <= 50.
-Answers within 10^-6 of the true value will be accepted as correct.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double largestTriangleArea(vector<vector<int>>& points) {
-        int res = 0;
-        int N = points.size();
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
-                for(int k = j + 1; k < N; k++) {
-                    /*
-                    given points (a,b), (c,d), (e,f)
-                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
-                    cross product of A and B is 
-                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
-                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
-                    magnitude of A cross B is area of parallelogram so divide by half
-                    */
-                    int c_minus_a = points[j][0] - points[i][0];
-                    int d_minus_b = points[j][1] - points[i][1];
-                    int e_minus_a = points[k][0] - points[i][0];
-                    int f_minus_b = points[k][1] - points[i][1];
-                    
-                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
-                }
-            }
-        }
-        return res/2.0;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-814. Binary Tree Pruning
-We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
-
-Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
-
-(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
-
-Example 1:
-Input: [1,null,0,0,1]
-Output: [1,null,0,null,1]
- 
-Explanation: 
-Only the red nodes satisfy the property "every subtree not containing a 1".
-The diagram on the right represents the answer.
-
-
-Example 2:
-Input: [1,0,1,0,0,0,1]
-Output: [1,null,1,null,1]
-
-
-
-Example 3:
-Input: [1,1,0,1,1,0,1,0]
-Output: [1,1,0,1,1,null,1]
-
-
-
-Note:
-
-The binary tree will have at most 100 nodes.
-The value of each node will only be 0 or 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    bool HasOne(TreeNode* root) {
-        if(root == NULL) return false;
-        bool l = HasOne(root->left);
-        bool r = HasOne(root->right);
-        
-        if(!l) { delete root->left; root->left = NULL; }
-        if(!r) { delete root->right; root->right = NULL; }
-        
-        return root->val == 1 || l || r;
-    }
-    
-    TreeNode* pruneTree(TreeNode* root) {
-        if(!HasOne(root)) { delete root; return NULL; }
-        return root;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-817. Linked List Components
-We are given head, the head node of a linked list containing unique integer 
-
-We are also given the list G, a subset of the values in the linked list.
-
-Return the number of connected components in G, where two values are connected 
-
-Example 1:
-
-Input: 
-head: 0->1->2->3
-G = [0, 1, 3]
-Output: 2
-Explanation: 
-0 and 1 are connected, so [0, 1] and [3] are the two connected components.
-
-
-Example 2:
-
-Input: 
-head: 0->1->2->3->4
-G = [0, 3, 1, 4]
-Output: 2
-Explanation: 
-0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two 
-
-
-Note: 
-
-
-    If N is the length of the linked list given by head, 1 <= N <= 10000.
-    The value of each node in the linked list will be in the range [0, N - 1].
-    1 <= G.length <= 10000.
-    G is a subset of all values in the linked list.
-/*
-    Submission Date: 2018-07-02
-    Runtime: 35 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
-class Solution {
-public:
-    int numComponents(ListNode* head, vector<int>& G) {
-        unordered_set<int> G_set(G.begin(), G.end());
-        ListNode* curr = head;
-        int res = 0;
-        while(curr) {
-            // looking for the start of a component
-            while(curr && !G_set.count(curr->val)) {
-                curr = curr->next;
-            }
-            
-            if(curr) {
-                res++;
-                // looking for the end of a component
-                while(curr && G_set.count(curr->val)) {
-                    curr = curr->next;
-                }
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-819. Most Common Word
-Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
-It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
-
-Words in the list of banned words are given in lowercase, and free of punctuation.  Words in the paragraph are not case sensitive.  
-The answer is in lowercase.
-
-Example:
-Input: 
-paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
-banned = ["hit"]
-Output: "ball"
-Explanation: 
-"hit" occurs 3 times, but it is a banned word.
-"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
-Note that words in the paragraph are not case sensitive,
-that punctuation is ignored (even if adjacent to words, such as "ball,"), 
-and that "hit" isn't the answer even though it occurs more because it is banned.
- 
-
-Note:
-
-1 <= paragraph.length <= 1000.
-1 <= banned.length <= 100.
-1 <= banned[i].length <= 10.
-The answer is unique, and written in lowercase (even if its occurrences in paragraph may have uppercase symbols, and 
-even if it is a proper noun.)
-paragraph only consists of letters, spaces, or the punctuation symbols !?',;.
-Different words in paragraph are always separated by a space.
-There are no hyphens or hyphenated words.
-Words only consist of letters, never apostrophes or other punctuation symbols.
-/*
-    Submission Date: 2018-06-04
-    Runtime:  ms
-    Difficulty: 
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
-public:
-    string mostCommonWord(string paragraph, vector<string>& banned) {
-        unordered_set<string> banned_set(banned.begin(), banned.end());
-        unordered_map<string,int> freq;
-        
-        stringstream ss(paragraph);
-        string temp;
-        
-        string res = "";
-        while(getline(ss, temp, ' ')) {
-            for(int i = 0; i < temp.size(); i++) temp[i] = tolower(temp[i]);
-            while(!temp.empty() && !isalpha(temp.back())) temp.pop_back();
-            if(banned_set.count(temp)) continue;
-            freq[temp]++;
-            if(res.empty() || freq[res] < freq[temp]) res = temp;
-        }
-        
         return res;
     }
 };

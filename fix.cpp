@@ -93,6 +93,22 @@ ListNode* tolist(const vector<int>& v) {
     return head;
 }
 
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+struct Hash {
+    template <typename T, typename U>
+    size_t operator()(const pair<T, U>& p) const {
+        size_t seed = 0;
+        hash_combine(seed, p.first);
+        hash_combine(seed, p.second);
+        return seed;
+    }
+};
+
 template <typename T>
 void print(vector<T> v) { for(auto e: v) cout << e << ' '; cout << endl; }
 

@@ -1,6 +1,213 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+538. Convert BST to Greater Tree
+Given a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the 
+original key plus sum of all keys greater than the original key in BST.
+
+Example:
+
+Input: The root of a Binary Search Tree like this:
+              5
+            /   \
+           2     13
+
+Output: The root of a Greater Tree like this:
+             18
+            /   \
+          20     13
+/*
+    Submission Date: 2018-06-07
+    Runtime:  ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    /*
+    reverse inorder traversal with curr storing the sum of all elements greater than current node
+    */
+    void help(TreeNode* node, int& curr) {
+        if(node == NULL) return;
+        help(node->right, curr);
+        node->val += curr;
+        curr = node->val;
+        help(node->left, curr);
+    }
+    TreeNode* convertBST(TreeNode* root) {
+        int curr = 0;
+        help(root, curr);
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+539. Minimum Time Difference
+Given a list of 24-hour clock time points in "Hour:Minutes" format, find the minimum 
+minutes difference between any two time points in the list.
+
+Example 1:
+Input: ["23:59","00:00"]
+Output: 1
+
+Note:
+The number of time points in the given list is at least 2 and won't exceed 20000.
+The input time is legal and ranges from 00:00 to 23:59.
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 43 ms
+    Difficulty: MEDIUM
+*/
+
+using namespace std;
+#include <iostream>
+#include <vector>
+#include <limits.h>
+#include <algorithm>
+
+class Solution {
+public:
+    // Assume time b is larger than a
+    int getDifference(string a, string b) {
+        int hours = stoi(b.substr(0,2)) - stoi(a.substr(0,2));
+        int minutes = stoi(b.substr(3,2)) - stoi(a.substr(3,2));
+        return hours*60 + minutes;
+    }
+
+    int findMinDifference(vector<string>& timePoints) {
+        sort(timePoints.begin(), timePoints.end());
+        int minDiff = INT_MAX;
+        int len = timePoints.size();
+
+        for(int i = 1; i < len; i++) {
+            int diff = getDifference(timePoints[i-1], timePoints[i]);
+            if(diff < minDiff) minDiff = diff;
+        }
+
+        string firstTimePoint = timePoints.front();
+        int wrappedHour = stoi(firstTimePoint.substr(0,2)) + 24;
+        string wrap = to_string(wrappedHour) + firstTimePoint.substr(2);
+        int wrapDiff = getDifference(timePoints.back(), wrap);
+
+        if(wrapDiff < minDiff) minDiff = wrapDiff;
+        return minDiff;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+540. Single Element in a Sorted Array
+Given a sorted array consisting of only integers where every element appears twice 
+except for one element which appears once. Find this single element that appears only once.
+
+Example 1:
+Input: [1,1,2,3,3,4,4,8,8]
+Output: 2
+Example 2:
+Input: [3,3,7,7,10,11,11]
+Output: 10
+Note: Your solution should run in O(log n) time and O(1) space.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 7 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int singleNonDuplicate(vector<int>& nums) {
+        int low = 0;
+        int high = nums.size() - 1;
+        while(low <= high) {
+            int mid = low + (high - low)/2;
+            if((mid % 2 == 0 && nums[mid] == nums[mid+1]) || 
+               (mid % 2 == 1 && nums[mid] == nums[mid-1])
+              ) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        
+        return nums[low];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+541. Reverse String II
+Given a string and an integer k, you need to reverse the first k characters for every 2k 
+characters counting from the start of the string. If there are less than k characters left, 
+reverse all of them. If there are less than 2k but greater than or equal to k characters, 
+then reverse the first k characters and left the other as original.
+
+Example:
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+
+Restrictions:
+The string consists of lower English letters only.
+Length of the given string and k will in the range [1, 10000]
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 26 ms
+    Difficulty: EASY
+*/
+
+using namespace std;
+#include <iostream>
+
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string finalStr = "";
+        bool reverse = true;
+        int i = 0, len = s.size();
+        while(i < len) {
+            string currentStr = string(1, s[i++]);
+            while(i%k != 0 && i < len) {
+                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
+                i++;
+            }
+            finalStr += currentStr;
+            reverse ^= true;
+        }
+        
+        return finalStr;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 543. Diameter of Binary Tree
 Given a binary tree, you need to compute the length of the diameter of the tree. The diameter of a binary 
 tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
@@ -793,191 +1000,4 @@ public:
 
 int main() {
     return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-575. Distribute Candies
-Given an integer array with even length, where different numbers in this array represent different kinds of candies. 
-Each number means one candy of the corresponding kind. You need to distribute these candies equally in number to brother and 
-sister. Return the maximum number of kinds of candies the sister could gain.
-Example 1:
-Input: candies = [1,1,2,2,3,3]
-Output: 3
-Explanation:
-There are three different kinds of candies (1, 2 and 3), and two candies for each kind.
-Optimal distribution: The sister has candies [1,2,3] and the brother has candies [1,2,3], too. 
-The sister has three different kinds of candies. 
-Example 2:
-Input: candies = [1,1,2,3]
-Output: 2
-Explanation: For example, the sister has candies [2,3] and the brother has candies [1,1]. 
-The sister has two different kinds of candies, the brother has only one kind of candies. 
-Note:
-
-The length of the given array is in range [2, 10,000], and will be even.
-The number in given array is in range [-100,000, 100,000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 247 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    // Count the number of distinct candies. Return the min of this and the max size of the array which is candies.size()/2.
-    int distributeCandies(vector<int>& candies) {
-        unordered_set<int> st(candies.begin(), candies.end());
-        return min(candies.size()/2, st.size());
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
-
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
-
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
-
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
-
-Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
-
-Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
-/*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
-            }
-        }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
-    }
-};
-
-int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
 }

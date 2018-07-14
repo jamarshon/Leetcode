@@ -1,6 +1,581 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+804. Unique Morse Code Words
+International Morse Code defines a standard encoding where each letter is mapped to a series of dots and dashes, as 
+follows: "a" maps to ".-", "b" maps to "-...", "c" maps to "-.-.", and so on.
+
+For convenience, the full table for the 26 letters of the English alphabet is given below:
+
+[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
+Now, given a list of words, each word can be written as a concatenation of the Morse code of each letter. 
+For example, "cab" can be written as "-.-.-....-", (which is the concatenation "-.-." + "-..." + ".-"). We'll call 
+such a concatenation, the transformation of a word.
+
+Return the number of different transformations among all words we have.
+
+Example:
+Input: words = ["gin", "zen", "gig", "msg"]
+Output: 2
+Explanation: 
+The transformation of each word is:
+"gin" -> "--...-."
+"zen" -> "--...-."
+"gig" -> "--...--."
+"msg" -> "--...--."
+
+There are 2 different transformations, "--...-." and "--...--.".
+ 
+
+Note:
+
+The length of words will be at most 100.
+Each words[i] will have length in range [1, 12].
+words[i] will only consist of lowercase letters.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+    vector<string> morse_{".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
+public:
+    int uniqueMorseRepresentations(vector<string>& words) {
+        unordered_set<string> comb;
+        for(const auto& s: words) {
+            string curr = "";
+            for(const auto& c: s) {
+                curr += morse_[c - 'a'];
+            }
+            comb.insert(curr);
+        }
+        return comb.size();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+806. Number of Lines To Write String
+We are to write the letters of a given string S, from left to right into lines. Each line has maximum width 100 units, 
+and if writing a letter would cause the width of the line to exceed 100 units, it is written on the next line. We are given 
+an array widths, an array where widths[0] is the width of 'a', widths[1] is the width of 'b', ..., and widths[25] is the width of 'z'.
+
+Now answer two questions: how many lines have at least one character from S, and what is the width used by the last such line? 
+Return your answer as an integer list of length 2.
+
+Example :
+Input: 
+widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "abcdefghijklmnopqrstuvwxyz"
+Output: [3, 60]
+Explanation: 
+All letters have the same length of 10. To write all 26 letters,
+we need two full lines and one line with 60 units.
+Example :
+Input: 
+widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "bbbcccdddaaa"
+Output: [2, 4]
+Explanation: 
+All letters except 'a' have the same length of 10, and 
+"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
+For the last 'a', it is written on the second line because
+there is only 2 units left in the first line.
+So the answer is 2 lines, plus 4 units in the second line.
+ 
+Note:
+
+The length of S will be in the range [1, 1000].
+S will only contain lowercase letters.
+widths is an array of length 26.
+widths[i] will be in the range of [2, 10].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> numberOfLines(vector<int>& widths, string S) {
+        int current_len = 0;
+        int num_lines = 0;
+        for(const auto& c: S) {
+            if(current_len + widths[c - 'a'] > 100) {
+                num_lines++;
+                current_len = 0;
+            }
+            current_len += widths[c - 'a'];
+        }
+        return {num_lines+1, current_len};
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+807. Max Increase to Keep City Skyline
+In a 2 dimensional array grid, each value grid[i][j] represents the height of a building located there. 
+We are allowed to increase the height of any number of buildings, by any amount (the amounts can be 
+different for different buildings). Height 0 is considered to be a building as well. 
+
+At the end, the "skyline" when viewed from all four directions of the grid, i.e. top, bottom, left, 
+and right, must be the same as the skyline of the original grid. A city's skyline is the outer contour 
+of the rectangles formed by all the buildings when viewed from a distance. See the following example.
+
+What is the maximum total sum that the height of the buildings can be increased?
+
+Example:
+Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
+Output: 35
+Explanation: 
+The grid is:
+[ [3, 0, 8, 4], 
+  [2, 4, 5, 7],
+  [9, 2, 6, 3],
+  [0, 3, 1, 0] ]
+
+The skyline viewed from top or bottom is: [9, 4, 8, 7]
+The skyline viewed from left or right is: [8, 7, 9, 3]
+
+The grid after increasing the height of buildings without affecting skylines is:
+
+gridNew = [ [8, 4, 8, 7],
+            [7, 4, 7, 7],
+            [9, 4, 8, 7],
+            [3, 3, 3, 3] ]
+
+Notes:
+
+1 < grid.length = grid[0].length <= 50.
+All heights grid[i][j] are in the range [0, 100].
+All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x 1 x grid[i][j] rectangular prism.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
+        if(grid.empty()) return 0;
+        int N = grid.size();
+        int M = grid[0].size();
+        vector<int> max_col(M, 0), max_row(N, 0);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                max_col[j] = max(max_col[j], grid[i][j]);
+                max_row[i] = max(max_row[i], grid[i][j]);
+            }
+        }
+        
+        int res = 0;
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                res += min(max_col[j], max_row[i]) - grid[i][j];
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+811. Subdomain Visit Count
+A website domain like "discuss.leetcode.com" consists of various subdomains. At the top level, we have "com", 
+at the next level, we have "leetcode.com", and at the lowest level, "discuss.leetcode.com". When we visit a domain like 
+"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and "com" implicitly.
+
+Now, call a "count-paired domain" to be a count (representing the number of visits this domain received), followed by a space, 
+followed by the address. An example of a count-paired domain might be "9001 discuss.leetcode.com".
+
+We are given a list cpdomains of count-paired domains. We would like a list of count-paired domains, (in the same format as the 
+input, and in any order), that explicitly counts the number of visits to each subdomain.
+
+Example 1:
+Input: 
+["9001 discuss.leetcode.com"]
+Output: 
+["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
+Explanation: 
+We only have one website domain: "discuss.leetcode.com". As discussed above, the subdomain "leetcode.com" and "com" will also be visited. 
+So they will all be visited 9001 times.
+
+Example 2:
+Input: 
+["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
+Output: 
+["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1 intel.mail.com","951 com"]
+Explanation: 
+We will visit "google.mail.com" 900 times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For the subdomains, 
+we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1 = 951 times, and "org" 5 times.
+
+Notes:
+
+The length of cpdomains will not exceed 100. 
+The length of each domain name will not exceed 100.
+Each address will have either 1 or 2 "." characters.
+The input count in any count-paired domain will not exceed 10000.
+The answer output can be returned in any order.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+#include <cctype>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> subdomainVisits(vector<string>& cpdomains) {
+        unordered_map<string, int> domain_to_count;
+        for(const auto& s: cpdomains) {
+            int num = 0;
+            int i = 0;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    num = num * 10 + (s[i] - '0');
+                } else {
+                    break;
+                }
+                i++;
+            }
+            
+            string domain = s.substr(i + 1);
+            while(domain.find('.') != string::npos) {
+                domain_to_count[domain] += num;
+                domain = domain.substr(domain.find('.') + 1);
+            }
+            
+            domain_to_count[domain] += num;
+        }
+        
+        vector<string> res;
+        for(const auto& kv: domain_to_count) {
+            res.push_back(to_string(kv.second) + " " + kv.first);
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+812. Largest Triangle Area
+You have a list of points in the plane. Return the area of the largest triangle that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2
+Explanation: 
+The five points are show in the figure below. The red triangle is the largest.
+
+Notes:
+
+3 <= points.length <= 50.
+No points will be duplicated.
+ -50 <= points[i][j] <= 50.
+Answers within 10^-6 of the true value will be accepted as correct.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        int res = 0;
+        int N = points.size();
+        for(int i = 0; i < N; i++) {
+            for(int j = i + 1; j < N; j++) {
+                for(int k = j + 1; k < N; k++) {
+                    /*
+                    given points (a,b), (c,d), (e,f)
+                    vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
+                    cross product of A and B is 
+                    ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
+                    (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
+                    magnitude of A cross B is area of parallelogram so divide by half
+                    */
+                    int c_minus_a = points[j][0] - points[i][0];
+                    int d_minus_b = points[j][1] - points[i][1];
+                    int e_minus_a = points[k][0] - points[i][0];
+                    int f_minus_b = points[k][1] - points[i][1];
+                    
+                    res = max(res, abs(c_minus_a*f_minus_b - e_minus_a*d_minus_b));
+                }
+            }
+        }
+        return res/2.0;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+814. Binary Tree Pruning
+We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
+
+Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
+
+(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
+
+Example 1:
+Input: [1,null,0,0,1]
+Output: [1,null,0,null,1]
+ 
+Explanation: 
+Only the red nodes satisfy the property "every subtree not containing a 1".
+The diagram on the right represents the answer.
+
+
+Example 2:
+Input: [1,0,1,0,0,0,1]
+Output: [1,null,1,null,1]
+
+
+
+Example 3:
+Input: [1,1,0,1,1,0,1,0]
+Output: [1,1,0,1,1,null,1]
+
+
+
+Note:
+
+The binary tree will have at most 100 nodes.
+The value of each node will only be 0 or 1.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    bool HasOne(TreeNode* root) {
+        if(root == NULL) return false;
+        bool l = HasOne(root->left);
+        bool r = HasOne(root->right);
+        
+        if(!l) { delete root->left; root->left = NULL; }
+        if(!r) { delete root->right; root->right = NULL; }
+        
+        return root->val == 1 || l || r;
+    }
+    
+    TreeNode* pruneTree(TreeNode* root) {
+        if(!HasOne(root)) { delete root; return NULL; }
+        return root;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+817. Linked List Components
+We are given head, the head node of a linked list containing unique integer 
+
+We are also given the list G, a subset of the values in the linked list.
+
+Return the number of connected components in G, where two values are connected 
+
+Example 1:
+
+Input: 
+head: 0->1->2->3
+G = [0, 1, 3]
+Output: 2
+Explanation: 
+0 and 1 are connected, so [0, 1] and [3] are the two connected components.
+
+
+Example 2:
+
+Input: 
+head: 0->1->2->3->4
+G = [0, 3, 1, 4]
+Output: 2
+Explanation: 
+0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two 
+
+
+Note: 
+
+
+    If N is the length of the linked list given by head, 1 <= N <= 10000.
+    The value of each node in the linked list will be in the range [0, N - 1].
+    1 <= G.length <= 10000.
+    G is a subset of all values in the linked list.
+/*
+    Submission Date: 2018-07-02
+    Runtime: 35 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    int numComponents(ListNode* head, vector<int>& G) {
+        unordered_set<int> G_set(G.begin(), G.end());
+        ListNode* curr = head;
+        int res = 0;
+        while(curr) {
+            // looking for the start of a component
+            while(curr && !G_set.count(curr->val)) {
+                curr = curr->next;
+            }
+            
+            if(curr) {
+                res++;
+                // looking for the end of a component
+                while(curr && G_set.count(curr->val)) {
+                    curr = curr->next;
+                }
+            }
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+819. Most Common Word
+Given a paragraph and a list of banned words, return the most frequent word that is not in the list of banned words.  
+It is guaranteed there is at least one word that isn't banned, and that the answer is unique.
+
+Words in the list of banned words are given in lowercase, and free of punctuation.  Words in the paragraph are not case sensitive.  
+The answer is in lowercase.
+
+Example:
+Input: 
+paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
+banned = ["hit"]
+Output: "ball"
+Explanation: 
+"hit" occurs 3 times, but it is a banned word.
+"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
+Note that words in the paragraph are not case sensitive,
+that punctuation is ignored (even if adjacent to words, such as "ball,"), 
+and that "hit" isn't the answer even though it occurs more because it is banned.
+ 
+
+Note:
+
+1 <= paragraph.length <= 1000.
+1 <= banned.length <= 100.
+1 <= banned[i].length <= 10.
+The answer is unique, and written in lowercase (even if its occurrences in paragraph may have uppercase symbols, and 
+even if it is a proper noun.)
+paragraph only consists of letters, spaces, or the punctuation symbols !?',;.
+Different words in paragraph are always separated by a space.
+There are no hyphens or hyphenated words.
+Words only consist of letters, never apostrophes or other punctuation symbols.
+/*
+    Submission Date: 2018-06-04
+    Runtime:  ms
+    Difficulty: 
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+public:
+    string mostCommonWord(string paragraph, vector<string>& banned) {
+        unordered_set<string> banned_set(banned.begin(), banned.end());
+        unordered_map<string,int> freq;
+        
+        stringstream ss(paragraph);
+        string temp;
+        
+        string res = "";
+        while(getline(ss, temp, ' ')) {
+            for(int i = 0; i < temp.size(); i++) temp[i] = tolower(temp[i]);
+            while(!temp.empty() && !isalpha(temp.back())) temp.pop_back();
+            if(banned_set.count(temp)) continue;
+            freq[temp]++;
+            if(res.empty() || freq[res] < freq[temp]) res = temp;
+        }
+        
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 821. Shortest Distance to a Character
 Given a string S and a character C, return an array of integers representing the shortest distance from the character C in the string.
 
@@ -364,592 +939,6 @@ public:
     // Check if x intervals intersect and y intervals intersect
     bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
         return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) && intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-840. Magic Squares In Grid
-A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
-
-Given an grid of integers, how many 3 x 3 "magic square" subgrids are there?  (Each subgrid is contiguous).
-Example 1:
-
-Input: [[4,3,8,4],
-        [9,5,1,9],
-        [2,7,6,2]]
-Output: 1
-Explanation: 
-The following subgrid is a 3 x 3 magic square:
-438
-951
-276
-
-while this one is not:
-384
-519
-762
-
-In total, there is only one magic square inside the given grid.
-Note:
-
-1 <= grid.length <= 10
-1 <= grid[0].length <= 10
-0 <= grid[i][j] <= 15
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    bool IsMagicSquare(const vector<vector<int>>& grid, int i, int j) {
-        unordered_set<int> st;
-        vector<int> row_sum(3, 0), col_sum(3, 0);
-        int diag1 = 0, diag2 = 0;
-        for(int x = 0; x < 3; x++) {
-            for(int y = 0; y < 3; y++) {
-                int e = grid[i+y][j+x];
-                if(e < 1 || e > 9 || st.count(e)) return false;
-                row_sum[y] += e;
-                col_sum[x] += e;
-                if(y == x) diag1 += e;
-                if(x + y == 2) diag2 += e;
-            }
-        }
-        
-        for(int x = 1; x < 3; x++) {
-            if(row_sum[x] != row_sum[x-1]) return false;
-            if(col_sum[x] != col_sum[x-1]) return false;
-        }
-        
-        return diag1 == diag2;
-    }
-    int numMagicSquaresInside(vector<vector<int>>& grid) {
-        int N = grid.size();
-        int M = grid[0].size();
-        int res = 0;
-        for(int i = 0; i < N - 2; i++) {
-            for(int j = 0; j < M - 2; j++) {
-                res += IsMagicSquare(grid, i, j);
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-841. Keys and Rooms
-There are N rooms and you start in room 0.  Each room has a distinct number in 0, 1, 2, ..., N-1, 
-and each room may have some keys to access the next room. 
-
-Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is an integer in [0, 1, ..., N-1] 
-where N = rooms.length.  A key rooms[i][j] = v opens the room with number v.
-
-Initially, all the rooms start locked (except for room 0). 
-
-You can walk back and forth between rooms freely.
-
-Return true if and only if you can enter every room.
-
-Example 1:
-
-Input: [[1],[2],[3],[]]
-Output: true
-Explanation:  
-We start in room 0, and pick up key 1.
-We then go to room 1, and pick up key 2.
-We then go to room 2, and pick up key 3.
-We then go to room 3.  Since we were able to go to every room, we return true.
-Example 2:
-
-Input: [[1,3],[3,0,1],[2],[0]]
-Output: false
-Explanation: We can't enter the room with number 2.
-Note:
-
-1 <= rooms.length <= 1000
-0 <= rooms[i].length <= 1000
-The number of keys in all rooms combined is at most 3000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-#include <queue>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canVisitAllRooms(vector<vector<int>>& rooms) {
-        queue<int> q;
-        unordered_set<int> visited;
-        
-        q.push(0);
-        visited.insert(0);
-        while(!q.empty()) {
-            int curr = q.front();
-            q.pop();
-            for(auto e: rooms[curr]) {
-                if(!visited.count(e)) {
-                    q.push(e);
-                    visited.insert(e);
-                }
-            }
-        }
-        
-        return visited.size() == rooms.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-844. Backspace String Compare
-Given two strings S and T, return if they are equal when both are typed into empty text editors. # means a backspace character.
-
-Example 1:
-
-Input: S = "ab#c", T = "ad#c"
-Output: true
-Explanation: Both S and T become "ac".
-Example 2:
-
-Input: S = "ab##", T = "c#d#"
-Output: true
-Explanation: Both S and T become "".
-Example 3:
-
-Input: S = "a##c", T = "#a#c"
-Output: true
-Explanation: Both S and T become "c".
-Example 4:
-
-Input: S = "a#c", T = "b"
-Output: false
-Explanation: S becomes "c" while T becomes "b".
- 
-
-Note:
-
-1 <= S.length <= 200
-1 <= T.length <= 200
-S and T only contain lowercase letters and '#' characters.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-public:
-    string eval(string s) {
-        string res = "";
-        for(const auto& c: s) {
-            if(c == '#') {
-                if(!res.empty()) res.pop_back();
-            } else {
-                res.push_back(c);
-            }
-        }
-        return res;
-    }
-    bool backspaceCompare(string S, string T) {
-        return eval(S) == eval(T);
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-846. Hand of Straights
-Alice has a hand of cards, given as an array of integers.
-
-Now she wants to rearrange the cards into groups so that each group is size W, 
-
-Return true if and only if she can.
-
- 
-
-
-
-
-Example 1:
-
-Input: hand = [1,2,3,6,2,3,4,7,8], W = 3
-Output: true
-Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8].
-
-Example 2:
-
-Input: hand = [1,2,3,4,5], W = 4
-Output: false
-Explanation: Alice's hand can't be rearranged into groups of 4.
-
- 
-
-Note:
-
-
-    1 <= hand.length <= 10000
-    0 <= hand[i] <= 10^9
-    1 <= W <= hand.length
-/*
-    Submission Date: 2018-07-11
-    Runtime: 44 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <map>
-#include <queue>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    create a frequency map. have a sorted queue of ends and loop through freq map
-    if the ends isn't empty (meaning it is a part of some interval) and previous value in freq map 
-    doesn't equal current value - 1, it means a jump occured without interval ending so return false
-    
-    if the frequency is less than the number of intervals (ends.size()), return false as more of 
-    this number is needed
-    
-    if the frequency is greater than the number of intervals, then add this number + W - 1 as
-    the end interval and do this freq - number of intervals times.
-    
-    remove all the ends that equal the current value
-    
-    finally return if ends is empty meaning all the intervals have been completed.
-    */
-    bool isNStraightHand(vector<int>& hand, int W) {
-        map<int,int> freq;
-        for(const auto& h: hand) freq[h]++;
-        queue<int> ends;
-        
-        pair<int,int> prev = {-1, -1};
-        for(const auto& kv: freq) {
-            if(prev.first != -1 && kv.first != prev.first + 1 && !ends.empty()) return false;
-            prev = kv;
-            int diff = kv.second - ends.size();
-            if(diff < 0) return false; // too many numbers needed
-            if(diff > 0) {
-                // new ends
-                for(int i = 0; i < diff; i++)
-                    ends.push(kv.first + W - 1);
-            }
-            
-            while(!ends.empty() && kv.first == ends.front()) ends.pop();
-        }
-        
-        return ends.empty();
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-849. Maximize Distance to Closest Person
-In a row of seats, 1 represents a person sitting in that seat, and 0 represents that the seat is empty. 
-
-There is at least one empty seat, and at least one person sitting.
-
-Alex wants to sit in the seat such that the distance between him and the closest person to him is maximized. 
-
-Return that maximum distance to closest person.
-
-Example 1:
-
-Input: [1,0,0,0,1,0,1]
-Output: 2
-Explanation: 
-If Alex sits in the second open seat (seats[2]), then the closest person has distance 2.
-If Alex sits in any other open seat, the closest person has distance 1.
-Thus, the maximum distance to the closest person is 2.
-Example 2:
-
-Input: [1,0,0,0]
-Output: 3
-Explanation: 
-If Alex sits in the last seat, the closest person is 3 seats away.
-This is the maximum distance possible, so the answer is 3.
-Note:
-
-1 <= seats.length <= 20000
-seats contains only 0s or 1s, at least one 0, and at least one 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int maxDistToClosest(vector<int>& seats) {
-        if(seats.empty()) return INT_MAX;
-        
-        int N = seats.size();
-        // left[i] indicates the distance to the closest 1 to the left 
-        vector<int> left(N, INT_MAX);
-        for(int i = 0; i < N; i++) {
-            if(seats[i] == 1) left[i] = 0;
-            else if(i > 0 && left[i-1] < INT_MAX) {
-                left[i] = left[i-1] + 1;
-            }
-        }
-        
-        int right = INT_MAX;
-        int res = INT_MIN;
-        /*
-        if there is at least one 1 and 0
-        left[i] will be INT_MAX until the first 1 then some number after it 
-        
-        hence if starting from the back, the number will not be INT_MAX so right
-        will be correctly minimized.
-        */
-        for(int i = N-1; i >= 0; i--) {
-            if(seats[i] == 1) right = 0;
-            else if(right < INT_MAX) right++;
-            
-            res = max(res, min(left[i], right));
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-852. Peak Index in a Mountain Array
-Let's call an array A a mountain if the following properties hold:
-
-A.length >= 3
-There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1]
-Given an array that is definitely a mountain, return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... > A[A.length - 1].
-
-Example 1:
-
-Input: [0,1,0]
-Output: 1
-Example 2:
-
-Input: [0,2,1,0]
-Output: 1
-Note:
-
-3 <= A.length <= 10000
-0 <= A[i] <= 10^6
-A is a mountain, as defined above.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int peakIndexInMountainArray(vector<int>& A) {
-        int low = 0;
-        int high = A.size() - 1;
-        while(low <= high-2) { // at least 3 elements
-            int mid = low + (high-low)/2;
-            if(A[mid-1] < A[mid] && A[mid] > A[mid+1]) {
-                return mid;
-                
-            /* 
-            a number and the next number has only two conditions < and >
-            if < then it is before the peak, so go right
-            if > then it is after the peak, so go left
-            
-            need to include mid in the search as it can be either the left
-            or right boundary to the peak
-            */
-            } if(A[mid-1] < A[mid]) {
-                low = mid; 
-            } else { // A[mid-1] > A[mid]
-                high = mid;
-            }
-        }
-        
-        return -1;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-856. Score of Parentheses
-Given a balanced parentheses string S, compute the score of the string based on the following rule:
-
-() has score 1
-AB has score A + B, where A and B are balanced parentheses strings.
-(A) has score 2 * A, where A is a balanced parentheses string.
- 
-
-Example 1:
-
-Input: "()"
-Output: 1
-Example 2:
-
-Input: "(())"
-Output: 2
-Example 3:
-
-Input: "()()"
-Output: 2
-Example 4:
-
-Input: "(()(()))"
-Output: 6
- 
-
-Note:
-
-S is a balanced parentheses string, containing only ( and ).
-2 <= S.length <= 50
-/*
-    Submission Date: 2018-06-29
-    Runtime: 4 ms
-    Difficulty:MEDIUM 
-*/
-#include <iostream>
-#include <stack>
-
-using namespace std;
-
-class Solution {
-public:
-    int scoreOfParentheses(string S) {
-        // first is the value or -1 if it is a character '(' 
-        stack<pair<int, char>> stk;
-        for(const auto& e: S) {
-            if(e == '(') {
-                stk.emplace(-1, '(');
-            } else { // e == ')'
-                // S is balanced so keep going back until '(' (ie not value)
-                // add all the numbers in between and multiply by 2
-                int in_between = 0;
-                while(stk.top().first != -1) {
-                    in_between += stk.top().first;
-                    stk.pop();
-                }
-                
-                stk.pop();
-                stk.emplace(max(1, 2*in_between), 'r');
-            }
-        }
-        
-        int res = 0;
-        // since S is balanced then stk must only contain values so add 
-        // up and return value
-        while(!stk.empty()) {
-            res += stk.top().first;
-            stk.pop();
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-859. Buddy Strings
-Given two strings A and B of lowercase letters, return true if and only if we can swap two letters in A so that the result equals B.
-
- 
-
-Example 1:
-
-Input: A = "ab", B = "ba"
-Output: true
-Example 2:
-
-Input: A = "ab", B = "ab"
-Output: false
-Example 3:
-
-Input: A = "aa", B = "aa"
-Output: true
-Example 4:
-
-Input: A = "aaaaaaabc", B = "aaaaaaacb"
-Output: true
-Example 5:
-
-Input: A = "", B = "aa"
-Output: false
-/*
-    Submission Date: 2018-06-24
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    bool buddyStrings(string A, string B) {
-        if(A.size() != B.size()) return false;
-        
-        vector<int> diff;
-        for(int i = 0; i < A.size(); i++) {
-            if(A[i] != B[i]) {
-                diff.push_back(i);
-                if(diff.size() > 2) return false;
-            }
-        }
-        
-        if(diff.size() == 1) return false;
-        if(diff.size() == 0) return unordered_set<char>(A.begin(), A.end()).size() < A.size();
-        return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
     }
 };
 

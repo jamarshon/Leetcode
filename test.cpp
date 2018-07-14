@@ -151,7 +151,31 @@ void f(const vector<string>& s) {
 }
 
 
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v) {
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+struct Hash {
+    template <typename T, typename U>
+    size_t operator()(const pair<T, U>& p) const {
+        size_t seed = 0;
+        hash_combine(seed, p.first);
+        hash_combine(seed, p.second);
+        return seed;
+    }
+};
+
+bool IsPrime(int n) {
+    if(n < 2) return false;
+    for(int i = 2; i <= n/i; i++) if(n % i == 0) return false;
+    return true;
+}
+
 int main() {
+    
+    for(int i = 0; i < 100; i++) if(IsPrime(i)) cout << i << endl;
     return 0;
 }
 

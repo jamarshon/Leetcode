@@ -2,6 +2,7 @@
 704. Binary Search
 Given a sorted (in ascending order) integer array nums of n elements and a 
 target value, write a function to search target in nums. If target exists, then 
+return its index, otherwise return -1. 
 
 
 Example 1:
@@ -27,6 +28,7 @@ Note:
     You may assume that all elements in nums are unique.
     n will be in the range [1, 10000].
     The value of each element in nums will be in the range [-9999, 9999].
+
 /*
     Submission Date: 2018-07-13
     Runtime: 32 ms

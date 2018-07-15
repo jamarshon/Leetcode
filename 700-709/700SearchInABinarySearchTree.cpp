@@ -3,6 +3,7 @@
 Given the root node of a binary search tree (BST) and a value. You need to find 
 the node in the BST that the node's value equals the given value. Return the 
 subtree rooted with that node. If such node doesn't exist, you should return 
+NULL. 
 
 For example, 
 
@@ -24,6 +25,8 @@ You should return this subtree:
 
 
 In the example above, if we want to search the value 5, since there is no node 
+with value 5, we should return NULL. 
+
 /*
     Submission Date: 2018-07-13
     Runtime: 24 ms

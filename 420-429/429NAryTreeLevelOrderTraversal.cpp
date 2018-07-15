@@ -1,6 +1,7 @@
 /*
 429. N-ary Tree Level Order Traversal
 Given an n-ary tree, return the level order traversal of its nodes' values. (ie, 
+from left to right, level by level). 
 
 For example, given a 3-ary tree:
  
@@ -28,6 +29,7 @@ Note:
 
     The depth of the tree is at most 1000.
     The total number of nodes is at most 5000.
+
 /*
     Submission Date: 2018-07-13
     Runtime: 44 ms

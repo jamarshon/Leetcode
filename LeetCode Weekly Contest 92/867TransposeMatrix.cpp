@@ -1,8 +1,9 @@
 /*
-868. Transpose Matrix
+867. Transpose Matrix
 Given a matrix A, return the transpose of A.
 
 The transpose of a matrix is the matrix flipped over it's main diagonal, 
+switching the row and column indices of the matrix. 
 
  
 
@@ -27,6 +28,7 @@ Note:
 
     1 <= A.length <= 1000
     1 <= A[0].length <= 1000
+
 /*
     Submission Date: 2018-07-08
     Runtime: 20 ms

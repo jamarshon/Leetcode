@@ -2,10 +2,12 @@
 672. Bulb Switcher II
 There is a room with n lights which are turned on initially and 4 buttons on the 
 wall. After performing exactly m unknown operations towards buttons, you need to 
+return how many different kinds of status of the n lights could be. 
 
 
 
 Suppose n lights are labeled as number [1, 2, 3 ..., n], function of these 4 
+buttons are given below: 
 
 
 Flip all the lights.
@@ -36,11 +38,13 @@ Example 3:
 Input: n = 3, m = 1.
 Output: 4
 Explanation: Status can be: [off, on, off], [on, off, on], [off, off, off], 
+[off, on, on]. 
 
 
 
 Note:
 n and m both fit in range [0, 1000].
+
 /*
     Submission Date: 2018-07-07
     Runtime: 0 ms

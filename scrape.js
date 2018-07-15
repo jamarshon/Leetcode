@@ -42,8 +42,8 @@ var JASSERT = function(bool){ console.assert(bool); can_build &= bool; }
 var difficulty = $('.side-bar-list .difficulty-label').text().toUpperCase();
 JASSERT(difficulty.length > 0);
 
-// build(file_name);
-// build("/*");
+build(file_name);
+build("/*");
 build(q_name);
 
 var question_description = $('.question-content .question-description__3U1T').text().trim().split("\n");
@@ -69,7 +69,7 @@ for(var i = 0; i < question_description.length; i++) {
     }
 }
 
-// build("/*");
+build("/*");
 build("\tSubmission Date: " + getDate());
 
 var curr_url = window.location.href;

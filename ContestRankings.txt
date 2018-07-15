@@ -16,6 +16,7 @@ Contest     Ranking     Percentile
 43          418/2291    18.2
 44          311/2272    13.7
 92          164/4508     3.6
+93          284/4912     5.8
 
 Best Percentile: 3.6
 

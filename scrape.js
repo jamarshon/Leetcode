@@ -42,15 +42,15 @@ var JASSERT = function(bool){ console.assert(bool); can_build &= bool; }
 var difficulty = $('.side-bar-list .difficulty-label').text().toUpperCase();
 JASSERT(difficulty.length > 0);
 
-build(file_name);
-build("/*");
+// build(file_name);
+// build("/*");
 build(q_name);
 
 var question_description = $('.question-content .question-description__3U1T').text().trim().split("\n");
 JASSERT(question_description.length > 0);
 
 for(var i = 0; i < question_description.length; i++) {
-    // if(question_description[i].length === 0) continue;
+    // if(question_description[i].trim().length === 0) continue;
     if(question_description[i].length <= LINE_LENGTH) {
         build(question_description[i]);
     } else {
@@ -64,10 +64,12 @@ for(var i = 0; i < question_description.length; i++) {
             }
             line += words[j] + " ";
         }
+
+        if(line.length > 0) build(line);
     }
 }
 
-build("/*");
+// build("/*");
 build("\tSubmission Date: " + getDate());
 
 var curr_url = window.location.href;

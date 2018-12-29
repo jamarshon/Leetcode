@@ -19,12 +19,12 @@
  
 using namespace std;
 
-#define pii pair<int,int>
-#define vt vector
-#define uos unordered_set
-#define uom unordered_map
+// #define pii pair<int,int>
+// #define vt vector
+// #define uos unordered_set
+// #define uom unordered_map
 
-typedef long long ll;
+// typedef long long ll;
 
 struct Compare {
     bool operator()(const int& left, const int& right) const { return left < right; }
@@ -132,10 +132,9 @@ void print(vector<T> v)
 void print2(vector<vector<T>> v)
 */
 
-void f(const vector<string>& s) {
-    double s1 = 0;
-    double s2 = 0;
-
+void f(const vector<string>& s, int to_drop) {
+    typedef pair<double, double> pdd;
+    vector<pdd> v;    
     for(const auto& e: s) {
         string f = e.substr(e.find(' ') + 1);
         int ind = f.find('/');
@@ -143,9 +142,26 @@ void f(const vector<string>& s) {
         double x = stod(f.substr(0, ind));
         double y = stod(f.substr(ind + 1));
         cout << x << ' ' << y << endl;
-        s1 += x;
-        s2 += y;
-    }    
+
+        v.emplace_back(x,y);
+    } 
+
+    sort(v.begin(), v.end(), [](const pdd& lhs, const pdd& rhs){
+        return lhs.first/lhs.second < rhs.first/rhs.second;
+    });
+
+
+    cout << endl;
+    double s1 = 0;
+    double s2 = 0;
+    for(int i = 0; i < v.size(); i++) {
+        if(i >= to_drop) {
+            s1 += v[i].first;
+            s2 += v[i].second;
+        } else {
+            cout << "drop " << v[i].first << ' ' << v[i].second << ' ' << v[i].first/v[i].second << endl;
+        }
+    }
 
     cout << "s1= " << s1 << ' ' << s2 << endl;
 }
@@ -173,8 +189,29 @@ bool IsPrime(int n) {
     return true;
 }
 
+
 int main() {
-    
+    vector<string> v = {
+      
+"mile: 4/5",
+"urs: 3.75/5",
+"ursg: 3.5/5",
+"sd1: 3/5",
+"sd2: 4/5",
+"alg: 3.25/5",
+"ref: 1/5",
+"bib: 4/5",
+"dlf: 3.75/5",
+"dlfg: 10.2/15",
+"fr: 2/5",
+"frg: 0/20",
+"alg: 4/5",
+"ref: 7.5/10",
+
+};
+
+f(v, 0);
+
     return 0;
 }
 

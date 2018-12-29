@@ -1,4 +1,5 @@
 javascript:(function(){
+// https://closure-compiler.appspot.com/home
 function fix(str) {
     str = str.replace(/\[/g, "{");
     str = str.replace(/]/g, "}");
@@ -32,7 +33,7 @@ for(var i = 0; i < question_description.length; i++) {
     var s = question_description[i];
     if(s.substr(0, input.length) === input) {
       // check the first line: Input: xxxx to see if xxxx is empty
-      var first_ln = s.substr(input.length);
+      var first_ln = s.substr(input.length).trim();
       if(first_ln.length > 0) input_arr.push(first_ln);
 
       // keep goint until Output: yyyy
@@ -42,7 +43,7 @@ for(var i = 0; i < question_description.length; i++) {
       }
 
       // see if yyyy is empty and go until empty string, example or explaination
-      var first_ln_output = question_description[i].substr(output.length);
+      var first_ln_output = question_description[i].substr(output.length).trim();
       if(first_ln_output.length > 0) output_arr.push(first_ln_output);
       while(++i < question_description.length && 
         question_description[i].length > 0 &&
@@ -54,7 +55,7 @@ for(var i = 0; i < question_description.length; i++) {
     }
 }
 
-JASSERT(input_arr.length > 0 && input_arr.length === output_arr.length);
+JASSERT(input_arr.length > 0 && output_arr.length > 0);
 
 var re = /(\w+) = ((?:(?!(, (\w+) = )).)*)/g;
 

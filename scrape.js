@@ -3,8 +3,15 @@ javascript:(function(){
 // https://closure-compiler.appspot.com/home
 var LINE_LENGTH = 80;
 var can_build = true;
+var JASSERT = function(bool){ console.assert(bool); can_build &= bool; }
 
-var q_name = $('.question-title h3').text();
+var get = function(name) {
+    var e = document.getElementsByClassName(name);
+    JASSERT(e.length === 1);
+    return e[0]
+};
+
+var q_name = get('css-1ponsav').textContent;
 
 var file_name = "";
 var should_capital = false;
@@ -37,16 +44,15 @@ var getDate = function() {
     var d = new Date();
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 }
-var JASSERT = function(bool){ console.assert(bool); can_build &= bool; }
 
-var difficulty = $('.side-bar-list .difficulty-label').text().toUpperCase();
+var difficulty = get('css-dcmtd5').textContent.toUpperCase();
 JASSERT(difficulty.length > 0);
 
 build(file_name);
 build("/*");
 build(q_name);
 
-var question_description = $('.question-content .question-description__3U1T').text().trim().split("\n");
+var question_description = get('content__eAC7').textContent.trim().split("\n");
 JASSERT(question_description.length > 0);
 
 for(var i = 0; i < question_description.length; i++) {
@@ -78,6 +84,7 @@ var ind = curr_url.indexOf("/", base.length);
 var name = curr_url.substr(base.length, ind - base.length);
 
 var url = "https://leetcode.com/api/submissions/" + name + "/?offset=0&limit=10&lastkey=";
+
 var success = function(x) {
     var submissions = x.submissions_dump;
     JASSERT(submissions.length > 0);
@@ -93,7 +100,7 @@ var success = function(x) {
     build("\nusing namespace std;");
     build();
 
-    var soln = $('.CodeMirror')[0].CodeMirror.getValue();
+    var soln = get('react-codemirror2').firstChild.CodeMirror.getValue();
     build(soln);
 
     build();
@@ -101,20 +108,32 @@ var success = function(x) {
     build("\treturn 0;");
     build("}");
 
-    console.log(message);
-
     function copy(text) {
-      var $temp = $("<textarea>");
-      $("body").append($temp);
-      $temp.val(text).select();
+      console.log(text)
+      var temp = document.createElement("textarea");
+      document.body.appendChild(temp);
+      temp.value = text;
+      temp.select();
       document.execCommand("copy");
-      $temp.remove();
+      temp.remove();
     }
 
     copy(message);
 };
 
-$.get({url: url, success: success, async: false});
+var request = new XMLHttpRequest();
+request.open('GET', url, false);
+
+request.onload = function() {
+  if (this.status >= 200 && this.status < 400) {
+    var data = JSON.parse(this.response);
+    success(data);
+  } else {
+    JASSERT(false);
+  }
+};
+
+request.onerror = function() { JASSERT(false); };
+
+request.send();
 }())
-
-

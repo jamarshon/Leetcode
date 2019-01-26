@@ -1,25 +1,23 @@
 /*
 724. Find Pivot Index
-Given an array of integers nums, write a method that returns the "pivot" index of this array.
+Given an array of integers nums, write a method that returns the "pivot" index
+of this array.
 
-We define the pivot index as the index where the sum of the numbers to the left of the index is equal to the sum of the numbers to the right of the index.
+We define the pivot index as the index where the sum of the numbers to the left
+of the index is equal to the sum of the numbers to the right of the index.
 
-If no such index exists, we should return -1. If there are multiple pivot indexes, you should return the left-most pivot index.
+If no such index exists, we should return -1. If there are multiple pivot
+indexes, you should return the left-most pivot index.
 
 Example 1:
-Input: 
+Input:
 nums = [1, 7, 3, 6, 5, 6]
 Output: 3
-Explanation: 
-The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum of numbers to the right of index 3.
-Also, 3 is the first index where this occurs.
-Example 2:
-Input: 
-nums = [1, 2, 3]
-Output: -1
-Explanation: 
-There is no index that satisfies the conditions in the problem statement.
-Note:
+Explanation:
+The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum
+of numbers to the right of index 3. Also, 3 is the first index where this
+occurs. Example 2: Input: nums = [1, 2, 3] Output: -1 Explanation: There is no
+index that satisfies the conditions in the problem statement. Note:
 
 The length of nums will be in the range [0, 10000].
 Each element nums[i] will be an integer in the range [-1000, 1000].
@@ -34,27 +32,25 @@ Each element nums[i] will be an integer in the range [-1000, 1000].
 using namespace std;
 
 class Solution {
-public:
-    /*
-    make right = sum of all array then at each index i decrease nums[i]
-    have left = 0 and increase it by nums[i] to compare if
-    the left sum == right sum
-    */
-    int pivotIndex(vector<int>& nums) {
-        int right = 0;
-        for(const auto& e: nums) right += e;
-        
-        int left = 0;
-        for(int i = 0; i < nums.size(); i++) {
-            right -= nums[i];
-            if(left == right) return i;
-            left += nums[i];
-        }
-        
-        return -1;
+ public:
+  /*
+  make right = sum of all array then at each index i decrease nums[i]
+  have left = 0 and increase it by nums[i] to compare if
+  the left sum == right sum
+  */
+  int pivotIndex(vector<int>& nums) {
+    int right = 0;
+    for (const auto& e : nums) right += e;
+
+    int left = 0;
+    for (int i = 0; i < nums.size(); i++) {
+      right -= nums[i];
+      if (left == right) return i;
+      left += nums[i];
     }
+
+    return -1;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

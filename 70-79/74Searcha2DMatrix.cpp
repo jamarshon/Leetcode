@@ -1,11 +1,11 @@
 /*
 74. Search a 2D Matrix
-Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has 
-the following properties:
+Write an efficient algorithm that searches for a value in an m x n matrix. This
+matrix has the following properties:
 
 Integers in each row are sorted from left to right.
-The first integer of each row is greater than the last integer of the previous row.
-For example,
+The first integer of each row is greater than the last integer of the previous
+row. For example,
 
 Consider the following matrix:
 
@@ -28,29 +28,28 @@ Given target = 3, return true.
 using namespace std;
 
 class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        int M = matrix.size();
-        if(M == 0) return false;
-        int N = matrix[0].size();
+ public:
+  bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    int M = matrix.size();
+    if (M == 0) return false;
+    int N = matrix[0].size();
 
-        int j = N - 1;
-        for(int i = 0; i < M; i++) {
-            for(; j >= 0; j--) {
-                if(matrix[i][j] == target) return true;
-                else if(matrix[i][j] < target) {
-                    // skip row
-                    break;
-                } else {
-                    continue;
-                }
-            }
+    int j = N - 1;
+    for (int i = 0; i < M; i++) {
+      for (; j >= 0; j--) {
+        if (matrix[i][j] == target)
+          return true;
+        else if (matrix[i][j] < target) {
+          // skip row
+          break;
+        } else {
+          continue;
         }
-
-        return false;
+      }
     }
+
+    return false;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

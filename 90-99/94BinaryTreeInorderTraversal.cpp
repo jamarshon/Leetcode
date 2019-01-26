@@ -27,40 +27,38 @@ using namespace std;
 #include <vector>
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    vector<int> inorderTraversal(TreeNode* root) {
-        stack<TreeNode*> s;
-        unordered_set<TreeNode*> set;
-        
-        vector<int> result;
-        s.push(root);
-        
-        while(!s.empty()){
-            TreeNode* top = s.top();
-            s.pop();
-            if(top == NULL) { 
-                continue;
-            } else if(set.find(top) == set.end()) {
-                s.push(top -> right);
-                s.push(top);
-                s.push(top -> left);
-                set.insert(top);
-            } else {
-                result.push_back(top -> val);
-            }
-        }
-        
-        return result;
+ public:
+  vector<int> inorderTraversal(TreeNode* root) {
+    stack<TreeNode*> s;
+    unordered_set<TreeNode*> set;
+
+    vector<int> result;
+    s.push(root);
+
+    while (!s.empty()) {
+      TreeNode* top = s.top();
+      s.pop();
+      if (top == NULL) {
+        continue;
+      } else if (set.find(top) == set.end()) {
+        s.push(top->right);
+        s.push(top);
+        s.push(top->left);
+        set.insert(top);
+      } else {
+        result.push_back(top->val);
+      }
     }
+
+    return result;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

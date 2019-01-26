@@ -10,7 +10,8 @@ Example:
     /  \
    15   7
 
-There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
+There are two left leaves in the binary tree, with values 9 and 15 respectively.
+Return 24.
 
 /*
     Submission Date: 2017-08-06
@@ -23,25 +24,23 @@ There are two left leaves in the binary tree, with values 9 and 15 respectively.
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    int sumOfLeftLeaves(TreeNode* root) {
-        if(root == NULL) return 0;
-        int res = 0;
-        if(root -> left && root -> left -> left == NULL && root -> left -> right == NULL) {
-            res += root -> left -> val;
-        }
-        
-        return res + sumOfLeftLeaves(root -> left) + sumOfLeftLeaves(root -> right);
+ public:
+  int sumOfLeftLeaves(TreeNode *root) {
+    if (root == NULL) return 0;
+    int res = 0;
+    if (root->left && root->left->left == NULL && root->left->right == NULL) {
+      res += root->left->val;
     }
+
+    return res + sumOfLeftLeaves(root->left) + sumOfLeftLeaves(root->right);
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

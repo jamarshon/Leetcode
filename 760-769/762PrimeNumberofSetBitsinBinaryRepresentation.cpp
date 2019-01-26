@@ -1,10 +1,11 @@
 /*
 762. Prime Number of Set Bits in Binary Representation
-Given two integers L and R, find the count of numbers in the range [L, R] (inclusive) having a prime number of set bits in 
-their binary representation.
+Given two integers L and R, find the count of numbers in the range [L, R]
+(inclusive) having a prime number of set bits in their binary representation.
 
-(Recall that the number of set bits an integer has is the number of 1s present when written in binary. For example, 21 written in binary is 
-10101 which has 3 set bits. Also, 1 is not a prime.)
+(Recall that the number of set bits an integer has is the number of 1s present
+when written in binary. For example, 21 written in binary is 10101 which has 3
+set bits. Also, 1 is not a prime.)
 
 Example 1:
 
@@ -36,43 +37,42 @@ R - L will be at most 10000.
     Difficulty: EASY
 */
 #include <iostream>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace std;
 
 class Solution {
-    int numbits(int x) {
-        int res = 0;
-        while(x) {
-            x &= (x-1);
-            res++;
-        }
-        return res;
+  int numbits(int x) {
+    int res = 0;
+    while (x) {
+      x &= (x - 1);
+      res++;
     }
-public:
-    /*
-        the number of bits for a number i = number of bits for i/2 + the last bit of i
-        e.g 10101 = number of bits for 1010 + last bit which is 1
-    */
-    int countPrimeSetBits(int L, int R) {
-        unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-        unordered_map<int,int> n_to_bits;
-        int res = 0;
-        for(int i = L; i <= R; i++) {
-            int bits;
-            if(n_to_bits.count(i)) {
-                bits = n_to_bits[i/2] + (i % 2);
-            } else {
-                bits = numbits(i);
-            }
-            n_to_bits[i] = bits;
-            res += primes.count(bits);
-        }
-        return res;
+    return res;
+  }
+
+ public:
+  /*
+      the number of bits for a number i = number of bits for i/2 + the last bit
+     of i e.g 10101 = number of bits for 1010 + last bit which is 1
+  */
+  int countPrimeSetBits(int L, int R) {
+    unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+    unordered_map<int, int> n_to_bits;
+    int res = 0;
+    for (int i = L; i <= R; i++) {
+      int bits;
+      if (n_to_bits.count(i)) {
+        bits = n_to_bits[i / 2] + (i % 2);
+      } else {
+        bits = numbits(i);
+      }
+      n_to_bits[i] = bits;
+      res += primes.count(bits);
     }
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

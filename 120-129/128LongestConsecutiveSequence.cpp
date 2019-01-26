@@ -1,6 +1,7 @@
 /*
 128. Longest Consecutive Sequence
-Given an unsorted array of integers, find the length of the longest consecutive elements sequence.
+Given an unsorted array of integers, find the length of the longest consecutive
+elements sequence.
 
 For example,
 Given [100, 4, 200, 1, 3, 2],
@@ -15,39 +16,39 @@ Your algorithm should run in O(n) complexity.
 */
 
 #include <iostream>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 using namespace std;
 
 class Solution {
-public:
-    int longestConsecutive(vector<int>& nums) {
-        unordered_set<int> s(nums.begin(), nums.end());
-        int res = 0;
-        for(auto item: s) {
-            int range = 1;
-            int temp = item - 1;
-            while(s.count(temp)) {
-                s.erase(temp);
-                temp--;
-                range++;
-            }
-            
-            temp = item + 1;
-            while(s.count(temp)) {
-                s.erase(temp);
-                temp++;
-                range++;
-            }
+ public:
+  int longestConsecutive(vector<int>& nums) {
+    unordered_set<int> s(nums.begin(), nums.end());
+    int res = 0;
+    for (auto item : s) {
+      int range = 1;
+      int temp = item - 1;
+      while (s.count(temp)) {
+        s.erase(temp);
+        temp--;
+        range++;
+      }
 
-            res = max(res, range);
-        }
-        return res;
+      temp = item + 1;
+      while (s.count(temp)) {
+        s.erase(temp);
+        temp++;
+        range++;
+      }
+
+      res = max(res, range);
     }
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

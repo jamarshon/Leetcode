@@ -14,16 +14,14 @@ Given s = "hello", return "olleh".
 using namespace std;
 
 class Solution {
-public:
-    string reverseString(string s) {
-        int N = s.size();
-        for(int i = 0; i < N/2; i++) {
-            swap(s[i], s[N-i-1]);
-        }
-        return s;
+ public:
+  string reverseString(string s) {
+    int N = s.size();
+    for (int i = 0; i < N / 2; i++) {
+      swap(s[i], s[N - i - 1]);
     }
+    return s;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

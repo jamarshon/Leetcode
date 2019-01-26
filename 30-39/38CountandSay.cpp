@@ -1,7 +1,7 @@
 /*
 38. Count and Say
-The count-and-say sequence is the sequence of integers with the first five terms as 
-following:
+The count-and-say sequence is the sequence of integers with the first five terms
+as following:
 
 1.     1
 2.     11
@@ -35,28 +35,26 @@ Output: "1211"
 using namespace std;
 
 class Solution {
-public:
-    string countAndSay(int n) {
-        if(n == 1) return "1";
-        string prev = countAndSay(n - 1);
-        int len = prev.size();
-        string res = "";
-        for(int i = 0; i < len; i++) {
-            int j = i + 1;
-            for(; j < len; j++) {
-                if(prev[i] != prev[j]) {
-                    break;
-                }
-            }
-            
-            int count = j - i;
-            res += to_string(count) + prev[i];
-            i = j - 1;
+ public:
+  string countAndSay(int n) {
+    if (n == 1) return "1";
+    string prev = countAndSay(n - 1);
+    int len = prev.size();
+    string res = "";
+    for (int i = 0; i < len; i++) {
+      int j = i + 1;
+      for (; j < len; j++) {
+        if (prev[i] != prev[j]) {
+          break;
         }
-        return res;
+      }
+
+      int count = j - i;
+      res += to_string(count) + prev[i];
+      i = j - 1;
     }
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

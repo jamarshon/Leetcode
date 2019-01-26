@@ -23,32 +23,32 @@ All root-to-leaf paths are:
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    vector<string> binaryTreePaths(TreeNode* root) {
-        if(root == NULL) return {};
-        
-        string curr = to_string(root -> val);
-        vector<string> res;
-        
-        vector<string> left = binaryTreePaths(root -> left);
-        for(auto str: left) res.push_back(curr + "->" + str);
-        
-        vector<string> right = binaryTreePaths(root -> right);
-        for(auto str: right) res.push_back(curr + "->" + str);
-        
-        if(left.empty() && right.empty()) res.push_back(curr);
-        return res;
-    }
+ public:
+  vector<string> binaryTreePaths(TreeNode *root) {
+    if (root == NULL) return {};
+
+    string curr = to_string(root->val);
+    vector<string> res;
+
+    vector<string> left = binaryTreePaths(root->left);
+    for (auto str : left) res.push_back(curr + "->" + str);
+
+    vector<string> right = binaryTreePaths(root->right);
+    for (auto str : right) res.push_back(curr + "->" + str);
+
+    if (left.empty() && right.empty()) res.push_back(curr);
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

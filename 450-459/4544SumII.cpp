@@ -1,11 +1,11 @@
 /*
 454. 4Sum II
-Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k, 
-l) there are such that A[i] + B[j] + C[k] + D[l] is zero. 
+Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k,
+l) there are such that A[i] + B[j] + C[k] + D[l] is zero.
 
-To make problem a bit easier, all A, B, C, D have same length of N where 0 ≤ N ≤ 
-500. All integers are in the range of -228 to 228 - 1 and the result is 
-guaranteed to be at most 231 - 1. 
+To make problem a bit easier, all A, B, C, D have same length of N where 0 ≤ N ≤
+500. All integers are in the range of -228 to 228 - 1 and the result is
+guaranteed to be at most 231 - 1.
 
 Example:
 Input:
@@ -28,39 +28,38 @@ The two tuples are:
     Difficulty: MEDIUM
 */
 #include <iostream>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
 class Solution {
-public:
-    /*
-    O(n^2) generate all n^2 sums of A and B and put in hashmap of sum to frequency
-    generate all n^2 sums of C and D and see if the sum exists in hashmap, if it does
-    then res increases by the frequency as the frequency represents how many ways to 
-    get that sum
-    */
-    int fourSumCount(vector<int>& A, vector<int>& B, vector<int>& C, vector<int>& D) {
-        unordered_map<int, int> sum_A_B;
-        for(const auto& a: A) {
-            for(const auto& b: B) {
-                sum_A_B[a + b]++;
-            }
-        }
-        
-        int res = 0;
-        for(const auto& c: C) {
-            for(const auto& d: D) {
-                if(sum_A_B.count(-c-d)) {
-                    res += sum_A_B[-c-d];
-                }
-            }
-        }
-        return res;
+ public:
+  /*
+  O(n^2) generate all n^2 sums of A and B and put in hashmap of sum to frequency
+  generate all n^2 sums of C and D and see if the sum exists in hashmap, if it
+  does then res increases by the frequency as the frequency represents how many
+  ways to get that sum
+  */
+  int fourSumCount(vector<int>& A, vector<int>& B, vector<int>& C,
+                   vector<int>& D) {
+    unordered_map<int, int> sum_A_B;
+    for (const auto& a : A) {
+      for (const auto& b : B) {
+        sum_A_B[a + b]++;
+      }
     }
+
+    int res = 0;
+    for (const auto& c : C) {
+      for (const auto& d : D) {
+        if (sum_A_B.count(-c - d)) {
+          res += sum_A_B[-c - d];
+        }
+      }
+    }
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

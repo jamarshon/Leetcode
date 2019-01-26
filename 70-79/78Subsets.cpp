@@ -30,24 +30,25 @@ If nums = [1,2,3], a solution is:
 using namespace std;
 
 class Solution {
-public:
-    void subsets(vector<int>& curr, vector<int>& nums, vector<vector<int>>& res, int index) {
-        res.push_back(curr);
+ public:
+  void subsets(vector<int>& curr, vector<int>& nums, vector<vector<int>>& res,
+               int index) {
+    res.push_back(curr);
 
-        for(int i = index; i < nums.size(); i++) {
-            curr.push_back(nums[i]);
-            subsets(curr, nums, res, i + 1);
-            curr.pop_back();
-        }
+    for (int i = index; i < nums.size(); i++) {
+      curr.push_back(nums[i]);
+      subsets(curr, nums, res, i + 1);
+      curr.pop_back();
     }
-    vector<vector<int>> subsets(vector<int>& nums) {
-        vector<int> curr;
-        vector<vector<int>> res;
-        subsets(curr, nums, res, 0);
-        return res;
-    }
+  }
+  vector<vector<int>> subsets(vector<int>& nums) {
+    vector<int> curr;
+    vector<vector<int>> res;
+    subsets(curr, nums, res, 0);
+    return res;
+  }
 };
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

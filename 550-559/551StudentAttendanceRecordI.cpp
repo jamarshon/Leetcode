@@ -1,12 +1,13 @@
 /*
 551. Student Attendance Record I
-You are given a string representing an attendance record for a student. The record only contains the following three characters:
-'A' : Absent.
-'L' : Late.
+You are given a string representing an attendance record for a student. The
+record only contains the following three characters: 'A' : Absent. 'L' : Late.
 'P' : Present.
-A student could be rewarded if his attendance record doesn't contain more than one 'A' (absent) or more than two continuous 'L' (late).
+A student could be rewarded if his attendance record doesn't contain more than
+one 'A' (absent) or more than two continuous 'L' (late).
 
-You need to return whether the student could be rewarded according to his attendance record.
+You need to return whether the student could be rewarded according to his
+attendance record.
 
 Example 1:
 Input: "PPALLP"
@@ -25,27 +26,25 @@ Output: False
 using namespace std;
 
 class Solution {
-public:
-    bool checkRecord(string s) {
-        int l_streak = 0;
-        bool seen_absent = false;
-        for(const auto& c: s) {
-            if(c == 'L') {
-                if(l_streak == 2) return false;
-                l_streak++;
-            } else {
-                if(c == 'A') {
-                    if(seen_absent) return false;
-                    seen_absent = true;
-                } // c == 'P'
-                
-                l_streak = 0;
-            }
-        }
-        return true;
+ public:
+  bool checkRecord(string s) {
+    int l_streak = 0;
+    bool seen_absent = false;
+    for (const auto& c : s) {
+      if (c == 'L') {
+        if (l_streak == 2) return false;
+        l_streak++;
+      } else {
+        if (c == 'A') {
+          if (seen_absent) return false;
+          seen_absent = true;
+        }  // c == 'P'
+
+        l_streak = 0;
+      }
     }
+    return true;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

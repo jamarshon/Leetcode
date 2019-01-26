@@ -1,6 +1,7 @@
 /*
 303. Range Sum Query - Immutable
-Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+Given an integer array nums, find the sum of the elements between indices i and
+j (i ≤ j), inclusive.
 
 Example:
 Given nums = [-2, 0, 3, -5, 2, -1]
@@ -22,23 +23,22 @@ There are many calls to sumRange function.
 using namespace std;
 
 class NumArray {
-    vector<int> dp_;
-public:
-    NumArray(vector<int> nums) {
-        if(nums.empty()) return;
-        
-        int N = nums.size();
-        dp_.resize(N);
-        
-        dp_[0] = nums[0];
-        for(int i = 1; i < N; i++) {
-            dp_[i] = dp_[i-1] + nums[i];
-        }
+  vector<int> dp_;
+
+ public:
+  NumArray(vector<int> nums) {
+    if (nums.empty()) return;
+
+    int N = nums.size();
+    dp_.resize(N);
+
+    dp_[0] = nums[0];
+    for (int i = 1; i < N; i++) {
+      dp_[i] = dp_[i - 1] + nums[i];
     }
-    
-    int sumRange(int i, int j) {
-        return dp_[j] - (i - 1 >= 0 ? dp_[i-1] : 0);
-    }
+  }
+
+  int sumRange(int i, int j) { return dp_[j] - (i - 1 >= 0 ? dp_[i - 1] : 0); }
 };
 
 /**
@@ -47,6 +47,4 @@ public:
  * int param_1 = obj.sumRange(i,j);
  */
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

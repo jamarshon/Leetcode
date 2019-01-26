@@ -1,6 +1,7 @@
 /*
 113. Path Sum II
-Given a binary tree and a sum, find all root-to-leaf paths where each path's sum equals the given sum.
+Given a binary tree and a sum, find all root-to-leaf paths where each path's sum
+equals the given sum.
 
 For example:
 Given the below binary tree and sum = 22,
@@ -29,39 +30,38 @@ return
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    void pathSum(TreeNode* root, int curr_sum, int sum, vector<int>& curr, vector<vector<int>>& res) {
-        if(root == NULL) return;
+ public:
+  void pathSum(TreeNode* root, int curr_sum, int sum, vector<int>& curr,
+               vector<vector<int>>& res) {
+    if (root == NULL) return;
 
-        curr.push_back(root -> val);
-        curr_sum += root -> val;
+    curr.push_back(root->val);
+    curr_sum += root->val;
 
-        if(root -> left == NULL && root -> right == NULL) {
-            if(curr_sum == sum) {
-                res.push_back(curr);
-            }
-        } else {
-            pathSum(root -> left, curr_sum, sum, curr, res);
-            pathSum(root -> right, curr_sum, sum, curr, res);
-        }
-
-        curr.pop_back();
+    if (root->left == NULL && root->right == NULL) {
+      if (curr_sum == sum) {
+        res.push_back(curr);
+      }
+    } else {
+      pathSum(root->left, curr_sum, sum, curr, res);
+      pathSum(root->right, curr_sum, sum, curr, res);
     }
-    vector<vector<int>> pathSum(TreeNode* root, int sum) {
-        vector<vector<int>> res;
-        vector<int> curr;
-        pathSum(root, 0, sum, curr, res);
-        return res;
-    }
+
+    curr.pop_back();
+  }
+  vector<vector<int>> pathSum(TreeNode* root, int sum) {
+    vector<vector<int>> res;
+    vector<int> curr;
+    pathSum(root, 0, sum, curr, res);
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

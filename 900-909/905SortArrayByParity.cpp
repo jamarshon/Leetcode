@@ -1,7 +1,7 @@
 /*
 905. Sort Array By Parity
-Given an array A of non-negative integers, return an array consisting of all the 
-even elements of A, followed by all the odd elements of A. 
+Given an array A of non-negative integers, return an array consisting of all the
+even elements of A, followed by all the odd elements of A.
 
 You may return any answer array that satisfies this condition.
 
@@ -33,24 +33,22 @@ Note:
 using namespace std;
 
 class Solution {
-public:
-    vector<int> sortArrayByParity(vector<int>& A) {
-        int even = 0;
-        int odd = A.size() - 1;
-        
-        while(even < odd) {
-            if(A[even] % 2 == 0) {
-                even++;
-            } else {
-                swap(A[even], A[odd]);
-                odd--;
-            }
-        }
-        
-        return A;
+ public:
+  vector<int> sortArrayByParity(vector<int>& A) {
+    int even = 0;
+    int odd = A.size() - 1;
+
+    while (even < odd) {
+      if (A[even] % 2 == 0) {
+        even++;
+      } else {
+        swap(A[even], A[odd]);
+        odd--;
+      }
     }
+
+    return A;
+  }
 };
 
-int main() {
-  return 0;
-}
+int main() { return 0; }

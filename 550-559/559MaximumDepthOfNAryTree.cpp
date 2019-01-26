@@ -2,8 +2,8 @@
 559. Maximum Depth of N-ary Tree
 Given a n-ary tree, find its maximum depth.
 
-The maximum depth is the number of nodes along the longest path from the root 
-node down to the farthest leaf node. 
+The maximum depth is the number of nodes along the longest path from the root
+node down to the farthest leaf node.
 
 For example, given a 3-ary tree:
  
@@ -30,30 +30,28 @@ Note:
 using namespace std;
 
 class Node {
-public:
-    int val;
-    vector<Node*> children;
+ public:
+  int val;
+  vector<Node*> children;
 
-    Node() {}
+  Node() {}
 
-    Node(int _val, vector<Node*> _children) {
-        val = _val;
-        children = _children;
-    }
+  Node(int _val, vector<Node*> _children) {
+    val = _val;
+    children = _children;
+  }
 };
 
 class Solution {
-public:
-    int maxDepth(Node* root) {
-        if(!root) return 0;
-        
-        int res = 0;
-        for(const auto& c: root->children) res = max(res, maxDepth(c));
-        
-        return res + 1;
-    }
+ public:
+  int maxDepth(Node* root) {
+    if (!root) return 0;
+
+    int res = 0;
+    for (const auto& c : root->children) res = max(res, maxDepth(c));
+
+    return res + 1;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

@@ -1,6 +1,7 @@
 /*
 367. Valid Perfect Square
-Given a positive integer num, write a function which returns True if num is a perfect square else False.
+Given a positive integer num, write a function which returns True if num is a
+perfect square else False.
 
 Note: Do not use any built-in library function such as sqrt.
 
@@ -22,24 +23,22 @@ Returns: False
 using namespace std;
 
 class Solution {
-public:
-    bool isPerfectSquare(int num) {
-      long long low = 1;
-      long long high = num;
-      while(low <= high) {
-        long long mid = low + (high-low)/2;
-        if(mid*mid == num) {
-          return true;
-        } else if(mid*mid < num) {
-          low = mid + 1;
-        } else {
-          high = mid -1;
-        }
+ public:
+  bool isPerfectSquare(int num) {
+    long long low = 1;
+    long long high = num;
+    while (low <= high) {
+      long long mid = low + (high - low) / 2;
+      if (mid * mid == num) {
+        return true;
+      } else if (mid * mid < num) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
       }
-      return false;
     }
+    return false;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

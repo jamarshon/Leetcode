@@ -22,48 +22,45 @@ using namespace std;
 #include <iostream>
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
-public:
-    ListNode* reverseBetween(ListNode* head, int m, int n) {
-        if(m == n) return head;
-        
-        ListNode* begin = head;
-        bool reverseIncludeHead = m == 1;
-        
-        for(int i = 0; i < m - 2; i++){
-            begin = begin -> next;
-        }
-        
-        ListNode* end = begin->next;
-        ListNode* A = reverseIncludeHead ? head : end;
-        ListNode* B = A -> next;
-        ListNode* C = B == NULL ? NULL : B -> next;
-        
-        for(int i = 0; i < n-m; i++){
-            B -> next = A;
-            A = B;
-            B = C;
-            if(C != NULL) C = C -> next;
-            
-        }
-        
-        if(reverseIncludeHead){
-            head -> next = B;
-            head = A;
-        } else {
-            begin -> next = A;
-            end -> next = B;
-        }
-        
-        return head;
+ public:
+  ListNode* reverseBetween(ListNode* head, int m, int n) {
+    if (m == n) return head;
+
+    ListNode* begin = head;
+    bool reverseIncludeHead = m == 1;
+
+    for (int i = 0; i < m - 2; i++) {
+      begin = begin->next;
     }
+
+    ListNode* end = begin->next;
+    ListNode* A = reverseIncludeHead ? head : end;
+    ListNode* B = A->next;
+    ListNode* C = B == NULL ? NULL : B->next;
+
+    for (int i = 0; i < n - m; i++) {
+      B->next = A;
+      A = B;
+      B = C;
+      if (C != NULL) C = C->next;
+    }
+
+    if (reverseIncludeHead) {
+      head->next = B;
+      head = A;
+    } else {
+      begin->next = A;
+      end->next = B;
+    }
+
+    return head;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

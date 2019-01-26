@@ -14,26 +14,24 @@ The result can be in any order.
     Difficulty: EASY
 */
 #include <iostream>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 using namespace std;
 
 class Solution {
-public:
-    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
-        vector<int> res;
-        unordered_set<int> st(nums1.begin(), nums1.end());
-        for(const auto& e: nums2) {
-          if(st.count(e)) {
-            res.push_back(e);
-            st.erase(e);
-          }
-        }
-        return res;
+ public:
+  vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> res;
+    unordered_set<int> st(nums1.begin(), nums1.end());
+    for (const auto& e : nums2) {
+      if (st.count(e)) {
+        res.push_back(e);
+        st.erase(e);
+      }
     }
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

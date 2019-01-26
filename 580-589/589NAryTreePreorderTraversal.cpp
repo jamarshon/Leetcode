@@ -25,39 +25,37 @@ Note: Recursive solution is trivial, could you do it iteratively?
 using namespace std;
 
 class Node {
-public:
-    int val;
-    vector<Node*> children;
+ public:
+  int val;
+  vector<Node*> children;
 
-    Node() {}
+  Node() {}
 
-    Node(int _val, vector<Node*> _children) {
-        val = _val;
-        children = _children;
-    }
+  Node(int _val, vector<Node*> _children) {
+    val = _val;
+    children = _children;
+  }
 };
 
 class Solution {
-public:
-    vector<int> preorder(Node* root) {
-        if(root == NULL) return {};
-        stack<Node*> stk;
-        stk.emplace(root);
-        vector<int> res;
-        
-        while(!stk.empty()) {
-            Node* curr = stk.top();
-            stk.pop();
-            res.push_back(curr->val);
-            for(int i = curr->children.size() - 1; i >= 0; i--) {
-                if(curr->children[i]) stk.push(curr->children[i]);
-            }
-        }
-        
-        return res;
+ public:
+  vector<int> preorder(Node* root) {
+    if (root == NULL) return {};
+    stack<Node*> stk;
+    stk.emplace(root);
+    vector<int> res;
+
+    while (!stk.empty()) {
+      Node* curr = stk.top();
+      stk.pop();
+      res.push_back(curr->val);
+      for (int i = curr->children.size() - 1; i >= 0; i--) {
+        if (curr->children[i]) stk.push(curr->children[i]);
+      }
     }
+
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

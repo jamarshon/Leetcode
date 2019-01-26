@@ -4,14 +4,14 @@ Implement a MapSum class with insert, and sum methods.
 
 
 
-For the method insert, you'll be given a pair of (string, integer). The string 
-represents the key and the integer represents the value. If the key already 
-existed, then the original key-value pair will be overridden to the new one. 
+For the method insert, you'll be given a pair of (string, integer). The string
+represents the key and the integer represents the value. If the key already
+existed, then the original key-value pair will be overridden to the new one.
 
 
 
-For the method sum, you'll be given a string representing the prefix, and you 
-need to return the sum of all the pairs' value whose key starts with the prefix. 
+For the method sum, you'll be given a string representing the prefix, and you
+need to return the sum of all the pairs' value whose key starts with the prefix.
 
 
 Example 1:
@@ -31,49 +31,48 @@ Input: sum("ap"), Output: 5
 using namespace std;
 
 struct TrieNode {
-    int sum;
-    TrieNode* children[26];
-    TrieNode() {
-        sum = 0;
-        for(int i = 0; i < 26; i++) children[i] = NULL;
-    }
+  int sum;
+  TrieNode* children[26];
+  TrieNode() {
+    sum = 0;
+    for (int i = 0; i < 26; i++) children[i] = NULL;
+  }
 };
 
 class MapSum {
-    unordered_map<string, int> m;
-    TrieNode* root;
-public:
-    /** Have a trie and unordered_map. the unordered_map keeps track of key and val
-     the trie can find prefix easily. each node has sum which is the sum of all...l with each node visited getting the to_add
-     added to their sum.
-    */
-    MapSum() {
-        root = new TrieNode();
+  unordered_map<string, int> m;
+  TrieNode* root;
+
+ public:
+  /** Have a trie and unordered_map. the unordered_map keeps track of key and
+   val the trie can find prefix easily. each node has sum which is the sum of
+   all...l with each node visited getting the to_add added to their sum.
+  */
+  MapSum() { root = new TrieNode(); }
+
+  void insert(string key, int val) {
+    int to_add = m.count(key) ? val - m[key] : val;
+    m[key] = val;
+    TrieNode* curr = root;
+    curr->sum += to_add;
+
+    for (const auto& c : key) {
+      if (curr->children[c - 'a'] == NULL)
+        curr->children[c - 'a'] = new TrieNode();
+      curr = curr->children[c - 'a'];
+      curr->sum += to_add;
     }
-    
-    void insert(string key, int val) {
-        int to_add = m.count(key) ? val - m[key] : val;
-        m[key] = val;
-        TrieNode* curr = root;
-        curr->sum += to_add;
-        
-        for(const auto& c: key) {
-            if(curr->children[c - 'a'] == NULL) 
-                curr->children[c - 'a'] = new TrieNode();
-            curr = curr->children[c - 'a'];
-            curr->sum += to_add;
-        }
+  }
+
+  int sum(string prefix) {
+    TrieNode* curr = root;
+    for (const auto& c : prefix) {
+      if (curr->children[c - 'a'] == NULL) return 0;
+      curr = curr->children[c - 'a'];
     }
-    
-    int sum(string prefix) {
-        TrieNode* curr = root;
-        for(const auto& c: prefix) {
-            if(curr->children[c - 'a'] == NULL) return 0;
-            curr = curr->children[c - 'a'];
-        }
-        
-        return curr->sum;
-    }
+
+    return curr->sum;
+  }
 };
 
 /**
@@ -83,6 +82,4 @@ public:
  * int param_2 = obj.sum(prefix);
  */
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

@@ -29,45 +29,37 @@ Note: Given n will be between 1 and 9 inclusive.
 using namespace std;
 
 class Solution {
-    unordered_map<int, int> combinations{
-        {0, 1},
-        {1, 1},
-        {2, 2},
-        {3, 6},
-        {4, 24},
-        {5, 120},
-        {6, 720},
-        {7, 5040},
-        {8, 40320},
-        {9, 362880}
-    };
-public:
-    string getPermutation(vector<char>& available, int n, int k, int comb_index) {
+  unordered_map<int, int> combinations{
+      {0, 1},   {1, 1},   {2, 2},    {3, 6},     {4, 24},
+      {5, 120}, {6, 720}, {7, 5040}, {8, 40320}, {9, 362880}};
 
-        if(available.empty()) return "";
+ public:
+  string getPermutation(vector<char>& available, int n, int k, int comb_index) {
+    if (available.empty()) return "";
 
-        int index = (k - 1)/combinations[comb_index];
-        char leading_char = available[index];
-        available.erase(available.begin() + index);
+    int index = (k - 1) / combinations[comb_index];
+    char leading_char = available[index];
+    available.erase(available.begin() + index);
 
-        k -= index * combinations[comb_index];
+    k -= index * combinations[comb_index];
 
-        return string(1, leading_char) + getPermutation(available, n, k, comb_index - 1);
+    return string(1, leading_char) +
+           getPermutation(available, n, k, comb_index - 1);
+  }
+  string getPermutation(int n, int k) {
+    vector<char> available;
+
+    char target = '0' + n;
+    for (char i = '1'; i <= target; i++) {
+      available.push_back(i);
     }
-    string getPermutation(int n, int k) {
-        vector<char> available;
 
-        char target = '0' + n;
-        for(char i = '1'; i <= target; i++) {
-            available.push_back(i);
-        }
-
-        return getPermutation(available, n, k, n - 1);
-    }
+    return getPermutation(available, n, k, n - 1);
+  }
 };
 
 int main() {
-    Solution s;
-    for(int i = 1; i <= 6; i++) cout << s.getPermutation(3, i) << endl;
-    return 0;
+  Solution s;
+  for (int i = 1; i <= 6; i++) cout << s.getPermutation(3, i) << endl;
+  return 0;
 }

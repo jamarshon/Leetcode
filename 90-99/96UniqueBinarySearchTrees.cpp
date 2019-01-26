@@ -1,6 +1,7 @@
 /*
 96. Unique Binary Search Trees
-Given n, how many structurally unique BST's (binary search trees) that store values 1...n?
+Given n, how many structurally unique BST's (binary search trees) that store
+values 1...n?
 
 For example,
 Given n = 3, there are a total of 5 unique BST's.
@@ -22,21 +23,21 @@ Given n = 3, there are a total of 5 unique BST's.
 using namespace std;
 
 class Solution {
-public:
-    int numTrees(int n) {
-        long long dp[n + 1];
+ public:
+  int numTrees(int n) {
+    long long dp[n + 1];
 
-        dp[0] = dp[1] = 1;
+    dp[0] = dp[1] = 1;
 
-        for(long long i = 1; i < n; i++) {
-            dp[(int)i + 1] = dp[i]*(2*i + 2)*(2*i + 1)/(i + 1)/(i + 2);
-        }
-
-        return dp[n];
+    for (long long i = 1; i < n; i++) {
+      dp[(int)i + 1] = dp[i] * (2 * i + 2) * (2 * i + 1) / (i + 1) / (i + 2);
     }
+
+    return dp[n];
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

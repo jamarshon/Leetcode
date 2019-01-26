@@ -1,6 +1,7 @@
 /*
 129. Sum Root to Leaf Numbers
-Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
+Given a binary tree containing digits from 0-9 only, each root-to-leaf path
+could represent a number.
 
 An example is the root-to-leaf path 1->2->3 which represents the number 123.
 
@@ -27,35 +28,31 @@ Return the sum = 12 + 13 = 25.
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    int sumNumbers(TreeNode* root, int current_path) {
-        if(root == NULL) {
-            return 0;
-        } 
-
-        int curr_sum = current_path*10 + root -> val;
-
-        if(root -> left == NULL && root -> right == NULL) {
-            return curr_sum;
-        }
-
-        int left = sumNumbers(root -> left, curr_sum);
-        int right = sumNumbers(root -> right, curr_sum);
-        return left + right;
+ public:
+  int sumNumbers(TreeNode* root, int current_path) {
+    if (root == NULL) {
+      return 0;
     }
 
-    int sumNumbers(TreeNode* root) {
-        return sumNumbers(root, 0);
+    int curr_sum = current_path * 10 + root->val;
+
+    if (root->left == NULL && root->right == NULL) {
+      return curr_sum;
     }
+
+    int left = sumNumbers(root->left, curr_sum);
+    int right = sumNumbers(root->right, curr_sum);
+    return left + right;
+  }
+
+  int sumNumbers(TreeNode* root) { return sumNumbers(root, 0); }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

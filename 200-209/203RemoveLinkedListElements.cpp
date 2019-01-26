@@ -12,43 +12,41 @@ Return: 1 --> 2 --> 3 --> 4 --> 5
     Difficulty: EASY
 */
 
-#include <iostream>
 #include <climits>
+#include <iostream>
 
 using namespace std;
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
-public:
-    ListNode* removeElements(ListNode* head, int val) {
-        ListNode* dummy_head = new ListNode(INT_MIN);
-        dummy_head -> next = head;
+ public:
+  ListNode* removeElements(ListNode* head, int val) {
+    ListNode* dummy_head = new ListNode(INT_MIN);
+    dummy_head->next = head;
 
-        ListNode* curr = dummy_head;
-        while(curr) {
-            ListNode* next = curr -> next;
-            while(next && next -> val == val) {
-                ListNode* to_delete = next;
-                next = next -> next;
-                delete to_delete;
-            }
-
-            curr -> next = next;
-            curr = next;
-        }
-
-        ListNode* to_delete = dummy_head;
-        head = dummy_head -> next;
+    ListNode* curr = dummy_head;
+    while (curr) {
+      ListNode* next = curr->next;
+      while (next && next->val == val) {
+        ListNode* to_delete = next;
+        next = next->next;
         delete to_delete;
-        return head;
+      }
+
+      curr->next = next;
+      curr = next;
     }
+
+    ListNode* to_delete = dummy_head;
+    head = dummy_head->next;
+    delete to_delete;
+    return head;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

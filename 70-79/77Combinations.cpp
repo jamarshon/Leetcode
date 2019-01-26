@@ -1,6 +1,7 @@
 /*
 77. Combinations
-Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
+Given two integers n and k, return all possible combinations of k numbers out of
+1 ... n.
 
 For example,
 If n = 4 and k = 2, a solution is:
@@ -26,28 +27,29 @@ If n = 4 and k = 2, a solution is:
 using namespace std;
 
 class Solution {
-public:
-    void combine(vector<int>& curr, vector<vector<int>>& res, int start, int n, int k) {
-        if(curr.size() == k) {
-            res.push_back(curr);
-            return;
-        }
+ public:
+  void combine(vector<int>& curr, vector<vector<int>>& res, int start, int n,
+               int k) {
+    if (curr.size() == k) {
+      res.push_back(curr);
+      return;
+    }
 
-        for(int i = start; i <= n; i++) {
-            curr.push_back(i);
-            combine(curr, res, i + 1, n, k);
-            curr.pop_back();
-        }
+    for (int i = start; i <= n; i++) {
+      curr.push_back(i);
+      combine(curr, res, i + 1, n, k);
+      curr.pop_back();
     }
-    vector<vector<int>> combine(int n, int k) {
-        vector<vector<int>> res;
-        vector<int> curr;
-        combine(curr, res, 1, n, k);
-        return res;
-    }
+  }
+  vector<vector<int>> combine(int n, int k) {
+    vector<vector<int>> res;
+    vector<int> curr;
+    combine(curr, res, 1, n, k);
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

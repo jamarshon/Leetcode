@@ -24,49 +24,47 @@ Explanation: The maximum result is 5 ^ 25 = 28.
 using namespace std;
 
 struct TrieNode {
-    TrieNode* children[2];
-    TrieNode() {
-        children[0] = children[1] = NULL;
-    }
+  TrieNode* children[2];
+  TrieNode() { children[0] = children[1] = NULL; }
 };
 
 class Solution {
-public:
-    int findMaximumXOR(vector<int>& nums) {
-        TrieNode* root = new TrieNode();
-        // insert all numbers in trie in bit representation with msb near root
-        for(const auto& n: nums) {
-            TrieNode* curr = root;
-            for(int i = 31; i >= 0; i--) {
-                bool bit = n & (1 << i);
-                if(curr->children[bit] == NULL) curr->children[bit] = new TrieNode();
-                curr = curr->children[bit];
-            }
-        }
-        
-        // for each number search for the complementary if it exists, else take other path
-        int res = 0;
-        for(const auto& n: nums) {
-            TrieNode* curr = root;
-            int max_value = 0;
-            for(int i = 31; i >= 0; i--) {
-                bool bit = n & (1 << i);
-                bool comp_bit = !bit;
-                if(curr->children[comp_bit] == NULL) {
-                    // take other path and since same number nothing is added
-                    curr = curr->children[bit];
-                } else {
-                    // take complentary path and since a different number is added, add to the max_value
-                    max_value += (1 << i);
-                    curr = curr->children[comp_bit];
-                }
-            }
-            res = max(res, max_value);
-        }
-        return res;
+ public:
+  int findMaximumXOR(vector<int>& nums) {
+    TrieNode* root = new TrieNode();
+    // insert all numbers in trie in bit representation with msb near root
+    for (const auto& n : nums) {
+      TrieNode* curr = root;
+      for (int i = 31; i >= 0; i--) {
+        bool bit = n & (1 << i);
+        if (curr->children[bit] == NULL) curr->children[bit] = new TrieNode();
+        curr = curr->children[bit];
+      }
     }
+
+    // for each number search for the complementary if it exists, else take
+    // other path
+    int res = 0;
+    for (const auto& n : nums) {
+      TrieNode* curr = root;
+      int max_value = 0;
+      for (int i = 31; i >= 0; i--) {
+        bool bit = n & (1 << i);
+        bool comp_bit = !bit;
+        if (curr->children[comp_bit] == NULL) {
+          // take other path and since same number nothing is added
+          curr = curr->children[bit];
+        } else {
+          // take complentary path and since a different number is added, add to
+          // the max_value
+          max_value += (1 << i);
+          curr = curr->children[comp_bit];
+        }
+      }
+      res = max(res, max_value);
+    }
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

@@ -1,16 +1,19 @@
 /*
 814. Binary Tree Pruning
-We are given the head node root of a binary tree, where additionally every node's value is either a 0 or a 1.
+We are given the head node root of a binary tree, where additionally every
+node's value is either a 0 or a 1.
 
-Return the same tree where every subtree (of the given tree) not containing a 1 has been removed.
+Return the same tree where every subtree (of the given tree) not containing a 1
+has been removed.
 
-(Recall that the subtree of a node X is X, plus every node that is a descendant of X.)
+(Recall that the subtree of a node X is X, plus every node that is a descendant
+of X.)
 
 Example 1:
 Input: [1,null,0,0,1]
 Output: [1,null,0,null,1]
- 
-Explanation: 
+ 
+Explanation:
 Only the red nodes satisfy the property "every subtree not containing a 1".
 The diagram on the right represents the answer.
 
@@ -41,31 +44,38 @@ The value of each node will only be 0 or 1.
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    bool HasOne(TreeNode* root) {
-        if(root == NULL) return false;
-        bool l = HasOne(root->left);
-        bool r = HasOne(root->right);
-        
-        if(!l) { delete root->left; root->left = NULL; }
-        if(!r) { delete root->right; root->right = NULL; }
-        
-        return root->val == 1 || l || r;
+ public:
+  bool HasOne(TreeNode* root) {
+    if (root == NULL) return false;
+    bool l = HasOne(root->left);
+    bool r = HasOne(root->right);
+
+    if (!l) {
+      delete root->left;
+      root->left = NULL;
     }
-    
-    TreeNode* pruneTree(TreeNode* root) {
-        if(!HasOne(root)) { delete root; return NULL; }
-        return root;
+    if (!r) {
+      delete root->right;
+      root->right = NULL;
     }
+
+    return root->val == 1 || l || r;
+  }
+
+  TreeNode* pruneTree(TreeNode* root) {
+    if (!HasOne(root)) {
+      delete root;
+      return NULL;
+    }
+    return root;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

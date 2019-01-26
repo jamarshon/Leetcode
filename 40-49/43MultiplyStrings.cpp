@@ -1,6 +1,6 @@
 /*
 43. Multiply Strings
-Given two non-negative integers num1 and num2 represented as strings, return the 
+Given two non-negative integers num1 and num2 represented as strings, return the
 product of num1 and num2.
 
 Note:
@@ -8,8 +8,8 @@ Note:
 The length of both num1 and num2 is < 110.
 Both num1 and num2 contains only digits 0-9.
 Both num1 and num2 does not contain any leading zero.
-You must not use any built-in BigInteger library or convert the inputs to integer 
-directly.
+You must not use any built-in BigInteger library or convert the inputs to
+integer directly.
 
 /*
     Submission Date: 2017-06-19
@@ -23,74 +23,75 @@ directly.
 using namespace std;
 
 class Solution {
-    unordered_map<char, string> m;
-public:
-    string multiply_d(string num1, char d) {
-        if(m.count(d)) return m[d];
+  unordered_map<char, string> m;
 
-        string res;
-        int carry = 0;
+ public:
+  string multiply_d(string num1, char d) {
+    if (m.count(d)) return m[d];
 
-        int d_n = d - '0';
-        for(int i = num1.size() - 1; i >= 0; i--) {
-            int c = num1[i] - '0';
-            int temp = carry + c*d_n;
-            res = to_string(temp % 10) + res;
-            carry = temp / 10;
-        }
+    string res;
+    int carry = 0;
 
-        if(carry > 0) res = to_string(carry) + res;
-        return m[d] = res;
+    int d_n = d - '0';
+    for (int i = num1.size() - 1; i >= 0; i--) {
+      int c = num1[i] - '0';
+      int temp = carry + c * d_n;
+      res = to_string(temp % 10) + res;
+      carry = temp / 10;
     }
 
-    string add(string num1, string num2, int offset) {
-        int M = num1.size();
-        int N = num2.size();
+    if (carry > 0) res = to_string(carry) + res;
+    return m[d] = res;
+  }
 
-        string res = num2;
+  string add(string num1, string num2, int offset) {
+    int M = num1.size();
+    int N = num2.size();
 
-        while(N++ < offset) res = "0" + res;
+    string res = num2;
 
-        N = num2.size();
-        int carry = 0;
-        int index = N - offset - 1;
-        for(int i = M - 1; i >= 0; i--) {
-            if(index < 0) {
-                int temp = carry + (num1[i] - '0');
-                res = to_string(temp % 10) + res;
-                carry = temp / 10;
-            } else {
-                int temp = carry + (num1[i] - '0') + (num2[index] - '0');
-                res[index] = (temp % 10) + '0';
-                carry = temp / 10;
-            }
-            index--;
-        }
+    while (N++ < offset) res = "0" + res;
 
-        if(carry > 0) res = to_string(carry) + res;
-        return res;
+    N = num2.size();
+    int carry = 0;
+    int index = N - offset - 1;
+    for (int i = M - 1; i >= 0; i--) {
+      if (index < 0) {
+        int temp = carry + (num1[i] - '0');
+        res = to_string(temp % 10) + res;
+        carry = temp / 10;
+      } else {
+        int temp = carry + (num1[i] - '0') + (num2[index] - '0');
+        res[index] = (temp % 10) + '0';
+        carry = temp / 10;
+      }
+      index--;
     }
 
-    string multiply(string num1, string num2) {
-        if(num1.size() > num2.size()) swap(num1, num2);
+    if (carry > 0) res = to_string(carry) + res;
+    return res;
+  }
 
-        if(num1 == "0") return "0";
+  string multiply(string num1, string num2) {
+    if (num1.size() > num2.size()) swap(num1, num2);
 
-        int M = num1.size();
-        int N = num2.size();
+    if (num1 == "0") return "0";
 
-        string res = "0";
-        for(int i = N - 1; i >= 0; i--) {
-            if(num2[i] == '0') continue;
-            string mul = multiply_d(num1, num2[i]);
-            res = add(mul, res, N - 1 - i);
-        }
+    int M = num1.size();
+    int N = num2.size();
 
-        return res;
+    string res = "0";
+    for (int i = N - 1; i >= 0; i--) {
+      if (num2[i] == '0') continue;
+      string mul = multiply_d(num1, num2[i]);
+      res = add(mul, res, N - 1 - i);
     }
+
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

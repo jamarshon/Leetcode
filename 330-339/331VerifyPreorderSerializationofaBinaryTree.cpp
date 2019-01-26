@@ -1,7 +1,8 @@
 /*
 331. Verify Preorder Serialization of a Binary Tree
-One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, 
-we record the node's value. If it is a null node, we record using a sentinel value such as #.
+One way to serialize a binary tree is to use pre-order traversal. When we
+encounter a non-null node, we record the node's value. If it is a null node, we
+record using a sentinel value such as #.
 
      _9_
     /   \
@@ -10,17 +11,18 @@ we record the node's value. If it is a null node, we record using a sentinel val
  4   1  #  6
 / \ / \   / \
 # # # #   # #
-For example, the above binary tree can be serialized to the string "9,3,4,#,#,1,#,#,2,#,6,#,#", 
-where # represents a null node.
+For example, the above binary tree can be serialized to the string
+"9,3,4,#,#,1,#,#,2,#,6,#,#", where # represents a null node.
 
-Given a string of comma separated values, verify whether it is a correct preorder traversal 
-serialization of a binary tree. Find an algorithm without reconstructing the tree.
+Given a string of comma separated values, verify whether it is a correct
+preorder traversal serialization of a binary tree. Find an algorithm without
+reconstructing the tree.
 
-Each comma separated value in the string must be either an integer or a character '#' 
-representing null pointer.
+Each comma separated value in the string must be either an integer or a
+character '#' representing null pointer.
 
-You may assume that the input format is always valid, for example it could never contain 
-two consecutive commas such as "1,,3".
+You may assume that the input format is always valid, for example it could never
+contain two consecutive commas such as "1,,3".
 
 Example 1:
 "9,3,4,#,#,1,#,#,2,#,6,#,#"
@@ -44,24 +46,22 @@ Return false
 using namespace std;
 
 class Solution {
-public:
-    bool isValidSerialization(string preorder) {
-        int count = 0;
-        stringstream ss(preorder);
-        string temp;
-        while(getline(ss, temp, ',')) {
-            if(count < 0) return false;
-            if(temp == "#") {
-                count--;
-            } else {
-                count++;
-            }
-        }
-        
-        return count == -1;
+ public:
+  bool isValidSerialization(string preorder) {
+    int count = 0;
+    stringstream ss(preorder);
+    string temp;
+    while (getline(ss, temp, ',')) {
+      if (count < 0) return false;
+      if (temp == "#") {
+        count--;
+      } else {
+        count++;
+      }
     }
+
+    return count == -1;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

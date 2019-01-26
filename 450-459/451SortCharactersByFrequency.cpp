@@ -1,7 +1,7 @@
 /*
 451. Sort Characters By Frequency
-Given a string, sort it in decreasing order based on the frequency of 
-characters. 
+Given a string, sort it in decreasing order based on the frequency of
+characters.
 
 Example 1:
 Input:
@@ -12,8 +12,8 @@ Output:
 
 Explanation:
 'e' appears twice while 'r' and 't' both appear once.
-So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid 
-answer. 
+So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid
+answer.
 
 
 
@@ -46,24 +46,25 @@ Note that 'A' and 'a' are treated as two different characters.
     Runtime: 201 ms
     Difficulty: MEDIUM
 */
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <unordered_map>
 
 using namespace std;
 
 class Solution {
-public:
-    string frequencySort(string s) {
-        unordered_map<char, int> letter_to_freq;
-        for(const auto& c: s) letter_to_freq[c]++;
-        sort(s.begin(), s.end(), [&letter_to_freq](const char& lhs, const char& rhs) {
-            return letter_to_freq[lhs] == letter_to_freq[rhs] ? lhs > rhs : letter_to_freq[lhs] > letter_to_freq[rhs];
-        });
-        return s;
-    }
+ public:
+  string frequencySort(string s) {
+    unordered_map<char, int> letter_to_freq;
+    for (const auto& c : s) letter_to_freq[c]++;
+    sort(s.begin(), s.end(),
+         [&letter_to_freq](const char& lhs, const char& rhs) {
+           return letter_to_freq[lhs] == letter_to_freq[rhs]
+                      ? lhs > rhs
+                      : letter_to_freq[lhs] > letter_to_freq[rhs];
+         });
+    return s;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

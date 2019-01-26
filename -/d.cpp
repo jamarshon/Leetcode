@@ -1,22 +1,22 @@
+#include <algorithm>
 #include <bitset>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <deque>
-#include <list>
-#include <unordered_map>
-#include <map>
-#include <unordered_set>
-#include <set>
-#include <stack>
-#include <queue>
 #include <cassert>
 #include <cctype>
 #include <climits>
 #include <cmath>
-#include <algorithm>
+#include <deque>
 #include <functional>
- 
+#include <iostream>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 using namespace std;
 
 #define vt vector
@@ -26,100 +26,111 @@ using namespace std;
 typedef long long ll;
 
 struct Compare {
-    bool operator()(const int& left, const int& right) const { return left < right; }
+  bool operator()(const int& left, const int& right) const {
+    return left < right;
+  }
 };
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 void preorder(TreeNode* root) {
-    if(root == NULL) {
-        cout << "NULL ";
-        return;
-    }
-    cout << root -> val << ' ';
-    preorder(root -> left);
-    preorder(root -> right);
+  if (root == NULL) {
+    cout << "NULL ";
+    return;
+  }
+  cout << root->val << ' ';
+  preorder(root->left);
+  preorder(root->right);
 }
 
 // level order
-string serialize(TreeNode* node){
-    queue<TreeNode*> q;
-    q.push(node);
-    string res = "";
-    while(!q.empty()) {
-        TreeNode* curr = q.front();
-        q.pop();
-        if(!res.empty()) res += ",";
-        res += curr == NULL ? "null" : to_string(curr->val);
-        if(curr) {
-            q.push(curr->left);
-            q.push(curr->right);
-        }
+string serialize(TreeNode* node) {
+  queue<TreeNode*> q;
+  q.push(node);
+  string res = "";
+  while (!q.empty()) {
+    TreeNode* curr = q.front();
+    q.pop();
+    if (!res.empty()) res += ",";
+    res += curr == NULL ? "null" : to_string(curr->val);
+    if (curr) {
+      q.push(curr->left);
+      q.push(curr->right);
     }
-    return res;
+  }
+  return res;
 }
 
 TreeNode* deserialize(string s) {
-    if(s.front() == '[' && s.back() == ']') s = s.substr(1, s.size() - 2);
-    else if(s.front() == '{' && s.back() == '}') s = s.substr(1, s.size() - 2);
-    stringstream ss(s);
-    string temp;
+  if (s.front() == '[' && s.back() == ']')
+    s = s.substr(1, s.size() - 2);
+  else if (s.front() == '{' && s.back() == '}')
+    s = s.substr(1, s.size() - 2);
+  stringstream ss(s);
+  string temp;
 
-    vector<TreeNode*> nodes;
-    while(getline(ss, temp, ',')) {
-        if(temp == "null") nodes.push_back(NULL);
-        else nodes.push_back(new TreeNode(stoi(temp)));
-    }
+  vector<TreeNode*> nodes;
+  while (getline(ss, temp, ',')) {
+    if (temp == "null")
+      nodes.push_back(NULL);
+    else
+      nodes.push_back(new TreeNode(stoi(temp)));
+  }
 
-    TreeNode* root = nodes[0];
-    int N = nodes.size();
-    int curr = 0;
-    for(int i = 1;  i < N; i += 2) {
-        while(curr < N && nodes[curr] == NULL) curr++;
-        nodes[curr]->left = nodes[i];
-        if(i + 1 < N) nodes[curr]->right = nodes[i+1];
-        curr++;
-    }
-    return root;
+  TreeNode* root = nodes[0];
+  int N = nodes.size();
+  int curr = 0;
+  for (int i = 1; i < N; i += 2) {
+    while (curr < N && nodes[curr] == NULL) curr++;
+    nodes[curr]->left = nodes[i];
+    if (i + 1 < N) nodes[curr]->right = nodes[i + 1];
+    curr++;
+  }
+  return root;
 }
 
 void fix(string arr) {
-    replace(arr.begin(), arr.end(), '[', '{');
-    replace(arr.begin(), arr.end(), ']', '}');
-    cout << arr << endl;
+  replace(arr.begin(), arr.end(), '[', '{');
+  replace(arr.begin(), arr.end(), ']', '}');
+  cout << arr << endl;
 }
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
 ListNode* tolist(const vector<int>& v) {
-    ListNode* head = NULL, *curr = NULL;
-    for(const auto& n: v) {
-        if(curr == NULL) {
-            curr = new ListNode(n);
-            head = curr;
-        } else {
-            curr->next = new ListNode(n);
-            curr = curr->next;
-        }
+  ListNode *head = NULL, *curr = NULL;
+  for (const auto& n : v) {
+    if (curr == NULL) {
+      curr = new ListNode(n);
+      head = curr;
+    } else {
+      curr->next = new ListNode(n);
+      curr = curr->next;
     }
+  }
 
-    return head;
+  return head;
 }
 
 template <typename T>
-void print(vector<T> v) { for(auto e: v) cout << e << ' '; cout << endl; }
+void print(vector<T> v) {
+  for (auto e : v) cout << e << ' ';
+  cout << endl;
+}
 
-template <typename T> 
-void print2(vector<vector<T>> v) { for(auto v2: v) print(v2); }
+template <typename T>
+void print2(vector<vector<T>> v) {
+  for (auto v2 : v) print(v2);
+}
 
 /*
 void preorder(TreeNode* root)
@@ -132,97 +143,97 @@ void print2(vector<vector<T>> v)
 */
 
 void f(const vector<string>& s) {
-    double s1 = 0;
-    double s2 = 0;
+  double s1 = 0;
+  double s2 = 0;
 
-    for(const auto& e: s) {
-        string f = e.substr(e.find(' ') + 1);
-        int ind = f.find('/');
+  for (const auto& e : s) {
+    string f = e.substr(e.find(' ') + 1);
+    int ind = f.find('/');
 
-        double x = stod(f.substr(0, ind));
-        double y = stod(f.substr(ind + 1));
-        cout << x << ' ' << y << endl;
-        s1 += x;
-        s2 += y;
-    }    
+    double x = stod(f.substr(0, ind));
+    double y = stod(f.substr(ind + 1));
+    cout << x << ' ' << y << endl;
+    s1 += x;
+    s2 += y;
+  }
 
-    cout << "s1= " << s1 << ' ' << s2 << endl;
+  cout << "s1= " << s1 << ' ' << s2 << endl;
 }
-
 
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v) {
-    std::hash<T> hasher;
-    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 struct Hash {
-    template <typename T, typename U>
-    size_t operator()(const pair<T, U>& p) const {
-        size_t seed = 0;
-        hash_combine(seed, p.first);
-        hash_combine(seed, p.second);
-        return seed;
-    }
+  template <typename T, typename U>
+  size_t operator()(const pair<T, U>& p) const {
+    size_t seed = 0;
+    hash_combine(seed, p.first);
+    hash_combine(seed, p.second);
+    return seed;
+  }
 };
 
 bool IsPrime(int n) {
-    if(n < 2) return false;
-    for(int i = 2; i <= n/i; i++) if(n % i == 0) return false;
-    return true;
+  if (n < 2) return false;
+  for (int i = 2; i <= n / i; i++)
+    if (n % i == 0) return false;
+  return true;
 }
 
 class Solution {
-public:
-    int minRefuelStops(int target, int startFuel, vector<vector<int>>& s) {
-        vector<vector<int>> stations;
-        stations.push_back({0, 0});
-        for(const auto& v: s) stations.push_back(v);
-        stations.push_back({target, 0});
-        
-        int N = stations.size();
-        vector<unordered_map<int,int>> dp(N);
-        dp[0][startFuel] = 0; 
-        for(int i = 0; i < N; i++) {
-            for(auto battery_to_min: dp[i]) {
-                int battery = battery_to_min.first;
-                
-                // dont use station i
-                for(int j = i + 1; j < N; j++) {
-                    int rem = battery - (stations[j][0] - stations[i][0]);
-                    if(rem < 0) break;
-                    if(!dp[j].count(rem) || dp[j][rem] > battery_to_min.second)
-                        dp[j][rem] = battery_to_min.second;
-                }
-                
-                // use station i
-                for(int j = i + 1; j < N; j++) {
-                    int rem = battery - (stations[j][0] - stations[i][0]);
-                    if(rem < 0) break;
-                    rem += stations[j][1];
-                    if(!dp[j].count(rem) || dp[j][rem] > battery_to_min.second + 1)
-                        dp[j][rem] = battery_to_min.second + 1;
-                }
-            }
+ public:
+  int minRefuelStops(int target, int startFuel, vector<vector<int>>& s) {
+    vector<vector<int>> stations;
+    stations.push_back({0, 0});
+    for (const auto& v : s) stations.push_back(v);
+    stations.push_back({target, 0});
+
+    int N = stations.size();
+    vector<unordered_map<int, int>> dp(N);
+    dp[0][startFuel] = 0;
+    for (int i = 0; i < N; i++) {
+      for (auto battery_to_min : dp[i]) {
+        int battery = battery_to_min.first;
+
+        // dont use station i
+        for (int j = i + 1; j < N; j++) {
+          int rem = battery - (stations[j][0] - stations[i][0]);
+          if (rem < 0) break;
+          if (!dp[j].count(rem) || dp[j][rem] > battery_to_min.second)
+            dp[j][rem] = battery_to_min.second;
         }
-        
-        int res = INT_MAX;
-        for(auto battery_to_min: dp[N-1]) {
-            res = min(res, battery_to_min.second);
+
+        // use station i
+        for (int j = i + 1; j < N; j++) {
+          int rem = battery - (stations[j][0] - stations[i][0]);
+          if (rem < 0) break;
+          rem += stations[j][1];
+          if (!dp[j].count(rem) || dp[j][rem] > battery_to_min.second + 1)
+            dp[j][rem] = battery_to_min.second + 1;
         }
-        return res == INT_MAX ? -1 : res;
+      }
     }
+
+    int res = INT_MAX;
+    for (auto battery_to_min : dp[N - 1]) {
+      res = min(res, battery_to_min.second);
+    }
+    return res == INT_MAX ? -1 : res;
+  }
 };
 int main() {
- int target = 1, startFuel = 1; vector<vector<int>> stations = {};
- // 0
- // int target = 100, startFuel = 1; vector<vector<int>> stations = {{10,100}};
- // -1
- // int target = 100, startFuel = 10; vector<vector<int>> stations = {{10,60},{20,30},{30,30},{60,40}};
- // 2
-    Solution s;
-    cout << s.minRefuelStops(target, startFuel, stations) << endl;
-    return 0;
+  int target = 1, startFuel = 1;
+  vector<vector<int>> stations = {};
+  // 0
+  // int target = 100, startFuel = 1; vector<vector<int>> stations = {{10,100}};
+  // -1
+  // int target = 100, startFuel = 10; vector<vector<int>> stations =
+  // {{10,60},{20,30},{30,30},{60,40}};
+  // 2
+  Solution s;
+  cout << s.minRefuelStops(target, startFuel, stations) << endl;
+  return 0;
 }
-
-

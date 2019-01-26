@@ -15,27 +15,25 @@ Could you do this in-place?
 using namespace std;
 #include <vector>
 class Solution {
-public:
-    int replace(int value, int i, int j, vector<vector<int>>& matrix) {
-    	int prev = matrix[i][j];
-    	matrix[i][j] = value;
-    	return prev;
-    }
+ public:
+  int replace(int value, int i, int j, vector<vector<int>>& matrix) {
+    int prev = matrix[i][j];
+    matrix[i][j] = value;
+    return prev;
+  }
 
-    void rotate(vector<vector<int>>& matrix) {
-        int n = matrix[0].size();
-    	for(int i = 0, numLayers = n / 2; i < numLayers; i++) {
-    		for(int j = i, rightBoundary = n - i - 1; j < rightBoundary; j++) {
-    			int temp =  matrix[n- j - 1][i];
-    			temp = replace(temp, i, j, matrix);
-                temp = replace(temp, j, n - i - 1, matrix);
-                temp = replace(temp, n - i - 1, n - j - 1, matrix);
-                temp = replace(temp, n - j - 1, i, matrix);
-    		}
-    	}
+  void rotate(vector<vector<int>>& matrix) {
+    int n = matrix[0].size();
+    for (int i = 0, numLayers = n / 2; i < numLayers; i++) {
+      for (int j = i, rightBoundary = n - i - 1; j < rightBoundary; j++) {
+        int temp = matrix[n - j - 1][i];
+        temp = replace(temp, i, j, matrix);
+        temp = replace(temp, j, n - i - 1, matrix);
+        temp = replace(temp, n - i - 1, n - j - 1, matrix);
+        temp = replace(temp, n - j - 1, i, matrix);
+      }
     }
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

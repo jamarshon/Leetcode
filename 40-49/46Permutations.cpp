@@ -25,35 +25,36 @@ For example,
 using namespace std;
 
 class Solution {
-    void permuteHelper(vector<int>& nums, int index, vector<vector<int>>& res) {
-        int len = nums.size();
+  void permuteHelper(vector<int>& nums, int index, vector<vector<int>>& res) {
+    int len = nums.size();
 
-        if(index == len - 1) {
-            res.push_back(nums);
-            return;
-        }
+    if (index == len - 1) {
+      res.push_back(nums);
+      return;
+    }
 
-        for(int i = index; i < len; i++) {
-            swap(nums[i], nums[index]);
-            permuteHelper(nums, index + 1, res);
-            swap(nums[i], nums[index]);
-        }
+    for (int i = index; i < len; i++) {
+      swap(nums[i], nums[index]);
+      permuteHelper(nums, index + 1, res);
+      swap(nums[i], nums[index]);
     }
-public:
-    vector<vector<int>> permute(vector<int>& nums) {
-        vector<vector<int>> res;
-        permuteHelper(nums, 0, res);
-        return res;
-    }
+  }
+
+ public:
+  vector<vector<int>> permute(vector<int>& nums) {
+    vector<vector<int>> res;
+    permuteHelper(nums, 0, res);
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    vector<int> v{1,2,3};
-    vector<vector<int>> p = s.permute(v);
-    for(auto v2: p) {
-        for(auto e: v2) cout << e << ' ';
-        cout << endl;
-    }
-    return 0;
+  Solution s;
+  vector<int> v{1, 2, 3};
+  vector<vector<int>> p = s.permute(v);
+  for (auto v2 : p) {
+    for (auto e : v2) cout << e << ' ';
+    cout << endl;
+  }
+  return 0;
 }

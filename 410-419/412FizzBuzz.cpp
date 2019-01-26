@@ -2,8 +2,9 @@
 412. Fizz Buzz
 Write a program that outputs the string representation of numbers from 1 to n.
 
-But for multiples of three it should output “Fizz” instead of the number and for the multiples of five output “Buzz”. 
-For numbers which are multiples of both three and five output “FizzBuzz”.
+But for multiples of three it should output “Fizz” instead of the number and for
+the multiples of five output “Buzz”. For numbers which are multiples of both
+three and five output “FizzBuzz”.
 
 Example:
 
@@ -38,21 +39,19 @@ Return:
 using namespace std;
 
 class Solution {
-public:
-    vector<string> fizzBuzz(int n) {
-        vector<string> res;
-        for(int i = 1; i <= n; i++) {
-            string s = "";
-            if(i % 3 == 0) s += "Fizz";
-            if(i % 5 == 0) s += "Buzz";
-            if(s.empty()) s = to_string(i);
-            res.push_back(s);
-        }
-        
-        return res;
+ public:
+  vector<string> fizzBuzz(int n) {
+    vector<string> res;
+    for (int i = 1; i <= n; i++) {
+      string s = "";
+      if (i % 3 == 0) s += "Fizz";
+      if (i % 5 == 0) s += "Buzz";
+      if (s.empty()) s = to_string(i);
+      res.push_back(s);
     }
+
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

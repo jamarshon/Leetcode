@@ -1,35 +1,35 @@
 /*
 817. Linked List Components
-We are given head, the head node of a linked list containing unique integer 
-values. 
+We are given head, the head node of a linked list containing unique integer
+values.
 
 We are also given the list G, a subset of the values in the linked list.
 
-Return the number of connected components in G, where two values are connected 
-if they appear consecutively in the linked list. 
+Return the number of connected components in G, where two values are connected
+if they appear consecutively in the linked list.
 
 Example 1:
 
-Input: 
+Input:
 head: 0->1->2->3
 G = [0, 1, 3]
 Output: 2
-Explanation: 
+Explanation:
 0 and 1 are connected, so [0, 1] and [3] are the two connected components.
 
 
 Example 2:
 
-Input: 
+Input:
 head: 0->1->2->3->4
 G = [0, 3, 1, 4]
 Output: 2
-Explanation: 
-0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two 
-connected components. 
+Explanation:
+0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two
+connected components.
 
 
-Note: 
+Note:
 
 
     If N is the length of the linked list given by head, 1 <= N <= 10000.
@@ -43,42 +43,40 @@ Note:
     Difficulty: MEDIUM
 */
 #include <iostream>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 using namespace std;
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
-public:
-    int numComponents(ListNode* head, vector<int>& G) {
-        unordered_set<int> G_set(G.begin(), G.end());
-        ListNode* curr = head;
-        int res = 0;
-        while(curr) {
-            // looking for the start of a component
-            while(curr && !G_set.count(curr->val)) {
-                curr = curr->next;
-            }
-            
-            if(curr) {
-                res++;
-                // looking for the end of a component
-                while(curr && G_set.count(curr->val)) {
-                    curr = curr->next;
-                }
-            }
+ public:
+  int numComponents(ListNode* head, vector<int>& G) {
+    unordered_set<int> G_set(G.begin(), G.end());
+    ListNode* curr = head;
+    int res = 0;
+    while (curr) {
+      // looking for the start of a component
+      while (curr && !G_set.count(curr->val)) {
+        curr = curr->next;
+      }
+
+      if (curr) {
+        res++;
+        // looking for the end of a component
+        while (curr && G_set.count(curr->val)) {
+          curr = curr->next;
         }
-        
-        return res;
+      }
     }
+
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

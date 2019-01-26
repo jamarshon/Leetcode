@@ -1,6 +1,6 @@
 /*
 240. Search a 2D Matrix II
-Write an efficient algorithm that searches for a value in an m x n matrix. 
+Write an efficient algorithm that searches for a value in an m x n matrix.
 This matrix has the following properties:
 
 Integers in each row are sorted in ascending from left to right.
@@ -30,28 +30,28 @@ Given target = 20, return false.
 using namespace std;
 
 class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        if(matrix.empty()) return false;
-        int M = matrix.size();
-        int N = matrix.front().size();
-        
-        int i = 0;
-        int j = N - 1;
-        while(i < M && j >= 0) {
-            if(matrix[i][j] == target) return true;
-            if(matrix[i][j] > target) { // smaller than everything in this column 
-                j--;
-            } else if(matrix[i][j] < target) { // bigger than everything in this row
-                i++;
-            }
-        }
-        
-        return false;
+ public:
+  bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    if (matrix.empty()) return false;
+    int M = matrix.size();
+    int N = matrix.front().size();
+
+    int i = 0;
+    int j = N - 1;
+    while (i < M && j >= 0) {
+      if (matrix[i][j] == target) return true;
+      if (matrix[i][j] > target) {  // smaller than everything in this column
+        j--;
+      } else if (matrix[i][j] < target) {  // bigger than everything in this row
+        i++;
+      }
     }
+
+    return false;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

@@ -16,42 +16,40 @@ using namespace std;
 #include <iostream>
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
- 
-class Solution {
-public:
-    ListNode* rotateRight(ListNode* head, int k) {
-        if(k == 0 || head == NULL) return head;
-        
-        ListNode* current = head;
-        ListNode* lastNode;
-        int len = 0;
-        while(current != NULL) {
-            len++;
-            lastNode = current;
-            current = current -> next;
-        }
-        
-        k %= len;
-        if(k == 0) return head;
-        
-        int target = len - k;
-        ListNode* kLast = head;
-        while(--target) {
-            kLast = kLast -> next;
-        }
-        
-        ListNode* newHead = kLast -> next;
-        kLast -> next = NULL;
-        lastNode -> next = head;
-        
-        return newHead;
-    }
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
-int main() {
-	return 0;
-}
+class Solution {
+ public:
+  ListNode* rotateRight(ListNode* head, int k) {
+    if (k == 0 || head == NULL) return head;
+
+    ListNode* current = head;
+    ListNode* lastNode;
+    int len = 0;
+    while (current != NULL) {
+      len++;
+      lastNode = current;
+      current = current->next;
+    }
+
+    k %= len;
+    if (k == 0) return head;
+
+    int target = len - k;
+    ListNode* kLast = head;
+    while (--target) {
+      kLast = kLast->next;
+    }
+
+    ListNode* newHead = kLast->next;
+    kLast->next = NULL;
+    lastNode->next = head;
+
+    return newHead;
+  }
+};
+
+int main() { return 0; }

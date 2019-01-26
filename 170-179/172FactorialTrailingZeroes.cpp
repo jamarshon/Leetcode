@@ -10,19 +10,17 @@ Note: Your solution should be in logarithmic time complexity.
     Difficulty: EASY
 */
 
-#include <iostream>
-#include <cctype>
 #include <algorithm>
+#include <cctype>
+#include <iostream>
 
 using namespace std;
 
 class Solution {
-public:
-    int trailingZeroes(int n) {
-        return n == 0 ? 0 : n/5 + trailingZeroes(n/5);
-    }
+ public:
+  int trailingZeroes(int n) {
+    return n == 0 ? 0 : n / 5 + trailingZeroes(n / 5);
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

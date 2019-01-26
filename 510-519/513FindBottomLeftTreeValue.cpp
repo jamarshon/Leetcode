@@ -11,7 +11,7 @@ Input:
 
 Output:
 1
-Example 2: 
+Example 2:
 Input:
 
         1
@@ -36,35 +36,33 @@ Note: You may assume the tree (i.e., the given root node) is not NULL.
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    int findBottomLeftValue(TreeNode* root) {
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        TreeNode* res =  NULL;
-        while(!q.empty()) {
-            res = q.front();
-            
-            int level = q.size();
-            for(int i = 0; i < level; i++) {
-                TreeNode* node = q.front();
-                q.pop();
-                if(node->left) q.push(node->left);
-                if(node->right) q.push(node->right);
-            }
-        }
-        
-        return res->val;
+ public:
+  int findBottomLeftValue(TreeNode* root) {
+    queue<TreeNode*> q;
+    q.push(root);
+
+    TreeNode* res = NULL;
+    while (!q.empty()) {
+      res = q.front();
+
+      int level = q.size();
+      for (int i = 0; i < level; i++) {
+        TreeNode* node = q.front();
+        q.pop();
+        if (node->left) q.push(node->left);
+        if (node->right) q.push(node->right);
+      }
     }
+
+    return res->val;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

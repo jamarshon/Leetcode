@@ -1,8 +1,8 @@
 /*
 704. Binary Search
-Given a sorted (in ascending order) integer array nums of n elements and a 
-target value, write a function to search target in nums. If target exists, then 
-return its index, otherwise return -1. 
+Given a sorted (in ascending order) integer array nums of n elements and a
+target value, write a function to search target in nums. If target exists, then
+return its index, otherwise return -1.
 
 
 Example 1:
@@ -40,21 +40,22 @@ Note:
 using namespace std;
 
 class Solution {
-public:
-    int search(vector<int>& nums, int target) {
-        int low = 0;
-        int high = nums.size() - 1;
-        while(low <= high) {
-            int mid = low + (high - low)/2;
-            if(nums[mid] == target) return mid;
-            else if(nums[mid] > target) high = mid - 1;
-            else low = mid + 1;
-        }
-        
-        return -1;
+ public:
+  int search(vector<int>& nums, int target) {
+    int low = 0;
+    int high = nums.size() - 1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      if (nums[mid] == target)
+        return mid;
+      else if (nums[mid] > target)
+        high = mid - 1;
+      else
+        low = mid + 1;
     }
+
+    return -1;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

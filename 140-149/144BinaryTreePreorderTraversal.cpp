@@ -19,38 +19,38 @@ Note: Recursive solution is trivial, could you do it iteratively?
     Difficulty: MEDIUM
 */
 #include <iostream>
-#include <vector>
 #include <stack>
+#include <vector>
 
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    vector<int> preorderTraversal(TreeNode* root) {
-        stack<TreeNode*> st{{root}};
-        vector<int> res;
-        while(!st.empty()) {
-            TreeNode* top = st.top();
-            st.pop();
+ public:
+  vector<int> preorderTraversal(TreeNode* root) {
+    stack<TreeNode*> st{{root}};
+    vector<int> res;
+    while (!st.empty()) {
+      TreeNode* top = st.top();
+      st.pop();
 
-            if(top == NULL) continue;
-            res.push_back(top -> val);
-            st.push(top -> right);
-            st.push(top -> left);
-        }
-
-        return res;
+      if (top == NULL) continue;
+      res.push_back(top->val);
+      st.push(top->right);
+      st.push(top->left);
     }
+
+    return res;
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

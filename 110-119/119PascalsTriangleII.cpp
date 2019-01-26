@@ -20,21 +20,19 @@ Could you optimize your algorithm to use only O(k) extra space?
 using namespace std;
 
 class Solution {
-public:
-    vector<int> getRow(int rowIndex) {
-        vector<int> res(rowIndex + 1);
+ public:
+  vector<int> getRow(int rowIndex) {
+    vector<int> res(rowIndex + 1);
 
-        res[0] = 1;
-        long long prev = 1;
-        for(int i = 1; i < res.size(); i++) {
-            res[i] = prev*(rowIndex-i+1)/i;
-            prev = res[i];
-        }
-
-        return res;
+    res[0] = 1;
+    long long prev = 1;
+    for (int i = 1; i < res.size(); i++) {
+      res[i] = prev * (rowIndex - i + 1) / i;
+      prev = res[i];
     }
+
+    return res;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

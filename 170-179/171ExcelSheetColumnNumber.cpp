@@ -1,6 +1,7 @@
 /*
 171. Excel Sheet Column Number
-Given a column title as appear in an Excel sheet, return its corresponding column number.
+Given a column title as appear in an Excel sheet, return its corresponding
+column number.
 
 For example:
 
@@ -10,7 +11,7 @@ For example:
     ...
     Z -> 26
     AA -> 27
-    AB -> 28 
+    AB -> 28
 
 /*
     Submission Date: 2017-07-26
@@ -23,12 +24,12 @@ For example:
 using namespace std;
 
 class Solution {
-public:
-    int titleToNumber(string s) {
-        return s == "" ? 0 : titleToNumber(s.substr(0, s.size() - 1))*26 + (s[s.size()-1] - 'A' + 1);
-    }
+ public:
+  int titleToNumber(string s) {
+    return s == "" ? 0
+                   : titleToNumber(s.substr(0, s.size() - 1)) * 26 +
+                         (s[s.size() - 1] - 'A' + 1);
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

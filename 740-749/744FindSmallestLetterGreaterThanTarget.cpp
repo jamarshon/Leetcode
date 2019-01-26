@@ -1,9 +1,11 @@
 /*
 744. Find Smallest Letter Greater Than Target
-Given a list of sorted characters letters containing only lowercase letters, and given a target letter target, find the 
-smallest element in the list that is larger than the given target.
+Given a list of sorted characters letters containing only lowercase letters, and
+given a target letter target, find the smallest element in the list that is
+larger than the given target.
 
-Letters also wrap around. For example, if the target is target = 'z' and letters = ['a', 'b'], the answer is 'a'.
+Letters also wrap around. For example, if the target is target = 'z' and letters
+= ['a', 'b'], the answer is 'a'.
 
 Examples:
 Input:
@@ -50,24 +52,22 @@ target is a lowercase letter.
 using namespace std;
 
 class Solution {
-public:
-    char nextGreatestLetter(vector<char>& letters, char target) {
-        int low = 0;
-        int high = letters.size() - 1;
-        while(low <= high) {
-            int mid = low + (high - low)/2;
-            if(letters[mid] > target) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-        
-        if(low == letters.size()) return letters[0];
-        return letters[low];
+ public:
+  char nextGreatestLetter(vector<char>& letters, char target) {
+    int low = 0;
+    int high = letters.size() - 1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      if (letters[mid] > target) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
     }
+
+    if (low == letters.size()) return letters[0];
+    return letters[low];
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

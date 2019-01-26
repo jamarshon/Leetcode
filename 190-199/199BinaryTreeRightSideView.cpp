@@ -1,7 +1,7 @@
 /*
 199. Binary Tree Right Side View
-Given a binary tree, imagine yourself standing on the right side of it, return the values of the nodes 
-you can see ordered from top to bottom.
+Given a binary tree, imagine yourself standing on the right side of it, return
+the values of the nodes you can see ordered from top to bottom.
 
 For example:
 Given the following binary tree,
@@ -23,32 +23,32 @@ You should return [1, 3, 4].
 using namespace std;
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
-public:
-    vector<int> rightSideView(TreeNode* root) {
-        vector<int> res;
-        rightSideView(root, res, 0);
-        return res;
+ public:
+  vector<int> rightSideView(TreeNode* root) {
+    vector<int> res;
+    rightSideView(root, res, 0);
+    return res;
+  }
+
+  void rightSideView(TreeNode* root, vector<int>& res, int depth) {
+    if (root == NULL) return;
+    if (res.size() <= depth) {
+      res.push_back(root->val);
     }
-    
-    void rightSideView(TreeNode* root, vector<int>& res, int depth) {
-        if(root == NULL) return;
-        if(res.size() <= depth) {
-            res.push_back(root -> val);
-        }
-        
-        rightSideView(root -> right, res, depth + 1);
-        rightSideView(root -> left, res, depth + 1);
-    }
+
+    rightSideView(root->right, res, depth + 1);
+    rightSideView(root->left, res, depth + 1);
+  }
 };
 
 int main() {
-    Solution s;
-    return 0;
+  Solution s;
+  return 0;
 }

@@ -1,6 +1,7 @@
 /*
 160. Intersection of Two Linked Lists
-Write a program to find the node at which the intersection of two singly linked lists begins.
+Write a program to find the node at which the intersection of two singly linked
+lists begins.
 
 
 For example, the following two linked lists:
@@ -8,7 +9,7 @@ For example, the following two linked lists:
 A:          a1 → a2
                    ↘
                      c1 → c2 → c3
-                   ↗            
+                   ↗
 B:     b1 → b2 → b3
 begin to intersect at node c1.
 
@@ -16,9 +17,10 @@ begin to intersect at node c1.
 Notes:
 
 If the two linked lists have no intersection at all, return null.
-The linked lists must retain their original structure after the function returns.
-You may assume there are no cycles anywhere in the entire linked structure.
-Your code should preferably run in O(n) time and use only O(1) memory.
+The linked lists must retain their original structure after the function
+returns. You may assume there are no cycles anywhere in the entire linked
+structure. Your code should preferably run in O(n) time and use only O(1)
+memory.
 
 /*
     Submission Date: 2017-07-26
@@ -31,43 +33,41 @@ Your code should preferably run in O(n) time and use only O(1) memory.
 using namespace std;
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+  int val;
+  ListNode *next;
+  ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
-public:
-    int length(ListNode* head) {
-        int count = 0;
-        while(head) {
-            head = head -> next;
-            count++;
-        }
-
-        return count;
+ public:
+  int length(ListNode *head) {
+    int count = 0;
+    while (head) {
+      head = head->next;
+      count++;
     }
-    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
-        int length_A = length(headA);
-        int length_B = length(headB);
 
-        if(length_A > length_B) swap(headA, headB);
+    return count;
+  }
+  ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    int length_A = length(headA);
+    int length_B = length(headB);
 
-        int diff = abs(length_B - length_A);
-        for(int i = 0; i < diff; i++) {
-            headB = headB -> next;
-        }
+    if (length_A > length_B) swap(headA, headB);
 
-        while(headA && headB) {
-            if(headA == headB) return headA;
-            headA = headA -> next;
-            headB = headB -> next;
-        }
-
-        return NULL;
+    int diff = abs(length_B - length_A);
+    for (int i = 0; i < diff; i++) {
+      headB = headB->next;
     }
+
+    while (headA && headB) {
+      if (headA == headB) return headA;
+      headA = headA->next;
+      headB = headB->next;
+    }
+
+    return NULL;
+  }
 };
 
-int main() {
-    return 0;
-}
+int main() { return 0; }

@@ -11,7 +11,11 @@ var get = function(name) {
     return e[0]
 };
 
-var q_name = get('css-1ponsav').textContent;
+var main_tabs = document.getElementById("question-detail-main-tabs");
+var description = main_tabs.childNodes[1].firstChild;
+var question_div = description.firstChild;
+
+var q_name = question_div.firstChild.textContent;
 
 var file_name = "";
 var should_capital = false;
@@ -45,14 +49,14 @@ var getDate = function() {
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 }
 
-var difficulty = get('css-dcmtd5').textContent.toUpperCase();
+var difficulty = question_div.childNodes[1].firstChild.textContent.toUpperCase();
 JASSERT(difficulty.length > 0);
 
 build(file_name);
 build("/*");
 build(q_name);
 
-var question_description = get('content__eAC7').textContent.trim().split("\n");
+var question_description = description.childNodes[1].textContent.trim().split("\n");
 JASSERT(question_description.length > 0);
 
 for(var i = 0; i < question_description.length; i++) {

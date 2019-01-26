@@ -867,8 +867,8 @@ using namespace std;
 
 struct TreeNode {
   int val;
-  TreeNode* left;
-  TreeNode* right;
+  TreeNode *left;
+  TreeNode *right;
   TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
@@ -880,8 +880,8 @@ class Solution {
      node, then maximum value is rob(root->left) + rob(root->right) Take the max
      of use node and not using node
   */
-  unordered_map<TreeNode*, int> dp_;
-  int rob(TreeNode* root) {
+  unordered_map<TreeNode *, int> dp_;
+  int rob(TreeNode *root) {
     if (root == NULL) return 0;
     if (dp_.count(root)) return dp_[root];
 

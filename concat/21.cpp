@@ -1,38 +1,95 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+412. Fizz Buzz
+Write a program that outputs the string representation of numbers from 1 to n.
+
+But for multiples of three it should output “Fizz” instead of the number and for
+the multiples of five output “Buzz”. For numbers which are multiples of both
+three and five output “FizzBuzz”.
+
+Example:
+
+n = 15,
+
+Return:
+[
+    "1",
+    "2",
+    "Fizz",
+    "4",
+    "Buzz",
+    "Fizz",
+    "7",
+    "8",
+    "Fizz",
+    "Buzz",
+    "11",
+    "Fizz",
+    "13",
+    "14",
+    "FizzBuzz"
+]
+/*
+    Submission Date: 2018-05-31
+    Runtime: 5 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> fizzBuzz(int n) {
+    vector<string> res;
+    for (int i = 1; i <= n; i++) {
+      string s = "";
+      if (i % 3 == 0) s += "Fizz";
+      if (i % 5 == 0) s += "Buzz";
+      if (s.empty()) s = to_string(i);
+      res.push_back(s);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 413. Arithmetic Slices
 A sequence of number is called arithmetic if it consists of at least three
 elements and if the difference between any two consecutive elements is the same.
 
 For example, these are arithmetic sequence:
-
 1, 3, 5, 7, 9
 7, 7, 7, 7
 3, -1, -5, -9
-The following sequence is not arithmetic.
 
-1, 1, 2, 5, 7
+The following sequence is not arithmetic. 1, 1, 2, 5, 7
+
 
 A zero-indexed array A consisting of N numbers is given. A slice of that array
 is any pair of integers (P, Q) such that 0 <= P < Q < N.
 
 A slice (P, Q) of array A is called arithmetic if the sequence:
-A[P], A[p + 1], ..., A[Q - 1], A[Q] is arithmetic. In particular, this means
+    A[P], A[p + 1], ..., A[Q - 1], A[Q] is arithmetic. In particular, this means
 that P + 1 < Q.
 
 The function should return the number of arithmetic slices in the array A.
 
 
 Example:
-
 A = [1, 2, 3, 4]
 
 return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4]
 itself.
+
 /*
     Submission Date: 2018-06-30
-    Runtime:  ms
+    Runtime: 3 ms
     Difficulty: MEDIUM
 */
 #include <iostream>
@@ -241,12 +298,12 @@ Find the maximum result of ai XOR aj, where 0 ≤ i, j < n.
 Could you do this in O(n) runtime?
 
 Example:
-
 Input: [3, 10, 5, 25, 2, 8]
 
 Output: 28
 
 Explanation: The maximum result is 5 ^ 25 = 28.
+
 /*
     Submission Date: 2018-07-01
     Runtime: 47 ms
@@ -304,15 +361,216 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+423. Reconstruct Original Digits from English
+Given a non-empty string containing an out-of-order English representation of
+digits 0-9, output the digits in ascending order.
+
+Note:
+
+Input contains only lowercase English letters.
+Input is guaranteed to be valid and can be transformed to its original digits.
+That means invalid inputs such as "abc" or "zerone" are not permitted.
+Input length is less than 50,000.
+
+
+
+Example 1:
+Input: "owoztneoer"
+
+Output: "012"
+
+
+
+Example 2:
+Input: "fviefuro"
+
+Output: "45"
+
+/*
+    Submission Date: 2018-07-13
+    Runtime: 28 ms
+    Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  unordered_map<char, string> first_pass{
+      {'z', "zero"}, {'w', "two"}, {'u', "four"}, {'x', "six"}, {'g', "eight"}};
+  unordered_map<char, string> second_pass{
+      {'o', "one"}, {'h', "three"}, {'f', "five"}, {'s', "seven"}};
+  unordered_map<char, string> last_pass{{'i', "nine"}};
+
+  vector<unordered_map<char, string>> v{first_pass, second_pass, last_pass};
+
+  vector<string> rep{"zero", "one", "two",   "three", "four",
+                     "five", "six", "seven", "eight", "nine"};
+
+ public:
+  /*
+  have 3 passes where an unique number distinguishes between the numbers and
+  only occurs once in that number get a frequency map of the string, for each
+  pass see how many times that unique character occurs. if it is greater than
+  zero, then it is part of the result so subtract occurence*(occurence in the
+  number string) e.g 'h' appeared 3 times in s and 'e' appears 2 times in
+  "three" so subtract 3*2. add the integer representation to the result occrence
+  number of times. sort the result and return it.
+  
+  first unique
+  zero => z
+  two => w
+  four => u
+  six => x
+  eight => g
+  
+  second unique
+  one => o
+  three => h
+  five => f
+  seven => s
+  
+  remaining
+  nine => i
+  */
+
+  string originalDigits(string s) {
+    unordered_map<string, char> rep_m;
+    for (int i = 0; i < 10; i++) rep_m[rep[i]] = i + '0';
+
+    unordered_map<char, int> freq;
+    for (const auto& c : s) freq[c]++;  // o(n)
+
+    string res;
+    for (const auto& m : v) {  // occurs 3 times
+      if (freq.empty()) break;
+      for (const auto& kv : m) {  // occurs max 5 times
+        if (freq.empty()) break;
+
+        if (freq.count(kv.first)) {
+          int occurences = freq[kv.first];
+          for (int i = 0; i < occurences; i++) res.push_back(rep_m[kv.second]);
+
+          unordered_map<char, int> distribution;
+          for (const auto& c : kv.second)
+            distribution[c]++;  // occurs max 5 time
+
+          for (const auto& kv2 : distribution) {  // occurs max 5 time
+            int to_remove = occurences * kv2.second;
+            assert(freq.count(kv2.first));
+            assert(freq[kv2.first] >= to_remove);
+            if (freq[kv2.first] == to_remove)
+              freq.erase(kv2.first);
+            else
+              freq[kv2.first] -= to_remove;
+          }
+        }
+      }
+    }
+
+    sort(res.begin(), res.end());
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+424. Longest Repeating Character Replacement
+Given a string that consists of only uppercase English letters, you can replace
+any letter in the string with another letter at most k times. Find the length of
+a longest substring containing all repeating letters you can get after
+performing the above operations.
+
+Note:
+Both the string's length and k will not exceed 104.
+
+
+
+Example 1:
+Input:
+s = "ABAB", k = 2
+
+Output:
+4
+
+Explanation:
+Replace the two 'A's with two 'B's or vice versa.
+
+
+
+
+Example 2:
+Input:
+s = "AABABBA", k = 1
+
+Output:
+4
+
+Explanation:
+Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+The substring "BBBB" has the longest repeating letters, which is 4.
+/*
+    Submission Date: 2018-07-15
+    Runtime: 12 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  find the longest substring where there are k characters that are not the main
+  character use sliding window and keep track of frequency of characters in
+  window, end - start + 1 - max_occurence > k means too many characters that are
+  not the main character so shift start and end by 1. this keeps the size of the
+  window always increasing as looking at smaller windows will not change the
+  result.
+  
+  max_occurence will also always increase as suppose max_occurence is > actual
+  max_occurence in the window then this window will not be part of the result as
+  the number of not main characters will actually be higher than calculated.
+  only when max_occurence updates can the window be extended/result updated.
+  */
+  int characterReplacement(string s, int k) {
+    unordered_map<char, int> freq;
+    int start = 0;
+    int max_occurence = 0;
+    for (int end = 0; end < s.size(); end++) {
+      max_occurence = max(max_occurence, ++freq[s[end] - 'A']);
+      if (end - start + 1 - max_occurence > k) {
+        freq[s[start++] - 'A']--;
+      }
+    }
+
+    return s.size() - start;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 427. Construct Quad Tree
 We want to use quad trees to store an N x N boolean grid. Each cell in the grid
 can only be true or false. The root node represents the whole grid. For each
 node, it will be subdivided into four children nodes until the values in the
+region it represents are all the same.
 
 Each node has another two boolean attributes : isLeaf and val. isLeaf is true if
 and only if the node is a leaf node. The val attribute for a leaf node contains
+the value of the region it represents.
 
 Your task is to use a quad tree to represent a given grid. The following example
+may help you understand the problem better:
 
 Given the 8 x 8 grid below, we want to construct the corresponding quad tree:
 
@@ -325,6 +583,7 @@ It can be divided according to the definition above:
  
 
 The corresponding quad tree should be as following, where each node is
+represented as a (isLeaf, val) pair.
 
 For the non-leaf nodes, val can be arbitrary, so it is represented as *.
 
@@ -335,6 +594,7 @@ Note:
 
     N is less than 1000 and guaranteened to be a power of 2.
     If you want to know more about the quad tree, you can refer to its wiki.
+
 /*
     Submission Date: 2018-07-13
     Runtime: 40 ms
@@ -401,6 +661,89 @@ class Solution {
     int N = grid.size();
     if (N == 0) return NULL;
     return help(grid, 0, 0, N);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+429. N-ary Tree Level Order Traversal
+Given an n-ary tree, return the level order traversal of its nodes' values. (ie,
+from left to right, level by level).
+
+For example, given a 3-ary tree:
+ 
+
+
+ 
+
+We should return its level order traversal:
+
+ 
+
+ 
+
+[
+     [1],
+     [3,2,4],
+     [5,6]
+]
+
+
+ 
+
+Note:
+
+
+    The depth of the tree is at most 1000.
+    The total number of nodes is at most 5000.
+
+/*
+    Submission Date: 2018-07-13
+    Runtime: 44 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Node {
+ public:
+  int val = NULL;
+  vector<Node*> children;
+
+  Node() {}
+
+  Node(int _val, vector<Node*> _children) {
+    val = _val;
+    children = _children;
+  }
+};
+
+class Solution {
+ public:
+  vector<vector<int>> levelOrder(Node* root) {
+    if (root == NULL) return {};
+    vector<vector<int>> res;
+    queue<Node*> q;
+    q.push(root);
+    while (!q.empty()) {
+      int q_size = q.size();
+      res.push_back({});
+      for (int i = 0; i < q_size; i++) {
+        Node* curr = q.front();
+        q.pop();
+        res.back().push_back(curr->val);
+        for (const auto& c : curr->children) {
+          if (c) q.push(c);
+        }
+      }
+    }
+
+    return res;
   }
 };
 
@@ -636,284 +979,6 @@ class Solution {
     int res = 0;
     help(root, sum, res);
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-438. Find All Anagrams in a String
-Given a string s and a non-empty string p, find all the start indices of p's
-anagrams in s.
-
-Strings consists of lowercase English letters only and the length of both
-strings s and p will not be larger than 20,100.
-
-The order of output does not matter.
-
-Example 1:
-
-Input:
-s: "cbaebabacd" p: "abc"
-
-Output:
-[0, 6]
-
-Explanation:
-The substring with start index = 0 is "cba", which is an anagram of "abc".
-The substring with start index = 6 is "bac", which is an anagram of "abc".
-Example 2:
-
-Input:
-s: "abab" p: "ab"
-
-Output:
-[0, 1, 2]
-
-Explanation:
-The substring with start index = 0 is "ab", which is an anagram of "ab".
-The substring with start index = 1 is "ba", which is an anagram of "ab".
-The substring with start index = 2 is "ab", which is an anagram of "ab".
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 106 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> findAnagrams(string s, string p) {
-    vector<int> res;
-    int M = s.size();
-    int N = p.size();
-
-    if (M < N) return res;
-    unordered_map<char, int> freq, curr_freq;
-
-    for (auto c : p) freq[c]++;
-
-    for (int i = 0; i < N; i++) curr_freq[s[i]]++;
-
-    int low = 0;
-    int high = N;
-    while (high <= M) {
-      bool is_match = true;
-      if (curr_freq.size() == freq.size()) {
-        for (auto kv : freq) {
-          if (curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second)
-            continue;
-          is_match = false;
-          break;
-        }
-      } else {
-        is_match = false;
-      }
-
-      if (is_match) res.push_back(low);
-      if (high == M) break;
-      char to_erase = s[low++];
-      curr_freq[s[high++]]++;
-      if (curr_freq[to_erase] == 1)
-        curr_freq.erase(to_erase);
-      else
-        curr_freq[to_erase]--;
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-441. Arranging Coins
-You have a total of n coins that you want to form in a staircase shape, where
-every k-th row must have exactly k coins.
-
-Given n, find the total number of full staircase rows that can be formed.
-
-n is a non-negative integer and fits within the range of a 32-bit signed
-integer.
-
-Example 1:
-
-n = 5
-
-The coins can form the following rows:
-¤
-¤ ¤
-¤ ¤
-
-Because the 3rd row is incomplete, we return 2.
-Example 2:
-
-n = 8
-
-The coins can form the following rows:
-¤
-¤ ¤
-¤ ¤ ¤
-¤ ¤
-
-Because the 4th row is incomplete, we return 3.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 33 ms
-    Difficulty: EASY
-*/
-#include <cmath>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  sum of 0 to x = x(x+1)/2
-  x(x+1)/2 = n
-  x^2 + x - 2n = 0
-
-  quadratic formula: x = (-1 + sqrt(8n + 1))/2
-  */
-  int arrangeCoins(int n) { return (-1 + sqrt(8LL * n + 1)) / 2; }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-442. Find All Duplicates in an Array
-Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements
-appear twice and others appear once.
-
-Find all the elements that appear twice in this array.
-
-Could you do it without extra space and in O(n) runtime?
-
-Example:
-Input:
-[4,3,2,7,8,2,3,1]
-
-Output:
-[2,3]
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 176 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> findDuplicates(vector<int>& nums) {
-    int N = nums.size();
-    vector<int> res;
-    for (int i = 0; i < N; i++) {
-      while (nums[i] != nums[nums[i] - 1]) {
-        swap(nums[i], nums[nums[i] - 1]);
-      }
-    }
-
-    for (int i = 0; i < N; i++) {
-      if (nums[i] != i + 1) {
-        res.push_back(nums[i]);
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-443. String Compression
-Given an array of characters, compress it in-place.
-
-The length after compression must always be smaller than or equal to the
-original array.
-
-Every element of the array should be a character (not int) of length 1.
-
-After you are done modifying the input array in-place, return the new length of
-the array.
-
-
-Follow up:
-Could you solve it using only O(1) extra space?
-
-
-Example 1:
-Input:
-["a","a","b","b","c","c","c"]
-
-Output:
-Return 6, and the first 6 characters of the input array should be:
-["a","2","b","2","c","3"]
-
-Explanation:
-"aa" is replaced by "a2". "bb" is replaced by "b2". "ccc" is replaced by "c3".
-Example 2:
-Input:
-["a"]
-
-Output:
-Return 1, and the first 1 characters of the input array should be: ["a"]
-
-Explanation:
-Nothing is replaced.
-Example 3:
-Input:
-["a","b","b","b","b","b","b","b","b","b","b","b","b"]
-
-Output:
-Return 4, and the first 4 characters of the input array should be:
-["a","b","1","2"].
-
-Explanation:
-Since the character "a" does not repeat, it is not compressed. "bbbbbbbbbbbb" is
-replaced by "b12". Notice each digit has it's own entry in the array. Note: All
-characters have an ASCII value in [35, 126]. 1 <= len(chars) <= 1000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  since length of 1 are not included the compressed string will always be less
-  than the full string e.g a12 is smaller than aaa... hence it is safe to just
-  overwrite existing string
-  */
-  int compress(vector<char>& s) {
-    int write = 0;
-    int N = s.size();
-    for (int i = 0; i < N;) {
-      int start = i;
-      while (i < N && s[start] == s[i]) i++;
-      string freq = to_string(i - start);
-      s[write++] = s[start];
-      if (i - start > 1)
-        for (const auto& d : freq) s[write++] = d;
-    }
-    return write;
   }
 };
 

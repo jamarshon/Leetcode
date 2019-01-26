@@ -299,14 +299,14 @@ using namespace std;
 
 struct TreeNode {
   int val;
-  TreeNode* left;
-  TreeNode* right;
+  TreeNode *left;
+  TreeNode *right;
   TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
  public:
-  int minDepth(TreeNode* root) {
+  int minDepth(TreeNode *root) {
     if (root == NULL) return 0;
     if (root->left == NULL && root->right == NULL) {
       return 1;
@@ -354,14 +354,14 @@ using namespace std;
 
 struct TreeNode {
   int val;
-  TreeNode* left;
-  TreeNode* right;
+  TreeNode *left;
+  TreeNode *right;
   TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
  public:
-  bool hasPathSum(TreeNode* root, int sum) {
+  bool hasPathSum(TreeNode *root, int sum) {
     if (!root) return false;
 
     int curr = root->val;

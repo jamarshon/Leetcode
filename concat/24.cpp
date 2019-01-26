@@ -1,6 +1,377 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+492. Construct the Rectangle
+For a web developer, it is very important to know how to design a web page's
+size. So, given a specific rectangular web page’s area, your job by now is to
+design a rectangular web page, whose length L and width W satisfy the following
+requirements:
+
+1. The area of the rectangular web page you designed must equal to the given
+target area.
+
+2. The width W should not be larger than the length L, which means L >= W.
+
+3. The difference between length L and width W should be as small as possible.
+You need to output the length L and the width W of the web page you designed in
+sequence. Example: Input: 4 Output: [2, 2] Explanation: The target area is 4,
+and all the possible ways to construct it are [1,4], [2,2], [4,1]. But according
+to requirement 2, [1,4] is illegal; according to requirement 3,  [4,1] is not
+optimal compared to [2,2]. So the length L is 2, and the width W is 2. Note: The
+given area won't exceed 10,000,000 and is a positive integer The web page's
+width and length you designed must be positive integers.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 2 ms
+    Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> constructRectangle(int area) {
+    for (int i = sqrt(area); i >= 1; i--) {
+      if (area % i == 0) return {area / i, i};
+    }
+    return {};
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+495. Teemo Attacking
+In LOL world, there is a hero called Teemo and his attacking can make his enemy
+Ashe be in poisoned condition. Now, given the Teemo's attacking ascending time
+series towards Ashe and the poisoning time duration per Teemo's attacking, you
+need to output the total time that Ashe is in poisoned condition.
+
+
+You may assume that Teemo attacks at the very beginning of a specific time
+point, and makes Ashe be in poisoned condition immediately.
+
+Example 1:
+Input: [1,4], 2
+Output: 4
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be
+poisoned immediately. This poisoned status will last 2 seconds until the end of
+time point 2. And at time point 4, Teemo attacks Ashe again, and causes Ashe to
+be in poisoned status for another 2 seconds. So you finally need to output 4.
+
+
+
+
+Example 2:
+Input: [1,2], 2
+Output: 3
+Explanation: At time point 1, Teemo starts attacking Ashe and makes Ashe be
+poisoned. This poisoned status will last 2 seconds until the end of time point
+2. However, at the beginning of time point 2, Teemo attacks Ashe again who is
+already in poisoned status. Since the poisoned status won't add up together,
+though the second poisoning attack will still work at time point 2, it will stop
+at the end of time point 3. So you finally need to output 3.
+
+
+
+
+Note:
+
+You may assume the length of given time series array won't exceed 10000.
+You may assume the numbers in the Teemo's attacking time series and his
+poisoning time duration per attacking are non-negative integers, which won't
+exceed 10,000,000.
+
+/*
+    Submission Date: 2018-07-01
+    Runtime: 103 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int findPoisonedDuration(vector<int>& timeSeries, int duration) {
+    if (timeSeries.empty()) return 0;
+
+    int N = timeSeries.size();
+
+    int res = duration;
+    for (int i = 1; i < N; i++) {
+      res += min(duration, timeSeries[i] - timeSeries[i - 1]);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+496. Next Greater Element I
+You are given two arrays (without duplicates) nums1 and nums2 where nums1’s
+elements are subset of nums2. Find all the next greater numbers for nums1's
+elements in the corresponding places of nums2.
+
+The Next Greater Number of a number x in nums1 is the first greater number to
+its right in nums2. If it does not exist, output -1 for this number.
+
+Example 1:
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2].
+Output: [-1,3,-1]
+Explanation:
+    For number 4 in the first array, you cannot find the next greater number for
+it in the second array, so output -1. For number 1 in the first array, the next
+greater number for it in the second array is 3. For number 2 in the first array,
+there is no next greater number for it in the second array, so output -1.
+Example 2:
+Input: nums1 = [2,4], nums2 = [1,2,3,4].
+Output: [3,-1]
+Explanation:
+    For number 2 in the first array, the next greater number for it in the
+second array is 3. For number 4 in the first array, there is no next greater
+number for it in the second array, so output -1. Note: All elements in nums1 and
+nums2 are unique. The length of both nums1 and nums2 would not exceed 1000.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 11 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <stack>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+      For a stack of decreasing number, if there is a number x encountered.
+      All the numbers in the stack that x is greater than will have their return
+     value to be x and x is placed in the stack. This means there is no number
+     in the stack that is less than x eg [1,3,4,2,3]
+       []     1 => [1]
+       [1]    3 => [3]    update greater(1) = 3
+       [3]    4 => [4]    update greater(3) = 4
+       [4]    2 => [4,2]
+       [4,2]  3 => [4,3]  update greater(2) = 3
+  */
+  vector<int> nextGreaterElement(vector<int>& findNums, vector<int>& nums) {
+    if (nums.empty()) return {};
+
+    int N = findNums.size();
+    // decreasing numbers
+    stack<int> stk;
+
+    unordered_map<int, int> val_to_greater_val;
+    for (const auto& x : nums) {
+      while (!stk.empty() && stk.top() < x) {
+        val_to_greater_val[stk.top()] = x;
+        stk.pop();
+      }
+
+      stk.push(x);
+    }
+
+    vector<int> res;
+    for (const auto& x : findNums) {
+      res.push_back(val_to_greater_val.count(x) ? val_to_greater_val[x] : -1);
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+498. Diagonal Traverse
+Given a matrix of M x N elements (M rows, N columns), return all elements of the
+matrix in diagonal order as shown in the below image.
+
+
+Example:
+Input:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+Output:  [1,2,4,7,5,3,6,8,9]
+Explanation:
+
+
+
+
+Note:
+
+The total number of elements of the given matrix will not exceed 10,000.
+
+/*
+    Submission Date: 2018-07-09
+    Runtime: 52 ms
+    Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  all numbers in a diagonal indices add up to the same number (e.g i + j == x)
+  the max is N-1 + M-1 = N - M - 2
+  so for x = [0, N - M - 2], start from the top row go down i = [0, N) and see
+  if x - i produces a j that is within the bounds [0, M). 0 <= x - i < M means
+  x - M < i && i <= x
+  0 <= i && i < N
+  
+  i > max(-1, x - M)
+  i < min(N, x + 1)
+  
+  This creates all the diagonals going down.
+  reverse the even diagonals and return
+  */
+  vector<int> findDiagonalOrder(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return {};
+    int N = matrix.size();
+    int M = matrix[0].size();
+
+    vector<int> res;
+
+    for (int x = 0; x < N + M - 1; x++) {
+      int sz = res.size();
+      for (int i = max(0, x - M + 1); i < min(N, x + 1); i++) {
+        res.push_back(matrix[i][x - i]);
+      }
+      if (x % 2 == 0) reverse(res.begin() + sz, res.end());
+    }
+
+    return res;
+  }
+};
+
+class Solution2 {
+  int d[2][2] = {{-1, 1}, {1, -1}};
+  bool up = true;
+
+ public:
+  /*
+  toggle between going up and down when hit out of bounds
+  to find the new coordinate
+      if going up:
+          if hits the right boundary then can't keep going right so go down
+          else keep going right
+      if going down:
+          if hits the bottom boundary then can't keep going down so go right
+          else keep going down
+  */
+  vector<int> findDiagonalOrder(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return {};
+    int N = matrix.size();
+    int M = matrix[0].size();
+
+    vector<int> res;
+    int x = 0, y = 0;
+    for (int i = 0; i < N * M; i++) {
+      res.push_back(matrix[y][x]);
+      int new_x = x + d[up][0];
+      int new_y = y + d[up][1];
+      if (0 <= new_x && new_x < M && 0 <= new_y && new_y < N) {
+        x = new_x;
+        y = new_y;
+      } else {
+        if (up) {
+          if (new_x == M)
+            y++;
+          else
+            x++;
+        } else {
+          if (new_y == N)
+            x++;
+          else
+            y++;
+        }
+        up ^= 1;
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+500. Keyboard Row
+Given a List of words, return the words that can be typed using letters of
+alphabet on only one row's of American keyboard like the image below.
+
+
+American keyboard
+
+
+Example 1:
+Input: ["Hello", "Alaska", "Dad", "Peace"]
+Output: ["Alaska", "Dad"]
+Note:
+You may use one character in the keyboard more than once.
+You may assume the input string will only contain letters of alphabet.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <cctype>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  // Have a map of character to row. Loop through each string and check if all
+  // the characters come from the same row.
+  vector<string> findWords(vector<string>& words) {
+    vector<string> v{"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+    unordered_map<char, int> m;
+
+    for (int i = 0; i < v.size(); i++) {
+      for (const auto& c : v[i]) m[c] = i;
+    }
+
+    vector<string> res;
+    for (const auto& s : words) {
+      int ind = -1;
+      bool can_add = true;
+      for (const auto& c : s) {
+        if (ind == -1) ind = m[tolower(c)];
+        if (m[tolower(c)] != ind) {
+          can_add = false;
+          break;
+        }
+      }
+
+      if (can_add) res.push_back(s);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 501. Find Mode in Binary Search Tree
 Given a binary search tree (BST) with duplicates, find all the mode(s) (the most
 frequently occurred element) in the given BST.
@@ -89,6 +460,7 @@ Given a circular array (the next element of the last element is the first
 element of the array), print the Next Greater Number for every element. The Next
 Greater Number of a number x is the first greater number to its traversing-order
 next in the array, which means you could search circularly to find its next
+greater number. If it doesn't exist, output -1 for this number.
 
 
 Example 1:
@@ -96,11 +468,13 @@ Input: [1,2,1]
 Output: [2,-1,2]
 Explanation: The first 1's next greater number is 2; The number 2 can't find
 next greater number; The second 1's next greater number needs to search
+circularly, which is also 2.
 
 
 
 Note:
 The length of given array won't exceed 10000.
+
 /*
     Submission Date: 2018-07-08
     Runtime: 68 ms
@@ -316,21 +690,30 @@ the subtree rooted at that node (including the node itself). So what is the most
 frequent subtree sum value? If there is a tie, return all the values with the
 highest frequency in any order.
 
+
 Examples 1
 Input:
-
   5
  /  \
 2   -3
-return [2, -3, 4], since all the values happen only once, return all of them in
-any order. Examples 2 Input:
 
+return [2, -3, 4], since all the values happen only once, return all of them in
+any order.
+
+
+Examples 2
+Input:
   5
  /  \
 2   -5
+
 return [2], since 2 happens twice, however -5 only occur once.
-Note: You may assume the sum of values in any subtree is in the range of 32-bit
-signed integer.
+
+
+Note:
+You may assume the sum of values in any subtree is in the range of 32-bit signed
+integer.
+
 /*
     Submission Date: 2018-06-30
     Runtime: 16 ms
@@ -606,354 +989,6 @@ class Solution {
   int findLUSlength(string a, string b) {
     if (a == b) return -1;
     return max(a.size(), b.size());
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-525. Contiguous Array
-Given a binary array, find the maximum length of a contiguous subarray with
-equal number of 0 and 1.
-
-Example 1:
-Input: [0,1]
-Output: 2
-Explanation: [0, 1] is the longest contiguous subarray with equal number of 0
-and 1. Example 2: Input: [0,1,0] Output: 2 Explanation: [0, 1] (or [1, 0]) is a
-longest contiguous subarray with equal number of 0 and 1. Note: The length of
-the given binary array will not exceed 50,000.
-
-/*
-    Submission Date: 2017-04-01
-    Runtime: 162 ms
-    Difficulty: MEDIUM
-*/
-
-using namespace std;
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-class Solution {
- public:
-  int findMaxLength(vector<int>& nums) {
-    int maxLen = 0;
-    int currentSum = 0;
-
-    // unordered_map has key to currentSum and value to earliest index seen with
-    // that currentSum. the idea is that if the cumulative sum is the same then
-    // the sum of elements between those two indices is zero meaning equal
-    // number of 0's and 1's so finding the smallest index with the same
-    // currentSum results in the largest subarray
-    unordered_map<int, int> m = {{0, -1}};
-
-    for (int i = 0, len = nums.size(); i < len; i++) {
-      if (nums[i] == 0) {
-        currentSum--;
-      } else {
-        currentSum++;
-      }
-
-      if (m.find(currentSum) == m.end()) {
-        m[currentSum] = i;
-      } else {
-        maxLen = max(maxLen, i - m[currentSum]);
-      }
-    }
-
-    return maxLen;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-529. Minesweeper
-Let's play the minesweeper game (Wikipedia, online game)!
-
-You are given a 2D char matrix representing the game board. 'M' represents an
-unrevealed mine, 'E' represents an unrevealed empty square, 'B' represents a
-revealed blank square that has no adjacent (above, below, left, right, and all 4
-diagonals) mines, digit ('1' to '8') represents how many mines are adjacent to
-
-Now given the next click position (row and column indices) among all the
-unrevealed squares ('M' or 'E'), return the board after revealing this position
-
-
-
-If a mine ('M') is revealed, then the game is over - change it to 'X'.
-If an empty square ('E') with no adjacent mines is revealed, then change it to
-revealed blank ('B') and all of its adjacent unrevealed squares should be
-If an empty square ('E') with at least one adjacent mine is revealed, then
-Return the board when no more squares will be revealed.
-
-
-
-Example 1:
-Input:
-
-[['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'M', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E']]
-
-Click : [3,0]
-
-Output:
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'M', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Explanation:
-
-
-
-
-Example 2:
-Input:
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'M', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Click : [1,2]
-
-Output:
-
-[['B', '1', 'E', '1', 'B'],
- ['B', '1', 'X', '1', 'B'],
- ['B', '1', '1', '1', 'B'],
- ['B', 'B', 'B', 'B', 'B']]
-
-Explanation:
-
-
-
-
-
-
-Note:
-
-The range of the input matrix's height and width is [1,50].
-The click position will only be an unrevealed square ('M' or 'E'), which also
-The input board won't be a stage when game is over (some mines have been
-For simplicity, not mentioned rules should be ignored in this problem. For
-example, you don't need to reveal all the unrevealed mines when the game is
-/*
-    Submission Date: 2018-07-05
-    Runtime: 16 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  void dfs(vector<vector<char>>& board, const int i, const int j, int N,
-           int M) {
-    if (board[i][j] == 'B') return;
-
-    int mine_count = 0;
-    vector<pair<int, int>> to_visit;
-
-    for (int ii = -1; ii <= 1; ii++) {
-      int new_i = i + ii;
-      if (!(0 <= new_i && new_i < N)) continue;
-      for (int jj = -1; jj <= 1; jj++) {
-        if (ii == 0 && jj == 0) continue;
-        int new_j = j + jj;
-        if (!(0 <= new_j && new_j < M)) continue;
-
-        if (board[new_i][new_j] == 'M') {
-          mine_count++;
-        } else if (board[new_i][new_j] == 'B') {
-          continue;
-        } else {  // board[new_i][new_j] == 'E'
-          to_visit.emplace_back(new_i, new_j);
-        }
-      }
-    }
-
-    if (mine_count > 0) {
-      board[i][j] = mine_count + '0';
-    } else {
-      board[i][j] = 'B';
-      for (const auto& kv : to_visit) {
-        dfs(board, kv.first, kv.second, N, M);
-      }
-    }
-  }
-
-  vector<vector<char>> updateBoard(vector<vector<char>>& board,
-                                   vector<int>& click) {
-    int N = board.size();
-    int M = board[0].size();
-    int y = click[0];
-    int x = click[1];
-
-    if (board[y][x] == 'M') {
-      board[y][x] = 'X';
-    } else {  // board[y][x] == 'E'
-      dfs(board, y, x, N, M);
-    }
-
-    return board;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-530. Minimum Absolute Difference in BST
-Given a binary search tree with non-negative values, find the minimum absolute
-difference between values of any two nodes.
-
-Example:
-
-Input:
-
-   1
-    \
-     3
-    /
-   2
-
-Output:
-1
-
-Explanation:
-The minimum absolute difference is 1, which is the difference between 2 and 1
-(or between 2 and 3). Note: There are at least two nodes in this BST.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <climits>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
- public:
-  /*
-  help called on node returns the smallest and largest value with node as the
-  root this means for a node, it is help(root->left)'s smallest value and
-  help(root->right)'s largest value if they exist else it is just the node
-  
-  the minimum difference is this node minus largest value in the left subtree or
-  smallest value in right subtree minus this node
-  */
-  vector<int> help(TreeNode* root, int& res) {
-    if (root == NULL) return {};
-    vector<int> left = help(root->left, res);
-    vector<int> right = help(root->right, res);
-
-    int min_left = left.empty() ? root->val : left[0];
-    int max_right = right.empty() ? root->val : right[1];
-
-    if (!left.empty()) res = min(res, root->val - left[1]);
-    if (!right.empty()) res = min(res, right[0] - root->val);
-
-    return {min_left, max_right};
-  }
-
-  int getMinimumDifference(TreeNode* root) {
-    int res = INT_MAX;
-    help(root, res);
-    return res;
-  }
-};
-
-class Solution {
- public:
-  /*
-  inorder traversal keeping tracking of prev
-  */
-  void help(TreeNode* root, int& res, int& prev) {
-    if (root == NULL) return;
-    help(root->left, res, prev);
-    if (prev != INT_MAX) {
-      res = min(res, root->val - prev);
-    }
-
-    prev = root->val;
-    help(root->right, res, prev);
-  }
-
-  int getMinimumDifference(TreeNode* root) {
-    int res = INT_MAX, prev = INT_MAX;
-    help(root, res, prev);
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-532. K-diff Pairs in an Array
-Given an array of integers and an integer k, you need to find the number of
-unique k-diff pairs in the array. Here a k-diff pair is defined as an integer
-pair (i, j), where i and j are both numbers in the array and their absolute
-difference is k.
-
-Example 1:
-Input: [3, 1, 4, 1, 5], k = 2
-Output: 2
-Explanation: There are two 2-diff pairs in the array, (1, 3) and (3, 5).
-Although we have two 1s in the input, we should only return the number of unique
-pairs. Example 2: Input:[1, 2, 3, 4, 5], k = 1 Output: 4 Explanation: There are
-four 1-diff pairs in the array, (1, 2), (2, 3), (3, 4) and (4, 5). Example 3:
-Input: [1, 3, 1, 5, 4], k = 0
-Output: 1
-Explanation: There is one 0-diff pair in the array, (1, 1).
-Note:
-The pairs (i, j) and (j, i) count as the same pair.
-The length of the array won't exceed 10,000.
-All the integers in the given input belong to the range: [-1e7, 1e7].
-/*
-    Submission Date: 2018-06-24
-    Runtime: 43 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int findPairs(vector<int>& nums, int k) {
-    if (k < 0) return 0;
-    int res = 0;
-    unordered_set<int> st;
-    unordered_set<int> counted;
-    for (const auto& e : nums) {
-      if (st.count(e)) {
-        counted.insert(e);
-        continue;
-      }
-      res += st.count(e + k);
-      res += st.count(e - k);
-      st.insert(e);
-    }
-
-    return k == 0 ? counted.size() : res;
   }
 };
 

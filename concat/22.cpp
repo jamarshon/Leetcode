@@ -1,20 +1,302 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+438. Find All Anagrams in a String
+Given a string s and a non-empty string p, find all the start indices of p's
+anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both
+strings s and p will not be larger than 20,100.
+
+The order of output does not matter.
+
+Example 1:
+
+Input:
+s: "cbaebabacd" p: "abc"
+
+Output:
+[0, 6]
+
+Explanation:
+The substring with start index = 0 is "cba", which is an anagram of "abc".
+The substring with start index = 6 is "bac", which is an anagram of "abc".
+Example 2:
+
+Input:
+s: "abab" p: "ab"
+
+Output:
+[0, 1, 2]
+
+Explanation:
+The substring with start index = 0 is "ab", which is an anagram of "ab".
+The substring with start index = 1 is "ba", which is an anagram of "ab".
+The substring with start index = 2 is "ab", which is an anagram of "ab".
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 106 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> findAnagrams(string s, string p) {
+    vector<int> res;
+    int M = s.size();
+    int N = p.size();
+
+    if (M < N) return res;
+    unordered_map<char, int> freq, curr_freq;
+
+    for (auto c : p) freq[c]++;
+
+    for (int i = 0; i < N; i++) curr_freq[s[i]]++;
+
+    int low = 0;
+    int high = N;
+    while (high <= M) {
+      bool is_match = true;
+      if (curr_freq.size() == freq.size()) {
+        for (auto kv : freq) {
+          if (curr_freq.count(kv.first) && curr_freq[kv.first] == kv.second)
+            continue;
+          is_match = false;
+          break;
+        }
+      } else {
+        is_match = false;
+      }
+
+      if (is_match) res.push_back(low);
+      if (high == M) break;
+      char to_erase = s[low++];
+      curr_freq[s[high++]]++;
+      if (curr_freq[to_erase] == 1)
+        curr_freq.erase(to_erase);
+      else
+        curr_freq[to_erase]--;
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+441. Arranging Coins
+You have a total of n coins that you want to form in a staircase shape, where
+every k-th row must have exactly k coins.
+
+Given n, find the total number of full staircase rows that can be formed.
+
+n is a non-negative integer and fits within the range of a 32-bit signed
+integer.
+
+Example 1:
+
+n = 5
+
+The coins can form the following rows:
+¤
+¤ ¤
+¤ ¤
+
+Because the 3rd row is incomplete, we return 2.
+Example 2:
+
+n = 8
+
+The coins can form the following rows:
+¤
+¤ ¤
+¤ ¤ ¤
+¤ ¤
+
+Because the 4th row is incomplete, we return 3.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 33 ms
+    Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  sum of 0 to x = x(x+1)/2
+  x(x+1)/2 = n
+  x^2 + x - 2n = 0
+
+  quadratic formula: x = (-1 + sqrt(8n + 1))/2
+  */
+  int arrangeCoins(int n) { return (-1 + sqrt(8LL * n + 1)) / 2; }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+442. Find All Duplicates in an Array
+Given an array of integers, 1 ≤ a[i] ≤ n (n = size of array), some elements
+appear twice and others appear once.
+
+Find all the elements that appear twice in this array.
+
+Could you do it without extra space and in O(n) runtime?
+
+Example:
+Input:
+[4,3,2,7,8,2,3,1]
+
+Output:
+[2,3]
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 176 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> findDuplicates(vector<int>& nums) {
+    int N = nums.size();
+    vector<int> res;
+    for (int i = 0; i < N; i++) {
+      while (nums[i] != nums[nums[i] - 1]) {
+        swap(nums[i], nums[nums[i] - 1]);
+      }
+    }
+
+    for (int i = 0; i < N; i++) {
+      if (nums[i] != i + 1) {
+        res.push_back(nums[i]);
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+443. String Compression
+Given an array of characters, compress it in-place.
+
+The length after compression must always be smaller than or equal to the
+original array.
+
+Every element of the array should be a character (not int) of length 1.
+
+After you are done modifying the input array in-place, return the new length of
+the array.
+
+
+Follow up:
+Could you solve it using only O(1) extra space?
+
+
+Example 1:
+Input:
+["a","a","b","b","c","c","c"]
+
+Output:
+Return 6, and the first 6 characters of the input array should be:
+["a","2","b","2","c","3"]
+
+Explanation:
+"aa" is replaced by "a2". "bb" is replaced by "b2". "ccc" is replaced by "c3".
+Example 2:
+Input:
+["a"]
+
+Output:
+Return 1, and the first 1 characters of the input array should be: ["a"]
+
+Explanation:
+Nothing is replaced.
+Example 3:
+Input:
+["a","b","b","b","b","b","b","b","b","b","b","b","b"]
+
+Output:
+Return 4, and the first 4 characters of the input array should be:
+["a","b","1","2"].
+
+Explanation:
+Since the character "a" does not repeat, it is not compressed. "bbbbbbbbbbbb" is
+replaced by "b12". Notice each digit has it's own entry in the array. Note: All
+characters have an ASCII value in [35, 126]. 1 <= len(chars) <= 1000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  since length of 1 are not included the compressed string will always be less
+  than the full string e.g a12 is smaller than aaa... hence it is safe to just
+  overwrite existing string
+  */
+  int compress(vector<char>& s) {
+    int write = 0;
+    int N = s.size();
+    for (int i = 0; i < N;) {
+      int start = i;
+      while (i < N && s[start] == s[i]) i++;
+      string freq = to_string(i - start);
+      s[write++] = s[start];
+      if (i - start > 1)
+        for (const auto& d : freq) s[write++] = d;
+    }
+    return write;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 445. Add Two Numbers II
 You are given two non-empty linked lists representing two non-negative integers.
 The most significant digit comes first and each of their nodes contain a single
+digit. Add the two numbers and return it as a linked list.
 
 You may assume the two numbers do not contain any leading zero, except the
+number 0 itself.
 
 Follow up:
 What if you cannot modify the input lists? In other words, reversing the lists
+is not allowed.
 
 
 
 Example:
 Input: (7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
 Output: 7 -> 8 -> 0 -> 7
+
 /*
     Submission Date: 2018-07-10
     Runtime: 28 ms
@@ -219,7 +501,6 @@ Given a string, sort it in decreasing order based on the frequency of
 characters.
 
 Example 1:
-
 Input:
 "tree"
 
@@ -229,8 +510,11 @@ Output:
 Explanation:
 'e' appears twice while 'r' and 't' both appear once.
 So 'e' must appear before both 'r' and 't'. Therefore "eetr" is also a valid
-answer. Example 2:
+answer.
 
+
+
+Example 2:
 Input:
 "cccaaa"
 
@@ -240,8 +524,10 @@ Output:
 Explanation:
 Both 'c' and 'a' appear three times, so "aaaccc" is also a valid answer.
 Note that "cacaca" is incorrect, as the same characters must be together.
-Example 3:
 
+
+
+Example 3:
 Input:
 "Aabb"
 
@@ -251,6 +537,7 @@ Output:
 Explanation:
 "bbaA" is also a valid answer, but "Aabb" is incorrect.
 Note that 'A' and 'a' are treated as two different characters.
+
 /*
     Submission Date: 2018-06-30
     Runtime: 201 ms
@@ -367,9 +654,11 @@ int main() { return 0; }
 /*
 454. 4Sum II
 Given four lists A, B, C, D of integer values, compute how many tuples (i, j, k,
+l) there are such that A[i] + B[j] + C[k] + D[l] is zero.
 
 To make problem a bit easier, all A, B, C, D have same length of N where 0 ≤ N ≤
 500. All integers are in the range of -228 to 228 - 1 and the result is
+guaranteed to be at most 231 - 1.
 
 Example:
 Input:
@@ -385,6 +674,7 @@ Explanation:
 The two tuples are:
 1. (0, 0, 0, 1) -> A[0] + B[0] + C[0] + D[1] = 1 + (-2) + (-1) + 2 = 0
 2. (1, 1, 0, 0) -> A[1] + B[1] + C[0] + D[0] = 2 + (-1) + (-1) + 0 = 0
+
 /*
     Submission Date: 2018-07-08
     Runtime: 104 ms
@@ -494,6 +784,7 @@ int main() { return 0; }
 There are 1000 buckets, one and only one of them contains poison, the rest are
 filled with water. They all look the same. If a pig drinks that poison it will
 die within 15 minutes. What is the minimum amount of pigs you need to figure out
+which bucket contains the poison within one hour.
 
 Answer this question, and write an algorithm for the follow-up general case.
 
@@ -501,6 +792,8 @@ Follow-up:
 
 If there are n buckets and a pig drinking poison will die within m minutes, how
 many pigs (x) you need to figure out the "poison" bucket within p minutes? There
+is exact one bucket with poison.
+
 /*
     Submission Date: 2018-07-13
     Runtime: 0 ms
@@ -644,335 +937,6 @@ class Solution {
     }
 
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-462. Minimum Moves to Equal Array Elements II
-Given a non-empty integer array, find the minimum number of moves required to
-make all array elements equal, where a move is incrementing a selected element
-by 1 or decrementing a selected element by 1.
-
-You may assume the array's length is at most 10,000.
-
-Example:
-
-Input:
-[1,2,3]
-
-Output:
-2
-
-Explanation:
-Only two moves are needed (remember each move increments or decrements one
-element):
-
-[1,2,3]  =>  [2,2,3]  =>  [2,2,2]
-/*
-    Submission Date: 2018-07-01
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  O(nlogn) given that it is sorted compute the sum and say that is the lhs_cost
-  rhs_cost = 0. as i decreases, there is a block of width i+1 and height diff
-  that is removed from lhs_cost and a block of width N-i-1 and height diff that
-  is added to the rhs_cost
-
-  compute the lhs_cost, rhs_cost for all i and take the minimum.
-  */
-  typedef long long ll;
-  int minMoves2(vector<int>& nums) {
-    sort(nums.begin(), nums.end());
-    ll lhs_cost = 0;
-    for (const auto& e : nums) lhs_cost += nums.back() - e;
-    ll res = lhs_cost;
-
-    ll rhs_cost = 0;
-    int N = nums.size();
-    for (int i = N - 2; i >= 0; i--) {
-      int diff = nums[i + 1] - nums[i];
-      lhs_cost -= diff * (i + 1);
-      rhs_cost += diff * (N - i - 1);
-      res = min(res, lhs_cost + rhs_cost);
-    }
-    return res;
-  }
-};
-
-class Solution2 {
- public:
-  /*
-  proof is suppose x is between two numbers (y, z where y <= z)
-  then u can say the sum of deviation is (x-y) + (z-x) = z - y.
-  so given an array of size n, u can just keep removing the min and max elements
-  which would be equivalent to finding the median as it is the x between all the
-  pairs of y,z. (need y,z to be as far apart as possible in order to ensure x is
-  between them)
-  */
-  int minMoves2_sort(vector<int>& nums) {
-    sort(nums.begin(), nums.end());
-    int res = 0;
-    int N = nums.size();
-    for (int i = 0; i < N / 2; i++) {
-      res += abs(nums[i] - nums[N - i - 1]);
-    }
-    return res;
-  }
-
-  int minMoves2(vector<int>& nums) {
-    int res = 0;
-    int N = nums.size();
-    nth_element(nums.begin(), nums.begin() + N / 2, nums.end());
-
-    int median = nums[N / 2];
-
-    for (const auto& e : nums) {
-      res += abs(e - median);
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-463. Island Perimeter
-You are given a map in form of a two-dimensional integer grid where 1 represents
-land and 0 represents water. Grid cells are connected horizontally/vertically
-(not diagonally). The grid is completely surrounded by water, and there is
-exactly one island (i.e., one or more connected land cells). The island doesn't
-have "lakes" (water inside that isn't connected to the water around the island).
-One cell is a square with side length 1. The grid is rectangular, width and
-height don't exceed 100. Determine the perimeter of the island.
-
-Example:
-
-[[0,1,0,0],
- [1,1,1,0],
- [0,1,0,0],
- [1,1,0,0]]
-
-Answer: 16
-Explanation: The perimeter is the 16 yellow stripes in the image below:
-
-/*
-    Submission Date: 2018-05-31
-    Runtime: 245 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-  int dx[4] = {1, -1, 0, 0};
-  int dy[4] = {0, 0, -1, 1};
-
- public:
-  int islandPerimeter(vector<vector<int>>& grid) {
-    int res = 0;
-    for (int i = 0; i < grid.size(); i++) {
-      for (int j = 0; j < grid[0].size(); j++) {
-        if (grid[i][j] == 0) continue;
-        for (int k = 0; k < 4; k++) {
-          int new_x = dx[k] + j;
-          int new_y = dy[k] + i;
-          // if out of bounds or is a zero element, add one
-          if (new_x < 0 || new_x >= grid[0].size() || new_y < 0 ||
-              new_y >= grid.size() || grid[new_y][new_x] == 0) {
-            res++;
-          }
-        }
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-474. Ones and Zeroes
-In the computer world, use restricted resource you have to generate maximum
-For now, suppose you are a dominator of m 0s and n 1s respectively. On the other
-
-
-Now your task is to find the maximum number of strings that you can form with
-
-
-
-Note:
-
-The given numbers of 0s and 1s will both not exceed 100
-The size of given string array won't exceed 600.
-
-
-
-Example 1:
-Input: Array = {"10", "0001", "111001", "1", "0"}, m = 5, n = 3
-Output: 4
-
-Explanation: This are totally 4 strings can be formed by the using of 5 0s and 3
-
-
-
-Example 2:
-Input: Array = {"10", "0", "1"}, m = 1, n = 1
-Output: 2
-
-Explanation: You could form "10", but then you'd have nothing left. Better form
-/*
-    Submission Date: 2018-07-12
-    Runtime: 32 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  dp[i][j] is the maximum elements to find i 0's and j 1's
-  need to do this for every element in v
-  need to go from bottom right to top left as shouldn't visit
-  a value that is updated already
-  */
-  int findMaxForm(vector<string>& strs, int m, int n) {
-    vector<vector<int>> dp(m + 1, vector<int>(n + 1, -1));
-    dp[0][0] = 0;
-
-    int res = 0;
-    for (const auto& s : strs) {
-      int num_zero = 0, num_one = 0;
-      for (const auto& c : s) {
-        num_zero += c == '0';
-        num_one += c == '1';
-      }
-
-      // i + num_zero <= m => i <= m - num_zero
-      for (int i = m - num_zero; i >= 0; i--) {
-        for (int j = n - num_one; j >= 0; j--) {
-          // if dp[i][j] can be found
-          if (dp[i][j] != -1) {
-            dp[i + num_zero][j + num_one] =
-                max(dp[i + num_zero][j + num_one], 1 + dp[i][j]);
-
-            res = max(res, dp[i + num_zero][j + num_one]);
-          }
-        }
-      }
-    }
-
-    return res;
-  }
-};
-
-template <class T>
-inline void hash_combine(std::size_t& seed, const T& v) {
-  std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
-struct Hash {
-  template <typename T, typename U>
-  size_t operator()(const pair<T, U>& p) const {
-    size_t seed = 0;
-    hash_combine(seed, p.first);
-    hash_combine(seed, p.second);
-    return seed;
-  }
-};
-
-class Solution3 {
- public:
-  /*
-  curr has key i, j where i is number of 0 and j is number of 1
-  the value is the maximum amount of elements to get there
-  
-  start curr with m,n and 0
-  
-  for every number, loop over every i,j and see if we can use the number
-  meaning i-number_0, j-number_1 is >= 0, 0. we reached this new state with
-  1 + kv.second so max this on every time we hit this new state from using
-  a different i,j state as well as max this with not using number.
-  */
-  int findMaxForm(vector<string>& strs, int m, int n) {
-    int N = strs.size();
-    vector<pair<int, int>> v(N, {0, 0});
-    for (int i = 0; i < N; i++) {
-      for (const auto& c : strs[i]) {
-        v[i].first += c == '0';
-        v[i].second += c == '1';
-      }
-    }
-
-    unordered_map<pair<int, int>, int, Hash> curr;
-    curr[make_pair(m, n)] = 0;
-
-    int res = 0;
-    for (int i = N - 1; i >= 0; i--) {
-      unordered_map<pair<int, int>, int, Hash> new_curr;
-      for (const auto& kv : curr) {
-        const auto& p = kv.first;
-        if (p.first >= v[i].first && p.second >= v[i].second) {
-          const auto& new_p =
-              make_pair(p.first - v[i].first, p.second - v[i].second);
-          new_curr[new_p] = max(new_curr[new_p], 1 + kv.second);
-          if (curr.count(new_p))
-            new_curr[new_p] = max(curr[new_p], new_curr[new_p]);
-          res = max(res, new_curr[new_p]);
-        }
-      }
-
-      for (const auto& kv : new_curr) {
-        curr[kv.first] = kv.second;
-      }
-    }
-    return res;
-  }
-};
-
-class Solution2 {
- public:
-  /*
-  take or not take v[index] this solution times out
-  */
-  int f(int index, const vector<pair<int, int>>& v, int N, int m, int n) {
-    if (index == N) return 0;
-
-    int res = f(index + 1, v, N, m, n);
-    if (v[index].first <= m && v[index].second <= n) {
-      res = max(
-          res, 1 + f(index + 1, v, N, m - v[index].first, n - v[index].second));
-    }
-    return res;
-  }
-  int findMaxForm(vector<string>& strs, int m, int n) {
-    int N = strs.size();
-    vector<pair<int, int>> v(N, {0, 0});
-    for (int i = 0; i < N; i++) {
-      for (const auto& c : strs[i]) {
-        v[i].first += c == '0';
-        v[i].second += c == '1';
-      }
-    }
-
-    return f(0, v, N, m, n);
   }
 };
 

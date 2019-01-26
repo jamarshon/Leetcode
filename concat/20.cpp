@@ -142,9 +142,11 @@ int main() { return 0; }
 /*
 382. Linked List Random Node
 Given a singly linked list, return a random node's value from the linked list.
+Each node must have the same probability of being chosen.
 
 Follow up:
 What if the linked list is extremely large and its length is unknown to you?
+Could you solve this efficiently without using extra space?
 
 
 Example:
@@ -155,7 +157,9 @@ head.next.next = new ListNode(3);
 Solution solution = new Solution(head);
 
 // getRandom() should return either 1, 2, or 3 randomly. Each element should
+have equal probability of returning.
 solution.getRandom();
+
 /*
     Submission Date: 2018-07-10
     Runtime: 32 ms
@@ -281,6 +285,76 @@ class Solution {
 };
 
 int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+384. Shuffle an Array
+Shuffle a set of numbers without duplicates.
+
+
+Example:
+// Init an array with set 1, 2, and 3.
+int[] nums = {1,2,3};
+Solution solution = new Solution(nums);
+
+// Shuffle the array [1,2,3] and return its result. Any permutation of [1,2,3]
+must equally likely to be returned.
+solution.shuffle();
+
+// Resets the array back to its original configuration [1,2,3].
+solution.reset();
+
+// Returns the random shuffling of array [1,2,3].
+solution.shuffle();
+
+/*
+    Submission Date: 2018-07-13
+    Runtime: 148 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  vector<int> original;
+  vector<int> curr;
+
+ public:
+  Solution(vector<int> nums) { original = curr = nums; }
+
+  /** Resets the array to its original configuration and return it. */
+  vector<int> reset() { return curr = original; }
+
+  /** Returns a random shuffling of the array. */
+  /*
+  
+  swap(curr[i], curr[0, i])
+  
+  let j = [0, i]
+  (1) If i == j, nums[i] does not need to change its position, which has
+  probability 1/(1+i). (2) if i !=j, nums[i] needs to be swapped with nums[j].
+      The probability of any number x in the range [0,i-1] to be at position j =
+          nums[i] changes its position * x is at position i
+          = (1-1/(1+i))*(1/i) = 1/(1+i)
+  */
+  vector<int> shuffle() {
+    for (int i = 1; i < curr.size(); i++) {
+      swap(curr[i], curr[rand() % (i + 1)]);
+    }
+    return curr;
+  }
+};
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(nums);
+ * vector<int> param_1 = obj.reset();
+ * vector<int> param_2 = obj.shuffle();
+ */
+
+int main() { return 0; }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 386. Lexicographical Numbers
@@ -736,14 +810,14 @@ using namespace std;
 
 struct TreeNode {
   int val;
-  TreeNode* left;
-  TreeNode* right;
+  TreeNode *left;
+  TreeNode *right;
   TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
  public:
-  int sumOfLeftLeaves(TreeNode* root) {
+  int sumOfLeftLeaves(TreeNode *root) {
     if (root == NULL) return 0;
     int res = 0;
     if (root->left && root->left->left == NULL && root->left->right == NULL) {
@@ -936,64 +1010,6 @@ class Solution {
     }
 
     return res + has_odd;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-412. Fizz Buzz
-Write a program that outputs the string representation of numbers from 1 to n.
-
-But for multiples of three it should output “Fizz” instead of the number and for
-the multiples of five output “Buzz”. For numbers which are multiples of both
-three and five output “FizzBuzz”.
-
-Example:
-
-n = 15,
-
-Return:
-[
-    "1",
-    "2",
-    "Fizz",
-    "4",
-    "Buzz",
-    "Fizz",
-    "7",
-    "8",
-    "Fizz",
-    "Buzz",
-    "11",
-    "Fizz",
-    "13",
-    "14",
-    "FizzBuzz"
-]
-/*
-    Submission Date: 2018-05-31
-    Runtime: 5 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<string> fizzBuzz(int n) {
-    vector<string> res;
-    for (int i = 1; i <= n; i++) {
-      string s = "";
-      if (i % 3 == 0) s += "Fizz";
-      if (i % 5 == 0) s += "Buzz";
-      if (s.empty()) s = to_string(i);
-      res.push_back(s);
-    }
-
-    return res;
   }
 };
 

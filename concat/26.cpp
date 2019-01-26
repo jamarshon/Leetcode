@@ -1,6 +1,518 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+553. Optimal Division
+Given a list of positive integers, the adjacent integers will perform the float
+division. For example, [2,3,4] -> 2 / 3 / 4.
+
+However, you can add any number of parenthesis at any position to change the
+priority of operations. You should find out how to add parenthesis to get the
+maximum result, and return the corresponding expression in string format. Your
+expression should NOT contain redundant parenthesis.
+
+Example:
+Input: [1000,100,10,2]
+Output: "1000/(100/10/2)"
+Explanation:
+1000/(100/10/2) = 1000/((100/10)/2) = 200
+However, the bold parenthesis in "1000/((100/10)/2)" are redundant, since they
+don't influence the operation priority. So you should return "1000/(100/10/2)".
+
+Other cases:
+1000/(100/10)/2 = 50
+1000/(100/(10/2)) = 50
+1000/100/10/2 = 0.5
+1000/100/(10/2) = 2
+
+
+
+Note:
+
+The length of the input array is [1, 10].
+Elements in the given array will be in range [2, 1000].
+There is only one optimal division for each test case.
+
+/*
+    Submission Date: 2018-06-30
+    Runtime: 5 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  o(n) for a series of number dp_max[i] = nums[i]/dp_min[i+1]
+  the minimum would be just divide all the numbers from [1,N)
+  as they are all integers meaning its some number divide by all integers
+  in the denominator which would be the smallest. if nums[i] had
+  decimals than the smallest would not be dividing all the numbers as it could
+  be equivalent to putting a integer number in the numerator
+  
+  so return nums[0] / (nums[1]/nums[2]/ .... /nums[N-1])
+  */
+  string optimalDivision(vector<int>& nums) {
+    int N = nums.size();
+    string res = to_string(nums[0]);
+    if (N == 1) return res;
+    if (N == 2) return res + "/" + to_string(nums[1]);
+
+    res += "/(";
+    for (int i = 1; i < N; i++) {
+      res += to_string(nums[i]) + (i == N - 1 ? ")" : "/");
+    }
+
+    return res;
+  }
+
+  /*
+  o(n^2) dp where dp_max[i] is the largest number created from [i, N) and
+  dp_min[i] is the smallest then dp_max[i] is max(product of numbers between [i,
+  j) /dp_min[j]) for j > i and dp_min[i] is min(product of numbers between [i,
+  j) /dp_max[j]) for j > i
+  
+  strings in dp_max and dp_min are surrounded by parenthesis while product of
+  numbers aren't
+  
+  return dp_max[0]
+  */
+  string optimalDivision2(vector<int>& nums) {
+    int N = nums.size();
+    vector<pair<string, double>> dp_max(N, {"", INT_MIN}),
+        dp_min(N, {"", INT_MAX});
+    dp_max[N - 1] = {to_string(nums[N - 1]), nums[N - 1]};
+    dp_min[N - 1] = dp_max[N - 1];
+
+    if (N == 1) return dp_max[0].first;
+
+    for (int i = N - 2; i >= 0; i--) {
+      string curr_s = to_string(nums[i]);
+      double curr = nums[i];
+      for (int j = i + 1; j < N; j++) {
+        if (dp_max[i].second < curr / dp_min[j].second) {
+          dp_max[i] = {"(" + curr_s + "/" + dp_min[j].first + ")",
+                       curr / dp_min[j].second};
+        }
+
+        if (dp_min[i].second > curr / dp_max[j].second) {
+          dp_min[i] = {"(" + curr_s + "/" + dp_max[j].first + ")",
+                       curr / dp_max[j].second};
+        }
+
+        curr /= nums[j];
+        curr_s += "/" + to_string(nums[j]);
+      }
+    }
+
+    return dp_max[0].first.substr(1, dp_max[0].first.size() - 2);
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+557. Reverse Words in a String III
+Given a string, you need to reverse the order of characters in each word within
+a sentence while still preserving whitespace and initial word order.
+
+Example 1:
+Input: "Let's take LeetCode contest"
+Output: "s'teL ekat edoCteeL tsetnoc"
+Note: In the string, each word is separated by single space and there will not
+be any extra space in the string.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  // from index 'start', find a space and reverse everything between start and
+  // space. change start to space + 1.
+  string reverseWords(string s) {
+    int start = 0;
+    while (s.find(' ', start) != string::npos) {
+      int space_ind = s.find(' ', start);
+      reverse(s.begin() + start, s.begin() + space_ind);
+      start = space_ind + 1;
+    }
+
+    reverse(s.begin() + start, s.end());
+    return s;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+558. Quad Tree Intersection
+A quadtree is a tree data in which each internal node has exactly four children:
+topLeft, topRight, bottomLeft and bottomRight. Quad trees are often used to
+partition a two-dimensional space by recursively subdividing it into four
+quadrants or regions.
+
+We want to store True/False information in our quad tree. The quad tree is used
+to represent a N * N boolean grid. For each node, it will be subdivided into
+four children nodes until the values in the region it represents are all the
+same. Each node has another two boolean attributes : isLeaf and val. isLeaf is
+true if and only if the node is a leaf node. The val attribute for a leaf node
+contains the value of the region it represents.
+
+For example, below are two quad trees A and B:
+
+A:
++-------+-------+   T: true
+|       |       |   F: false
+|   T   |   T   |
+|       |       |
++-------+-------+
+|       |       |
+|   F   |   F   |
+|       |       |
++-------+-------+
+topLeft: T
+topRight: T
+bottomLeft: F
+bottomRight: F
+
+B:
++-------+---+---+
+|       | F | F |
+|   T   +---+---+
+|       | T | T |
++-------+---+---+
+|       |       |
+|   T   |   F   |
+|       |       |
++-------+-------+
+topLeft: T
+topRight:
+     topLeft: F
+     topRight: F
+     bottomLeft: T
+     bottomRight: T
+bottomLeft: T
+bottomRight: F
+
+Your task is to implement a function that will take two quadtrees and return a
+quadtree that represents the logical OR (or union) of the two trees.
+
+A:                 B:                 C (A or B):
++-------+-------+  +-------+---+---+  +-------+-------+
+|       |       |  |       | F | F |  |       |       |
+|   T   |   T   |  |   T   +---+---+  |   T   |   T   |
+|       |       |  |       | T | T |  |       |       |
++-------+-------+  +-------+---+---+  +-------+-------+
+|       |       |  |       |       |  |       |       |
+|   F   |   F   |  |   T   |   F   |  |   T   |   F   |
+|       |       |  |       |       |  |       |       |
++-------+-------+  +-------+-------+  +-------+-------+
+
+Note:
+
+  Both A and B represent grids of size N * N.
+  N is guaranteed to be a power of 2.
+  If you want to know more about the quad tree, you can refer to its wiki.
+  The logic OR operation is defined as this: "A or B" is true if A is true, or
+if B is true, or if both A and B are true.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 212 ms
+  Difficulty: EASY
+*/
+#include <cassert>
+#include <iostream>
+
+using namespace std;
+
+class Node {
+ public:
+  bool val;
+  bool isLeaf;
+  Node* topLeft;
+  Node* topRight;
+  Node* bottomLeft;
+  Node* bottomRight;
+
+  Node() {}
+
+  Node(bool _val, bool _isLeaf, Node* _topLeft, Node* _topRight,
+       Node* _bottomLeft, Node* _bottomRight) {
+    val = _val;
+    isLeaf = _isLeaf;
+    topLeft = _topLeft;
+    topRight = _topRight;
+    bottomLeft = _bottomLeft;
+    bottomRight = _bottomRight;
+  }
+};
+
+class Solution {
+ public:
+  bool isTrue(Node* node) { return node->isLeaf && node->val; }
+  Node* intersect(Node* quadTree1, Node* quadTree2) {
+    assert(quadTree1 != nullptr && quadTree2 != nullptr);
+
+    if (isTrue(quadTree1) || isTrue(quadTree2))
+      return new Node(true, true, nullptr, nullptr, nullptr, nullptr);
+
+    if (quadTree1->isLeaf) return quadTree2;
+    if (quadTree2->isLeaf) return quadTree1;
+
+    Node* node = new Node();
+    node->isLeaf = false;
+    node->topLeft = intersect(quadTree1->topLeft, quadTree2->topLeft);
+    node->topRight = intersect(quadTree1->topRight, quadTree2->topRight);
+    node->bottomLeft = intersect(quadTree1->bottomLeft, quadTree2->bottomLeft);
+    node->bottomRight =
+        intersect(quadTree1->bottomRight, quadTree2->bottomRight);
+
+    if (isTrue(node->topLeft) && isTrue(node->topRight) &&
+        isTrue(node->bottomLeft) && isTrue(node->bottomRight)) {
+      return new Node(true, true, nullptr, nullptr, nullptr, nullptr);
+    }
+    return node;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+559. Maximum Depth of N-ary Tree
+Given a n-ary tree, find its maximum depth.
+
+The maximum depth is the number of nodes along the longest path from the root
+node down to the farthest leaf node.
+
+For example, given a 3-ary tree:
+ 
+
+
+ 
+
+We should return its max depth, which is 3.
+
+Note:
+
+
+    The depth of the tree is at most 1000.
+    The total number of nodes is at most 5000.
+
+/*
+    Submission Date: 2018-07-13
+    Runtime: 40 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Node {
+ public:
+  int val;
+  vector<Node*> children;
+
+  Node() {}
+
+  Node(int _val, vector<Node*> _children) {
+    val = _val;
+    children = _children;
+  }
+};
+
+class Solution {
+ public:
+  int maxDepth(Node* root) {
+    if (!root) return 0;
+
+    int res = 0;
+    for (const auto& c : root->children) res = max(res, maxDepth(c));
+
+    return res + 1;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+561. Array Partition I
+Given an array of 2n integers, your task is to group these integers into n pairs
+of integer, say (a1, b1), (a2, b2), ..., (an, bn) which makes sum of min(ai, bi)
+for all i from 1 to n as large as possible.
+
+Example 1:
+Input: [1,4,3,2]
+
+Output: 4
+Explanation: n is 2, and the maximum sum of pairs is 4 = min(1, 2) + min(3, 4).
+Note:
+n is a positive integer, which is in the range of [1, 10000].
+All the integers in the array will be in the range of [-10000, 10000].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 85 ms
+    Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+   for a pair ai and bi where bi is not used, it means bi should be the smallest
+   element > ai in order to maximize the rest of the result
+  */
+  int arrayPairSum(vector<int>& nums) {
+    int res = 0;
+    sort(nums.begin(), nums.end());
+    for (int i = 0; i < nums.size(); i += 2) res += nums[i];
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+563. Binary Tree Tilt
+Given a binary tree, return the tilt of the whole tree.
+
+The tilt of a tree node is defined as the absolute difference between the sum of
+all left subtree node values and the sum of all right subtree node values. Null
+node has tilt 0.
+
+The tilt of the whole tree is defined as the sum of all nodes' tilt.
+
+Example:
+Input:
+         1
+       /   \
+      2     3
+Output: 1
+Explanation:
+Tilt of node 2 : 0
+Tilt of node 3 : 0
+Tilt of node 1 : |2-3| = 1
+Tilt of binary tree : 0 + 0 + 1 = 1
+Note:
+
+The sum of node values in any subtree won't exceed the range of 32-bit integer.
+All the tilt values won't exceed the range of 32-bit integer.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+  returns the sum of subtree with node as root
+  */
+  int help(TreeNode* node, int& res) {
+    if (node == NULL) return 0;
+    int left = help(node->left, res);
+    int right = help(node->right, res);
+    res += abs(left - right);
+    return node->val + left + right;
+  }
+
+  int findTilt(TreeNode* root) {
+    int res = 0;
+    help(root, res);
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+565. Array Nesting
+A zero-indexed array A consisting of N different integers is given. The array contains 
+all integers in the range [0, N - 1].
+
+Sets S[K] for 0 <= K < N are defined as follows:
+
+S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+
+Sets S[K] are finite for each K and should NOT contain duplicates.
+
+Write a function that given an array A consisting of N integers, return the size of 
+the largest set S[K] for this array.
+
+Example 1:
+Input: A = [5,4,0,3,1,6,2]
+Output: 4
+Explanation: 
+A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
+
+One of the longest S[K]:
+S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
+Note:
+N is an integer within the range [1, 20,000].
+The elements of A are all distinct.
+Each element of array A is an integer within the range [0, N-1].
+/*
+    Submission Date: 2017-05-29
+    Runtime: 36 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int arrayNesting(vector<int>& nums) {
+        int N = nums.size();
+        vector<bool> mask(N, true);
+        int max_set = 0;
+        for(int i = 0; i < N; i++) {
+            if(mask[i]) { // hasn't been processed
+                int current = i;
+                int current_set = 0;
+                while(true) {
+                    if(current >= N || !mask[current]) break;
+                    mask[current] = false;
+                    current = nums[current];
+                    current_set++;
+                }
+                max_set = max(current_set, max_set);
+            }
+        }
+        return max_set;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 566. Reshape the Matrix
 In MATLAB, there is a very useful function called 'reshape', which can reshape a
 matrix into a new one with different size but keep its original data.
@@ -270,16 +782,15 @@ int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you
-only sort this subarray in ascending order, then the whole array will be sorted
-in ascending order, too.
+Given an integer array, you need to find one continuous subarray that if you only sort this 
+subarray in ascending order, then the whole array will be sorted in ascending order, too.
 
 You need to find the shortest such subarray and output its length.
 
 Input: [2, 6, 4, 8, 10, 9, 15]
 Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the
-whole array sorted in ascending order.
+Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
+sorted in ascending order.
 
 Note:
 Then length of the input array is in range [1, 10,000].
@@ -291,67 +802,63 @@ The input array may contain duplicates, so ascending order here means <=.
     Difficulty: EASY
 */
 
-#include <algorithm>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 class Solution {
- public:
-  int findUnsortedSubarray(vector<int>& nums) {
-    int N = nums.size();
-    vector<int> cpy(N);
-    copy(nums.begin(), nums.end(), cpy.begin());
-    sort(nums.begin(), nums.end());
+public:
+    int findUnsortedSubarray(vector<int>& nums) {
+            int N = nums.size();
+            vector<int> cpy(N);
+            copy(nums.begin(), nums.end(), cpy.begin());
+            sort(nums.begin(), nums.end());
 
-    int i;
-    for (i = 0; i < N; i++) {
-      if (nums[i] != cpy[i]) break;
+            int i;
+            for(i = 0; i < N; i++) {
+                if(nums[i] != cpy[i]) break;
+            }
+
+            int j;
+            for(j = N-1; j >= 0; j--) {
+                if(nums[j] != cpy[j]) break;
+            }
+
+        return max(j - i + 1, 0);
     }
-
-    int j;
-    for (j = N - 1; j >= 0; j--) {
-      if (nums[j] != cpy[j]) break;
-    }
-
-    return max(j - i + 1, 0);
-  }
 };
 
 int main() {
-  Solution s;
-  vector<int> v{2, 6, 4, 8, 10, 9, 15};
-  cout << s.findUnsortedSubarray(v);
-  return 0;
+    Solution s;
+    vector<int> v{2, 6, 4, 8, 10, 9, 15};
+    cout << s.findUnsortedSubarray(v);
+    return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID
-(parent process id).
+Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
 
-Each process only has one parent process, but may have one or more children
-processes. This is just like a tree structure. Only one process has PPID that is
-0, which means this process has no parent process. All the PIDs will be distinct
-positive integers.
+Each process only has one parent process, but may have one or more children processes. This 
+is just like a tree structure. Only one process has PPID that is 0, which means this process 
+has no parent process. All the PIDs will be distinct positive integers.
 
-We use two list of integers to represent a list of processes, where the first
-list contains PID for each process and the second list contains the
-corresponding PPID.
+We use two list of integers to represent a list of processes, where the first list contains 
+PID for each process and the second list contains the corresponding PPID.
 
-Now given the two lists, and a PID representing a process you want to kill,
-return a list of PIDs of processes that will be killed in the end. You should
-assume that when a process is killed, all its children processes will be killed.
-No order is required for the final answer.
+Now given the two lists, and a PID representing a process you want to kill, return a list 
+of PIDs of processes that will be killed in the end. You should assume that when a process 
+is killed, all its children processes will be killed. No order is required for the final answer.
 
 Example 1:
-Input:
+Input: 
 pid =  [1, 3, 10, 5]
 ppid = [3, 0, 5, 3]
 kill = 5
 Output: [5,10]
-Explanation:
+Explanation: 
            3
          /   \
         1     5
@@ -368,65 +875,65 @@ n >= 1.
     Difficulty: MEDIUM
 */
 #include <iostream>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
 class Solution {
- public:
-  vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-    unordered_map<int, vector<int>> m;
-    int N = pid.size();
-    for (int i = 0; i < N; i++) {
-      int _ppid = ppid[i];
-      int _pid = pid[i];
+public:
+    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
+        unordered_map<int, vector<int>> m;
+        int N = pid.size();
+        for(int i = 0; i < N; i++) {
+            int _ppid = ppid[i];
+            int _pid = pid[i];
 
-      if (m.find(_ppid) == m.end()) {
-        m[_ppid] = {_pid};
-      } else {
-        m[_ppid].push_back(_pid);
-      }
-    }
-
-    vector<int> result{kill};
-    int i = 0;
-    while (i < result.size()) {
-      int current = result[i];
-      if (m.find(current) != m.end()) {  // non leaf
-        vector<int> children = m[current];
-        for (auto c : children) {
-          result.push_back(c);
+            if(m.find(_ppid) == m.end()) {
+                m[_ppid] = {_pid};
+            } else {
+                m[_ppid].push_back(_pid);
+            }
         }
-      }
-      i++;
+
+        vector<int> result{kill};
+        int i = 0;
+        while(i < result.size()) {
+            int current = result[i];
+            if(m.find(current) != m.end()) { // non leaf
+                vector<int> children = m[current];
+                for(auto c: children) {
+                    result.push_back(c);
+                }
+            }
+            i++;
+        }
+        return result;
     }
-    return result;
-  }
 };
 
 int main() {
-  Solution s;
-  vector<int> pid{1, 3, 10, 5, 4, 1};
-  vector<int> ppid{3, 0, 5, 3, 10, 5};
-  int kill = 5;
-  vector<int> t = s.killProcess(pid, ppid, kill);
-  for (auto l : t) cout << l << " ";
-  return 0;
+	Solution s;
+    vector<int> pid{1, 3, 10, 5, 4, 1};
+	vector<int> ppid{3, 0, 5, 3, 10, 5};
+    int kill = 5;
+    vector<int> t = s.killProcess(pid, ppid, kill);
+	for(auto l: t) cout << l << " ";
+	return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to
-make word1 and word2 the same, where in each step you can delete one character
-in either string.
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
 
 Example 1:
 Input: "sea", "eat"
 Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make
-"eat" to "ea". Note: The length of given words won't exceed 500. Characters in
-given words can only be lower-case letters.
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
+Note:
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
 
 /*
     Submission Date: 2017-05-13
@@ -439,553 +946,30 @@ given words can only be lower-case letters.
 using namespace std;
 
 class Solution {
- public:
-  int minDistance(string word1, string word2) {
-    int row = word2.size() + 1;
-    int col = word1.size() + 1;
-    int dp[501][501];
-    for (int i = 0; i < row; i++) dp[i][0] = i;
-    for (int i = 0; i < col; i++) dp[0][i] = i;
+public:
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
 
-    for (int i = 1; i < row; i++) {
-      for (int j = 1; j < col; j++) {
-        if (word2[i - 1] == word1[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1];
-        } else {
-          dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
         }
-      }
+        
+        return dp[row - 1][col - 1];
     }
-
-    return dp[row - 1][col - 1];
-  }
 };
 
 int main() {
-  Solution s;
-  cout << s.minDistance("sea", "eat");
-  return 0;
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-592. Fraction Addition and Subtraction
-Given a string representing an expression of fraction addition
-and subtraction, you need to return the calculation result in string
-format. The final result should be irreducible fraction. If your final
-result is an integer, say 2, you need to change it to the format of
-fraction that has denominator 1. So in this case, 2 should be
-converted to 2/1.
-
-Example 1:
-Input:"-1/2+1/2"
-Output: "0/1"
-Example 2:
-Input:"-1/2+1/2+1/3"
-Output: "1/3"
-Example 3:
-Input:"1/3-1/2"
-Output: "-1/6"
-Example 4:
-Input:"5/3+1/3"
-Output: "2/1"
-Note:
-The input string only contains '0' to '9', '/', '+' and '-'.
-So does the output.
-Each fraction (input and output) has format ±numerator/denominator.
-If the first input fraction or the output is positive, then '+' will
-be omitted.
-The input only contains valid irreducible fractions, where the
-numerator and denominator of each fraction will always be in the
-range [1,10]. If the denominator is 1, it means this fraction is
-actually an integer in a fraction format defined above.
-The number of given fractions will be in the range [1,10].
-The numerator and denominator of the final result are guaranteed
-to be valid and in the range of 32-bit int.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <cassert>
-#include <cctype>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-typedef long long ll;
-struct Fraction {
-  ll num, den;
-};
-
-class Solution {
- public:
-  ll gcd(ll a, ll b) { return b == 0 ? a : gcd(b, a % b); }
-
-  ll lcm(ll a, ll b) { return a * b / gcd(a, b); }
-
-  // a/b + c/d = (a*lcm(b,d)/b + c*lcm(b,d)/d)/lcm(b,d)
-  // 1/4 + 1/16 = (1*16/4 + 1*16/16)/16 = (4+1)/16
-  // 1/3 + 2/4 = (1*12/3 + 2*12/4)/12 = (4+6)/12
-
-  // (a*(b*d/gcd(b,d))/b + c*(b*d/gcd(b,d))/d)/(b*d/gcd(b,d))
-  // (a*d/gcd(b,d) + c*b/gcd(b,d))/(b*d/gcd(b,d))
-  // ((a*d + c*b)/gcd(b,d)*gcd(b,d))/(b*d)
-  // (a*d + b*c)/(b*d)
-  Fraction add(Fraction a, Fraction b) {
-    return {a.num * b.den + a.den * b.num, a.den * b.den};
-  }
-
-  Fraction reduce(Fraction a) {
-    int gcd_num_den = gcd(abs(a.num), a.den);
-    return {a.num / gcd_num_den, a.den / gcd_num_den};
-  }
-
-  string fractionAddition(string s) {
-    vector<Fraction> v;
-    int N = s.size();
-    bool is_negative = false;
-    for (int i = 0; i < N;) {
-      // s[i] is beginning of numerator which is either '-' (negative num), '+'
-      // (positive num) or a number (positive num and is start of string)
-      Fraction fr;
-      is_negative = s[i] == '-';
-
-      if (s[i] == '+' || is_negative) {
-        i++;
-      }
-
-      ll curr = 0;
-      while (isdigit(s[i])) {
-        curr = curr * 10 + (s[i] - '0');
-        i++;
-      }
-
-      fr.num = is_negative ? -curr : curr;
-      // s[i] is the '/' followed by a number so end i where the next operator
-      // starts
-      assert(s[i++] == '/');
-
-      curr = 0;
-      while (isdigit(s[i]) && i < N) {
-        curr = curr * 10 + (s[i] - '0');
-        i++;
-      }
-
-      fr.den = curr;
-      v.push_back(fr);
-    }
-
-    Fraction res = v.front();
-    res = reduce(res);
-    for (int i = 1; i < v.size(); i++) {
-      res = add(res, v[i]);
-      res = reduce(res);
-    }
-
-    return to_string(res.num) + "/" + to_string(res.den);
-  }
-};
-
-int main() {
-  Solution s;
-  return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points
-could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two
-integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles
-(90-degree angles). Input points have no order.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  double eucl_sq(vector<int>& p1, vector<int>& p2) {
-    return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-  }
-
-  bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3,
-                   vector<int>& p4) {
-    // distance squared
-    vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4),
-                        eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
-
-    sort(dist.begin(), dist.end());
-
-    // should result in 4 equal length sides and two longer sides that are the
-    // diagonals
-    bool equal_sides =
-        dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-    bool non_zero_sides = dist[0] > 0;
-
-    // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-    bool correct_diagonals = dist[4] == dist[5] && 2 * dist[0] == dist[4];
-    return equal_sides && non_zero_sides && correct_diagonals;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the
-four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array
-with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four
-equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-08-23
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <cassert>
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int distSq(vector<int>& a, vector<int>& b) {
-    return pow(b[0] - a[0], 2) + pow(b[1] - a[1], 2);
-  }
-  bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3,
-                   vector<int>& p4) {
-    vector<int> dist;
-    vector<vector<int>> v{p1, p2, p3, p4};
-    for (int i = 0; i < 4; i++) {
-      for (int j = i + 1; j < 4; j++) {
-        dist.push_back(distSq(v[i], v[j]));
-      }
-    }
-
-    // given points a,b,c,d -> dist will contain ab ac ad bc bd cd
-    // out of these 6 distances, there are 4 distances which are the side
-    // distances (s) and 2 that are hypotenuse (h) s^2 + s^2 = h^2
-
-    assert(dist.size() == 6);
-    map<int, int> freq;
-    for (auto e : dist) freq[e]++;
-
-    if (freq.size() != 2) return false;
-    int s = freq.begin()->first;
-    int h = next(freq.begin(), 1)->first;
-    return 2 * s == h;
-  }
-};
-
-int main() {
-  Solution s;
-  return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-594. Longest Harmonious Subsequence
-We define a harmonious array is an array where the difference between its
-maximum value and its minimum value is exactly 1.
-
-Now, given an integer array, you need to find the length of its longest
-harmonious subsequence among all its possible subsequences.
-
-Example 1:
-Input: [1,3,2,2,5,2,3,7]
-Output: 5
-Explanation: The longest harmonious subsequence is [3,2,2,2,3].
-Note: The length of the input array will not exceed 20,000.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 109 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int findLHS(vector<int>& nums) {
-    unordered_map<int, int> freq;
-    int max_len = 0;
-    for (int d : nums) {
-      int current = 0;
-      if (freq.find(d) != freq.end()) {
-        current += freq[d];
-        freq[d] += 1;
-      } else {
-        freq[d] = 1;
-      }
-
-      int adj = 0;
-      if (freq.find(d - 1) != freq.end()) {
-        adj = max(adj, freq[d - 1]);
-      }
-
-      if (freq.find(d + 1) != freq.end()) {
-        adj = max(adj, freq[d + 1]);
-      }
-
-      if (adj == 0) continue;
-      current += adj + 1;
-      max_len = max(current, max_len);
-    }
-    return max_len;
-  }
-};
-
-int main() {
-  vector<int> v{1, 3, 2, 2, 5, 2, 3, 7};
-  Solution s;
-  cout << s.findLHS(v) << endl;
-  return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-598. Range Addition II
-Given an m * n matrix M initialized with all 0's and several update operations.
-
-Operations are represented by a 2D array, and each operation is represented by
-an array with two positive integers a and b, which means M[i][j] should be added
-by one for all 0 <= i < a and 0 <= j < b.
-
-You need to count and return the number of maximum integers in the matrix after
-performing all the operations.
-
-Example 1:
-Input:
-m = 3, n = 3
-operations = [[2,2],[3,3]]
-Output: 4
-Explanation:
-Initially, M =
-[[0, 0, 0],
- [0, 0, 0],
- [0, 0, 0]]
-
-After performing [2,2], M =
-[[1, 1, 0],
- [1, 1, 0],
- [0, 0, 0]]
-
-After performing [3,3], M =
-[[2, 2, 1],
- [2, 2, 1],
- [1, 1, 1]]
-
-So the maximum integer in M is 2, and there are four of it in M. So return 4.
-Note:
-The range of m and n is [1,40000].
-The range of a is [1,m], and the range of b is [1,n].
-The range of operations size won't exceed 10,000.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int maxCount(int m, int n, vector<vector<int>>& ops) {
-    for (vector<int> op : ops) {
-      m = min(m, op[0]);
-      n = min(n, op[1]);
-    }
-    return m * n;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-599. Minimum Index Sum of Two Lists
-Suppose Andy and Doris want to choose a restaurant for dinner, and they both
-have a list of favorite restaurants represented by strings.
-
-You need to help them find out their common interest with the least list index
-sum. If there is a choice tie between answers, output all of them with no order
-requirement. You could assume there always exists an answer.
-
-Example 1:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
-Output: ["Shogun"]
-Explanation: The only restaurant they both like is "Shogun".
-Example 2:
-Input:
-["Shogun", "Tapioca Express", "Burger King", "KFC"]
-["KFC", "Shogun", "Burger King"]
-Output: ["Shogun"]
-Explanation: The restaurant they both like and have the least index sum is
-"Shogun" with index sum 1 (0+1). Note: The length of both lists will be in the
-range of [1, 1000]. The length of strings in both lists will be in the range of
-[1, 30]. The index is starting from 0 to the list length minus 1. No duplicates
-in both lists.
-/*
-    Submission Date: 2017-05-29
-    Runtime: 103 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<string> findRestaurant(vector<string>& list1, vector<string>& list2) {
-    unordered_map<string, int> m;
-    for (int i = 0; i < list1.size(); i++) {
-      m[list1[i]] = i;
-    }
-
-    vector<string> res;
-    int min_index_sum = -1;
-    for (int i = 0; i < list2.size(); i++) {
-      string s2 = list2[i];
-      if (m.count(s2)) {
-        int new_sum = i + m[s2];
-        if (min_index_sum == -1) {
-          min_index_sum = new_sum;
-          res.push_back(s2);
-          continue;
-        }
-
-        if (new_sum == min_index_sum) {
-          res.push_back(s2);
-        } else if (new_sum < min_index_sum) {
-          min_index_sum = new_sum;
-          res.clear();
-          res.push_back(s2);
-        }
-      }
-    }
-    return res;
-  }
-};
-
-int main() {
-  Solution s;
-  vector<string> v1{"Shogun", "Tapioca Express", "Burger King", "KFC"};
-  vector<string> v2{"Piatti", "The Grill at Torrey Pines",
-                    "Hungry Hunter Steakhouse", "Shogun"};
-  vector<string> t = s.findRestaurant(v1, v2);
-  cout << t.size() << endl;
-  return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-604. Design Compressed String Iterator
-Design and implement a data structure for a compressed string iterator.
-It should support the following operations: next and hasNext.
-
-The given compressed string will be in the form of each letter followed
-by a positive integer representing the number of this letter existing in
-the original uncompressed string.
-
-next() - if the original string still has uncompressed characters, return
-the next letter; Otherwise return a white space.
-hasNext() - Judge whether there is any letter needs to be uncompressed.
-
-Example:
-
-StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
-
-iterator.next(); // return 'L'
-iterator.next(); // return 'e'
-iterator.next(); // return 'e'
-iterator.next(); // return 't'
-iterator.next(); // return 'C'
-iterator.next(); // return 'o'
-iterator.next(); // return 'd'
-iterator.hasNext(); // return true
-iterator.next(); // return 'e'
-iterator.hasNext(); // return false
-iterator.next(); // return ' '
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <cctype>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class StringIterator {
-  vector<pair<char, long long>> v_;
-  int index_;
-
- public:
-  StringIterator(string compressedString) {
-    index_ = 0;
-    int len = compressedString.size();
-    int i = 0;
-    while (i < len) {
-      char c = compressedString[i];
-      i++;
-      string rep = "";
-      while (i < len && isdigit(compressedString[i])) {
-        rep += compressedString[i];
-        i++;
-      }
-
-      long long times = stoll(rep);
-      // cout << c << ' ' << times << endl;
-      v_.emplace_back(c, times);
-    }
-  }
-
-  char next() {
-    if (!hasNext()) return ' ';
-    pair<char, long long>& p = v_[index_];
-    p.second--;
-    if (p.second == 0) index_++;
-    return p.first;
-  }
-
-  bool hasNext() { return index_ < v_.size(); }
-};
-
-int main() { return 0; }

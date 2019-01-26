@@ -866,16 +866,16 @@ using namespace std;
 
 struct UndirectedGraphNode {
   int label;
-  vector<UndirectedGraphNode*> neighbors;
+  vector<UndirectedGraphNode *> neighbors;
   UndirectedGraphNode(int x) : label(x){};
 };
 
 class Solution {
-  unordered_map<UndirectedGraphNode*, UndirectedGraphNode*> m;
-  unordered_set<UndirectedGraphNode*> visited;
+  unordered_map<UndirectedGraphNode *, UndirectedGraphNode *> m;
+  unordered_set<UndirectedGraphNode *> visited;
 
  public:
-  void cloneGraph(UndirectedGraphNode* head, UndirectedGraphNode* node) {
+  void cloneGraph(UndirectedGraphNode *head, UndirectedGraphNode *node) {
     visited.insert(node);
     for (auto neighbor : node->neighbors) {
       if (!m.count(neighbor)) {
@@ -889,10 +889,10 @@ class Solution {
     }
   }
 
-  UndirectedGraphNode* cloneGraph(UndirectedGraphNode* node) {
+  UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node) {
     if (node == NULL) return NULL;
 
-    UndirectedGraphNode* head = new UndirectedGraphNode(node->label);
+    UndirectedGraphNode *head = new UndirectedGraphNode(node->label);
     m[node] = head;
     cloneGraph(head, node);
     return head;

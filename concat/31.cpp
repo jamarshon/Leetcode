@@ -1,6 +1,777 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+676. Implement Magic Dictionary
+
+Implement a magic directory with buildDict, and search methods.
+
+For the method buildDict, you'll be given a list of non-repetitive words to
+build a dictionary.
+
+For the method search, you'll be given a word, and judge whether if you modify
+exactly one character into another character in this word, the modified word is
+in the dictionary you just built.
+
+Example 1:
+Input: buildDict(["hello", "leetcode"]), Output: Null
+Input: search("hello"), Output: False
+Input: search("hhllo"), Output: True
+Input: search("hell"), Output: False
+Input: search("leetcoded"), Output: False
+Note:
+You may assume that all the inputs are consist of lowercase letters a-z.
+For contest purpose, the test data is rather small by now. You could think about
+highly efficient algorithm after the contest. Please remember to RESET your
+class variables declared in class MagicDictionary, as static/class variables are
+persisted across multiple test cases. Please see here for more details.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 9 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class MagicDictionary {
+ public:
+  /** Initialize your data structure here. */
+  unordered_map<string, vector<pair<char, int>>> m_;
+  MagicDictionary() {}
+
+  /** Build a dictionary through a list of words */
+  void buildDict(vector<string> dict) {
+    /*
+        N words of size K O(Nk^2)
+        hello -> [ello, [h, 0]], [hllo, [e, 1]], [helo, l, 2]], [helo, [l, 3]],
+       [hell, [o, 4]]
+    */
+    m_.clear();
+    for (const auto& s : dict) {
+      for (int i = 0; i < s.size(); i++) {
+        m_[s.substr(0, i) + s.substr(i + 1)].emplace_back(s[i], i);
+      }
+    }
+  }
+
+  /** Returns if there is any word in the trie that equals to the given word
+   * after modifying exactly one character */
+  bool search(string s) {
+    // O(k^2*M) where M is size of vector for a key in m_
+    for (int i = 0; i < s.size(); i++) {
+      const auto& key = s.substr(0, i) + s.substr(i + 1);
+      if (!m_.count(key)) continue;
+      for (const auto& p : m_[key]) {
+        // looking for same index different letter
+        if (p.second == i && p.first != s[i]) return true;
+      }
+    }
+    return false;
+  }
+};
+
+/**
+ * Your MagicDictionary object will be instantiated and called as such:
+ * MagicDictionary obj = new MagicDictionary();
+ * obj.buildDict(dict);
+ * bool param_2 = obj.search(word);
+ */
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+677. Map Sum Pairs
+Implement a MapSum class with insert, and sum methods.
+
+
+
+For the method insert, you'll be given a pair of (string, integer). The string
+represents the key and the integer represents the value. If the key already
+existed, then the original key-value pair will be overridden to the new one.
+
+
+
+For the method sum, you'll be given a string representing the prefix, and you
+need to return the sum of all the pairs' value whose key starts with the prefix.
+
+
+Example 1:
+Input: insert("apple", 3), Output: Null
+Input: sum("ap"), Output: 3
+Input: insert("app", 2), Output: Null
+Input: sum("ap"), Output: 5
+
+/*
+    Submission Date: 2018-07-02
+    Runtime: 4 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+struct TrieNode {
+  int sum;
+  TrieNode* children[26];
+  TrieNode() {
+    sum = 0;
+    for (int i = 0; i < 26; i++) children[i] = NULL;
+  }
+};
+
+class MapSum {
+  unordered_map<string, int> m;
+  TrieNode* root;
+
+ public:
+  /** Have a trie and unordered_map. the unordered_map keeps track of key and
+   val the trie can find prefix easily. each node has sum which is the sum of
+   all...l with each node visited getting the to_add added to their sum.
+  */
+  MapSum() { root = new TrieNode(); }
+
+  void insert(string key, int val) {
+    int to_add = m.count(key) ? val - m[key] : val;
+    m[key] = val;
+    TrieNode* curr = root;
+    curr->sum += to_add;
+
+    for (const auto& c : key) {
+      if (curr->children[c - 'a'] == NULL)
+        curr->children[c - 'a'] = new TrieNode();
+      curr = curr->children[c - 'a'];
+      curr->sum += to_add;
+    }
+  }
+
+  int sum(string prefix) {
+    TrieNode* curr = root;
+    for (const auto& c : prefix) {
+      if (curr->children[c - 'a'] == NULL) return 0;
+      curr = curr->children[c - 'a'];
+    }
+
+    return curr->sum;
+  }
+};
+
+/**
+ * Your MapSum object will be instantiated and called as such:
+ * MapSum obj = new MapSum();
+ * obj.insert(key,val);
+ * int param_2 = obj.sum(prefix);
+ */
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+680. Valid Palindrome II
+Given a non-empty string s, you may delete at most one character. Judge whether
+you can make it a palindrome.
+
+Example 1:
+Input: "aba"
+Output: True
+Example 2:
+Input: "abca"
+Output: True
+Explanation: You could delete the character 'c'.
+Note:
+The string will only contain lowercase characters a-z. The maximum length of the
+string is 50000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 129 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution2 {
+ public:
+  /*
+  dp[i][j] represents number of deletes to make a palindrome for string [i, j]
+  */
+  bool validPalindrome(string s) {
+    int N = s.size();
+    vector<vector<int>> dp(N, vector<int>(N, 0));
+    for (int gap = 1; gap < N; gap++) {
+      for (int i = 0; i + gap < N; i++) {
+        int j = i + gap;
+        dp[i][j] = s[i] == s[j] ? dp[i + 1][j - 1]
+                                : 1 + min(dp[i + 1][j], dp[i][j - 1]);
+      }
+    }
+
+    return dp[0][N - 1] <= 1;
+  }
+};
+
+class Solution {
+ public:
+  bool IsPalindrome(const string& s, int l, int r) {
+    while (l < r) {
+      if (s[l] == s[r]) {
+        l++;
+        r--;
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /*
+  loop l and r until they do not match then check either if skipping l
+  IsPalindrome(s, l+1, r) or skipping r IsPalindrome(s, l, r-1) will result in a
+  palindrome
+  */
+  bool validPalindrome(string s) {
+    int l = 0;
+    int r = s.size() - 1;
+    while (l < r) {
+      if (s[l] == s[r]) {
+        l++;
+        r--;
+      } else {
+        return IsPalindrome(s, l + 1, r) || IsPalindrome(s, l, r - 1);
+      }
+    }
+    return true;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+682. Baseball Game
+You're now a baseball game point recorder.
+
+Given a list of strings, each string can be one of the 4 following types:
+
+Integer (one round's score): Directly represents the number of points you get in
+this round.
+"+" (one round's score): Represents that the points you get in this round are
+the sum of the last two valid round's points. "D" (one round's score):
+Represents that the points you get in this round are the doubled data of the
+last valid round's points. "C" (an operation, which isn't a round's score):
+Represents the last valid round's points you get were invalid and should be
+removed. Each round's operation is permanent and could have an impact on the
+round before and the round after.
+
+You need to return the sum of the points you could get in all the rounds.
+
+Example 1:
+Input: ["5","2","C","D","+"]
+Output: 30
+Explanation:
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get 2 points. The sum is: 7.
+Operation 1: The round 2's data was invalid. The sum is: 5.
+Round 3: You could get 10 points (the round 2's data has been removed). The sum
+is: 15. Round 4: You could get 5 + 10 = 15 points. The sum is: 30. Example 2:
+Input: ["5","-2","4","C","D","9","+","+"]
+Output: 27
+Explanation:
+Round 1: You could get 5 points. The sum is: 5.
+Round 2: You could get -2 points. The sum is: 3.
+Round 3: You could get 4 points. The sum is: 7.
+Operation 1: The round 3's data is invalid. The sum is: 3.
+Round 4: You could get -4 points (the round 3's data has been removed). The sum
+is: -1. Round 5: You could get 9 points. The sum is: 8. Round 6: You could get
+-4 + 9 = 5 points. The sum is 13. Round 7: You could get 9 + 5 = 14 points. The
+sum is 27. Note: The size of the input list will be between 1 and 1000. Every
+integer represented in the list will be between -30000 and 30000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <cassert>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  let stk be all the valid round points. if it is a number just add it as a
+  round and increment res by the amount if it is a "+", take the last two rounds
+  add add them up. put the sum as a round and increment res by the amount if it
+  is a "D", take the last round, multiply it by two and add it as a around and
+  increment res by the amount if it is a "C", take the last round and decrease
+  res by the amount as well as pop that round off.
+  */
+  int calPoints(vector<string>& ops) {
+    int res = 0;
+    vector<int> stk;
+    for (const auto& s : ops) {
+      int stk_size = stk.size();
+      if (s == "+") {
+        assert(stk_size >= 2);
+        stk.push_back(stk[stk_size - 1] + stk[stk_size - 2]);
+        res += stk.back();
+      } else if (s == "D") {
+        assert(stk_size >= 1);
+        stk.push_back(stk[stk_size - 1] * 2);
+        res += stk.back();
+      } else if (s == "C") {
+        res -= stk.back();
+        stk.pop_back();
+      } else {  // a number
+        stk.push_back(stoi(s));
+        res += stk.back();
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+684. Redundant Connection
+In this problem, a tree is an undirected graph that is connected and has no
+cycles.
+
+The given input is a graph that started as a tree with N nodes (with distinct
+values 1, 2, ..., N), with one additional edge added.  The added edge has two
+different vertices chosen from 1 to N, and was not an edge that already existed.
+
+The resulting graph is given as a 2D-array of edges.  Each element of edges is a
+pair [u, v] with u < v, that represents an undirected edge connecting nodes u
+and v.
+
+Return an edge that can be removed so that the resulting graph is a tree of N
+nodes.  If there are multiple answers, return the answer that occurs last in the
+given 2D-array.  The answer edge [u, v] should be in the same format, with u <
+v.
+Example 1:
+Input: [[1,2], [1,3], [2,3]]
+Output: [2,3]
+Explanation: The given undirected graph will be like this:
+  1
+ / \
+2 - 3
+
+
+Example 2:
+Input: [[1,2], [2,3], [3,4], [1,4], [1,5]]
+Output: [1,4]
+Explanation: The given undirected graph will be like this:
+5 - 1 - 2
+    |   |
+    4 - 3
+
+
+Note:
+The size of the input 2D-array will be between 3 and 1000.
+Every integer represented in the 2D-array will be between 1 and N, where N is
+the size of the input array.
+
+
+
+
+
+Update (2017-09-26):
+We have overhauled the problem description + test cases and specified clearly
+the graph is an undirected graph. For the directed graph follow up please see
+Redundant Connection II). We apologize for any inconvenience caused.
+
+/*
+    Submission Date: 2018-07-11
+    Runtime: 4 ms
+    Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+class UnionFind {
+  // key is element, value is rank
+  unordered_map<T, int> rank_;
+  // key is element, value is parent
+  unordered_map<T, T> parent_;
+
+ public:
+  bool IsWithinSet(T e) { return parent_.count(e); }
+
+  void CreateSet(T e) {
+    assert(!IsWithinSet(e));
+    parent_[e] = e;
+    rank_[e] = 0;
+  }
+
+  // finds the root of e
+  T Find(T e) {
+    if (parent_[e] != e) {
+      // this is not a root (root has parent to be equal itself)
+      // so find root and apply path compression along path
+      parent_[e] = Find(parent_[e]);
+    }
+    return parent_[e];
+  }
+
+  // unions the sets of e1 and e2 if necessary
+  // return whether an union took place
+  bool Union(T e1, T e2) {
+    T e1_root = Find(e1);
+    T e2_root = Find(e2);
+
+    if (e1_root == e2_root) return false;  // same root
+
+    // Attach smaller rank tree under root of high rank tree
+    // (Union by Rank)
+    if (rank_[e1_root] < rank_[e2_root]) {
+      parent_[e1_root] = e2_root;
+    } else {
+      parent_[e2_root] = e1_root;
+      if (rank_[e1_root] == rank_[e2_root]) {
+        rank_[e1_root]++;
+      }
+    }
+
+    return true;
+  }
+};
+
+class Solution {
+ public:
+  /*
+  union find
+  for each node uv, find if u and v are seperate sets. if they are, union the
+  sets else they are in the same set and already connected so return uv
+  */
+  vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+    UnionFind<int> uf;
+    for (const auto& uv : edges) {
+      if (!uf.IsWithinSet(uv[0])) uf.CreateSet(uv[0]);
+      if (!uf.IsWithinSet(uv[1])) uf.CreateSet(uv[1]);
+      if (!uf.Union(uv[0], uv[1])) {  // no union occured as same set already
+        return uv;
+      }
+    }
+
+    return {};
+  }
+};
+
+class Solution2 {
+  vector<int> path;
+  int u = -1;
+
+ public:
+  bool dfs(int from, unordered_map<int, vector<int>>& adj,
+           unordered_set<int>& visited, int parent) {
+    for (const auto& to : adj[from]) {
+      if (to == parent) continue;
+      if (visited.count(to)) {
+        u = to;
+        return true;
+      }
+
+      visited.insert(to);
+
+      path.push_back(to);
+      if (dfs(to, adj, visited, from)) {
+        return true;
+      }
+      path.pop_back();
+    }
+
+    return false;
+  }
+
+  /*
+  do dfs and keep track of path. for nodes that are not in cycle the popback
+  will remove them the result is path is vector of nodes that go into a cycle
+  and u marks where the cycle begins now traverse the cycle (ie path) and find
+  the edge that has highest index
+  */
+  vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+    unordered_map<int, vector<int>> adj;
+
+    unordered_map<int, unordered_map<int, int>> priority;
+    int i = 0;
+    for (const auto& uv : edges) {
+      adj[uv[1]].push_back(uv[0]);
+      adj[uv[0]].push_back(uv[1]);
+      priority[uv[0]][uv[1]] = i++;
+    }
+
+    unordered_set<int> visited;
+
+    // no disjoint so can just start at one node and will traverse everything
+    visited.insert(1);
+    path.push_back(1);
+
+    bool cycle = dfs(1, adj, visited, -1);
+    assert(cycle);
+    i = 0;
+    while (path[i] != u) i++;
+
+    int start = i;
+    int pos_u = -1;
+    int pos_v = -1;
+    int N = path.size();
+    for (int j = i; j < N; j++) cout << path[j] << ' ';
+    cout << endl;
+    for (; i < N; i++) {
+      auto p = minmax(path[i], i + 1 < N ? path[i + 1] : path[start]);
+      if (pos_u == -1 || priority[p.first][p.second] > priority[pos_u][pos_v]) {
+        pos_u = p.first;
+        pos_v = p.second;
+      }
+    }
+
+    return {pos_u, pos_v};
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+686. Repeated String Match
+Given two strings A and B, find the minimum number of times A has to be repeated
+such that B is a substring of it. If no such solution, return -1.
+
+
+For example, with A = "abcd" and B = "cdabcdab".
+
+
+Return 3, because by repeating A three times (“abcdabcdabcd”), B is a substring
+of it; and B is not a substring of A repeated two times ("abcdabcd").
+
+
+Note:
+The length of A and B will be between 1 and 10000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 716 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  if A is already in B, return 1
+  else it is a suffix of A + A repeated n times + prefix of A
+  so return n + 2
+  for all suffix of A, check if it is a prefix of B. if it is then see how many
+  times A repeats if it does repeat n times and the prefix of A is a suffix of
+  B, then the answer is just n + 2.
+  */
+  int repeatedStringMatch(string A, string B) {
+    if (A.find(B) != string::npos) return 1;
+    for (int i = 0; i < A.size(); i++) {
+      bool got_suffix = true;
+      for (int j = 0; j < A.size() - i; j++) {
+        if (B[j] != A[i + j]) {
+          got_suffix = false;
+          break;
+        }
+      }
+
+      if (!got_suffix) continue;
+      int res = 1;
+      int A_ind = 0;
+      for (int j = A.size() - i; j < B.size(); j++) {
+        if (A_ind == 0) res++;
+
+        if (B[j] != A[A_ind]) {
+          res = -1;
+          break;
+        }
+
+        A_ind = (A_ind + 1) % A.size();
+      }
+
+      if (res == -1) continue;
+      return res;
+    }
+
+    return -1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+687. Longest Univalue Path
+Given a binary tree, find the length of the longest path where each node in the
+path has the same value. This path may or may not pass through the root.
+
+Note: The length of path between two nodes is represented by the number of edges
+between them.
+
+Example 1:
+
+Input:
+
+              5
+             / \
+            4   5
+           / \   \
+          1   1   5
+Output:
+
+2
+Example 2:
+
+Input:
+
+              1
+             / \
+            4   5
+           / \   \
+          4   4   5
+Output:
+
+2
+Note: The given binary tree has not more than 10000 nodes. The height of the
+tree is not more than 1000.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 112 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+      N by returning the longest path that starts from this node where a path is
+     straight down where all the nodes have the same value. This is 1 +
+     max(f(left), f(right)) if left and right have the same value as this node.
+      Variable that is passed by reference is the result where it can be 1 +
+     f(left) + f(right) if left and right have the same value as this node as it
+     means there is a path for the left and a path for the right which creates a
+     upside down v shape.
+  */
+  int solve(TreeNode* root, int& res) {
+    if (!root) return 0;
+    vector<int> longest_path_starting_at_child{solve(root->left, res),
+                                               solve(root->right, res)};
+    int pos_res = 1;
+    int longest_path_starting_at_node = 0;
+
+    if (root->left && root->left->val == root->val) {
+      pos_res += longest_path_starting_at_child[0];
+      longest_path_starting_at_node = longest_path_starting_at_child[0];
+    }
+    if (root->right && root->right->val == root->val) {
+      pos_res += longest_path_starting_at_child[1];
+      longest_path_starting_at_node =
+          max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
+    }
+
+    res = max(res, pos_res);
+    return 1 + longest_path_starting_at_node;
+  }
+
+  int longestUnivaluePath(TreeNode* root) {
+    int res = 1;
+    solve(root, res);
+    return res - 1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+690. Employee Importance
+You are given a data structure of employee information, which includes the
+employee's unique id, his importance value and his direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the
+leader of employee 3. They have importance value 15, 10 and 5, respectively.
+Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has [2,
+10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a
+subordinate of employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to
+return the total importance value of this employee and all his subordinates.
+
+Example 1:
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee
+2 and employee 3. They both have importance value 3. So the total importance
+value of employee 1 is 5 + 3 + 3 = 11. Note: One employee has at most one direct
+leader and may have several subordinates. The maximum number of employees won't
+exceed 2000.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 135 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Employee {
+ public:
+  // It's the unique ID of each node.
+  // unique id of this employee
+  int id;
+  // the importance value of this employee
+  int importance;
+  // the id of direct subordinates
+  vector<int> subordinates;
+};
+
+class Solution {
+ public:
+  int dfs(int id, unordered_map<int, int> id_to_ind,
+          const vector<Employee*>& employees) {
+    int res = employees[id_to_ind[id]]->importance;
+    for (const auto& e : employees[id_to_ind[id]]->subordinates)
+      res += dfs(e, id_to_ind, employees);
+    return res;
+  }
+
+  int getImportance(vector<Employee*> employees, int id) {
+    unordered_map<int, int> id_to_ind;
+    for (int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
+
+    return dfs(id, id_to_ind, employees);
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 692. Top K Frequent Words
 Given a non-empty list of words, return the k most frequent elements.
 
@@ -200,792 +971,6 @@ class Solution {
       }
     }
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-696. Count Binary Substrings
-Give a string s, count the number of non-empty (contiguous) substrings that have
-the same number of 0's and 1's, and all the 0's and all the 1's in these
-substrings are grouped consecutively.
-
-Substrings that occur multiple times are counted the number of times they occur.
-
-Example 1:
-Input: "00110011"
-Output: 6
-Explanation: There are 6 substrings that have equal number of consecutive 1's
-and 0's: "0011", "01", "1100", "10", "0011", and "01".
-
-Notice that some of these substrings repeat and are counted the number of times
-they occur.
-
-Also, "00110011" is not a valid substring because all the 0's (and 1's) are not
-grouped together. Example 2: Input: "10101" Output: 4 Explanation: There are 4
-substrings: "10", "01", "10", "01" that have equal number of consecutive 1's and
-0's. Note:
-
-s.length will be between 1 and 50,000.
-s will only consist of "0" or "1" characters.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-      suppose there is prev_cnt which is the number of repeated characters
-     before index i that is different than s[i]. Find how many s[i] repeats e.g.
-     if it repeats from [i,j) The number of times s[i] repeats (j-i) and the
-     number of times previous character repeated (prev_cnt) and the minimum
-     between these two is the number of times that the substrings can have the
-     same number of characters from both characters. e.g 3 4 000 1111 min(3,4) =
-     3 000 111, 00 11, 0 1
-  */
-  int countBinarySubstrings(string s) {
-    int res = 0;
-    int N = s.size();
-    int prev_cnt = 0;
-    for (int i = 0; i < N;) {
-      int start = i;
-      while (i < N && s[i] == s[start]) i++;
-      res += min(prev_cnt, i - start);
-      prev_cnt = i - start;
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-697. Degree of an Array
-Given a non-empty array of non-negative integers nums, the degree of this array
-is defined as the maximum frequency of any one of its elements.
-
-Your task is to find the smallest possible length of a (contiguous) subarray of
-nums, that has the same degree as nums.
-
-Example 1:
-Input: [1, 2, 2, 3, 1]
-Output: 2
-Explanation:
-The input array has a degree of 2 because both elements 1 and 2 appear twice.
-Of the subarrays that have the same degree:
-[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
-The shortest length is 2. So return 2.
-Example 2:
-Input: [1,2,2,3,1,4,2]
-Output: 6
-Note:
-
-nums.length will be between 1 and 50,000.
-nums[i] will be an integer between 0 and 49,999.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 59 ms
-    Difficulty: EASY
-*/
-#include <climits>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-      Find the maximum frequency, loop through and if the number occurs as many
-     times as max frequency then store the first seen and last seen index. Loop
-     through the first seen and last seen indicies to find the shortest one.
-  */
-  int findShortestSubArray(vector<int>& nums) {
-    unordered_map<int, int> val_to_freq;
-    int max_freq = 0;
-    for (const auto& n : nums) {
-      val_to_freq[n]++;
-      max_freq = max(max_freq, val_to_freq[n]);
-    }
-
-    unordered_map<int, pair<int, int>> val_to_seen_boundaries;
-    for (int i = 0; i < nums.size(); i++) {
-      if (val_to_freq[nums[i]] != max_freq) continue;
-      if (!val_to_seen_boundaries.count(nums[i]))
-        val_to_seen_boundaries[nums[i]] = {i, i};
-      val_to_seen_boundaries[nums[i]].second = i;
-    }
-
-    int res = INT_MAX;
-    for (const auto& kv : val_to_seen_boundaries)
-      res = min(res, kv.second.second - kv.second.first);
-    return res + 1;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-704. Binary Search
-Given a sorted (in ascending order) integer array nums of n elements and a
-target value, write a function to search target in nums. If target exists, then
-
-
-Example 1:
-
-Input: nums = [-1,0,3,5,9,12], target = 9
-Output: 4
-Explanation: 9 exists in nums and its index is 4
-
-
-
-Example 2:
-
-Input: nums = [-1,0,3,5,9,12], target = 2
-Output: -1
-Explanation: 2 does not exist in nums so return -1
-
-
- 
-
-Note:
-
-
-    You may assume that all elements in nums are unique.
-    n will be in the range [1, 10000].
-    The value of each element in nums will be in the range [-9999, 9999].
-/*
-    Submission Date: 2018-07-13
-    Runtime: 32 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int search(vector<int>& nums, int target) {
-    int low = 0;
-    int high = nums.size() - 1;
-    while (low <= high) {
-      int mid = low + (high - low) / 2;
-      if (nums[mid] == target)
-        return mid;
-      else if (nums[mid] > target)
-        high = mid - 1;
-      else
-        low = mid + 1;
-    }
-
-    return -1;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-709. To Lower Case
-Implement function ToLowerCase() that has a string parameter str, and returns
-/*
-    Submission Date: 2018-07-12
-    Runtime: 0 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string toLowerCase(string str) {
-    for (auto& c : str) c = tolower(c);
-    return str;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-712. Minimum ASCII Delete Sum for Two Strings
-Given two strings s1, s2, find the lowest ASCII sum of deleted characters to
-make two strings equal.
-
-Example 1:
-Input: s1 = "sea", s2 = "eat"
-Output: 231
-Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the
-sum. Deleting "t" from "eat" adds 116 to the sum. At the end, both strings are
-equal, and 115 + 116 = 231 is the minimum sum possible to achieve this. Example
-2: Input: s1 = "delete", s2 = "leet" Output: 403 Explanation: Deleting "dee"
-from "delete" to turn the string into "let", adds 100[d]+101[e]+101[e] to the
-sum.  Deleting "e" from "leet" adds 101[e] to the sum. At the end, both strings
-are equal to "let", and the answer is 100+101+101+101 = 403. If instead we
-turned both strings into "lee" or "eet", we would get answers of 433 or 417,
-which are higher. Note:
-
-0 < s1.length, s2.length <= 1000.
-All elements of each string will have an ASCII value in [97, 122].
-/*
-    Submission Date: 2018-07-01
-    Runtime: 15 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  dp[i][j] is minimum cost for s1[0, i) s2[0, j)
-  dp[0][0] = 0
-  dp[0][j] = s2[j-1] + dp[i][j-1] // sum of ascii of s2[0, j)
-  dp[i][0] = s1[i-1] + dp[i-1][j] // sum of ascii of s1[0, i)
-  
-  if s1[i-1] == s2[j-1]
-      dp[i][j] = dp[i-1][j-1] // this character does not to be deleted so
-                              // it is just excluding the two end characters
-  else
-      dp[i][j] = min(
-          s1[i-1] + dp[i-1][j], // the cost of the end character of s1 + cost of
-  not using that character s2[j-1] + dp[i][j-1] // cost of the end character of
-  s2 + cost of not using that character
-      )
-  */
-  int minimumDeleteSum(string s1, string s2) {
-    int N = s1.size(), M = s2.size();
-    int dp[N + 1][M + 1];
-    for (int i = 0; i <= N; i++) {
-      for (int j = 0; j <= M; j++) {
-        if (i == 0 && j == 0) {
-          dp[i][j] = 0;
-        } else if (i == 0) {
-          dp[i][j] = s2[j - 1] + dp[i][j - 1];
-        } else if (j == 0) {
-          dp[i][j] = s1[i - 1] + dp[i - 1][j];
-        } else if (s1[i - 1] == s2[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1];
-        } else {
-          dp[i][j] = min(s1[i - 1] + dp[i - 1][j], s2[j - 1] + dp[i][j - 1]);
-        }
-      }
-    }
-
-    return dp[N][M];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-717. 1-bit and 2-bit Characters
-We have two special characters. The first character can be represented by one
-bit 0. The second character can be represented by two bits (10 or 11).
-
-Now given a string represented by several bits. Return whether the last
-character must be a one-bit character or not. The given string will always end
-with a zero.
-
-Example 1:
-Input:
-bits = [1, 0, 0]
-Output: True
-Explanation:
-The only way to decode it is two-bit character and one-bit character. So the
-last character is one-bit character. Example 2: Input: bits = [1, 1, 1, 0]
-Output: False
-Explanation:
-The only way to decode it is two-bit character and two-bit character. So the
-last character is NOT one-bit character. Note:
-
-1 <= len(bits) <= 1000.
-bits[i] is always 0 or 1.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 7 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isOneBitCharacter(vector<int>& bits) {
-    int N = bits.size();
-    vector<bool> dp(N, false);
-    dp[N - 1] = true;
-
-    for (int i = N - 2; i >= 0; i--) {
-      if (bits[i] == 0) {
-        dp[i] = dp[i + 1];
-      } else {
-        if (i + 2 < N) dp[i] = dp[i + 2];
-      }
-    }
-
-    return dp[0];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the
-longest word in words that can be built one character at a time by other words
-in words. If there is more than one possible answer, return the longest word
-with the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input:
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation:
-The word "world" can be built one character at a time by "w", "wo", "wor", and
-"worl". Example 2: Input: words = ["a", "banana", "app", "appl", "ap", "apply",
-"apple"] Output: "apple" Explanation: Both "apply" and "apple" can be built from
-other words in the dictionary. However, "apple" is lexicographically smaller
-than "apply". Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-  bool is_word;
-  TrieNode* child[26];
-  TrieNode() {
-    is_word = false;
-    for (int i = 0; i < 26; i++) child[i] = NULL;
-  }
-};
-
-class Trie {
- public:
-  TrieNode* root_;
-
-  /** Initialize your data structure here. */
-  Trie() { root_ = new TrieNode(); }
-
-  /** Inserts a word into the trie. */
-  void insert(string word) {
-    TrieNode* curr = root_;
-    for (auto c : word) {
-      if (curr->child[c - 'a'] == NULL) curr->child[c - 'a'] = new TrieNode();
-      curr = curr->child[c - 'a'];
-    }
-    curr->is_word = true;
-  }
-};
-
-class Solution {
- public:
-  string dfs(TrieNode* node, string letter) {
-    if (node == NULL || !node->is_word) return "";
-    string max_child = "";
-    for (int i = 0; i < 26; i++) {
-      string child = dfs(node->child[i], string(1, 'a' + i));
-      if (child.size() > max_child.size()) {
-        max_child = child;
-      }
-    }
-
-    return letter + max_child;
-  }
-  string longestWord(vector<string>& words) {
-    Trie trie;
-    for (const auto& s : words) trie.insert(s);
-    trie.root_->is_word = true;
-    return dfs(trie.root_, "");
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-724. Find Pivot Index
-Given an array of integers nums, write a method that returns the "pivot" index
-of this array.
-
-We define the pivot index as the index where the sum of the numbers to the left
-of the index is equal to the sum of the numbers to the right of the index.
-
-If no such index exists, we should return -1. If there are multiple pivot
-indexes, you should return the left-most pivot index.
-
-Example 1:
-Input:
-nums = [1, 7, 3, 6, 5, 6]
-Output: 3
-Explanation:
-The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum
-of numbers to the right of index 3. Also, 3 is the first index where this
-occurs. Example 2: Input: nums = [1, 2, 3] Output: -1 Explanation: There is no
-index that satisfies the conditions in the problem statement. Note:
-
-The length of nums will be in the range [0, 10000].
-Each element nums[i] will be an integer in the range [-1000, 1000].
-/*
-    Submission Date: 2018-06-09
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  make right = sum of all array then at each index i decrease nums[i]
-  have left = 0 and increase it by nums[i] to compare if
-  the left sum == right sum
-  */
-  int pivotIndex(vector<int>& nums) {
-    int right = 0;
-    for (const auto& e : nums) right += e;
-
-    int left = 0;
-    for (int i = 0; i < nums.size(); i++) {
-      right -= nums[i];
-      if (left == right) return i;
-      left += nums[i];
-    }
-
-    return -1;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-728. Self Dividing Numbers
-A self-dividing number is a number that is divisible by every digit it contains.
-
-For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0,
-and 128 % 8 == 0.
-
-Also, a self-dividing number is not allowed to contain the digit zero.
-
-Given a lower and upper number bound, output a list of every possible self
-dividing number, including the bounds if possible.
-
-Example 1:
-Input:
-left = 1, right = 22
-Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
-Note:
-
-The boundaries of each input argument are 1 <= left <= right <= 10000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> selfDividingNumbers(int left, int right) {
-    vector<int> res;
-
-    for (int i = left; i <= right; i++) {
-      int x = i;
-      bool can_use = true;
-      while (x) {
-        if (x % 10 == 0 || i % (x % 10) != 0) {
-          can_use = false;
-          break;
-        }
-        x /= 10;
-      }
-
-      if (can_use) res.push_back(i);
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-733. Flood Fill
-An image is represented by a 2-D array of integers, each integer representing
-the pixel value of the image (from 0 to 65535).
-
-Given a coordinate (sr, sc) representing the starting pixel (row and column) of
-the flood fill, and a pixel value newColor, "flood fill" the image.
-
-To perform a "flood fill", consider the starting pixel, plus any pixels
-connected 4-directionally to the starting pixel of the same color as the
-starting pixel, plus any pixels connected 4-directionally to those pixels (also
-with the same color as the starting pixel), and so on. Replace the color of all
-of the aforementioned pixels with the newColor.
-
-At the end, return the modified image.
-
-Example 1:
-Input:
-image = [[1,1,1],[1,1,0],[1,0,1]]
-sr = 1, sc = 1, newColor = 2
-Output: [[2,2,2],[2,2,0],[2,0,1]]
-Explanation:
-From the center of the image (with position (sr, sc) = (1, 1)), all pixels
-connected by a path of the same color as the starting pixel are colored with the
-new color. Note the bottom corner is not colored 2, because it is not
-4-directionally connected to the starting pixel. Note:
-
-The length of image and image[0] will be in the range [1, 50].
-The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc <
-image[0].length. The value of each color in image[i][j] and newColor will be an
-integer in [0, 65535].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 57 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-  int dx[4] = {1, -1, 0, 0};
-  int dy[4] = {0, 0, 1, -1};
-
- public:
-  vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc,
-                                int newColor) {
-    if (image.empty()) return {};
-    queue<pair<int, int>> q;
-    unordered_set<string> visited;
-
-    int N = image.size();
-    int M = image[0].size();
-    int original_color = image[sr][sc];
-
-    q.emplace(sr, sc);
-    visited.insert(to_string(sr) + "," + to_string(sc));
-    while (!q.empty()) {
-      pair<int, int> p = q.front();
-      q.pop();
-      image[p.first][p.second] = newColor;
-
-      for (int k = 0; k < 4; k++) {
-        int new_row = p.first + dy[k];
-        int new_col = p.second + dx[k];
-        if (0 <= new_row && new_row < N && 0 <= new_col && new_col < M &&
-            image[new_row][new_col] == original_color) {
-          string key = to_string(new_row) + "," + to_string(new_col);
-          if (!visited.count(key)) {
-            q.emplace(new_row, new_col);
-            visited.insert(key);
-          }
-        }
-      }
-    }
-
-    return image;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-739. Daily Temperatures
-Given a list of daily temperatures, produce a list that, for each day in the
-input, tells you how many days you would have to wait until a warmer
-temperature. If there is no future day for which this is possible, put 0
-instead.
-
-For example, given the list temperatures = [73, 74, 75, 71, 69, 72, 76, 73],
-your output should be [1, 1, 4, 2, 1, 1, 0, 0].
-
-Note: The length of temperatures will be in the range [1, 30000]. Each
-temperature will be an integer in the range [30, 100].
-/*
-    Submission Date: 2018-06-30
-    Runtime: 250 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <stack>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  stk keeps an increasing temperatures to the right (represented as indices)
-  while stk isn't emtpy and the current element is greater than the smallest
-  element (ie stk top) pop the stk, basically it means this element replaces all
-  the smaller elements as it will be closer to the next element while still
-  being greater
-  */
-  vector<int> dailyTemperatures(vector<int>& temperatures) {
-    stack<int> stk;
-    int N = temperatures.size();
-    vector<int> res(N, 0);
-    for (int i = N - 1; i >= 0; i--) {
-      while (!stk.empty() && temperatures[stk.top()] <= temperatures[i])
-        stk.pop();
-      res[i] = stk.empty() ? 0 : stk.top() - i;
-      stk.push(i);
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-744. Find Smallest Letter Greater Than Target
-Given a list of sorted characters letters containing only lowercase letters, and
-given a target letter target, find the smallest element in the list that is
-larger than the given target.
-
-Letters also wrap around. For example, if the target is target = 'z' and letters
-= ['a', 'b'], the answer is 'a'.
-
-Examples:
-Input:
-letters = ["c", "f", "j"]
-target = "a"
-Output: "c"
-
-Input:
-letters = ["c", "f", "j"]
-target = "c"
-Output: "f"
-
-Input:
-letters = ["c", "f", "j"]
-target = "d"
-Output: "f"
-
-Input:
-letters = ["c", "f", "j"]
-target = "g"
-Output: "j"
-
-Input:
-letters = ["c", "f", "j"]
-target = "j"
-Output: "c"
-
-Input:
-letters = ["c", "f", "j"]
-target = "k"
-Output: "c"
-Note:
-letters has a length in range [2, 10000].
-letters consists of lowercase letters, and contains at least 2 unique letters.
-target is a lowercase letter.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  char nextGreatestLetter(vector<char>& letters, char target) {
-    int low = 0;
-    int high = letters.size() - 1;
-    while (low <= high) {
-      int mid = low + (high - low) / 2;
-      if (letters[mid] > target) {
-        high = mid - 1;
-      } else {
-        low = mid + 1;
-      }
-    }
-
-    if (low == letters.size()) return letters[0];
-    return letters[low];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-746. Min Cost Climbing Stairs
-On a staircase, the i-th step has some non-negative cost cost[i] assigned (0
-indexed).
-
-Once you pay the cost, you can either climb one or two steps. You need to find
-minimum cost to reach the top of the floor, and you can either start from the
-step with index 0, or the step with index 1.
-
-Example 1:
-Input: cost = [10, 15, 20]
-Output: 15
-Explanation: Cheapest is start on cost[1], pay that cost and go to the top.
-Example 2:
-Input: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
-Output: 6
-Explanation: Cheapest is start on cost[0], and only step on 1s, skipping
-cost[3]. Note: cost will have a length in the range [2, 1000]. Every cost[i]
-will be an integer in the range [0, 999].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int minCostClimbingStairs(vector<int>& cost) {
-    if (cost.empty()) return 0;
-    int N = cost.size();
-
-    vector<int> dp(N + 2, 0);
-    for (int i = N - 1; i >= 0; i--) {
-      dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
-    }
-
-    return N == 1 ? dp[0] : min(dp[0], dp[1]);
   }
 };
 

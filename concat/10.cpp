@@ -35,7 +35,7 @@ using namespace std;
 
 class Solution {
  public:
-  void reverseWords(string& s) {
+  void reverseWords(string &s) {
     int write_idx = 0;
     int N = s.size();
 
@@ -336,13 +336,13 @@ using namespace std;
 
 struct ListNode {
   int val;
-  ListNode* next;
+  ListNode *next;
   ListNode(int x) : val(x), next(NULL) {}
 };
 
 class Solution {
  public:
-  int length(ListNode* head) {
+  int length(ListNode *head) {
     int count = 0;
     while (head) {
       head = head->next;
@@ -351,7 +351,7 @@ class Solution {
 
     return count;
   }
-  ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+  ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
     int length_A = length(headA);
     int length_B = length(headB);
 
@@ -925,17 +925,17 @@ using namespace std;
 
 struct TreeNode {
   int val;
-  TreeNode* left;
-  TreeNode* right;
+  TreeNode *left;
+  TreeNode *right;
   TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class BSTIterator {
-  vector<TreeNode*> path_;
+  vector<TreeNode *> path_;
 
  public:
-  BSTIterator(TreeNode* root) {
-    TreeNode* curr = root;
+  BSTIterator(TreeNode *root) {
+    TreeNode *curr = root;
     while (curr) {
       path_.push_back(curr);
       curr = curr->left;
@@ -947,7 +947,7 @@ class BSTIterator {
 
   /** @return the next smallest number */
   int next() {
-    TreeNode* curr = path_.back();
+    TreeNode *curr = path_.back();
     path_.pop_back();
 
     int ret_val = curr->val;

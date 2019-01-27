@@ -1,6 +1,315 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+572. Subtree of Another Tree
+Given two non-empty binary trees s and t, check whether tree t has exactly the
+same structure and node values with a subtree of s. A subtree of s is a tree
+consists of a node in s and all of this node's descendants. The tree s could
+also be considered as a subtree of itself.
+
+Example 1:
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+Given tree t:
+   4
+  / \
+ 1   2
+Return true, because t has the same structure and node values with a subtree of
+s. Example 2: Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+    /
+   0
+Given tree t:
+   4
+  / \
+ 1   2
+Return false.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 29 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  void serialize(TreeNode* node, string& res) {
+    if (node == NULL) {
+      res += "null,";
+    } else {
+      res += to_string(node->val) + ",";
+      serialize(node->left, res);
+      serialize(node->right, res);
+    }
+  }
+
+  // check if s == t or s contains a subtree t
+  bool isSubtree(TreeNode* s, TreeNode* t) {
+    string s1 = "", s2 = "";
+    serialize(s, s1);
+    serialize(t, s2);
+    return s1 == s2 || s1.find("," + s2) != string::npos;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+575. Distribute Candies
+Given an integer array with even length, where different numbers in this array
+represent different kinds of candies. Each number means one candy of the
+corresponding kind. You need to distribute these candies equally in number to
+brother and sister. Return the maximum number of kinds of candies the sister
+could gain. Example 1: Input: candies = [1,1,2,2,3,3] Output: 3 Explanation:
+There are three different kinds of candies (1, 2 and 3), and two candies for
+each kind. Optimal distribution: The sister has candies [1,2,3] and the brother
+has candies [1,2,3], too. The sister has three different kinds of candies.
+Example 2:
+Input: candies = [1,1,2,3]
+Output: 2
+Explanation: For example, the sister has candies [2,3] and the brother has
+candies [1,1]. The sister has two different kinds of candies, the brother has
+only one kind of candies. Note:
+
+The length of the given array is in range [2, 10,000], and will be even.
+The number in given array is in range [-100,000, 100,000].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 247 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  // Count the number of distinct candies. Return the min of this and the max
+  // size of the array which is candies.size()/2.
+  int distributeCandies(vector<int>& candies) {
+    unordered_set<int> st(candies.begin(), candies.end());
+    return min(candies.size() / 2, st.size());
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+581. Shortest Unsorted Continuous Subarray
+Given an integer array, you need to find one continuous subarray that if you only sort this 
+subarray in ascending order, then the whole array will be sorted in ascending order, too.
+
+You need to find the shortest such subarray and output its length.
+
+Input: [2, 6, 4, 8, 10, 9, 15]
+Output: 5
+Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
+sorted in ascending order.
+
+Note:
+Then length of the input array is in range [1, 10,000].
+The input array may contain duplicates, so ascending order here means <=.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 52 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    int findUnsortedSubarray(vector<int>& nums) {
+            int N = nums.size();
+            vector<int> cpy(N);
+            copy(nums.begin(), nums.end(), cpy.begin());
+            sort(nums.begin(), nums.end());
+
+            int i;
+            for(i = 0; i < N; i++) {
+                if(nums[i] != cpy[i]) break;
+            }
+
+            int j;
+            for(j = N-1; j >= 0; j--) {
+                if(nums[j] != cpy[j]) break;
+            }
+
+        return max(j - i + 1, 0);
+    }
+};
+
+int main() {
+    Solution s;
+    vector<int> v{2, 6, 4, 8, 10, 9, 15};
+    cout << s.findUnsortedSubarray(v);
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+582. Kill Process
+Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
+
+Each process only has one parent process, but may have one or more children processes. This 
+is just like a tree structure. Only one process has PPID that is 0, which means this process 
+has no parent process. All the PIDs will be distinct positive integers.
+
+We use two list of integers to represent a list of processes, where the first list contains 
+PID for each process and the second list contains the corresponding PPID.
+
+Now given the two lists, and a PID representing a process you want to kill, return a list 
+of PIDs of processes that will be killed in the end. You should assume that when a process 
+is killed, all its children processes will be killed. No order is required for the final answer.
+
+Example 1:
+Input: 
+pid =  [1, 3, 10, 5]
+ppid = [3, 0, 5, 3]
+kill = 5
+Output: [5,10]
+Explanation: 
+           3
+         /   \
+        1     5
+             /
+            10
+Kill 5 will also kill 10.
+
+Note:
+The given kill id is guaranteed to be one of the given PIDs.
+n >= 1.
+/*
+    Submission Date: 2017-05-13
+    Runtime: 166 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
+        unordered_map<int, vector<int>> m;
+        int N = pid.size();
+        for(int i = 0; i < N; i++) {
+            int _ppid = ppid[i];
+            int _pid = pid[i];
+
+            if(m.find(_ppid) == m.end()) {
+                m[_ppid] = {_pid};
+            } else {
+                m[_ppid].push_back(_pid);
+            }
+        }
+
+        vector<int> result{kill};
+        int i = 0;
+        while(i < result.size()) {
+            int current = result[i];
+            if(m.find(current) != m.end()) { // non leaf
+                vector<int> children = m[current];
+                for(auto c: children) {
+                    result.push_back(c);
+                }
+            }
+            i++;
+        }
+        return result;
+    }
+};
+
+int main() {
+	Solution s;
+    vector<int> pid{1, 3, 10, 5, 4, 1};
+	vector<int> ppid{3, 0, 5, 3, 10, 5};
+    int kill = 5;
+    vector<int> t = s.killProcess(pid, ppid, kill);
+	for(auto l: t) cout << l << " ";
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+583. Delete Operation for Two Strings
+Given two words word1 and word2, find the minimum number of steps required to 
+make word1 and word2 the same, where in each step you can delete one character in either string.
+
+Example 1:
+Input: "sea", "eat"
+Output: 2
+Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
+Note:
+The length of given words won't exceed 500.
+Characters in given words can only be lower-case letters.
+
+/*
+    Submission Date: 2017-05-13
+    Runtime: 29 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int row = word2.size() + 1;
+        int col = word1.size() + 1;
+        int dp[501][501];
+        for(int i = 0; i < row; i++) dp[i][0] = i;
+        for(int i = 0; i < col; i++) dp[0][i] = i;
+
+        for(int i = 1; i < row; i++) {
+            for(int j = 1; j < col; j++) {
+                if(word2[i - 1] == word1[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
+                }
+            }
+        }
+        
+        return dp[row - 1][col - 1];
+    }
+};
+
+int main() {
+	Solution s;
+    cout << s.minDistance("sea", "eat");
+	return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 589. N-ary Tree Preorder Traversal
 Given an n-ary tree, return the preorder traversal of its nodes' values.
  
@@ -258,6 +567,57 @@ int main() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 593. Valid Square
+Given the coordinates of four points in 2D space, return whether the four points could construct a square.
+
+The coordinate (x,y) of a point is represented by an integer array with two integers.
+
+Example:
+Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+Output: True
+Note:
+
+All the input integers are in the range [-10000, 10000].
+A valid square has four equal sides with positive length and four equal angles (90-degree angles).
+Input points have no order.
+/*
+    Submission Date: 2017-05-27
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    double eucl_sq(vector<int>& p1, vector<int>& p2) {
+        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
+    }
+
+    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
+        // distance squared
+        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
+
+        sort(dist.begin(), dist.end());
+
+        // should result in 4 equal length sides and two longer sides that are the diagonals 
+        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
+        bool non_zero_sides = dist[0] > 0;
+
+        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
+        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
+        return equal_sides && non_zero_sides && correct_diagonals;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+593. Valid Square
 Given the coordinates of four points in 2D space, return whether the
 four points could construct a square.
 
@@ -319,57 +679,6 @@ class Solution {
 int main() {
   Solution s;
   return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-593. Valid Square
-Given the coordinates of four points in 2D space, return whether the four points could construct a square.
-
-The coordinate (x,y) of a point is represented by an integer array with two integers.
-
-Example:
-Input: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
-Output: True
-Note:
-
-All the input integers are in the range [-10000, 10000].
-A valid square has four equal sides with positive length and four equal angles (90-degree angles).
-Input points have no order.
-/*
-    Submission Date: 2017-05-27
-    Runtime: 3 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    double eucl_sq(vector<int>& p1, vector<int>& p2) {
-        return pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2);
-    }
-
-    bool validSquare(vector<int>& p1, vector<int>& p2, vector<int>& p3, vector<int>& p4) {
-        // distance squared
-        vector<double> dist{eucl_sq(p1, p2), eucl_sq(p1, p3), eucl_sq(p1, p4), eucl_sq(p2, p3), eucl_sq(p2, p4), eucl_sq(p3, p4)};
-
-        sort(dist.begin(), dist.end());
-
-        // should result in 4 equal length sides and two longer sides that are the diagonals 
-        bool equal_sides = dist[0] == dist[1] && dist[1] == dist[2] && dist[2] == dist[3];
-        bool non_zero_sides = dist[0] > 0;
-
-        // pythagoras: x^2 + x^2 = y^2 => 2x^2 = y^2
-        bool correct_diagonals = dist[4] == dist[5] &&  2*dist[0] == dist[4];
-        return equal_sides && non_zero_sides && correct_diagonals;
-    }
-};
-
-int main() {
-    return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -649,324 +958,6 @@ public:
     
     bool hasNext() {
         return index_ < v_.size();
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-605. Can Place Flowers
-Suppose you have a long flowerbed in which some of the plots are planted 
-and some are not. However, flowers cannot be planted in adjacent plots - 
-they would compete for water and both would die.
-
-Given a flowerbed (represented as an array containing 0 and 1, where 0 means 
-empty and 1 means not empty), and a number n, return if n new flowers can be 
-planted in it without violating the no-adjacent-flowers rule.
-
-Example 1:
-Input: flowerbed = [1,0,0,0,1], n = 1
-Output: True
-Example 2:
-Input: flowerbed = [1,0,0,0,1], n = 2
-Output: False
-Note:
-The input array won't violate no-adjacent-flowers rule.
-The input array size is in the range of [1, 20000].
-n is a non-negative integer which won't exceed the input array size.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
-        int len = flowerbed.size();
-        vector<int> v;
-
-        // v.push_back(-1);
-        for(int i = 0; i < len; i++) {
-            if(flowerbed[i]) {
-                v.push_back(i);
-            }
-        }
-        // v.push_back(len);
-
-        int v_len = v.size();
-        for(int i = 1; i < v_len; i++) {
-            int num_zeros = v[i] - v[i-1] - 1;
-            // cout << v[i] << " " << v[i-1] << " " << num_zeros << " " << (num_zeros - 1)/2 << endl;
-            if(num_zeros > 0) {
-                int diff = (num_zeros - 1)/2;
-                n -= diff;
-            }
-        }
-
-        if(v_len) {
-            n -= v[0]/2;
-            // cout << n << endl;
-            n -= (len - v[v_len - 1] - 1)/2;
-            // cout << n << endl;
-        } else {
-            n -= (len+1)/2;
-        }
-
-        // cout << "n" << n << endl;
-        return n <= 0;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-606. Construct String from Binary Tree
-You need to construct a string consists of parenthesis and integers from a 
-binary tree with the preorder traversing way.
-
-The null node needs to be represented by empty parenthesis pair "()". And you 
-need to omit all the empty parenthesis pairs that don't affect the one-to-one 
-mapping relationship between the string and the original binary tree.
-
-Example 1:
-Input: Binary tree: [1,2,3,4]
-       1
-     /   \
-    2     3
-   /    
-  4     
-
-Output: "1(2(4))(3)"
-
-Explanation: Originallay it needs to be "1(2(4)())(3()())", 
-but you need to omit all the unnecessary empty parenthesis pairs. 
-And it will be "1(2(4))(3)".
-Example 2:
-Input: Binary tree: [1,2,3,null,4]
-       1
-     /   \
-    2     3
-     \  
-      4 
-
-Output: "1(2()(4))(3)"
-
-Explanation: Almost the same as the first example, 
-except we can't omit the first parenthesis pair to break the one-to-one 
-mapping relationship between the input and the output.
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 15 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    string tree2str(TreeNode* t) {
-        if(t == NULL) return "";
-        string root = to_string(t -> val);
-        string left = tree2str(t -> left);
-        string right = tree2str(t -> right);
-        
-        if(left.empty() && right.empty())
-            return root;
-        if(!left.empty() && right.empty())
-            return root + "(" + left + ")";
-        
-        return root + "(" + left + ")" + "(" + right + ")";
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-609. Find Duplicate File in System
-Given a list of directory info including directory path, and all the files 
-with contents in this directory, you need to find out all the groups of 
-duplicate files in the file system in terms of their paths.
-
-A group of duplicate files consists of at least two files that have exactly 
-the same content.
-
-A single directory info string in the input list has the following format:
-
-"root/d1/d2/.../dm f1.txt(f1_content) f2.txt(f2_content) ... fn.txt(fn_content)"
-
-It means there are n files (f1.txt, f2.txt ... fn.txt with content f1_content, 
-f2_content ... fn_content, respectively) in directory root/d1/d2/.../dm. Note 
-that n >= 1 and m >= 0. If m = 0, it means the directory is just the root 
-directory.
-
-The output is a list of group of duplicate file paths. For each group, it 
-contains all the file paths of the files that have the same content. A 
-file path is a string that has the following format:
-
-"directory_path/file_name.txt"
-
-Example 1:
-Input:
-["root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)", 
-"root 4.txt(efgh)"]
-Output:  
-[["root/a/2.txt","root/c/d/4.txt","root/4.txt"],["root/a/1.txt","root/c/3.txt"]]
-
-Note:
-No order is required for the final output.
-
-You may assume the directory name, file name and file content only has letters 
-and digits, and the length of file content is in the range of [1,50].
-
-The number of files given is in the range of [1,20000].
-
-You may assume no files or directories share the same name in the same directory.
-
-You may assume each given directory info represents a unique directory. Directory 
-path and file info are separated by a single blank space.
-
-Follow-up beyond contest:
-Imagine you are given a real file system, how will you search files? DFS or BFS?
-
-If the file content is very large (GB level), how will you modify your solution?
-
-If you can only read the file by 1kb each time, how will you modify your solution?
-
-What is the time complexity of your modified solution? 
-
-What is the most time-consuming part and memory consuming part of it? 
-
-How to optimize?
-
-How to make sure the duplicated files you find are not false positive?
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 19 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
-    pair<string, string> getContent(string& s) {
-        int bracket_ind = s.rfind("(") + 1;
-        string content = s.substr(bracket_ind, s.size() - bracket_ind - 1);
-        string filename = s.substr(0, bracket_ind - 1);
-        return make_pair(filename, content);
-    }
-public:
-    vector<vector<string>> findDuplicate(vector<string>& paths) {
-        // key content, value file
-        unordered_map<string, vector<string>> m;
-        for(string path: paths) {
-            stringstream ss(path);
-            string token;
-            string dir = "";
-            while(getline(ss, token, ' ')) {
-                if(dir.empty()) {
-                    dir = token;
-                } else {
-                    string file = token;
-                    pair<string, string> p = getContent(file);
-                    if(m.count(p.second)) {
-                        m[p.second].push_back(dir + "/" + p.first);
-                    } else {
-                        m[p.second] = {dir + "/" + p.first};
-                    }
-                }
-            }
-        }
-        
-        vector<vector<string>> res;
-        for(pair<string, vector<string>> p: m) {
-            if(p.second.size() > 1) res.push_back(p.second);
-        }
-        return res;
-    }
-};
-
-int main() {
-    Solution s;
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-611. Valid Triangle Number
-Given an array consists of non-negative integers, your task is to count 
-the number of triplets chosen from the array that can make triangles if we 
-take them as side lengths of a triangle.
-
-Example 1:
-Input: [2,2,3,4]
-Output: 3
-Explanation:
-Valid combinations are: 
-2,3,4 (using the first 2)
-2,3,4 (using the second 2)
-2,2,3
-Note:
-The length of the given array won't exceed 1000.
-The integers in the given array are in the range of [0, 1000].
-
-/*
-    Submission Date: 2017-06-11
-    Runtime: 442 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int triangleNumber(vector<int>& nums) {
-        sort(nums.begin(), nums.end());
-        
-        int count = 0;
-        int len = nums.size();
-        for(int i = 0; i < len; i++) {
-            if(nums[i] == 0) continue;
-            for(int j = i + 1; j < len; j++) {
-                int sum = nums[i] + nums[j];
-                vector<int>::iterator it = lower_bound(nums.begin(), nums.end(), sum);
-                
-                int index = it - nums.begin() - 1;
-                count += max(index - j, 0);
-                // cout << index << ' '  << j << ' ' <<count<< endl;
-            }
-        }
-        return count;
     }
 };
 

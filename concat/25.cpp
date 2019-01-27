@@ -1,6 +1,243 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+513. Find Bottom Left Tree Value
+Given a binary tree, find the leftmost value in the last row of the tree.
+
+Example 1:
+Input:
+
+    2
+   / \
+  1   3
+
+Output:
+1
+Example 2:
+Input:
+
+        1
+       / \
+      2   3
+     /   / \
+    4   5   6
+       /
+      7
+
+Output:
+7
+Note: You may assume the tree (i.e., the given root node) is not NULL.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 12 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  int findBottomLeftValue(TreeNode* root) {
+    queue<TreeNode*> q;
+    q.push(root);
+
+    TreeNode* res = NULL;
+    while (!q.empty()) {
+      res = q.front();
+
+      int level = q.size();
+      for (int i = 0; i < level; i++) {
+        TreeNode* node = q.front();
+        q.pop();
+        if (node->left) q.push(node->left);
+        if (node->right) q.push(node->right);
+      }
+    }
+
+    return res->val;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+515. Find Largest Value in Each Tree Row
+You need to find the largest value in each row of a binary tree.
+
+Example:
+Input:
+
+          1
+         / \
+        3   2
+       / \   \
+      5   3   9
+
+Output: [1, 3, 9]
+
+/*
+    Submission Date: 2018-06-29
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  vector<int> largestValues(TreeNode* root) {
+    if (root == NULL) return {};
+    vector<int> res;
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+      int n = q.size();
+      int max_level = q.front()->val;
+      for (int i = 0; i < n; i++) {
+        TreeNode* curr = q.front();
+        q.pop();
+        max_level = max(max_level, curr->val);
+        if (curr->left) q.push(curr->left);
+        if (curr->right) q.push(curr->right);
+      }
+      res.push_back(max_level);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+520. Detect Capital
+Given a word, you need to judge whether the usage of capitals
+in it is right or not.
+
+We define the usage of capitals in a word to be right when one
+of the following cases holds:
+
+All letters in this word are capitals, like "USA".
+All letters in this word are not capitals, like "leetcode".
+Only the first letter in this word is capital if it has more than
+one letter, like "Google".
+Otherwise, we define that this word doesn't use capitals in a
+right way.
+Example 1:
+Input: "USA"
+Output: True
+Example 2:
+Input: "FlaG"
+Output: False
+Note: The input will be a non-empty word consisting of uppercase
+and lowercase latin letters.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+
+#include <cctype>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool detectCapitalUse(string word) {
+    int N = word.size();
+    int capital_count = 0, lower_count = 0;
+    for (auto c : word) {
+      capital_count += isupper(c) != 0;
+      lower_count += islower(c) != 0;
+    }
+
+    return capital_count == N || lower_count == N ||
+           (capital_count == 1 && lower_count == N - 1 && isupper(word[0]));
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+521. Longest Uncommon Subsequence I
+Given a group of two strings, you need to find the longest uncommon subsequence
+of this group of two strings. The longest uncommon subsequence is defined as the
+longest subsequence of one of these strings and this subsequence should not be
+any subsequence of the other strings.
+
+A subsequence is a sequence that can be derived from one sequence by deleting
+some characters without changing the order of the remaining elements. Trivially,
+any string is a subsequence of itself and an empty string is a subsequence of
+any string.
+
+The input will be two strings, and the output needs to be the length of the
+longest uncommon subsequence. If the longest uncommon subsequence doesn't exist,
+return -1.
+
+Example 1:
+Input: "aba", "cdc"
+Output: 3
+Explanation: The longest uncommon subsequence is "aba" (or "cdc"),
+because "aba" is a subsequence of "aba",
+but not a subsequence of any other strings in the group of two strings.
+Note:
+
+Both strings' lengths will not exceed 100.
+Only letters from a ~ z will appear in input strings.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+    question is asking if for all subsequences of A (ss_A) and all subsequences
+    of B (ss_B) what is the longest ss_A that is not ss_B and vice versa
+
+    if A == B, then no matter what subsequence of A is made, it can be made in B
+    so return -1 if len(A) > len(B) then removing letters from B will always be
+    smaller than A so return A if len(A) < len(B) then removing letters from A
+    will always be smaller than B  so return B if len(A) == len(B), since they
+    are not the same if we arbitrarily choose A and start removing letters from
+    B it will always be smaller than A, so return A. the samething can occur if
+    choose B arbitrarily.
+  */
+  int findLUSlength(string a, string b) {
+    if (a == b) return -1;
+    return max(a.size(), b.size());
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 525. Contiguous Array
 Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.
 
@@ -732,248 +969,3 @@ public:
 int main() {
     return 0;
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-543. Diameter of Binary Tree
-Given a binary tree, you need to compute the length of the diameter of the tree.
-The diameter of a binary tree is the length of the longest path between any two
-nodes in a tree. This path may or may not pass through the root.
-
-Example:
-Given a binary tree
-          1
-         / \
-        2   3
-       / \
-      4   5
-Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
-
-Note: The length of path between two nodes is represented by the number of edges
-between them.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  /*
-  returns the height of a node so height(root) = 1 + max(height(left),
-  height(right)) res can be updated to 2 + height(left) + height(right) as the
-  longest path in the left and right go through this node.
-  */
-  int help(TreeNode* root, int& res) {
-    if (root == NULL) return -1;
-    int left = help(root->left, res);
-    int right = help(root->right, res);
-    res = max(res, 2 + left + right);
-    return 1 + max(left, right);
-  }
-
-  int diameterOfBinaryTree(TreeNode* root) {
-    int res = 0;
-    help(root, res);
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-547. Friend Circles
-There are N students in a class. Some of them are friends, while some are not.
-Their friendship is transitive in nature. For example, if A is a direct friend
-of B, and B is a direct friend of C, then A is an indirect friend of C. And we
-defined a friend circle is a group of students who are direct or indirect
-friends.
-
-
-
-Given a N*N matrix M representing the friend relationship between students in
-the class. If M[i][j] = 1, then the ith and jth students are direct friends with
-each other, otherwise not. And you have to output the total number of friend
-circles among all the students.
-
-
-Example 1:
-Input:
-[[1,1,0],
- [1,1,0],
- [0,0,1]]
-Output: 2
-Explanation:The 0th and 1st students are direct friends, so they are in a friend
-circle. The 2nd student himself is in a friend circle. So return 2.
-
-
-
-Example 2:
-Input:
-[[1,1,0],
- [1,1,1],
- [0,1,1]]
-Output: 1
-Explanation:The 0th and 1st students are direct friends, the 1st and 2nd
-students are direct friends, so the 0th and 2nd students are indirect friends.
-All of them are in the same friend circle, so return 1.
-
-
-
-
-Note:
-
-N is in range [1,200].
-M[i][i] = 1 for all students.
-If M[i][j] = 1, then M[j][i] = 1.
-
-/*
-    Submission Date: 2018-07-05
-    Runtime: 20 ms
-    Difficulty: MEDIUM
-*/
-#include <cassert>
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-template <typename T>
-class UnionFind {
-  // key is element, value is rank
-  unordered_map<T, int> rank_;
-  // key is element, value is parent
-  unordered_map<T, T> parent_;
-
- public:
-  bool IsWithinSet(T e) { return parent_.count(e); }
-
-  void CreateSet(T e) {
-    assert(!IsWithinSet(e));
-    parent_[e] = e;
-    rank_[e] = 0;
-  }
-
-  // finds the root of e
-  T Find(T e) {
-    if (parent_[e] != e) {
-      // this is not a root (root has parent to be equal itself)
-      // so find root and apply path compression along path
-      parent_[e] = Find(parent_[e]);
-    }
-    return parent_[e];
-  }
-
-  // unions the sets of e1 and e2 if necessary
-  // return whether an union took place
-  bool Union(T e1, T e2) {
-    T e1_root = Find(e1);
-    T e2_root = Find(e2);
-
-    if (e1_root == e2_root) return false;  // same root
-
-    // Attach smaller rank tree under root of high rank tree
-    // (Union by Rank)
-    if (rank_[e1_root] < rank_[e2_root]) {
-      parent_[e1_root] = e2_root;
-    } else {
-      parent_[e2_root] = e1_root;
-      if (rank_[e1_root] == rank_[e2_root]) {
-        rank_[e1_root]++;
-      }
-    }
-
-    return true;
-  }
-};
-
-class Solution {
- public:
-  /*
-  basically find how many connected graphs there are
-  so use union-find, for every edge from u to v, merge the sets u and v
-  at the end find how many sets there are by finding the root of all
-  the nodes and counting the distinct ones.
-  
-  O(N^2) as Union and Find are O(1)
-  */
-  int findCircleNum(vector<vector<int>>& M) {
-    int N = M.size();
-    UnionFind<int> uf;
-    for (int i = 0; i < N; i++) uf.CreateSet(i);
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        if (M[i][j] == 0) continue;
-        uf.Union(i, j);
-      }
-    }
-
-    unordered_set<int> roots;
-    for (int i = 0; i < N; i++) roots.insert(uf.Find(i));
-    return roots.size();
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-551. Student Attendance Record I
-You are given a string representing an attendance record for a student. The
-record only contains the following three characters: 'A' : Absent. 'L' : Late.
-'P' : Present.
-A student could be rewarded if his attendance record doesn't contain more than
-one 'A' (absent) or more than two continuous 'L' (late).
-
-You need to return whether the student could be rewarded according to his
-attendance record.
-
-Example 1:
-Input: "PPALLP"
-Output: True
-Example 2:
-Input: "PPALLL"
-Output: False
-/*
-    Submission Date: 2018-06-08
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool checkRecord(string s) {
-    int l_streak = 0;
-    bool seen_absent = false;
-    for (const auto& c : s) {
-      if (c == 'L') {
-        if (l_streak == 2) return false;
-        l_streak++;
-      } else {
-        if (c == 'A') {
-          if (seen_absent) return false;
-          seen_absent = true;
-        }  // c == 'P'
-
-        l_streak = 0;
-      }
-    }
-    return true;
-  }
-};
-
-int main() { return 0; }

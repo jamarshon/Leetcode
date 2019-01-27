@@ -1,6 +1,219 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+653. Two Sum IV - Input is a BST
+Given a Binary Search Tree and a target number, return true if there exist two 
+elements in the BST such that their sum is equal to the given target.
+
+Example 1:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 9
+
+Output: True
+Example 2:
+Input: 
+    5
+   / \
+  3   6
+ / \   \
+2   4   7
+
+Target = 28
+
+Output: False
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+    unordered_map<int, vector<TreeNode*>> visited;
+public:
+    bool findTarget(TreeNode* root, int k) {
+        if(root == NULL) return false;
+        int target = k - (root -> val);
+        
+        if(visited.count(target)) {
+            for(auto l: visited[target]) {
+                if(l != root) return true;
+            }
+        }
+        
+        TreeNode* curr = root;
+        while(curr) {
+            if(curr != root && curr -> val == target) return true;
+            visited[curr -> val].push_back(curr);
+            if(curr -> val > target) {
+                curr = curr -> right;
+            } else {
+                curr = curr -> left;
+            }
+        }
+        
+        return findTarget(root -> left, k) || findTarget(root -> right, k);
+    }
+};
+
+class Solution {
+public:
+    void inorder(TreeNode* curr, vector<int>& res) {
+        if(curr == NULL) return;
+        inorder(curr -> left, res);
+        res.push_back(curr -> val);
+        inorder(curr -> right, res);
+    }
+    bool findTarget(TreeNode* root, int k) {
+        vector<int> sorted_arr;
+        inorder(root, sorted_arr);
+        int low = 0;
+        int high = sorted_arr.size() - 1;
+        
+        while(low < high) {
+            int sum = sorted_arr[low] + sorted_arr[high];
+            if(sum == k) return true;
+            if(sum < k) low++;
+            else high--;
+        }
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+654. Maximum Binary Tree
+Given an integer array with no duplicates. A maximum tree building on this array is defined as 
+follow:
+
+The root is the maximum number in the array.
+The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
+number.
+The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
+number.
+Construct the maximum tree by the given array and output the root node of this tree.
+
+Example 1:
+Input: [3,2,1,6,0,5]
+Output: return the tree root node representing the following tree:
+
+      6
+    /   \
+   3     5
+    \    / 
+     2  0   
+       \
+        1
+Note:
+The size of the given array will be in the range [1,1000].
+
+/*
+    Submission Date: 2017-08-06
+    Runtime: 66 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution2 {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        int N = nums.size();
+        
+        int top = -1;
+        vector<int> st(N, 0);
+        vector<int> T(N, 0);
+        for(int i = 0; i < N; i++) {
+            int temp_top = top;
+            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
+                temp_top--;
+            }
+            
+            if(temp_top != -1) T[i] = st[temp_top];
+            
+            if(temp_top < top) {
+                T[st[temp_top + 1]] = i;
+            }
+            st[++temp_top] = i;
+            top = temp_top;
+        }
+        
+        T[st[0]] = -1;
+        
+        TreeNode* nodes[N];
+        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
+        
+        TreeNode* root;
+        for(int i = 0; i < N; i++) {
+            int parent_ind = T[i];
+            if(parent_ind == -1) root = nodes[i];
+            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
+            else nodes[parent_ind] -> right = nodes[i];
+        }
+        
+        return root;
+    }
+};
+
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> stk;
+        for(auto num: nums) {
+            TreeNode* curr = new TreeNode(num);
+            TreeNode* left = NULL;
+            while(!stk.empty() && stk.back() -> val < num) {
+                left = stk.back();
+                stk.pop_back();
+            }
+
+            curr -> left = left;
+            if(!stk.empty()) {
+                stk.back() -> right = curr;
+            }
+            stk.push_back(curr);
+        }
+        return stk.front();
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 655. Print Binary Tree
 Print a binary tree in an m*n 2D string array following these rules:
 
@@ -757,221 +970,4 @@ class Solution {
     }
   }
 };
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-671. Second Minimum Node In a Binary Tree
-Given a non-empty special binary tree consisting of nodes with the non-negative
-value, where each node in this tree has exactly two or zero sub-node. If the
-node has two sub-nodes, then this node's value is the smaller value among its
-two sub-nodes.
-
-Given such a binary tree, you need to output the second minimum value in the set
-made of all the nodes' value in the whole tree.
-
-If no such second minimum value exists, output -1 instead.
-
-Example 1:
-Input:
-    2
-   / \
-  2   5
-     / \
-    5   7
-
-Output: 5
-Explanation: The smallest value is 2, the second smallest value is 5.
-Example 2:
-Input:
-    2
-   / \
-  2   2
-
-Output: -1
-Explanation: The smallest value is 2, but there isn't any second smallest value.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  /*
-  bfs that once reaches a different node->val than root->val will stop putting
-  that node's children. result is the minimum of all these first encountered
-  different node-> val
-  */
-  int findSecondMinimumValue(TreeNode* root) {
-    queue<TreeNode*> q;
-    q.push(root);
-    int res = INT_MAX;
-    bool seen_others = false;
-
-    while (!q.empty()) {
-      TreeNode* node = q.front();
-      q.pop();
-      if (node->val == root->val) {
-        if (node->left) q.push(node->left);
-        if (node->right) q.push(node->right);
-      } else {
-        // found node that does not equal root->val, no need to go deeper as
-        // they will be >= node->val
-        res = min(res, node->val);
-        seen_others = true;
-      }
-    }
-
-    return seen_others ? res : -1;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-672. Bulb Switcher II
-There is a room with n lights which are turned on initially and 4 buttons on the
-wall. After performing exactly m unknown operations towards buttons, you need to
-return how many different kinds of status of the n lights could be.
-
-
-
-Suppose n lights are labeled as number [1, 2, 3 ..., n], function of these 4
-buttons are given below:
-
-
-Flip all the lights.
-Flip lights with even numbers.
-Flip lights with odd numbers.
-Flip lights with (3k + 1) numbers, k = 0, 1, 2, ...
-
-
-
-
-Example 1:
-Input: n = 1, m = 1.
-Output: 2
-Explanation: Status can be: [on], [off]
-
-
-
-
-Example 2:
-Input: n = 2, m = 1.
-Output: 3
-Explanation: Status can be: [on, off], [off, on], [off, off]
-
-
-
-
-Example 3:
-Input: n = 3, m = 1.
-Output: 4
-Explanation: Status can be: [off, on, off], [on, off, on], [off, off, off],
-[off, on, on].
-
-
-
-Note:
-n and m both fit in range [0, 1000].
-
-/*
-    Submission Date: 2018-07-07
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  8 states:
-  All_on, 1, 2, 3, 4, 1+4, 2+4, 3+4
-  
-  m == 0: All_on (no possible moves) => 1
-  m > 0:
-      n == 1: All_on (3 apply odd which doesnt affect anything) or 1 => 2
-      n == 2:
-          m == 1: 1, 2, 3 => 3
-          m >= 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2) => 4
-      n >= 3:
-          m == 1: 1, 2, 3, 4 => 4
-          m == 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2), 1+4, 2+4, 3+4 => 7
-          m > 2: All_on (1 2 3), 1 (1 1 1), 2 (1 1 2), 3 (1 1 2), 4 (1 1 4),
-                  1+4 (2 3 4), 2+4 (1 3 4), 3+4 (1 2 4) => 8
-      
-  */
-  int flipLights(int n, int m) {
-    if (m == 0) return 1;
-    if (n == 1) return 2;
-    if (n == 2) {
-      if (m == 1) return 3;
-      return 4;
-    } else {
-      if (m == 1) return 4;
-      if (m == 2) return 7;
-      return 8;
-    }
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-674. Longest Continuous Increasing Subsequence
-Given an unsorted array of integers, find the length of longest continuous
-increasing subsequence (subarray).
-
-Example 1:
-Input: [1,3,5,4,7]
-Output: 3
-Explanation: The longest continuous increasing subsequence is [1,3,5], its
-length is 3. Even though [1,3,5,7] is also an increasing subsequence, it's not a
-continuous one where 5 and 7 are separated by 4. Example 2: Input: [2,2,2,2,2]
-Output: 1
-Explanation: The longest continuous increasing subsequence is [2], its length
-is 1. Note: Length of the array will not exceed 10,000.
-/*
-    Submission Date: 2018-06-08
-    Runtime: 14 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int findLengthOfLCIS(vector<int>& nums) {
-    if (nums.empty()) return 0;
-
-    int res = 1;
-    int pos_res = 1;
-    for (int i = 1; i < nums.size(); i++) {
-      if (nums[i] > nums[i - 1]) {
-        pos_res++;
-      } else {
-        pos_res = 1;
-      }
-      res = max(res, pos_res);
-    }
-
-    return res;
-  }
-};
-
 int main() { return 0; }

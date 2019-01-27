@@ -1,6 +1,512 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+877. Stone Game
+Alex and Lee play a game with piles of stones.  There are an even number
+of piles arranged in a row, and each pile has a positive integer number of
+stones piles[i].
+
+The objective of the game is to end with the most stones.  The total number of
+stones is odd, so there are no ties.
+
+Alex and Lee take turns, with Alex starting first.  Each turn, a player takes
+the entire pile of stones from either the beginning or the end of the row.  This
+continues until there are no more piles left, at which point the person with the
+most stones wins.
+
+Assuming Alex and Lee play optimally, return True if and only if Alex wins the
+game.
+
+Example 1:
+
+Input: [5,3,4,5]
+Output: true
+Explanation:
+Alex starts first, and can only take the first 5 or the last 5.
+Say he takes the first 5, so that the row becomes [3, 4, 5].
+If Lee takes 3, then the board is [4, 5], and Alex takes 5 to win with 10
+points.
+If Lee takes the last 5, then the board is [3, 4], and Alex takes 4 to win with
+9 points.
+This demonstrated that taking the first 5 was a winning move for Alex, so we
+return true.
+
+Note:
+
+  2 <= piles.length <= 500
+  piles.length is even.
+  1 <= piles[i] <= 500
+  sum(piles) is odd.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  int N;
+
+ public:
+  int get(const vector<vector<int>>& dp, int i, int j) {
+    if (i <= j && i >= 0 && i < N && j >= 0 && j < N) {
+      return dp[i][j];
+    }
+    return 0;
+  }
+  bool stoneGame(vector<int>& piles) {
+    N = piles.size();
+    vector<vector<int>> dp(N, vector<int>(N, 0));
+
+    for (int gap = 0; gap < N; gap++) {
+      for (int i = 0; i + gap < N; i++) {
+        int j = gap;
+        dp[i][j] =
+            max(piles[i] + min(get(dp, i + 1, j - 1), get(dp, i + 2, j)),
+                piles[j] + min(get(dp, i, j - 2), get(dp, i + 1, j - 1)));
+      }
+    }
+
+    return get(dp, 0, N - 1) > get(dp, 1, N - 1) ||
+           get(dp, 0, N - 1) > get(dp, 0, N - 2);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+883. Projection Area of 3D Shapes
+On a N * N grid, we place some 1 * 1 * 1 cubes that are axis-aligned with the x,
+y, and z axes.
+
+Each value v = grid[i][j] represents a tower of v cubes placed on top of grid
+cell (i, j).
+
+Now we view the projection of these cubes onto the xy, yz, and zx planes.
+
+A projection is like a shadow, that maps our 3 dimensional figure to a 2
+dimensional plane. 
+
+Here, we are viewing the "shadow" when looking at the cubes from the top, the
+front, and the side.
+
+Return the total area of all three projections.
+
+Example 1:
+
+Input: [[2]]
+Output: 5
+
+Example 2:
+
+Input: [[1,2],[3,4]]
+Output: 17
+Explanation:
+Here are the three projections ("shadows") of the shape made with each
+axis-aligned plane.
+
+Example 3:
+
+Input: [[1,0],[0,2]]
+Output: 8
+
+Example 4:
+
+Input: [[1,1,1],[1,0,1],[1,1,1]]
+Output: 14
+
+Example 5:
+
+Input: [[2,2,2],[2,1,2],[2,2,2]]
+Output: 21
+
+Note:
+
+  1 <= grid.length = grid[0].length <= 50
+  0 <= grid[i][j] <= 50
+/*
+  Submission Date: 2019-01-26
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int projectionArea(vector<vector<int>>& grid) {
+    int res = 0;
+    int N = grid.size();
+
+    vector<int> row(N, 0), col(N, 0);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (grid[i][j] > 0) res++;
+        row[i] = max(row[i], grid[i][j]);
+        col[j] = max(col[j], grid[i][j]);
+      }
+    }
+
+    for (int i = 0; i < N; i++) {
+      res += row[i] + col[i];
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+884. Uncommon Words from Two Sentences
+We are given two sentences A and B.  (A sentence is a string of space separated
+words.  Each word consists only of lowercase letters.)
+
+A word is uncommon if it appears exactly once in one of the sentences, and does
+not appear in the other sentence.
+
+Return a list of all uncommon words. 
+
+You may return the list in any order.
+
+Example 1:
+
+Input: A = "this apple is sweet", B = "this apple is sour"
+Output: ["sweet","sour"]
+
+Example 2:
+
+Input: A = "apple apple", B = "banana"
+Output: ["banana"]
+
+Note:
+
+  0 <= A.length <= 200
+  0 <= B.length <= 200
+  A and B both contain only spaces and lowercase letters.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> uncommonFromSentences(string A, string B) {
+    unordered_map<string, int> freq;
+    stringstream ssA(A), ssB(B);
+    string temp;
+
+    while (ssA >> temp) freq[temp]++;
+    while (ssB >> temp) freq[temp]++;
+
+    vector<string> res;
+    for (const auto& kv : freq)
+      if (kv.second == 1) res.push_back(kv.first);
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+885. Spiral Matrix III
+On a 2 dimensional grid with R rows and C columns, we start at (r0, c0) facing
+east.
+
+Here, the north-west corner of the grid is at the first row and column, and the
+south-east corner of the grid is at the last row and column.
+
+Now, we walk in a clockwise spiral shape to visit every position in this grid. 
+
+Whenever we would move outside the boundary of the grid, we continue our walk
+outside the grid (but may return to the grid boundary later.) 
+
+Eventually, we reach all R * C spaces of the grid.
+
+Return a list of coordinates representing the positions of the grid in the order
+they were visited.
+
+Example 1:
+
+Input: R = 1, C = 4, r0 = 0, c0 = 0
+Output: [[0,0],[0,1],[0,2],[0,3]]
+
+Example 2:
+
+Input: R = 5, C = 6, r0 = 1, c0 = 4
+Output:
+[[1,4],[1,5],[2,5],[2,4],[2,3],[1,3],[0,3],[0,4],[0,5],[3,5],[3,4],[3,3],[3,2],[2,2],[1,2],[0,2],[4,5],[4,4],[4,3],[4,2],[4,1],[3,1],[2,1],[1,1],[0,1],[4,0],[3,0],[2,0],[1,0],[0,0]]
+
+Note:
+
+  1 <= R <= 100
+  1 <= C <= 100
+  0 <= r0 < R
+  0 <= c0 < C
+/*
+  Submission Date: 2019-01-26
+  Runtime: 52 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int key(int i, int j, int R, int C) { return i * C + j; }
+  vector<vector<int>> spiralMatrixIII(int R, int C, int r0, int c0) {
+    unordered_set<int> visited;
+
+    vector<vector<int>> res;
+    res.push_back({r0, c0});
+    visited.insert(key(r0, c0, R, C));
+
+    int i = r0, j = c0;
+    int dx = 1;
+    int dy = 0;
+    while (visited.size() != R * C) {
+      if (!(0 <= i + dy && i + dy < R) || !(0 <= j + dx && j + dx < C)) {
+        // will go out of bounds so change direction
+        swap(dx, dy);
+        dx *= -1;
+      } else {
+        i += dy;
+        j += dx;
+        if (visited.count(key(i, j, R, C))) {
+          continue;
+        } else {
+          // an unvisited cell so push it to result
+          res.push_back({i, j});
+          visited.insert(key(i, j, R, C));
+
+          // if node to the right isn't visited or if it is out of bounds change
+          // directions
+          int rot_dx = -dy;
+          int rot_dy = dx;
+
+          if (!(0 <= i + rot_dy && i + rot_dy < R) ||
+              !(0 <= j + rot_dx && j + rot_dx < C) ||
+              !visited.count(key(i + rot_dy, j + rot_dx, R, C))) {
+            swap(dx, dy);
+            dx *= -1;
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+888. Fair Candy Swap
+Alice and Bob have candy bars of different sizes: A[i] is the size of the i-th
+bar of candy that Alice has, and B[j] is the size of the j-th bar of candy that
+Bob has.
+
+Since they are friends, they would like to exchange one candy bar each so that
+after the exchange, they both have the same total amount of candy.  (The total
+amount of candy a person has is the sum of the sizes of candy bars they have.)
+
+Return an integer array ans where ans[0] is the size of the candy bar that Alice
+must exchange, and ans[1] is the size of the candy bar that Bob must exchange.
+
+If there are multiple answers, you may return any one of them.  It is guaranteed
+an answer exists.
+
+Example 1:
+
+Input: A = [1,1], B = [2,2]
+Output: [1,2]
+
+Example 2:
+
+Input: A = [1,2], B = [2,3]
+Output: [1,2]
+
+Example 3:
+
+Input: A = [2], B = [1,3]
+Output: [2,3]
+
+Example 4:
+
+Input: A = [1,2,5], B = [2,4]
+Output: [5,4]
+
+Note:
+
+  1 <= A.length <= 10000
+  1 <= B.length <= 10000
+  1 <= A[i] <= 100000
+  1 <= B[i] <= 100000
+  It is guaranteed that Alice and Bob have different total amounts of candy.
+  It is guaranteed there exists an answer.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 64 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*sum_A + (B[j] - A[i]) == sum_B == (A[i] - B[j])
+  sum_A = sum_B + 2*A[i] - 2*B[j]
+  */
+  vector<int> fairCandySwap(vector<int>& A, vector<int>& B) {
+    int sum_A = 0;
+    int sum_B = 0;
+    for (auto& e : A) sum_A += e;
+    for (auto& e : B) sum_B += e;
+
+    unordered_set<int> B_set(B.begin(), B.end());
+    for (auto& e : A) {
+      int B_j = (sum_A - sum_B - 2 * e) / -2;
+      if (B_set.count(B_j)) return {e, B_j};
+    }
+
+    return {};
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+889. Construct Binary Tree from Preorder and Postorder Traversal
+Return any binary tree that matches the given preorder and postorder traversals.
+
+Values in the traversals pre and post are distinct positive integers.
+
+Example 1:
+
+Input: pre = [1,2,4,5,3,6,7], post = [4,5,2,6,7,3,1]
+Output: [1,2,3,4,5,6,7]
+
+Note:
+
+  1 <= pre.length == post.length <= 30
+  pre[] and post[] are both permutations of 1, 2, ..., pre.length.
+  It is guaranteed an answer exists. If there exists multiple answers, you can
+return any of them.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 8 ms
+  Difficulty: MEDIUM
+*/
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /* traverse pre and create nodes from there. the stk represents
+  the current path of the tree (ie. from root to node). when the
+  stk last value is equal to post[j], it means the tree is done
+  so pop stk and increment j until it is no longer so. add the
+  pre[i] is either the left or right of the stack depending on
+  which is available.
+  */
+  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+    vector<TreeNode*> stk;
+    stk.emplace_back(new TreeNode(pre[0]));
+    for (int i = 1, j = 0; i < pre.size(); i++) {
+      while (stk.back()->val == post[j]) {
+        j++;
+        stk.pop_back();
+      }
+
+      TreeNode* curr = new TreeNode(pre[i]);
+      if (stk.back()->left == NULL)
+        stk.back()->left = curr;
+      else
+        stk.back()->right = curr;
+      stk.emplace_back(curr);
+    }
+
+    return stk.front();
+  }
+};
+
+class Solution2 {
+ public:
+  TreeNode* f(vector<int>& pre, int a, int b, vector<int>& post, int c, int d,
+              unordered_map<int, int>& val_to_post_ind) {
+    if (a > b || c > d) return NULL;
+    assert(b - a == d - c);
+
+    TreeNode* root = new TreeNode(pre[a]);
+
+    int furthest = -1;
+    for (int i = a + 1; i <= b; i++) {
+      int ind = val_to_post_ind[pre[i]];
+      furthest = max(furthest, ind);
+      if (furthest - c == i - (a + 1)) {
+        root->left = f(pre, a + 1, i, post, c, furthest, val_to_post_ind);
+        root->right =
+            f(pre, i + 1, b, post, furthest + 1, d - 1, val_to_post_ind);
+        break;
+      }
+    }
+
+    return root;
+  }
+
+  /*
+  we traverse from pre i = 1 to N looking for where pre[i] is in post, say it is
+  at j. it means every element from 0 to j must be in the tree so keep going
+  until the furthest j contains as many elements as i-1. These range must be the
+  left sub tree so partition both the pre and post from [1,i] [i+1, N] and [0,
+  furthest_j] [furthest_j + 1, N-1]
+  */
+  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+    unordered_map<int, int> val_to_post_ind;
+    for (int i = 0; i < post.size(); i++) val_to_post_ind[post[i]] = i;
+    return f(pre, 0, pre.size() - 1, post, 0, pre.size() - 1, val_to_post_ind);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 890. Find and Replace Pattern
 You have a list of words and a pattern, and you want to know which words in
 words matches the pattern.
@@ -464,478 +970,6 @@ class Solution {
     TreeNode *res = NULL, *last = NULL;
     inorder(root, &last, &res);
     return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-905. Sort Array By Parity
-Given an array A of non-negative integers, return an array consisting of all the
-even elements of A, followed by all the odd elements of A.
-
-You may return any answer array that satisfies this condition.
-
- 
-
-
-Example 1:
-
-Input: [3,1,2,4]
-Output: [2,4,3,1]
-The outputs [4,2,3,1], [2,4,1,3], and [4,2,1,3] would also be accepted.
-
-
- 
-
-Note:
-
-
-  1 <= A.length <= 5000
-  0 <= A[i] <= 5000
-/*
-  Submission Date: 2019-01-25
-  Runtime: 40 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> sortArrayByParity(vector<int>& A) {
-    int even = 0;
-    int odd = A.size() - 1;
-
-    while (even < odd) {
-      if (A[even] % 2 == 0) {
-        even++;
-      } else {
-        swap(A[even], A[odd]);
-        odd--;
-      }
-    }
-
-    return A;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-908. Smallest Range I
-Given an array A of integers, for each integer A[i] we may choose any x with -K
-<= x <= K, and add x to A[i].
-
-After this process, we have some array B.
-
-Return the smallest possible difference between the maximum value of B and the
-minimum value of B.
-
-Example 1:
-
-Input: A = [1], K = 0
-Output: 0
-Explanation: B = [1]
-
-Example 2:
-
-Input: A = [0,10], K = 2
-Output: 6
-Explanation: B = [2,8]
-
-Example 3:
-
-Input: A = [1,3,6], K = 3
-Output: 0
-Explanation: B = [3,3,3] or B = [4,4,4]
-
-Note:
-
-  1 <= A.length <= 10000
-  0 <= A[i] <= 10000
-  0 <= K <= 10000
-/*
-  Submission Date: 2019-01-26
-  Runtime: 12 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int smallestRangeI(vector<int>& A, int K) {
-    if (A.empty()) return 0;
-    return max(0, *max_element(A.begin(), A.end()) -
-                      *min_element(A.begin(), A.end()) - 2 * K);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-914. X of a Kind in a Deck of Cards
-In a deck of cards, each card has an integer written on it.
-
-Return true if and only if you can choose X >= 2 such that it is possible to
-split the entire deck into 1 or more groups of cards, where:
-
-  Each group has exactly X cards.
-  All the cards in each group have the same integer.
-
-Example 1:
-
-Input: [1,2,3,4,4,3,2,1]
-Output: true
-Explanation: Possible partition [1,1],[2,2],[3,3],[4,4]
-
-Example 2:
-
-Input: [1,1,1,2,2,2,3,3]
-Output: false
-Explanation: No possible partition.
-
-Example 3:
-
-Input: [1]
-Output: false
-Explanation: No possible partition.
-
-Example 4:
-
-Input: [1,1]
-Output: true
-Explanation: Possible partition [1,1]
-
-Example 5:
-
-Input: [1,1,2,2,2,2]
-Output: true
-Explanation: Possible partition [1,1],[2,2],[2,2]
-
-Note:
-
-  1 <= deck.length <= 10000
-  0 <= deck[i] < 10000
-/*
-  Submission Date: 2019-01-26
-  Runtime: 20 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int gcd(int a, int b) {
-    if (b == 0) return a;
-    return gcd(b, a % b);
-  }
-  /*
-  gcd(a,b,c) = gcd(gcd(a,b), c)
-  hence, if the gcd(freq[0], ... freq[n-1]) is the
-  largest number which divides into all of them which
-  is X (just check X >= 2)
-  */
-  bool hasGroupsSizeX(vector<int>& deck) {
-    unordered_map<int, int> freq;
-    for (auto& e : deck) {
-      freq[e]++;
-    }
-
-    int res = 0;
-    for (auto& kv : freq) res = gcd(res, kv.second);
-    return res > 1;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-917. Reverse Only Letters
-Given a string S, return the "reversed" string where all characters that are not
-a letter stay in the same place, and all letters reverse their positions.
-
-Example 1:
-
-Input: "ab-cd"
-Output: "dc-ba"
-
-Example 2:
-
-Input: "a-bC-dEf-ghIj"
-Output: "j-Ih-gfE-dCba"
-
-Example 3:
-
-Input: "Test1ng-Leet=code-Q!"
-Output: "Qedo1ct-eeLg=ntse-T!"
-
-Note:
-
-  S.length <= 100
-  33 <= S[i].ASCIIcode <= 122 
-  S doesn't contain \ or "
-/*
-  Submission Date: 2019-01-26
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <cctype>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string reverseOnlyLetters(string S) {
-    int last_ind = S.size() - 1;
-    for (int i = 0; i < last_ind; i++) {
-      if (!isalpha(S[i])) continue;
-      while (last_ind > i && !isalpha(S[last_ind])) last_ind--;
-      swap(S[i], S[last_ind]);
-      last_ind--;
-    }
-    return S;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-919. Complete Binary Tree Inserter
-A complete binary tree is a binary tree in which every level, except possibly
-the last, is completely filled, and all nodes are as far left as possible.
-
-Write a data structure CBTInserter that is initialized with a complete binary
-tree and supports the following operations:
-
-  CBTInserter(TreeNode root) initializes the data structure on a given tree with
-head node root;
-  CBTInserter.insert(int v) will insert a TreeNode into the tree with value
-node.val = v so that the tree remains complete, and returns the value of the
-parent of the inserted TreeNode;
-  CBTInserter.get_root() will return the head node of the tree.
-
-Example 1:
-
-Input: inputs = ["CBTInserter","insert","get_root"], inputs = [[[1]],[2],[]]
-Output: [null,1,[1,2]]
-
-Example 2:
-
-Input: inputs = ["CBTInserter","insert","insert","get_root"], inputs =
-[[[1,2,3,4,5,6]],[7],[8],[]]
-Output: [null,3,4,[1,2,3,4,5,6,7,8]]
-
-Note:
-
-  The initial given tree is complete and contains between 1 and 1000 nodes.
-  CBTInserter.insert is called at most 10000 times per test case.
-  Every value of a given or inserted node is between 0 and 5000.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 20 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class CBTInserter {
-  vector<TreeNode*> nodes;
-
- public:
-  CBTInserter(TreeNode* root) {
-    queue<TreeNode*> q{{root}};
-    while (!q.empty()) {
-      TreeNode* front = q.front();
-      q.pop();
-      if (front->left) q.push(front->left);
-      if (front->right) q.push(front->right);
-      nodes.push_back(front);
-    }
-  }
-
-  int insert(int v) {
-    nodes.emplace_back(new TreeNode(v));
-    int parent_ind = (nodes.size() - 2) / 2;
-    if (nodes[parent_ind]->left == NULL)
-      nodes[parent_ind]->left = nodes.back();
-    else
-      nodes[parent_ind]->right = nodes.back();
-    return nodes[parent_ind]->val;
-  }
-
-  TreeNode* get_root() { return nodes[0]; }
-};
-
-/**
- * Your CBTInserter object will be instantiated and called as such:
- * CBTInserter obj = new CBTInserter(root);
- * int param_1 = obj.insert(v);
- * TreeNode* param_2 = obj.get_root();
- */
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-922. Sort Array By Parity II
-Given an array A of non-negative integers, half of the integers in A are odd,
-and half of the integers are even.
-
-Sort the array so that whenever A[i] is odd, i is odd; and whenever A[i] is
-even, i is even.
-
-You may return any answer array that satisfies this condition.
-
-Example 1:
-
-Input: [4,2,5,7]
-Output: [4,5,2,7]
-Explanation: [4,7,2,5], [2,5,4,7], [2,7,4,5] would also have been accepted.
-
-Note:
-
-  2 <= A.length <= 20000
-  A.length % 2 == 0
-  0 <= A[i] <= 1000
-/*
-  Submission Date: 2019-01-26
-  Runtime: 120 ms
-  Difficulty: EASY
-*/
-#include <cassert>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> sortArrayByParityII(vector<int>& A) {
-    int even_ind = 0;
-    int odd_ind = 1;
-    while (even_ind < A.size() && odd_ind < A.size()) {
-      while (even_ind < A.size() && A[even_ind] % 2 == 0) {
-        even_ind += 2;
-      }
-
-      while (odd_ind < A.size() && A[odd_ind] % 2 == 1) {
-        odd_ind += 2;
-      }
-
-      int cnt = (even_ind < A.size()) + (odd_ind < A.size());
-
-      if (cnt == 0) break;
-      assert(cnt != 1);
-      swap(A[even_ind], A[odd_ind]);
-      even_ind += 2;
-      odd_ind += 2;
-    }
-
-    return A;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-925. Long Pressed Name
-Your friend is typing his name into a keyboard.  Sometimes, when typing a
-character c, the key might get long pressed, and the character will be typed 1
-or more times.
-
-You examine the typed characters of the keyboard.  Return True if it is possible
-that it was your friends name, with some characters (possibly none) being long
-pressed.
-
-Example 1:
-
-Input: name = "alex", typed = "aaleex"
-Output: true
-Explanation: 'a' and 'e' in 'alex' were long pressed.
-
-Example 2:
-
-Input: name = "saeed", typed = "ssaaedd"
-Output: false
-Explanation: 'e' must have been pressed twice, but it wasn't in the typed
-output.
-
-Example 3:
-
-Input: name = "leelee", typed = "lleeelee"
-Output: true
-
-Example 4:
-
-Input: name = "laiden", typed = "laiden"
-Output: true
-Explanation: It's not necessary to long press any character.
-
-Note:
-
-  name.length <= 1000
-  typed.length <= 1000
-  The characters of name and typed are lowercase letters.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isLongPressedName(string name, string typed) {
-    int n = name.size();
-    int m = typed.size();
-    int i = 0;
-    int j = 0;
-    while (i < n && j < m) {
-      if (name[i] != typed[j]) return false;
-      int new_i = i;
-      int new_j = j;
-      while (new_i < n && name[i] == name[new_i]) new_i++;
-      while (new_j < m && typed[j] == typed[new_j]) new_j++;
-
-      int name_cnt = new_i - i + 1;
-      int typed_cnt = new_j - j + 1;
-
-      if (typed_cnt < name_cnt) return false;
-      i = new_i;
-      j = new_j;
-    }
-
-    return i == n && j == m;
   }
 };
 

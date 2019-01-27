@@ -1,6 +1,238 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+638. Shopping Offers
+In LeetCode Store, there are some kinds of items to sell. Each item has a price.
+
+However, there are some special offers, and a special offer consists of one or more different kinds of 
+items with a sale price.
+
+You are given the each item's price, a set of special offers, and the number we need to buy for each item. 
+The job is to output the lowest price you have to pay for exactly certain items as given, where you could
+ make optimal use of the special offers.
+
+Each special offer is represented in the form of an array, the last number represents the price you need 
+to pay for this special offer, other numbers represents how many specific items you could get if you buy 
+this offer.
+
+You could use any of special offers as many times as you want.
+
+Example 1:
+Input: [2,5], [[3,0,5],[1,2,10]], [3,2]
+Output: 14
+Explanation: 
+There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
+In special offer 1, you can pay $5 for 3A and 0B
+In special offer 2, you can pay $10 for 1A and 2B. 
+You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
+Example 2:
+Input: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
+Output: 11
+Explanation: 
+The price of A is $2, and $3 for B, $4 for C. 
+You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
+You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 
+for 1C. 
+You cannot add more items, though only $9 for 2A ,2B and 1C.
+Note:
+There are at most 6 kinds of items, 100 special offers.
+For each item, you need to buy at most 6 of them.
+You are not allowed to buy more items than you want, even if that would lower the overall price.
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+    unordered_map<string, int> m;
+public:
+    int shoppingOffersHelper(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+        string key = "";
+        
+        int N = needs.size();
+        
+        int res = INT_MAX;
+        
+        int count = 0;
+        int price_cost = 0;
+        for(int i = 0; i < N; i++) {
+            key += to_string(needs[i]);
+            count += needs[i] == 0;
+            price_cost += needs[i]*price[i];
+        }
+        
+        if(m.count(key)) return m[key];
+        
+        if(count == N) return 0;
+        
+        res = min(res, price_cost);
+        
+        vector<vector<int>> restore;
+        for(auto it = special.begin(); it != special.end();) {
+            vector<int> sp = *it;
+            
+            bool should_erase = false;
+            for(int i = 0; i < N; i++) {
+                if(sp[i] > needs[i]) {
+                    should_erase = true;
+                    break;
+                }
+            }
+            
+            if(should_erase) {
+                restore.push_back(sp);
+                it = special.erase(it);
+            } else {
+                // everything in sp[i] <= needs[i] so we can take it
+                for(int i = 0; i < N; i++) {
+                    needs[i] -= sp[i];
+                }
+                
+                res = min(sp[N] + shoppingOffersHelper(price, special, needs), res);
+                for(int i = 0; i < N; i++) {
+                    needs[i] += sp[i];
+                }
+                it++;
+            }
+        }
+        
+        for(auto e: restore) special.push_back(e);
+        return m[key] = res;
+    }
+    
+    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {       
+        return shoppingOffersHelper(price, special, needs);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+640. Solve the Equation
+Solve a given equation and return the value of x in the form of string "x=#value". The equation contains 
+only '+', '-' operation, the variable x and its coefficient.
+
+If there is no solution for the equation, return "No solution".
+
+If there are infinite solutions for the equation, return "Infinite solutions".
+
+If there is exactly one solution for the equation, we ensure that the value of x is an integer.
+
+Example 1:
+Input: "x+5-3+x=6+x-2"
+Output: "x=2"
+Example 2:
+Input: "x=x"
+Output: "Infinite solutions"
+Example 3:
+Input: "2x=x"
+Output: "x=0"
+Example 4:
+Input: "2x+3x-6x=x+2"
+Output: "x=-1"
+Example 5:
+Input: "x=x+2"
+Output: "No solution"
+
+/*
+    Submission Date: 2017-07-09
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <tuple>
+
+using namespace std;
+
+class Solution {
+public:
+    pair<long long, long long> getCount(string s) {
+        long long x_count = 0;
+        long long c_count = 0;
+        for(int i = 0; i < s.size();) {
+            string prev = "";
+            bool seen_number = false;
+            bool end_x = false;
+            while(i < s.size()) {
+                if(isdigit(s[i])) {
+                    prev += s[i];
+                    seen_number = true;
+                    i++;
+                } else if(s[i] == '+' || s[i] == '-') {
+                    if(!seen_number) {
+                        prev += s[i];
+                        i++;
+                    } else {
+                        break;
+                    }
+                } else if(s[i] == 'x') {
+                    end_x = true;
+                    i++;
+                    break;
+                }
+            }
+
+            if(end_x) {
+                if(prev == "+") x_count++;
+                else if(prev == "-") x_count--;
+                else if(prev == "") x_count++;
+                else x_count += stoll(prev);
+            } else {
+                if(prev == "+") c_count++;
+                else if(prev == "-") c_count--;
+                else if(prev == "") c_count++;
+                else c_count += stoll(prev);
+            }
+        }
+
+        return {x_count, c_count};
+    }
+    string solveEquation(string equation) {
+        // put all the x on the left side and all the numbers on the right side
+        string s = equation;
+        string inf = "Infinite solutions";
+        string none = "No solution";
+
+        int eq_ind = s.find("=");
+        if(eq_ind == string::npos) return none;
+
+        string left = s.substr(0, eq_ind);
+        string right = s.substr(eq_ind + 1);
+
+        
+        long long x_count1, c_count1;
+        tie(x_count1, c_count1) = getCount(left);
+
+        long long x_count2, c_count2;
+        tie(x_count2, c_count2) = getCount(right);
+
+        long long left_x_count = x_count1 - x_count2;
+        long long right_c_count = c_count2 - c_count1;
+
+        if(left_x_count == 0) return right_c_count == 0 ? inf : none;
+
+        return "x=" + to_string(right_c_count/left_x_count);
+    }
+};
+
+int main() {
+    Solution s;
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 641. Design Circular Deque
 Design your implementation of the circular double-ended queue (deque).
 Your implementation should support following operations:
@@ -703,219 +935,6 @@ public:
         vector<TreeNode*> res;
         preorder(root, freq, res);
         return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-653. Two Sum IV - Input is a BST
-Given a Binary Search Tree and a target number, return true if there exist two 
-elements in the BST such that their sum is equal to the given target.
-
-Example 1:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 9
-
-Output: True
-Example 2:
-Input: 
-    5
-   / \
-  3   6
- / \   \
-2   4   7
-
-Target = 28
-
-Output: False
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-    unordered_map<int, vector<TreeNode*>> visited;
-public:
-    bool findTarget(TreeNode* root, int k) {
-        if(root == NULL) return false;
-        int target = k - (root -> val);
-        
-        if(visited.count(target)) {
-            for(auto l: visited[target]) {
-                if(l != root) return true;
-            }
-        }
-        
-        TreeNode* curr = root;
-        while(curr) {
-            if(curr != root && curr -> val == target) return true;
-            visited[curr -> val].push_back(curr);
-            if(curr -> val > target) {
-                curr = curr -> right;
-            } else {
-                curr = curr -> left;
-            }
-        }
-        
-        return findTarget(root -> left, k) || findTarget(root -> right, k);
-    }
-};
-
-class Solution {
-public:
-    void inorder(TreeNode* curr, vector<int>& res) {
-        if(curr == NULL) return;
-        inorder(curr -> left, res);
-        res.push_back(curr -> val);
-        inorder(curr -> right, res);
-    }
-    bool findTarget(TreeNode* root, int k) {
-        vector<int> sorted_arr;
-        inorder(root, sorted_arr);
-        int low = 0;
-        int high = sorted_arr.size() - 1;
-        
-        while(low < high) {
-            int sum = sorted_arr[low] + sorted_arr[high];
-            if(sum == k) return true;
-            if(sum < k) low++;
-            else high--;
-        }
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-654. Maximum Binary Tree
-Given an integer array with no duplicates. A maximum tree building on this array is defined as 
-follow:
-
-The root is the maximum number in the array.
-The left subtree is the maximum tree constructed from left part subarray divided by the maximum 
-number.
-The right subtree is the maximum tree constructed from right part subarray divided by the maximum 
-number.
-Construct the maximum tree by the given array and output the root node of this tree.
-
-Example 1:
-Input: [3,2,1,6,0,5]
-Output: return the tree root node representing the following tree:
-
-      6
-    /   \
-   3     5
-    \    / 
-     2  0   
-       \
-        1
-Note:
-The size of the given array will be in the range [1,1000].
-
-/*
-    Submission Date: 2017-08-06
-    Runtime: 66 ms
-    Difficulty: MEDIUM
-*/
-
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution2 {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        int N = nums.size();
-        
-        int top = -1;
-        vector<int> st(N, 0);
-        vector<int> T(N, 0);
-        for(int i = 0; i < N; i++) {
-            int temp_top = top;
-            while(temp_top >= 0 && nums[st[temp_top]] < nums[i]) {
-                temp_top--;
-            }
-            
-            if(temp_top != -1) T[i] = st[temp_top];
-            
-            if(temp_top < top) {
-                T[st[temp_top + 1]] = i;
-            }
-            st[++temp_top] = i;
-            top = temp_top;
-        }
-        
-        T[st[0]] = -1;
-        
-        TreeNode* nodes[N];
-        for(int i = 0; i < N; i++) nodes[i] = new TreeNode(nums[i]);
-        
-        TreeNode* root;
-        for(int i = 0; i < N; i++) {
-            int parent_ind = T[i];
-            if(parent_ind == -1) root = nodes[i];
-            else if(i < parent_ind) nodes[parent_ind] -> left = nodes[i];
-            else nodes[parent_ind] -> right = nodes[i];
-        }
-        
-        return root;
-    }
-};
-
-class Solution {
-public:
-    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-        vector<TreeNode*> stk;
-        for(auto num: nums) {
-            TreeNode* curr = new TreeNode(num);
-            TreeNode* left = NULL;
-            while(!stk.empty() && stk.back() -> val < num) {
-                left = stk.back();
-                stk.pop_back();
-            }
-
-            curr -> left = left;
-            if(!stk.empty()) {
-                stk.back() -> right = curr;
-            }
-            stk.push_back(curr);
-        }
-        return stk.front();
     }
 };
 

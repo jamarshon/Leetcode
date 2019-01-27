@@ -1,6 +1,251 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+543. Diameter of Binary Tree
+Given a binary tree, you need to compute the length of the diameter of the tree.
+The diameter of a binary tree is the length of the longest path between any two
+nodes in a tree. This path may or may not pass through the root.
+
+Example:
+Given a binary tree
+          1
+         / \
+        2   3
+       / \
+      4   5
+Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
+
+Note: The length of path between two nodes is represented by the number of edges
+between them.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+  returns the height of a node so height(root) = 1 + max(height(left),
+  height(right)) res can be updated to 2 + height(left) + height(right) as the
+  longest path in the left and right go through this node.
+  */
+  int help(TreeNode* root, int& res) {
+    if (root == NULL) return -1;
+    int left = help(root->left, res);
+    int right = help(root->right, res);
+    res = max(res, 2 + left + right);
+    return 1 + max(left, right);
+  }
+
+  int diameterOfBinaryTree(TreeNode* root) {
+    int res = 0;
+    help(root, res);
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+547. Friend Circles
+There are N students in a class. Some of them are friends, while some are not.
+Their friendship is transitive in nature. For example, if A is a direct friend
+of B, and B is a direct friend of C, then A is an indirect friend of C. And we
+defined a friend circle is a group of students who are direct or indirect
+friends.
+
+
+
+Given a N*N matrix M representing the friend relationship between students in
+the class. If M[i][j] = 1, then the ith and jth students are direct friends with
+each other, otherwise not. And you have to output the total number of friend
+circles among all the students.
+
+
+Example 1:
+Input:
+[[1,1,0],
+ [1,1,0],
+ [0,0,1]]
+Output: 2
+Explanation:The 0th and 1st students are direct friends, so they are in a friend
+circle. The 2nd student himself is in a friend circle. So return 2.
+
+
+
+Example 2:
+Input:
+[[1,1,0],
+ [1,1,1],
+ [0,1,1]]
+Output: 1
+Explanation:The 0th and 1st students are direct friends, the 1st and 2nd
+students are direct friends, so the 0th and 2nd students are indirect friends.
+All of them are in the same friend circle, so return 1.
+
+
+
+
+Note:
+
+N is in range [1,200].
+M[i][i] = 1 for all students.
+If M[i][j] = 1, then M[j][i] = 1.
+
+/*
+    Submission Date: 2018-07-05
+    Runtime: 20 ms
+    Difficulty: MEDIUM
+*/
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+class UnionFind {
+  // key is element, value is rank
+  unordered_map<T, int> rank_;
+  // key is element, value is parent
+  unordered_map<T, T> parent_;
+
+ public:
+  bool IsWithinSet(T e) { return parent_.count(e); }
+
+  void CreateSet(T e) {
+    assert(!IsWithinSet(e));
+    parent_[e] = e;
+    rank_[e] = 0;
+  }
+
+  // finds the root of e
+  T Find(T e) {
+    if (parent_[e] != e) {
+      // this is not a root (root has parent to be equal itself)
+      // so find root and apply path compression along path
+      parent_[e] = Find(parent_[e]);
+    }
+    return parent_[e];
+  }
+
+  // unions the sets of e1 and e2 if necessary
+  // return whether an union took place
+  bool Union(T e1, T e2) {
+    T e1_root = Find(e1);
+    T e2_root = Find(e2);
+
+    if (e1_root == e2_root) return false;  // same root
+
+    // Attach smaller rank tree under root of high rank tree
+    // (Union by Rank)
+    if (rank_[e1_root] < rank_[e2_root]) {
+      parent_[e1_root] = e2_root;
+    } else {
+      parent_[e2_root] = e1_root;
+      if (rank_[e1_root] == rank_[e2_root]) {
+        rank_[e1_root]++;
+      }
+    }
+
+    return true;
+  }
+};
+
+class Solution {
+ public:
+  /*
+  basically find how many connected graphs there are
+  so use union-find, for every edge from u to v, merge the sets u and v
+  at the end find how many sets there are by finding the root of all
+  the nodes and counting the distinct ones.
+  
+  O(N^2) as Union and Find are O(1)
+  */
+  int findCircleNum(vector<vector<int>>& M) {
+    int N = M.size();
+    UnionFind<int> uf;
+    for (int i = 0; i < N; i++) uf.CreateSet(i);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (M[i][j] == 0) continue;
+        uf.Union(i, j);
+      }
+    }
+
+    unordered_set<int> roots;
+    for (int i = 0; i < N; i++) roots.insert(uf.Find(i));
+    return roots.size();
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+551. Student Attendance Record I
+You are given a string representing an attendance record for a student. The
+record only contains the following three characters: 'A' : Absent. 'L' : Late.
+'P' : Present.
+A student could be rewarded if his attendance record doesn't contain more than
+one 'A' (absent) or more than two continuous 'L' (late).
+
+You need to return whether the student could be rewarded according to his
+attendance record.
+
+Example 1:
+Input: "PPALLP"
+Output: True
+Example 2:
+Input: "PPALLL"
+Output: False
+/*
+    Submission Date: 2018-06-08
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool checkRecord(string s) {
+    int l_streak = 0;
+    bool seen_absent = false;
+    for (const auto& c : s) {
+      if (c == 'L') {
+        if (l_streak == 2) return false;
+        l_streak++;
+      } else {
+        if (c == 'A') {
+          if (seen_absent) return false;
+          seen_absent = true;
+        }  // c == 'P'
+
+        l_streak = 0;
+      }
+    }
+    return true;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 553. Optimal Division
 Given a list of positive integers, the adjacent integers will perform the float
 division. For example, [2,3,4] -> 2 / 3 / 4.
@@ -112,6 +357,82 @@ class Solution {
 };
 
 int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+554. Brick Wall
+There is a brick wall in front of you. The wall is rectangular and has several
+rows of bricks. The bricks have the same height but different width. You want to
+draw a vertical line from the top to the bottom and cross the least bricks.
+
+The brick wall is represented by a list of rows. Each row is a list of integers
+representing the width of each brick in this row from left to right.
+
+If your line go through the edge of a brick, then the brick is not considered as
+crossed. You need to find out how to draw the line to cross the least bricks and
+return the number of crossed bricks.
+
+You cannot draw a line just along one of the two vertical edges of the wall, in
+which case the line will obviously cross no bricks.
+
+Example:
+
+Input: [[1,2,2,1],
+        [3,1,2],
+        [1,3,2],
+        [2,4],
+        [3,1,2],
+        [1,3,1,1]]
+
+Output: 2
+
+Explanation:
+
+Note:
+
+  The width sum of bricks in different rows are the same and won't exceed
+INT_MAX.
+  The number of bricks in each row is in range [1,10,000]. The height of wall is
+in range [1,10,000]. Total number of bricks of the wall won't exceed 20,000.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 44 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  put all the x boundaries into a hashmap. Since the x boundaries
+  in a row will always be increasing, we dont need to worry about
+  conflicts in a row. the most frequent x boundary is where we
+  want to cut so the result is just the number of rows minus
+  that.
+  */
+  int leastBricks(vector<vector<int>>& wall) {
+    unordered_map<int, int> freq;
+    int max_freq = 0;
+    for (auto& row : wall) {
+      int sum = 0;
+      for (int i = 0; i < row.size(); i++) {
+        sum += row[i];
+        freq[sum]++;
+        if (i != row.size() - 1) {
+          max_freq = max(max_freq, freq[sum]);
+        }
+      }
+    }
+
+    return wall.size() - max_freq;
+  }
+};
+
+int main() { return 0; }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 557. Reverse Words in a String III
@@ -664,312 +985,3 @@ class Solution {
 };
 
 int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-572. Subtree of Another Tree
-Given two non-empty binary trees s and t, check whether tree t has exactly the
-same structure and node values with a subtree of s. A subtree of s is a tree
-consists of a node in s and all of this node's descendants. The tree s could
-also be considered as a subtree of itself.
-
-Example 1:
-Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-Given tree t:
-   4
-  / \
- 1   2
-Return true, because t has the same structure and node values with a subtree of
-s. Example 2: Given tree s:
-
-     3
-    / \
-   4   5
-  / \
- 1   2
-    /
-   0
-Given tree t:
-   4
-  / \
- 1   2
-Return false.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 29 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  void serialize(TreeNode* node, string& res) {
-    if (node == NULL) {
-      res += "null,";
-    } else {
-      res += to_string(node->val) + ",";
-      serialize(node->left, res);
-      serialize(node->right, res);
-    }
-  }
-
-  // check if s == t or s contains a subtree t
-  bool isSubtree(TreeNode* s, TreeNode* t) {
-    string s1 = "", s2 = "";
-    serialize(s, s1);
-    serialize(t, s2);
-    return s1 == s2 || s1.find("," + s2) != string::npos;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-575. Distribute Candies
-Given an integer array with even length, where different numbers in this array
-represent different kinds of candies. Each number means one candy of the
-corresponding kind. You need to distribute these candies equally in number to
-brother and sister. Return the maximum number of kinds of candies the sister
-could gain. Example 1: Input: candies = [1,1,2,2,3,3] Output: 3 Explanation:
-There are three different kinds of candies (1, 2 and 3), and two candies for
-each kind. Optimal distribution: The sister has candies [1,2,3] and the brother
-has candies [1,2,3], too. The sister has three different kinds of candies.
-Example 2:
-Input: candies = [1,1,2,3]
-Output: 2
-Explanation: For example, the sister has candies [2,3] and the brother has
-candies [1,1]. The sister has two different kinds of candies, the brother has
-only one kind of candies. Note:
-
-The length of the given array is in range [2, 10,000], and will be even.
-The number in given array is in range [-100,000, 100,000].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 247 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  // Count the number of distinct candies. Return the min of this and the max
-  // size of the array which is candies.size()/2.
-  int distributeCandies(vector<int>& candies) {
-    unordered_set<int> st(candies.begin(), candies.end());
-    return min(candies.size() / 2, st.size());
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-581. Shortest Unsorted Continuous Subarray
-Given an integer array, you need to find one continuous subarray that if you only sort this 
-subarray in ascending order, then the whole array will be sorted in ascending order, too.
-
-You need to find the shortest such subarray and output its length.
-
-Input: [2, 6, 4, 8, 10, 9, 15]
-Output: 5
-Explanation: You need to sort [6, 4, 8, 10, 9] in ascending order to make the whole array 
-sorted in ascending order.
-
-Note:
-Then length of the input array is in range [1, 10,000].
-The input array may contain duplicates, so ascending order here means <=.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 52 ms
-    Difficulty: EASY
-*/
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    int findUnsortedSubarray(vector<int>& nums) {
-            int N = nums.size();
-            vector<int> cpy(N);
-            copy(nums.begin(), nums.end(), cpy.begin());
-            sort(nums.begin(), nums.end());
-
-            int i;
-            for(i = 0; i < N; i++) {
-                if(nums[i] != cpy[i]) break;
-            }
-
-            int j;
-            for(j = N-1; j >= 0; j--) {
-                if(nums[j] != cpy[j]) break;
-            }
-
-        return max(j - i + 1, 0);
-    }
-};
-
-int main() {
-    Solution s;
-    vector<int> v{2, 6, 4, 8, 10, 9, 15};
-    cout << s.findUnsortedSubarray(v);
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-582. Kill Process
-Given n processes, each process has a unique PID (process id) and its PPID (parent process id).
-
-Each process only has one parent process, but may have one or more children processes. This 
-is just like a tree structure. Only one process has PPID that is 0, which means this process 
-has no parent process. All the PIDs will be distinct positive integers.
-
-We use two list of integers to represent a list of processes, where the first list contains 
-PID for each process and the second list contains the corresponding PPID.
-
-Now given the two lists, and a PID representing a process you want to kill, return a list 
-of PIDs of processes that will be killed in the end. You should assume that when a process 
-is killed, all its children processes will be killed. No order is required for the final answer.
-
-Example 1:
-Input: 
-pid =  [1, 3, 10, 5]
-ppid = [3, 0, 5, 3]
-kill = 5
-Output: [5,10]
-Explanation: 
-           3
-         /   \
-        1     5
-             /
-            10
-Kill 5 will also kill 10.
-
-Note:
-The given kill id is guaranteed to be one of the given PIDs.
-n >= 1.
-/*
-    Submission Date: 2017-05-13
-    Runtime: 166 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<int> killProcess(vector<int>& pid, vector<int>& ppid, int kill) {
-        unordered_map<int, vector<int>> m;
-        int N = pid.size();
-        for(int i = 0; i < N; i++) {
-            int _ppid = ppid[i];
-            int _pid = pid[i];
-
-            if(m.find(_ppid) == m.end()) {
-                m[_ppid] = {_pid};
-            } else {
-                m[_ppid].push_back(_pid);
-            }
-        }
-
-        vector<int> result{kill};
-        int i = 0;
-        while(i < result.size()) {
-            int current = result[i];
-            if(m.find(current) != m.end()) { // non leaf
-                vector<int> children = m[current];
-                for(auto c: children) {
-                    result.push_back(c);
-                }
-            }
-            i++;
-        }
-        return result;
-    }
-};
-
-int main() {
-	Solution s;
-    vector<int> pid{1, 3, 10, 5, 4, 1};
-	vector<int> ppid{3, 0, 5, 3, 10, 5};
-    int kill = 5;
-    vector<int> t = s.killProcess(pid, ppid, kill);
-	for(auto l: t) cout << l << " ";
-	return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-583. Delete Operation for Two Strings
-Given two words word1 and word2, find the minimum number of steps required to 
-make word1 and word2 the same, where in each step you can delete one character in either string.
-
-Example 1:
-Input: "sea", "eat"
-Output: 2
-Explanation: You need one step to make "sea" to "ea" and another step to make "eat" to "ea".
-Note:
-The length of given words won't exceed 500.
-Characters in given words can only be lower-case letters.
-
-/*
-    Submission Date: 2017-05-13
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int minDistance(string word1, string word2) {
-        int row = word2.size() + 1;
-        int col = word1.size() + 1;
-        int dp[501][501];
-        for(int i = 0; i < row; i++) dp[i][0] = i;
-        for(int i = 0; i < col; i++) dp[0][i] = i;
-
-        for(int i = 1; i < row; i++) {
-            for(int j = 1; j < col; j++) {
-                if(word2[i - 1] == word1[j - 1]) {
-                    dp[i][j] = dp[i - 1][j - 1];
-                } else {
-                    dp[i][j] = min(dp[i][j - 1], dp[i - 1][j]) + 1;
-                }
-            }
-        }
-        
-        return dp[row - 1][col - 1];
-    }
-};
-
-int main() {
-	Solution s;
-    cout << s.minDistance("sea", "eat");
-	return 0;
-}

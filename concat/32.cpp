@@ -1,6 +1,211 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+692. Top K Frequent Words
+Given a non-empty list of words, return the k most frequent elements.
+
+Your answer should be sorted by frequency from highest to lowest. If two words
+have the same frequency, then the word with the lower alphabetical order comes
+first.
+
+Example 1:
+Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+Output: ["i", "love"]
+Explanation: "i" and "love" are the two most frequent words.
+    Note that "i" comes before "love" due to a lower alphabetical order.
+Example 2:
+Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"],
+k = 4 Output: ["the", "is", "sunny", "day"] Explanation: "the", "is", "sunny"
+and "day" are the four most frequent words, with the number of occurrence being
+4, 3, 2 and 1 respectively. Note: You may assume k is always valid, 1 ≤ k ≤
+number of unique elements. Input words contain only lowercase letters. Follow
+up: Try to solve it in O(n log k) time and O(n) extra space.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> topKFrequent(vector<string>& words, int k) {
+    unordered_map<string, int> freq_map;
+    for (auto e : words) freq_map[e]++;
+
+    map<int, vector<string>> grouped_map;
+    for (auto kv : freq_map) grouped_map[kv.second].push_back(kv.first);
+
+    vector<string> res;
+    for (auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
+      sort(it->second.begin(), it->second.end());
+      for (auto e : it->second) {
+        res.push_back(e);
+        if (res.size() == k) break;
+      }
+      if (res.size() == k) break;
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+693. Binary Number with Alternating Bits
+Given a positive integer, check whether it has alternating bits: namely, if two
+adjacent bits will always have different values.
+
+Example 1:
+Input: 5
+Output: True
+Explanation:
+The binary representation of 5 is: 101
+Example 2:
+Input: 7
+Output: False
+Explanation:
+The binary representation of 7 is: 111.
+Example 3:
+Input: 11
+Output: False
+Explanation:
+The binary representation of 11 is: 1011.
+Example 4:
+Input: 10
+Output: True
+Explanation:
+The binary representation of 10 is: 1010.
+/*
+    Submission Date: 2018-06-02
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution2 {
+ public:
+  // 0x5555555555555555 checks if any of the even bits are set as 5 is 0101
+  bool IsPowerOfFour(long long x) {
+    return (x & ~(x - 1)) == x && (x & 0x5555555555555555);
+  }
+
+  // 0xaaaaaaaaaaaaaaaa checks if any of the odd bits are set as a is 1010
+  bool IsPowerOfFourTimesTwo(long long x) {
+    return (x & ~(x - 1)) == x && (x & 0xaaaaaaaaaaaaaaaa);
+  }
+  /*
+      sum of geometric series is (1-r^n)/(1-r) so sum 2^(2i) and sum 2^(2i+1)
+     becomes sum(2^(2i)) = sum(4^i) = (1-4^n)/(1-4) = (4^n-1)/3 sum(2^(2i+1)) =
+     2*sum(4^i) = 2*(1-4^n)/(1-4) = (2*4^n-2)/3 so check if the number x =
+     (4^n-1)/3 or x = (2*4^n-2)/3 works
+  */
+  bool hasAlternatingBits(long long n) {
+    return IsPowerOfFour(3 * n + 1) || IsPowerOfFourTimesTwo(n * 3 + 2);
+  }
+};
+
+class Solution {
+ public:
+  /*
+      shift number by two bits and xor it with itself. only the leading one
+     should remeain first operation gives one if x[i] != x[i+2] so if they are
+     all zero it means x[0] = x[2] = x[4] = ... x[2*n] and x[1] = x[3] = x[5] =
+     ... x[2*n+1]
+
+      x[0] and x[1] can give 4 combinations 00, 01, 10, 11 so checking that
+     there is just a leading one ensures there is only one 1 and one 0 that
+     propogate correctly to the rest of the numbers.
+  */
+  bool hasAlternatingBits(int n) {
+    int x = ((n >> 2) ^ n);
+    return (x & ~(x - 1)) == x;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+695. Max Area of Island
+Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's
+(representing land) connected 4-directionally (horizontal or vertical.) You may
+assume all four edges of the grid are surrounded by water.
+
+Find the maximum area of an island in the given 2D array. (If there is no
+island, the maximum area is 0.)
+
+Example 1:
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+Given the above grid, return 6. Note the answer is not 11, because the island
+must be connected 4-directionally. Example 2:
+[[0,0,0,0,0,0,0,0]]
+Given the above grid, return 0.
+Note: The length of each dimension in the given grid does not exceed 50.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 32 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  int dx[4] = {1, -1, 0, 0};
+  int dy[4] = {0, 0, -1, 1};
+
+ public:
+  int dfs(vector<vector<int>>& grid, int i, int j, int N, int M) {
+    grid[i][j] = 0;
+
+    int res = 1;
+    for (int k = 0; k < 4; k++) {
+      int new_x = j + dx[k];
+      int new_y = i + dy[k];
+      if ((0 <= new_x && new_x < M) && (0 <= new_y && new_y < N) &&
+          grid[new_y][new_x] == 1) {
+        res += dfs(grid, new_y, new_x, N, M);
+      }
+    }
+    return res;
+  }
+
+  int maxAreaOfIsland(vector<vector<int>>& grid) {
+    if (grid.empty()) return 0;
+    int N = grid.size();
+    int M = grid[0].size();
+    int res = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) {
+        if (grid[i][j] == 1) {
+          res = max(res, dfs(grid, i, j, N, M));
+        }
+      }
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 696. Count Binary Substrings
 Give a string s, count the number of non-empty (contiguous) substrings that have
 the same number of 0's and 1's, and all the 0's and all the 1's in these
@@ -805,202 +1010,5 @@ class Solution {
     return dfs(trie.root_, "");
   }
 };
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-724. Find Pivot Index
-Given an array of integers nums, write a method that returns the "pivot" index
-of this array.
-
-We define the pivot index as the index where the sum of the numbers to the left
-of the index is equal to the sum of the numbers to the right of the index.
-
-If no such index exists, we should return -1. If there are multiple pivot
-indexes, you should return the left-most pivot index.
-
-Example 1:
-Input:
-nums = [1, 7, 3, 6, 5, 6]
-Output: 3
-Explanation:
-The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum
-of numbers to the right of index 3. Also, 3 is the first index where this
-occurs. Example 2: Input: nums = [1, 2, 3] Output: -1 Explanation: There is no
-index that satisfies the conditions in the problem statement. Note:
-
-The length of nums will be in the range [0, 10000].
-Each element nums[i] will be an integer in the range [-1000, 1000].
-/*
-    Submission Date: 2018-06-09
-    Runtime: 45 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  make right = sum of all array then at each index i decrease nums[i]
-  have left = 0 and increase it by nums[i] to compare if
-  the left sum == right sum
-  */
-  int pivotIndex(vector<int>& nums) {
-    int right = 0;
-    for (const auto& e : nums) right += e;
-
-    int left = 0;
-    for (int i = 0; i < nums.size(); i++) {
-      right -= nums[i];
-      if (left == right) return i;
-      left += nums[i];
-    }
-
-    return -1;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-728. Self Dividing Numbers
-A self-dividing number is a number that is divisible by every digit it contains.
-
-For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0,
-and 128 % 8 == 0.
-
-Also, a self-dividing number is not allowed to contain the digit zero.
-
-Given a lower and upper number bound, output a list of every possible self
-dividing number, including the bounds if possible.
-
-Example 1:
-Input:
-left = 1, right = 22
-Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
-Note:
-
-The boundaries of each input argument are 1 <= left <= right <= 10000.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> selfDividingNumbers(int left, int right) {
-    vector<int> res;
-
-    for (int i = left; i <= right; i++) {
-      int x = i;
-      bool can_use = true;
-      while (x) {
-        if (x % 10 == 0 || i % (x % 10) != 0) {
-          can_use = false;
-          break;
-        }
-        x /= 10;
-      }
-
-      if (can_use) res.push_back(i);
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-732. My Calendar III
-Implement a MyCalendarThree class to store your events. A new event can always
-be added.
-
-Your class will have one method, book(int start, int end). Formally, this
-represents a booking on the half open interval [start, end), the range of real
-numbers x such that start <= x < end.
-
-A K-booking happens when K events have some non-empty intersection (ie., there
-is some time that is common to all K events.)
-
-For each call to the method MyCalendar.book, return an integer K representing
-the largest integer such that there exists a K-booking in the calendar.
-Your class will be called like this: MyCalendarThree cal = new
-MyCalendarThree(); MyCalendarThree.book(start, end)
-
-Example 1:
-
-MyCalendarThree();
-MyCalendarThree.book(10, 20); // returns 1
-MyCalendarThree.book(50, 60); // returns 1
-MyCalendarThree.book(10, 40); // returns 2
-MyCalendarThree.book(5, 15); // returns 3
-MyCalendarThree.book(5, 10); // returns 3
-MyCalendarThree.book(25, 55); // returns 3
-Explanation:
-The first two events can be booked and are disjoint, so the maximum K-booking is
-a 1-booking.
-The third event [10, 40) intersects the first event, and the maximum K-booking
-is a 2-booking.
-The remaining events cause the maximum K-booking to be only a 3-booking.
-Note that the last event locally causes a 2-booking, but the answer is still 3
-because
-eg. [10, 20), [10, 40), and [5, 15) are still triple booked.
-
-Note:
-
-  The number of calls to MyCalendarThree.book per test case will be at most 400.
-  In calls to MyCalendarThree.book(start, end), start and end are integers in
-the range [0, 10^9].
-/*
-  Submission Date: 2019-01-26
-  Runtime: 128 ms
-  Difficulty: HARD
-*/
-#include <iostream>
-#include <map>
-
-using namespace std;
-
-class MyCalendarThree {
-  map<int, int> m;
-
- public:
-  MyCalendarThree() {}
-
-  /*
-  have a timeline like an array where an event [start, end) means a +1 at
-  start and a -1 at end then when summing acrossing the timeline you
-  can see how many events are at that specfic time.
-
-  use a map to save space (still process time sequentially).
-  k is just the maximum of the ongoing sum.
-
-  */
-  int book(int start, int end) {
-    m[start]++;
-    m[end]--;
-
-    int k = 0, ongoing = 0;
-    for (auto& p : m) {
-      k = max(k, ongoing += p.second);
-    }
-    return k;
-  }
-};
-
-/**
- * Your MyCalendarThree object will be instantiated and called as such:
- * MyCalendarThree obj = new MyCalendarThree();
- * int param_1 = obj.book(start,end);
- */
 
 int main() { return 0; }

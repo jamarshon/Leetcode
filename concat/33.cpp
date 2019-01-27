@@ -1,6 +1,204 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+724. Find Pivot Index
+Given an array of integers nums, write a method that returns the "pivot" index
+of this array.
+
+We define the pivot index as the index where the sum of the numbers to the left
+of the index is equal to the sum of the numbers to the right of the index.
+
+If no such index exists, we should return -1. If there are multiple pivot
+indexes, you should return the left-most pivot index.
+
+Example 1:
+Input:
+nums = [1, 7, 3, 6, 5, 6]
+Output: 3
+Explanation:
+The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the sum
+of numbers to the right of index 3. Also, 3 is the first index where this
+occurs. Example 2: Input: nums = [1, 2, 3] Output: -1 Explanation: There is no
+index that satisfies the conditions in the problem statement. Note:
+
+The length of nums will be in the range [0, 10000].
+Each element nums[i] will be an integer in the range [-1000, 1000].
+/*
+    Submission Date: 2018-06-09
+    Runtime: 45 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  make right = sum of all array then at each index i decrease nums[i]
+  have left = 0 and increase it by nums[i] to compare if
+  the left sum == right sum
+  */
+  int pivotIndex(vector<int>& nums) {
+    int right = 0;
+    for (const auto& e : nums) right += e;
+
+    int left = 0;
+    for (int i = 0; i < nums.size(); i++) {
+      right -= nums[i];
+      if (left == right) return i;
+      left += nums[i];
+    }
+
+    return -1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+728. Self Dividing Numbers
+A self-dividing number is a number that is divisible by every digit it contains.
+
+For example, 128 is a self-dividing number because 128 % 1 == 0, 128 % 2 == 0,
+and 128 % 8 == 0.
+
+Also, a self-dividing number is not allowed to contain the digit zero.
+
+Given a lower and upper number bound, output a list of every possible self
+dividing number, including the bounds if possible.
+
+Example 1:
+Input:
+left = 1, right = 22
+Output: [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22]
+Note:
+
+The boundaries of each input argument are 1 <= left <= right <= 10000.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> selfDividingNumbers(int left, int right) {
+    vector<int> res;
+
+    for (int i = left; i <= right; i++) {
+      int x = i;
+      bool can_use = true;
+      while (x) {
+        if (x % 10 == 0 || i % (x % 10) != 0) {
+          can_use = false;
+          break;
+        }
+        x /= 10;
+      }
+
+      if (can_use) res.push_back(i);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+732. My Calendar III
+Implement a MyCalendarThree class to store your events. A new event can always
+be added.
+
+Your class will have one method, book(int start, int end). Formally, this
+represents a booking on the half open interval [start, end), the range of real
+numbers x such that start <= x < end.
+
+A K-booking happens when K events have some non-empty intersection (ie., there
+is some time that is common to all K events.)
+
+For each call to the method MyCalendar.book, return an integer K representing
+the largest integer such that there exists a K-booking in the calendar.
+Your class will be called like this: MyCalendarThree cal = new
+MyCalendarThree(); MyCalendarThree.book(start, end)
+
+Example 1:
+
+MyCalendarThree();
+MyCalendarThree.book(10, 20); // returns 1
+MyCalendarThree.book(50, 60); // returns 1
+MyCalendarThree.book(10, 40); // returns 2
+MyCalendarThree.book(5, 15); // returns 3
+MyCalendarThree.book(5, 10); // returns 3
+MyCalendarThree.book(25, 55); // returns 3
+Explanation:
+The first two events can be booked and are disjoint, so the maximum K-booking is
+a 1-booking.
+The third event [10, 40) intersects the first event, and the maximum K-booking
+is a 2-booking.
+The remaining events cause the maximum K-booking to be only a 3-booking.
+Note that the last event locally causes a 2-booking, but the answer is still 3
+because
+eg. [10, 20), [10, 40), and [5, 15) are still triple booked.
+
+Note:
+
+  The number of calls to MyCalendarThree.book per test case will be at most 400.
+  In calls to MyCalendarThree.book(start, end), start and end are integers in
+the range [0, 10^9].
+/*
+  Submission Date: 2019-01-26
+  Runtime: 128 ms
+  Difficulty: HARD
+*/
+#include <iostream>
+#include <map>
+
+using namespace std;
+
+class MyCalendarThree {
+  map<int, int> m;
+
+ public:
+  MyCalendarThree() {}
+
+  /*
+  have a timeline like an array where an event [start, end) means a +1 at
+  start and a -1 at end then when summing acrossing the timeline you
+  can see how many events are at that specfic time.
+
+  use a map to save space (still process time sequentially).
+  k is just the maximum of the ongoing sum.
+
+  */
+  int book(int start, int end) {
+    m[start]++;
+    m[end]--;
+
+    int k = 0, ongoing = 0;
+    for (auto& p : m) {
+      k = max(k, ongoing += p.second);
+    }
+    return k;
+  }
+};
+
+/**
+ * Your MyCalendarThree object will be instantiated and called as such:
+ * MyCalendarThree obj = new MyCalendarThree();
+ * int param_1 = obj.book(start,end);
+ */
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 733. Flood Fill
 An image is represented by a 2-D array of integers, each integer representing
 the pixel value of the image (from 0 to 65535).
@@ -495,6 +693,74 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+754. Reach a Number
+You are standing at position 0 on an infinite number line.  There is a goal at
+position target.
+
+On each move, you can either go left or right.  During the n-th move (starting
+from 1), you take n steps.
+
+Return the minimum number of steps required to reach the destination.
+
+Example 1:
+Input: target = 3
+Output: 2
+Explanation:
+On the first move we step from 0 to 1.
+On the second step we step from 1 to 3.
+
+Example 2:
+Input: target = 2
+Output: 3
+Explanation:
+On the first move we step from 0 to 1.
+On the second move we step  from 1 to -1.
+On the third move we step from -1 to 2.
+
+Note:
+target will be a non-zero integer in the range [-10^9, 10^9].
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int reachNumber(int target) {
+    target = abs(target);  // due to symmetry.
+
+    // n*(n+1)/2 <= target
+    int n = (-1LL + sqrt(1LL + 8LL * target)) / 2LL;
+
+    if (n * (n + 1) / 2 < target) n++;
+
+    int sum = n * (n + 1) / 2;
+    // if the difference between sum and target is even,
+    // then we can reach target by changing a right to left
+    // which will cause a loss of 2 times the value.
+    // we can do this for any amount of numbers that equal to
+    // half the difference. The difference will be at most n (the
+    // last step) and it is guaranteed to have some combination
+    // that adds up to at least n/2 because it is consecutive
+    // no gaps hence able to create numbers from [0, n*(n+1)/2]
+    while ((sum - target) % 2 != 0) {
+      n++;
+      sum += n;
+    }
+
+    return n;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 756. Pyramid Transition Matrix
 We are stacking blocks to form a pyramid.  Each block has a color which is a one
 letter string, like `'Z'`.
@@ -742,253 +1008,6 @@ class Solution {
     }
 
     for (int i = res.size() - 1; i >= 1; i--) res[i] -= res[i - 1];
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-766. Toeplitz Matrix
-A matrix is Toeplitz if every diagonal from top-left to bottom-right has the
-same element.
-
-Now given an M x N matrix, return True if and only if the matrix is Toeplitz.
- 
-
-Example 1:
-
-Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
-Output: True
-Explanation:
-1234
-5123
-9512
-
-In the above grid, the diagonals are "[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]",
-"[3, 3]", "[4]", and in each diagonal all elements are the same, so the answer
-is True. Example 2:
-
-Input: matrix = [[1,2],[2,2]]
-Output: False
-Explanation:
-The diagonal "[1, 2]" has different elements.
-Note:
-
-matrix will be a 2D array of integers.
-matrix will have a number of rows and columns in range [1, 20].
-matrix[i][j] will be integers in range [0, 99].
-/*
-    Submission Date: 2018-05-31
-    Runtime: 22 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isToeplitzMatrix(vector<vector<int>>& matrix) {
-    if (matrix.empty()) return true;
-    int N = matrix.size();
-    int M = matrix[0].size();
-
-    for (int i = 1; i < N; i++) {
-      for (int j = 1; j < M; j++) {
-        if (matrix[i][j] != matrix[i - 1][j - 1]) return false;
-      }
-    }
-
-    return true;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-769. Max Chunks To Make Sorted
-Given an array arr that is a permutation of [0, 1, ..., arr.length - 1], we
-split the array into some number of "chunks" (partitions), and individually sort
-each chunk.  After concatenating them, the result equals the sorted array.
-
-What is the most number of chunks we could have made?
-
-Example 1:
-
-Input: arr = [4,3,2,1,0]
-Output: 1
-Explanation:
-Splitting into two or more chunks will not return the required result.
-For example, splitting into [4, 3], [2, 1, 0] will result in [3, 4, 0, 1, 2],
-which isn't sorted.
-
-
-Example 2:
-
-Input: arr = [1,0,2,3,4]
-Output: 4
-Explanation:
-We can split into two chunks, such as [1, 0], [2, 3, 4].
-However, splitting into [1, 0], [2], [3], [4] is the highest number of chunks
-possible.
-
-
-Note:
-
-
-    arr will have length in range [1, 10].
-    arr[i] will be a permutation of [0, 1, ..., arr.length - 1].
-
-/*
-    Submission Date: 2018-07-08
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  nums[i] must be moved to the index nums[i] so keep track of right
-  boundary, once i > right boundary it means all the number from the previous
-  right boundary this right boundary can be sorted such that nums[i] == i
-  so increase res by 1
-  
-  proof that nums[i] will never get sorted to a number of a previous boundary
-  all numbers from [0, i) all smaller than i as i was the previous boundary
-  hence nums[i] must be >= i (ie you won't find any smaller number outside
-  of the boundary as all of them are already in boundary since there are
-  exactly i numbers < i)
-  */
-  int maxChunksToSorted(vector<int>& arr) {
-    int right = 0;
-    int N = arr.size();
-    int res = 1;
-    for (int i = 0; i < N; i++) {
-      if (i > right) {
-        res++;
-      }
-      right = max(right, arr[i]);
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-771. Jewels and Stones
-You're given strings J representing the types of stones that are jewels, and S
-representing the stones you have. Each character in S is a type of stone you
-have.  You want to know how many of the stones you have are also jewels.
-
-The letters in J are guaranteed distinct, and all characters in J and S are
-letters. Letters are case sensitive, so "a" is considered a different type of
-stone from "A".
-
-Example 1:
-
-Input: J = "aA", S = "aAAbbbb"
-Output: 3
-Example 2:
-
-Input: J = "z", S = "ZZ"
-Output: 0
-Note:
-
-S and J will consist of letters and have length at most 50.
-The characters in J are distinct.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
- public:
-  int numJewelsInStones(string J, string S) {
-    unordered_set<char> jewels(J.begin(), J.end());
-    int res = 0;
-    for (const auto& stone : S) res += jewels.count(stone);
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-781. Rabbits in Forest
-In a forest, each rabbit has some color. Some subset of rabbits (possibly all of
-them) tell you how many other rabbits have the same color as them. Those answers
-are placed in an array.
-
-Return the minimum number of rabbits that could be in the forest.
-
-Examples:
-Input: answers = [1, 1, 2]
-Output: 5
-Explanation:
-The two rabbits that answered "1" could both be the same color, say red.
-The rabbit than answered "2" can't be red or the answers would be inconsistent.
-Say the rabbit that answered "2" was blue.
-Then there should be 2 other blue rabbits in the forest that didn't answer into
-the array.
-The smallest possible number of rabbits in the forest is therefore 5: 3 that
-answered plus 2 that didn't.
-
-Input: answers = [10, 10, 10]
-Output: 11
-
-Input: answers = []
-Output: 0
-
-
-Note:
-
-
-    answers will have length at most 1000.
-    Each answers[i] will be an integer in the range [0, 999].
-
-/*
-    Submission Date: 2018-07-02
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <cmath>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  convert numbers to frequency.
-  if x occurs y times it means each group of size x+1 in y could refer to the
-  same rabbits so find how many x+1 groups are in y and multiply by x+1 to get
-  the total number of rabbits e.g 1 1 1 1 1 1 1 x = 1 y = 7 groups of 2 (1 1) (1
-  1) (1 1) (1) there are 4 groups of two and multiply this by 1+1 = 8 the groups
-  are referring to only rabbits in their own group.
-  */
-  int numRabbits(vector<int>& answers) {
-    unordered_map<int, int> freq;
-    for (const auto& n : answers) freq[n]++;
-    int res = 0;
-    for (const auto& kv : freq) {
-      res += ceil((float)kv.second / (kv.first + 1)) * (kv.first + 1);
-    }
     return res;
   }
 };

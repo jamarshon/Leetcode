@@ -155,6 +155,118 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+468. Validate IP Address
+Write a function to check whether an input string is a valid IPv4 address or
+IPv6 address or neither.
+
+IPv4 addresses are canonically represented in dot-decimal notation, which
+consists of four decimal numbers, each ranging from 0 to 255, separated by dots
+("."), e.g.,172.16.254.1;
+
+Besides, leading zeros in the IPv4 is invalid. For example, the address
+172.16.254.01 is invalid.
+
+IPv6 addresses are represented as eight groups of four hexadecimal digits, each
+group representing 16 bits. The groups are separated by colons (":"). For
+example, the address 2001:0db8:85a3:0000:0000:8a2e:0370:7334 is a valid one.
+Also, we could omit some leading zeros among four hexadecimal digits and some
+low-case characters in the address to upper-case ones, so
+2001:db8:85a3:0:0:8A2E:0370:7334 is also a valid IPv6 address(Omit leading zeros
+and using upper cases).
+
+However, we don't replace a consecutive group of zero value with a single empty
+group using two consecutive colons (::) to pursue simplicity. For example,
+2001:0db8:85a3::8A2E:0370:7334 is an invalid IPv6 address.
+
+Besides, extra leading zeros in the IPv6 is also invalid. For example, the
+address 02001:0db8:85a3:0000:0000:8a2e:0370:7334 is invalid.
+
+Note:
+You may assume there is no extra space or special characters in the input
+string.
+
+Example 1:
+Input: "172.16.254.1"
+
+Output: "IPv4"
+
+Explanation: This is a valid IPv4 address, return "IPv4".
+
+Example 2:
+Input: "2001:0db8:85a3:0:0:8A2E:0370:7334"
+
+Output: "IPv6"
+
+Explanation: This is a valid IPv6 address, return "IPv6".
+
+Example 3:
+Input: "256.256.256.256"
+
+Output: "Neither"
+
+Explanation: This is neither a IPv4 address nor a IPv6 address.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: MEDIUM
+*/
+#include <cctype>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> split(const string& IP, const char& delim) {
+    vector<string> tokens;
+    string token;
+    stringstream ss(IP);
+    while (getline(ss, token, delim)) {
+      if (token.empty()) return {};
+      tokens.push_back(token);
+    }
+    return tokens;
+  }
+  string validIPAddress(string IP) {
+    if (IP.empty() || IP.back() == ':' || IP.back() == '.') return "Neither";
+    vector<string> tokens;
+    if (IP.find('.') != string::npos) {
+      tokens = split(IP, '.');
+      if (tokens.size() != 4) return "Neither";
+      for (const auto& token : tokens) {
+        if (token.size() > 4) return "Neither";
+        if (token == "0") continue;
+        if (token[0] == '0') return "Neither";
+        for (const auto& c : token) {
+          if (isdigit(c)) continue;
+          return "Neither";
+        }
+        if (stoi(token) > 255) return "Neither";
+      }
+      return "IPv4";
+    } else if (IP.find(':' != string::npos)) {
+      tokens = split(IP, ':');
+      if (tokens.size() != 8) return "Neither";
+      for (const auto& token : tokens) {
+        if (token.size() > 4) return "Neither";
+        for (const auto& c : token) {
+          if (isdigit(c) || ('a' <= tolower(c) && tolower(c) <= 'f')) continue;
+          return "Neither";
+        }
+      }
+      return "IPv6";
+    } else {
+      return "Neither";
+    }
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 474. Ones and Zeroes
 In the computer world, use restricted resource you have to generate maximum
 benefit is what we always want to pursue.
@@ -795,198 +907,6 @@ class Solution {
         res = max(res, curr);
       } else {
         curr = 0;
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-486. Predict the Winner
-Given an array of scores that are non-negative integers. Player 1 picks one of
-the numbers from either end of the array followed by the player 2 and then
-player 1 and so on. Each time a player picks a number, that number will not be
-available for the next player. This continues until all the scores have been
-chosen. The player with the maximum score wins.
-
-Given an array of scores, predict whether player 1 is the winner. You can assume
-each player plays to maximize his score.
-
-Example 1:
-Input: [1, 5, 2]
-Output: False
-Explanation: Initially, player 1 can choose between 1 and 2. If he chooses 2 (or
-1), then player 2 can choose from 1 (or 2) and 5. If player 2 chooses 5, then
-player 1 will be left with 1 (or 2). So, final score of player 1 is 1 + 2 = 3,
-and player 2 is 5. Hence, player 1 will never be the winner and you need to
-return False.
-
-
-
-Example 2:
-Input: [1, 5, 233, 7]
-Output: True
-Explanation: Player 1 first chooses 1. Then player 2 have to choose between 5
-and 7. No matter which number player 2 choose, player 1 can choose 233.Finally,
-player 1 has more score (234) than player 2 (12), so you need to return True
-representing player1 can win.
-
-
-
-Note:
-
-1 <= length of the array <= 20.
-Any scores in the given array are non-negative integers and will not exceed
-10,000,000.
-If the scores of both players are equal, then player 1 is still the winner.
-
-/*
-    Submission Date: 2018-07-10
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution2 {
- public:
-  /*
-  dp[i][j] is the maximum value from [i, j].
-  it is either take from the left :
-      nums[i] + min <- because opponent wants to minimize your next score
-          dp[i+2][j] // opponent chose nums[i+1] from dp[i+1][j]
-          dp[i+1][j-1] // opponent chose nums[j-1] from dp[i+1][j]
-  or take from the right
-      nums[j] + min <- because opponent wants to minimize your next score
-          dp[i][j-2] // opponent chose nums[j-1] from dp[i][j-1]
-          dp[i+1][j-1] // opponent chose nums[i] from dp[i][j-1]
-  
-  return the best score you can get dp[0][N-1] and the best score the opponent
-  can get which is just sum - your score
-  */
-  bool PredictTheWinner(vector<int>& nums) {
-    typedef long long ll;
-    int N = nums.size();
-    if (N == 0) return false;
-    if (N == 1) return true;
-
-    vector<vector<ll>> dp(N, vector<ll>(N));
-    for (int gap = 0; gap < N; gap++) {
-      for (int i = 0; i + gap < N; i++) {
-        int j = i + gap;
-        if (gap == 0)
-          dp[i][j] = nums[i];
-        else if (gap == 1)
-          dp[i][j] = max(nums[i], nums[j]);
-        else {  // j - i = gap >= 2
-          dp[i][j] = max(nums[i] + min(dp[i + 2][j], dp[i + 1][j - 1]),
-                         nums[j] + min(dp[i][j - 2], dp[i + 1][j - 1]));
-        }
-      }
-    }
-
-    ll sum = 0;
-    for (const auto& e : nums) sum += e;
-    return dp[0][N - 1] >= sum - dp[0][N - 1];
-  }
-};
-
-class Solution {
- public:
-  /*
-  same as before except using a sum array cause if take left
-  nums[i] then opponent will get the value dp[i+1][j] hence you get sum from
-  [0,j] - opponent value and same if take right
-  */
-  typedef long long ll;
-
-  // sum from [i, j]
-  ll GetSum(const vector<ll>& sum, int i, int j) {
-    return i == 0 ? sum[j] : sum[j] - sum[i - 1];
-  }
-
-  bool PredictTheWinner(vector<int>& nums) {
-    int N = nums.size();
-    if (N == 0) return false;
-    if (N == 1) return true;
-
-    vector<ll> sum(N);  // sum[i] = sum from [0, i]
-    sum[0] = nums[0];
-    for (int i = 1; i < N; i++) sum[i] = sum[i - 1] + nums[i];
-
-    vector<vector<ll>> dp(N, vector<ll>(N));
-    for (int gap = 0; gap < N; gap++) {
-      for (int i = 0; i + gap < N; i++) {
-        int j = i + gap;
-        if (gap == 0)
-          dp[i][j] = nums[i];
-        else {
-          dp[i][j] = max(nums[i] + GetSum(sum, i + 1, j) - dp[i + 1][j],
-                         nums[j] + GetSum(sum, i, j - 1) - dp[i][j - 1]);
-        }
-      }
-    }
-
-    return dp[0][N - 1] >= sum[N - 1] - dp[0][N - 1];
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-491. Increasing Subsequences
-Given an integer array, your task is to find all the different possible
-increasing subsequences of the given array, and the length of an increasing
-subsequence should be at least 2 .
-
-Example:
-Input: [4, 6, 7, 7]
-Output: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7],
-[4,7,7]] Note: The length of the given array will not exceed 15. The range of
-integer in the given array is [-100,100]. The given array may contain
-duplicates, and two equal integers should also be considered as a special case
-of increasing sequence.
-/*
-    Submission Date: 2017-03-11
-    Runtime: 286 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<vector<int>> findSubsequences(const vector<int>& nums) {
-    int N = nums.size();
-    vector<vector<vector<int>>> dp(N);
-    vector<vector<int>> res;
-    set<vector<int>> used;
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < i; j++) {
-        if (nums[i] >= nums[j]) {
-          for (auto seq : dp[j]) {
-            seq.push_back(nums[i]);
-            dp[i].push_back(seq);
-          }
-        }
-      }
-      dp[i].push_back({nums[i]});
-    }
-
-    for (auto vec : dp) {
-      for (auto seq : vec) {
-        if (seq.size() >= 2 && !used.count(seq)) {
-          res.push_back(seq);
-          used.insert(seq);
-        }
       }
     }
     return res;

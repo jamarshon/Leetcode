@@ -1,6 +1,223 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+671. Second Minimum Node In a Binary Tree
+Given a non-empty special binary tree consisting of nodes with the non-negative
+value, where each node in this tree has exactly two or zero sub-node. If the
+node has two sub-nodes, then this node's value is the smaller value among its
+two sub-nodes.
+
+Given such a binary tree, you need to output the second minimum value in the set
+made of all the nodes' value in the whole tree.
+
+If no such second minimum value exists, output -1 instead.
+
+Example 1:
+Input:
+    2
+   / \
+  2   5
+     / \
+    5   7
+
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+Example 2:
+Input:
+    2
+   / \
+  2   2
+
+Output: -1
+Explanation: The smallest value is 2, but there isn't any second smallest value.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+  bfs that once reaches a different node->val than root->val will stop putting
+  that node's children. result is the minimum of all these first encountered
+  different node-> val
+  */
+  int findSecondMinimumValue(TreeNode* root) {
+    queue<TreeNode*> q;
+    q.push(root);
+    int res = INT_MAX;
+    bool seen_others = false;
+
+    while (!q.empty()) {
+      TreeNode* node = q.front();
+      q.pop();
+      if (node->val == root->val) {
+        if (node->left) q.push(node->left);
+        if (node->right) q.push(node->right);
+      } else {
+        // found node that does not equal root->val, no need to go deeper as
+        // they will be >= node->val
+        res = min(res, node->val);
+        seen_others = true;
+      }
+    }
+
+    return seen_others ? res : -1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+672. Bulb Switcher II
+There is a room with n lights which are turned on initially and 4 buttons on the
+wall. After performing exactly m unknown operations towards buttons, you need to
+return how many different kinds of status of the n lights could be.
+
+
+
+Suppose n lights are labeled as number [1, 2, 3 ..., n], function of these 4
+buttons are given below:
+
+
+Flip all the lights.
+Flip lights with even numbers.
+Flip lights with odd numbers.
+Flip lights with (3k + 1) numbers, k = 0, 1, 2, ...
+
+
+
+
+Example 1:
+Input: n = 1, m = 1.
+Output: 2
+Explanation: Status can be: [on], [off]
+
+
+
+
+Example 2:
+Input: n = 2, m = 1.
+Output: 3
+Explanation: Status can be: [on, off], [off, on], [off, off]
+
+
+
+
+Example 3:
+Input: n = 3, m = 1.
+Output: 4
+Explanation: Status can be: [off, on, off], [on, off, on], [off, off, off],
+[off, on, on].
+
+
+
+Note:
+n and m both fit in range [0, 1000].
+
+/*
+    Submission Date: 2018-07-07
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  8 states:
+  All_on, 1, 2, 3, 4, 1+4, 2+4, 3+4
+  
+  m == 0: All_on (no possible moves) => 1
+  m > 0:
+      n == 1: All_on (3 apply odd which doesnt affect anything) or 1 => 2
+      n == 2:
+          m == 1: 1, 2, 3 => 3
+          m >= 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2) => 4
+      n >= 3:
+          m == 1: 1, 2, 3, 4 => 4
+          m == 2: All_on (1 1), 1 (2 3), 2 (1 3), 3 (1 2), 1+4, 2+4, 3+4 => 7
+          m > 2: All_on (1 2 3), 1 (1 1 1), 2 (1 1 2), 3 (1 1 2), 4 (1 1 4),
+                  1+4 (2 3 4), 2+4 (1 3 4), 3+4 (1 2 4) => 8
+      
+  */
+  int flipLights(int n, int m) {
+    if (m == 0) return 1;
+    if (n == 1) return 2;
+    if (n == 2) {
+      if (m == 1) return 3;
+      return 4;
+    } else {
+      if (m == 1) return 4;
+      if (m == 2) return 7;
+      return 8;
+    }
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+674. Longest Continuous Increasing Subsequence
+Given an unsorted array of integers, find the length of longest continuous
+increasing subsequence (subarray).
+
+Example 1:
+Input: [1,3,5,4,7]
+Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5], its
+length is 3. Even though [1,3,5,7] is also an increasing subsequence, it's not a
+continuous one where 5 and 7 are separated by 4. Example 2: Input: [2,2,2,2,2]
+Output: 1
+Explanation: The longest continuous increasing subsequence is [2], its length
+is 1. Note: Length of the array will not exceed 10,000.
+/*
+    Submission Date: 2018-06-08
+    Runtime: 14 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int findLengthOfLCIS(vector<int>& nums) {
+    if (nums.empty()) return 0;
+
+    int res = 1;
+    int pos_res = 1;
+    for (int i = 1; i < nums.size(); i++) {
+      if (nums[i] > nums[i - 1]) {
+        pos_res++;
+      } else {
+        pos_res = 1;
+      }
+      res = max(res, pos_res);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 676. Implement Magic Dictionary
 
 Implement a magic directory with buildDict, and search methods.
@@ -766,211 +983,6 @@ class Solution {
     for (int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
 
     return dfs(id, id_to_ind, employees);
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-692. Top K Frequent Words
-Given a non-empty list of words, return the k most frequent elements.
-
-Your answer should be sorted by frequency from highest to lowest. If two words
-have the same frequency, then the word with the lower alphabetical order comes
-first.
-
-Example 1:
-Input: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
-Output: ["i", "love"]
-Explanation: "i" and "love" are the two most frequent words.
-    Note that "i" comes before "love" due to a lower alphabetical order.
-Example 2:
-Input: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"],
-k = 4 Output: ["the", "is", "sunny", "day"] Explanation: "the", "is", "sunny"
-and "day" are the four most frequent words, with the number of occurrence being
-4, 3, 2 and 1 respectively. Note: You may assume k is always valid, 1 ≤ k ≤
-number of unique elements. Input words contain only lowercase letters. Follow
-up: Try to solve it in O(n log k) time and O(n) extra space.
-/*
-    Submission Date: 2018-05-24
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<string> topKFrequent(vector<string>& words, int k) {
-    unordered_map<string, int> freq_map;
-    for (auto e : words) freq_map[e]++;
-
-    map<int, vector<string>> grouped_map;
-    for (auto kv : freq_map) grouped_map[kv.second].push_back(kv.first);
-
-    vector<string> res;
-    for (auto it = grouped_map.rbegin(); it != grouped_map.rend(); it++) {
-      sort(it->second.begin(), it->second.end());
-      for (auto e : it->second) {
-        res.push_back(e);
-        if (res.size() == k) break;
-      }
-      if (res.size() == k) break;
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-693. Binary Number with Alternating Bits
-Given a positive integer, check whether it has alternating bits: namely, if two
-adjacent bits will always have different values.
-
-Example 1:
-Input: 5
-Output: True
-Explanation:
-The binary representation of 5 is: 101
-Example 2:
-Input: 7
-Output: False
-Explanation:
-The binary representation of 7 is: 111.
-Example 3:
-Input: 11
-Output: False
-Explanation:
-The binary representation of 11 is: 1011.
-Example 4:
-Input: 10
-Output: True
-Explanation:
-The binary representation of 10 is: 1010.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution2 {
- public:
-  // 0x5555555555555555 checks if any of the even bits are set as 5 is 0101
-  bool IsPowerOfFour(long long x) {
-    return (x & ~(x - 1)) == x && (x & 0x5555555555555555);
-  }
-
-  // 0xaaaaaaaaaaaaaaaa checks if any of the odd bits are set as a is 1010
-  bool IsPowerOfFourTimesTwo(long long x) {
-    return (x & ~(x - 1)) == x && (x & 0xaaaaaaaaaaaaaaaa);
-  }
-  /*
-      sum of geometric series is (1-r^n)/(1-r) so sum 2^(2i) and sum 2^(2i+1)
-     becomes sum(2^(2i)) = sum(4^i) = (1-4^n)/(1-4) = (4^n-1)/3 sum(2^(2i+1)) =
-     2*sum(4^i) = 2*(1-4^n)/(1-4) = (2*4^n-2)/3 so check if the number x =
-     (4^n-1)/3 or x = (2*4^n-2)/3 works
-  */
-  bool hasAlternatingBits(long long n) {
-    return IsPowerOfFour(3 * n + 1) || IsPowerOfFourTimesTwo(n * 3 + 2);
-  }
-};
-
-class Solution {
- public:
-  /*
-      shift number by two bits and xor it with itself. only the leading one
-     should remeain first operation gives one if x[i] != x[i+2] so if they are
-     all zero it means x[0] = x[2] = x[4] = ... x[2*n] and x[1] = x[3] = x[5] =
-     ... x[2*n+1]
-
-      x[0] and x[1] can give 4 combinations 00, 01, 10, 11 so checking that
-     there is just a leading one ensures there is only one 1 and one 0 that
-     propogate correctly to the rest of the numbers.
-  */
-  bool hasAlternatingBits(int n) {
-    int x = ((n >> 2) ^ n);
-    return (x & ~(x - 1)) == x;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-695. Max Area of Island
-Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's
-(representing land) connected 4-directionally (horizontal or vertical.) You may
-assume all four edges of the grid are surrounded by water.
-
-Find the maximum area of an island in the given 2D array. (If there is no
-island, the maximum area is 0.)
-
-Example 1:
-[[0,0,1,0,0,0,0,1,0,0,0,0,0],
- [0,0,0,0,0,0,0,1,1,1,0,0,0],
- [0,1,1,0,1,0,0,0,0,0,0,0,0],
- [0,1,0,0,1,1,0,0,1,0,1,0,0],
- [0,1,0,0,1,1,0,0,1,1,1,0,0],
- [0,0,0,0,0,0,0,0,0,0,1,0,0],
- [0,0,0,0,0,0,0,1,1,1,0,0,0],
- [0,0,0,0,0,0,0,1,1,0,0,0,0]]
-Given the above grid, return 6. Note the answer is not 11, because the island
-must be connected 4-directionally. Example 2:
-[[0,0,0,0,0,0,0,0]]
-Given the above grid, return 0.
-Note: The length of each dimension in the given grid does not exceed 50.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 32 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-  int dx[4] = {1, -1, 0, 0};
-  int dy[4] = {0, 0, -1, 1};
-
- public:
-  int dfs(vector<vector<int>>& grid, int i, int j, int N, int M) {
-    grid[i][j] = 0;
-
-    int res = 1;
-    for (int k = 0; k < 4; k++) {
-      int new_x = j + dx[k];
-      int new_y = i + dy[k];
-      if ((0 <= new_x && new_x < M) && (0 <= new_y && new_y < N) &&
-          grid[new_y][new_x] == 1) {
-        res += dfs(grid, new_y, new_x, N, M);
-      }
-    }
-    return res;
-  }
-
-  int maxAreaOfIsland(vector<vector<int>>& grid) {
-    if (grid.empty()) return 0;
-    int N = grid.size();
-    int M = grid[0].size();
-    int res = 0;
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < M; j++) {
-        if (grid[i][j] == 1) {
-          res = max(res, dfs(grid, i, j, N, M));
-        }
-      }
-    }
-    return res;
   }
 };
 

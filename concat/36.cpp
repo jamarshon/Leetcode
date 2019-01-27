@@ -1,6 +1,372 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+844. Backspace String Compare
+Given two strings S and T, return if they are equal when both are typed into
+empty text editors. # means a backspace character.
+
+Example 1:
+
+Input: S = "ab#c", T = "ad#c"
+Output: true
+Explanation: Both S and T become "ac".
+Example 2:
+
+Input: S = "ab##", T = "c#d#"
+Output: true
+Explanation: Both S and T become "".
+Example 3:
+
+Input: S = "a##c", T = "#a#c"
+Output: true
+Explanation: Both S and T become "c".
+Example 4:
+
+Input: S = "a#c", T = "b"
+Output: false
+Explanation: S becomes "c" while T becomes "b".
+ 
+
+Note:
+
+1 <= S.length <= 200
+1 <= T.length <= 200
+S and T only contain lowercase letters and '#' characters.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  string eval(string s) {
+    string res = "";
+    for (const auto& c : s) {
+      if (c == '#') {
+        if (!res.empty()) res.pop_back();
+      } else {
+        res.push_back(c);
+      }
+    }
+    return res;
+  }
+  bool backspaceCompare(string S, string T) { return eval(S) == eval(T); }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+845. Longest Mountain in Array
+Let's call any (contiguous) subarray B (of A) a mountain if the following
+properties hold:
+
+  B.length >= 3
+  There exists some 0 < i < B.length - 1 such that B[0] < B[1] < ... B[i-1] <
+B[i] > B[i+1] > ... > B[B.length - 1]
+
+(Note that B could be any subarray of A, including the entire array A.)
+
+Given an array A of integers, return the length of the longest mountain. 
+
+Return 0 if there is no mountain.
+
+Example 1:
+
+Input: [2,1,4,7,3,2,5]
+Output: 5
+Explanation: The largest mountain is [1,4,7,3,2] which has length 5.
+
+Example 2:
+
+Input: [2,2,2]
+Output: 0
+Explanation: There is no mountain.
+
+Note:
+
+  0 <= A.length <= 10000
+  0 <= A[i] <= 10000
+
+Follow up:
+
+  Can you solve it using only one pass?
+  Can you solve it in O(1) space?
+/*
+  Submission Date: 2019-01-26
+  Runtime: 24 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int longestMountain(vector<int>& A) {
+    int res = 0;
+    int up = 0;
+    int down = 0;
+    for (int i = 1; i < A.size(); i++) {
+      if ((down > 0 && A[i - 1] < A[i]) || A[i - 1] == A[i]) {
+        // end going down or end equal.
+        down = 0;
+        up = 0;
+      }
+
+      up += A[i - 1] < A[i];
+      down += A[i - 1] > A[i];
+
+      if (up > 0 && down > 0) res = max(res, up + down + 1);
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+846. Hand of Straights
+Alice has a hand of cards, given as an array of integers.
+
+Now she wants to rearrange the cards into groups so that each group is size W,
+and consists of W consecutive cards.
+
+Return true if and only if she can.
+
+ 
+
+
+
+
+Example 1:
+
+Input: hand = [1,2,3,6,2,3,4,7,8], W = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8].
+
+Example 2:
+
+Input: hand = [1,2,3,4,5], W = 4
+Output: false
+Explanation: Alice's hand can't be rearranged into groups of 4.
+
+ 
+
+Note:
+
+
+    1 <= hand.length <= 10000
+    0 <= hand[i] <= 10^9
+    1 <= W <= hand.length
+
+/*
+    Submission Date: 2018-07-11
+    Runtime: 44 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <map>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  create a frequency map. have a sorted queue of ends and loop through freq map
+  if the ends isn't empty (meaning it is a part of some interval) and previous
+  value in freq map doesn't equal current value - 1, it means a jump occured
+  without interval ending so return false
+  
+  if the frequency is less than the number of intervals (ends.size()), return
+  false as more of this number is needed
+  
+  if the frequency is greater than the number of intervals, then add this number
+  + W - 1 as the end interval and do this freq - number of intervals times.
+  
+  remove all the ends that equal the current value
+  
+  finally return if ends is empty meaning all the intervals have been completed.
+  */
+  bool isNStraightHand(vector<int>& hand, int W) {
+    map<int, int> freq;
+    for (const auto& h : hand) freq[h]++;
+    queue<int> ends;
+
+    pair<int, int> prev = {-1, -1};
+    for (const auto& kv : freq) {
+      if (prev.first != -1 && kv.first != prev.first + 1 && !ends.empty())
+        return false;
+      prev = kv;
+      int diff = kv.second - ends.size();
+      if (diff < 0) return false;  // too many numbers needed
+      if (diff > 0) {
+        // new ends
+        for (int i = 0; i < diff; i++) ends.push(kv.first + W - 1);
+      }
+
+      while (!ends.empty() && kv.first == ends.front()) ends.pop();
+    }
+
+    return ends.empty();
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+849. Maximize Distance to Closest Person
+In a row of seats, 1 represents a person sitting in that seat, and 0 represents
+that the seat is empty.
+
+There is at least one empty seat, and at least one person sitting.
+
+Alex wants to sit in the seat such that the distance between him and the closest
+person to him is maximized.
+
+Return that maximum distance to closest person.
+
+Example 1:
+
+Input: [1,0,0,0,1,0,1]
+Output: 2
+Explanation:
+If Alex sits in the second open seat (seats[2]), then the closest person has
+distance 2. If Alex sits in any other open seat, the closest person has
+distance 1. Thus, the maximum distance to the closest person is 2. Example 2:
+
+Input: [1,0,0,0]
+Output: 3
+Explanation:
+If Alex sits in the last seat, the closest person is 3 seats away.
+This is the maximum distance possible, so the answer is 3.
+Note:
+
+1 <= seats.length <= 20000
+seats contains only 0s or 1s, at least one 0, and at least one 1.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 16 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int maxDistToClosest(vector<int>& seats) {
+    if (seats.empty()) return INT_MAX;
+
+    int N = seats.size();
+    // left[i] indicates the distance to the closest 1 to the left
+    vector<int> left(N, INT_MAX);
+    for (int i = 0; i < N; i++) {
+      if (seats[i] == 1)
+        left[i] = 0;
+      else if (i > 0 && left[i - 1] < INT_MAX) {
+        left[i] = left[i - 1] + 1;
+      }
+    }
+
+    int right = INT_MAX;
+    int res = INT_MIN;
+    /*
+    if there is at least one 1 and 0
+    left[i] will be INT_MAX until the first 1 then some number after it
+    
+    hence if starting from the back, the number will not be INT_MAX so right
+    will be correctly minimized.
+    */
+    for (int i = N - 1; i >= 0; i--) {
+      if (seats[i] == 1)
+        right = 0;
+      else if (right < INT_MAX)
+        right++;
+
+      res = max(res, min(left[i], right));
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+852. Peak Index in a Mountain Array
+Let's call an array A a mountain if the following properties hold:
+
+A.length >= 3
+There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i]
+> A[i+1] > ... > A[A.length - 1] Given an array that is definitely a mountain,
+return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... >
+A[A.length - 1].
+
+Example 1:
+
+Input: [0,1,0]
+Output: 1
+Example 2:
+
+Input: [0,2,1,0]
+Output: 1
+Note:
+
+3 <= A.length <= 10000
+0 <= A[i] <= 10^6
+A is a mountain, as defined above.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 17 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int peakIndexInMountainArray(vector<int>& A) {
+    int low = 0;
+    int high = A.size() - 1;
+    while (low <= high - 2) {  // at least 3 elements
+      int mid = low + (high - low) / 2;
+      if (A[mid - 1] < A[mid] && A[mid] > A[mid + 1]) {
+        return mid;
+
+        /*
+        a number and the next number has only two conditions < and >
+        if < then it is before the peak, so go right
+        if > then it is after the peak, so go left
+        
+        need to include mid in the search as it can be either the left
+        or right boundary to the peak
+        */
+      }
+      if (A[mid - 1] < A[mid]) {
+        low = mid;
+      } else {  // A[mid-1] > A[mid]
+        high = mid;
+      }
+    }
+
+    return -1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 856. Score of Parentheses
 Given a balanced parentheses string S, compute the score of the string based on
 the following rule:
@@ -567,393 +933,6 @@ public:
     }
 };
 
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-865. Smallest Subtree with all the Deepest Nodes
-Given a binary tree rooted at root, the depth of each node is the shortest 
-distance to the root. 
-
-A node is deepest if it has the largest depth possible among any node in the 
-entire tree. 
-
-The subtree of a node is that node, plus the set of all descendants of that 
-node. 
-
-Return the node with the largest depth such that it contains all the deepest 
-nodes in its subtree. 
-
- 
-
-Example 1:
-
-Input: [3,5,1,6,2,0,8,null,null,7,4]
-Output: [2,7,4]
-Explanation:
-
-
-
-We return the node with value 2, colored in yellow in the diagram.
-The nodes colored in blue are the deepest nodes of the tree.
-The input "[3, 5, 1, 6, 2, 0, 8, null, null, 7, 4]" is a serialization of the 
-given tree. 
-The output "[2, 7, 4]" is a serialization of the subtree rooted at the node with 
-value 2. 
-Both the input and output have TreeNode type.
-
-
- 
-
-Note:
-
-
-    The number of nodes in the tree will be between 1 and 500.
-    The values of each node are unique.
-
-/*
-    Submission Date: 2018-07-08
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-public:
-    TreeNode* lca(TreeNode* root, TreeNode* A, TreeNode* B) {
-        if(root == NULL) return NULL;
-        if(root == A || root == B) return root;
-        TreeNode* l = lca(root->left, A, B);
-        TreeNode* r = lca(root->right, A, B);
-        if(l && r) return root;
-        return l ? l: r;
-    }
-    
-    /*
-    do level order search and keep track of the deepest nodes
-    then for all the deepest nodes do lca and return that result.
-    by folding lca, curr goes higher and higher such that further
-    calls to lca are faster (does not reprocess same nodes)
-    */
-    TreeNode* subtreeWithAllDeepest(TreeNode* root) {
-        if(root == NULL) return root;
-        queue<TreeNode*> q;
-        q.push(root);
-        
-        vector<TreeNode*> last;
-        
-        while(!q.empty()) {
-            last.clear();
-            int q_size = q.size();
-            for(int i = 0; i < q_size; i++) {
-                TreeNode* temp = q.front();
-                last.push_back(temp);
-                q.pop();
-                if(temp->left) q.push(temp->left);
-                if(temp->right) q.push(temp->right);
-            }
-        }
-        
-        TreeNode* curr = last[0];
-        for(int i = 1; i < last.size(); i++) {
-            curr = lca(root, curr, last[i]);
-        }
-        
-        return curr;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-866. Prime Palindrome
-Find the smallest prime palindrome greater than or equal to N.
-
-Recall that a number is prime if it's only divisors are 1 and itself, and it is 
-greater than 1.  
-
-For example, 2,3,5,7,11 and 13 are primes.
-
-Recall that a number is a palindrome if it reads the same from left to right as 
-it does from right to left.  
-
-For example, 12321 is a palindrome.
-
- 
-
-
-Example 1:
-
-Input: 6
-Output: 7
-
-
-
-Example 2:
-
-Input: 8
-Output: 11
-
-
-
-Example 3:
-
-Input: 13
-Output: 101
-
-
-
-
- 
-
-Note:
-
-
-    1 <= N <= 10^8
-    The answer is guaranteed to exist and be less than 2 * 10^8.
-
-/*
-    Submission Date: 2018-07-08
-    Runtime: 172 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <cmath>
-#include <algorithm>
-
-using namespace std;
-
-class Solution {
-public:
-    bool isprime(int x) {
-        if(x < 2) return false;
-        for(int i = 2; i <= sqrt(x); i++) {
-            if(x % i == 0) return false;
-        }
-        return true;
-    }
-    
-    typedef long long ll;
-    /*
-    generate increasing palindrome as odd or even by taking a number, reversing it and appending
-    to self. find the first palindrome that is >= N and prime then break compare the even and odd
-    result to see which is smaller and return that.
-    */
-    int primePalindrome(int N) {
-        int res = INT_MAX;
-       // odd
-        for(int i = 0; i < INT_MAX; i++) {
-            string s = to_string(i);
-            string rev = s;
-            reverse(rev.begin(), rev.end());
-            string pal = s + rev.substr(1);
-            
-            ll pal_long = stoll(pal);
-            if(pal_long >= INT_MAX) break;
-            
-            int pal_int = pal_long;
-            if(pal_int >= N && isprime(pal_int)) {
-                res = pal_int;
-                break;
-            }
-        }
-        // even
-        for(int i = 0; i < INT_MAX; i++) {
-            string s = to_string(i);
-            string rev = s;
-            reverse(rev.begin(), rev.end());
-            string pal = s + rev;
-            
-            ll pal_long = stoll(pal);
-            
-            if(pal_long >= INT_MAX) break;
-            int pal_int = pal_long;
-
-            if(pal_int >= N && isprime(pal_int)) {
-                res = min(pal_int, res);
-                break;
-            }
-        }
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-867. Transpose Matrix
-Given a matrix A, return the transpose of A.
-
-The transpose of a matrix is the matrix flipped over it's main diagonal, 
-switching the row and column indices of the matrix. 
-
- 
-
-
-Example 1:
-
-Input: [[1,2,3],[4,5,6],[7,8,9]]
-Output: [[1,4,7],[2,5,8],[3,6,9]]
-
-
-
-Example 2:
-
-Input: [[1,2,3],[4,5,6]]
-Output: [[1,4],[2,5],[3,6]]
-
-
- 
-
-Note:
-
-
-    1 <= A.length <= 1000
-    1 <= A[0].length <= 1000
-
-/*
-    Submission Date: 2018-07-08
-    Runtime: 20 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    vector<vector<int>> transpose(vector<vector<int>>& A) {
-        int N = A.size();
-        int M = A[0].size();
-        vector<vector<int>> res(M, vector<int>(N));
-        for(int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                res[j][i] = A[i][j];
-            }
-        }
-        
-        return res;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-868. Binary Gap
-Given a positive integer N, find and return the longest distance between two 
-consecutive 1's in the binary representation of N. 
-
-If there aren't two consecutive 1's, return 0.
-
- 
-
-
-
-
-
-
-
-
-
-
-
-Example 1:
-
-Input: 22
-Output: 2
-Explanation: 
-22 in binary is 0b10110.
-In the binary representation of 22, there are three ones, and two consecutive 
-pairs of 1's. 
-The first consecutive pair of 1's have distance 2.
-The second consecutive pair of 1's have distance 1.
-The answer is the largest of these two distances, which is 2.
-
-
-
-Example 2:
-
-Input: 5
-Output: 2
-Explanation: 
-5 in binary is 0b101.
-
-
-
-Example 3:
-
-Input: 6
-Output: 1
-Explanation: 
-6 in binary is 0b110.
-
-
-
-Example 4:
-
-Input: 8
-Output: 0
-Explanation: 
-8 in binary is 0b1000.
-There aren't any consecutive pairs of 1's in the binary representation of 8, so 
-we return 0. 
-
-
- 
-
-
-
-
-Note:
-
-
-    1 <= N <= 10^9
-/*
-    Submission Date: 2018-07-15
-    Runtime: 4 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <bitset>
-
-using namespace std;
-
-class Solution {
-public:
-    int binaryGap(int N) {
-        string s = bitset<31>(N).to_string();
-        int last_one = -1;
-        int res = 0;
-        for(int i = 0; i < s.size(); i++) {
-            if(s[i] == '0') continue;
-            if(last_one == -1) {
-                last_one = i;
-            } else {
-                res = max(res, i - last_one);
-                last_one = i;
-            }
-        }
-        return res;
-    }
-};
 int main() {
     return 0;
 }

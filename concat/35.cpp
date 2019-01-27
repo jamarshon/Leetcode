@@ -1,6 +1,230 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+812. Largest Triangle Area
+You have a list of points in the plane. Return the area of the largest triangle
+that can be formed by any 3 of the points.
+
+Example:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2
+Explanation:
+The five points are show in the figure below. The red triangle is the largest.
+
+Notes:
+
+3 <= points.length <= 50.
+No points will be duplicated.
+ -50 <= points[i][j] <= 50.
+Answers within 10^-6 of the true value will be accepted as correct.
+/*
+    Submission Date: 2018-06-03
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  double largestTriangleArea(vector<vector<int>>& points) {
+    int res = 0;
+    int N = points.size();
+    for (int i = 0; i < N; i++) {
+      for (int j = i + 1; j < N; j++) {
+        for (int k = j + 1; k < N; k++) {
+          /*
+          given points (a,b), (c,d), (e,f)
+          vector A = (c-a, d-b, 0) and B = (e-a, f-b, 0)
+          cross product of A and B is
+          ((d-b)*0 - (f-b)*0, -((c-a)*0 - (e-a)*0), (c-a)*(f-b) - (e-a)*(d-b))
+          (0, 0, (c-a)*(f-b) - (e-a)*(d-b))
+          magnitude of A cross B is area of parallelogram so divide by half
+          */
+          int c_minus_a = points[j][0] - points[i][0];
+          int d_minus_b = points[j][1] - points[i][1];
+          int e_minus_a = points[k][0] - points[i][0];
+          int f_minus_b = points[k][1] - points[i][1];
+
+          res = max(res, abs(c_minus_a * f_minus_b - e_minus_a * d_minus_b));
+        }
+      }
+    }
+    return res / 2.0;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+814. Binary Tree Pruning
+We are given the head node root of a binary tree, where additionally every
+node's value is either a 0 or a 1.
+
+Return the same tree where every subtree (of the given tree) not containing a 1
+has been removed.
+
+(Recall that the subtree of a node X is X, plus every node that is a descendant
+of X.)
+
+Example 1:
+Input: [1,null,0,0,1]
+Output: [1,null,0,null,1]
+ 
+Explanation:
+Only the red nodes satisfy the property "every subtree not containing a 1".
+The diagram on the right represents the answer.
+
+
+Example 2:
+Input: [1,0,1,0,0,0,1]
+Output: [1,null,1,null,1]
+
+
+
+Example 3:
+Input: [1,1,0,1,1,0,1,0]
+Output: [1,1,0,1,1,null,1]
+
+
+
+Note:
+
+The binary tree will have at most 100 nodes.
+The value of each node will only be 0 or 1.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 4 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  bool HasOne(TreeNode* root) {
+    if (root == NULL) return false;
+    bool l = HasOne(root->left);
+    bool r = HasOne(root->right);
+
+    if (!l) {
+      delete root->left;
+      root->left = NULL;
+    }
+    if (!r) {
+      delete root->right;
+      root->right = NULL;
+    }
+
+    return root->val == 1 || l || r;
+  }
+
+  TreeNode* pruneTree(TreeNode* root) {
+    if (!HasOne(root)) {
+      delete root;
+      return NULL;
+    }
+    return root;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+817. Linked List Components
+We are given head, the head node of a linked list containing unique integer
+values.
+
+We are also given the list G, a subset of the values in the linked list.
+
+Return the number of connected components in G, where two values are connected
+if they appear consecutively in the linked list.
+
+Example 1:
+
+Input:
+head: 0->1->2->3
+G = [0, 1, 3]
+Output: 2
+Explanation:
+0 and 1 are connected, so [0, 1] and [3] are the two connected components.
+
+
+Example 2:
+
+Input:
+head: 0->1->2->3->4
+G = [0, 3, 1, 4]
+Output: 2
+Explanation:
+0 and 1 are connected, 3 and 4 are connected, so [0, 1] and [3, 4] are the two
+connected components.
+
+
+Note:
+
+
+    If N is the length of the linked list given by head, 1 <= N <= 10000.
+    The value of each node in the linked list will be in the range [0, N - 1].
+    1 <= G.length <= 10000.
+    G is a subset of all values in the linked list.
+
+/*
+    Submission Date: 2018-07-02
+    Runtime: 35 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+struct ListNode {
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+ public:
+  int numComponents(ListNode* head, vector<int>& G) {
+    unordered_set<int> G_set(G.begin(), G.end());
+    ListNode* curr = head;
+    int res = 0;
+    while (curr) {
+      // looking for the start of a component
+      while (curr && !G_set.count(curr->val)) {
+        curr = curr->next;
+      }
+
+      if (curr) {
+        res++;
+        // looking for the end of a component
+        while (curr && G_set.count(curr->val)) {
+          curr = curr->next;
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 819. Most Common Word
 Given a paragraph and a list of banned words, return the most frequent word that
 is not in the list of banned words. It is guaranteed there is at least one word
@@ -413,6 +637,76 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+835. Image Overlap
+Two images A and B are given, represented as binary, square matrices of the same
+size.  (A binary matrix has only 0s and 1s as values.)
+
+We translate one image however we choose (sliding it left, right, up, or down
+any number of units), and place it on top of the other image.  After, the
+overlap of this translation is the number of positions that have a 1 in both
+images.
+
+(Note also that a translation does not include any kind of rotation.)
+
+What is the largest possible overlap?
+
+Example 1:
+
+Input: A = [[1,1,0],
+            [0,1,0],
+            [0,1,0]]
+       B = [[0,0,0],
+            [0,1,1],
+            [0,0,1]]
+Output: 3
+Explanation: We slide A to right by 1 unit and down by 1 unit.
+
+Notes: 
+
+  1 <= A.length = A[0].length = B.length = B[0].length <= 30
+  0 <= A[i][j], B[i][j] <= 1
+/*
+  Submission Date: 2019-01-26
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int helper(vector<vector<int>>& A, vector<vector<int>>& B, const int i,
+             const int j, int N) {
+    int sum1 = 0, sum2 = 0;
+    for (int ii = i; ii < N; ii++) {
+      for (int jj = j; jj < N; jj++) {
+        sum1 += B[ii][jj] == 1 && B[ii][jj] == A[ii - i][jj - j];
+        sum2 += A[ii][jj] == 1 && A[ii][jj] == B[ii - i][jj - j];
+      }
+    }
+
+    return max(sum1, sum2);
+  }
+
+  int largestOverlap(vector<vector<int>>& A, vector<vector<int>>& B) {
+    int N = A.size();
+    int res = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        res = max(res, helper(A, B, i, j, N));
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 836. Rectangle Overlap
 A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the
 coordinates of its bottom-left corner, and (x2, y2) are the coordinates of its
@@ -689,301 +983,6 @@ class Solution {
     }
 
     return visited.size() == rooms.size();
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-844. Backspace String Compare
-Given two strings S and T, return if they are equal when both are typed into
-empty text editors. # means a backspace character.
-
-Example 1:
-
-Input: S = "ab#c", T = "ad#c"
-Output: true
-Explanation: Both S and T become "ac".
-Example 2:
-
-Input: S = "ab##", T = "c#d#"
-Output: true
-Explanation: Both S and T become "".
-Example 3:
-
-Input: S = "a##c", T = "#a#c"
-Output: true
-Explanation: Both S and T become "c".
-Example 4:
-
-Input: S = "a#c", T = "b"
-Output: false
-Explanation: S becomes "c" while T becomes "b".
- 
-
-Note:
-
-1 <= S.length <= 200
-1 <= T.length <= 200
-S and T only contain lowercase letters and '#' characters.
-/*
-    Submission Date: 2018-06-03
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string eval(string s) {
-    string res = "";
-    for (const auto& c : s) {
-      if (c == '#') {
-        if (!res.empty()) res.pop_back();
-      } else {
-        res.push_back(c);
-      }
-    }
-    return res;
-  }
-  bool backspaceCompare(string S, string T) { return eval(S) == eval(T); }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-846. Hand of Straights
-Alice has a hand of cards, given as an array of integers.
-
-Now she wants to rearrange the cards into groups so that each group is size W,
-and consists of W consecutive cards.
-
-Return true if and only if she can.
-
- 
-
-
-
-
-Example 1:
-
-Input: hand = [1,2,3,6,2,3,4,7,8], W = 3
-Output: true
-Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8].
-
-Example 2:
-
-Input: hand = [1,2,3,4,5], W = 4
-Output: false
-Explanation: Alice's hand can't be rearranged into groups of 4.
-
- 
-
-Note:
-
-
-    1 <= hand.length <= 10000
-    0 <= hand[i] <= 10^9
-    1 <= W <= hand.length
-
-/*
-    Submission Date: 2018-07-11
-    Runtime: 44 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <map>
-#include <queue>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  create a frequency map. have a sorted queue of ends and loop through freq map
-  if the ends isn't empty (meaning it is a part of some interval) and previous
-  value in freq map doesn't equal current value - 1, it means a jump occured
-  without interval ending so return false
-  
-  if the frequency is less than the number of intervals (ends.size()), return
-  false as more of this number is needed
-  
-  if the frequency is greater than the number of intervals, then add this number
-  + W - 1 as the end interval and do this freq - number of intervals times.
-  
-  remove all the ends that equal the current value
-  
-  finally return if ends is empty meaning all the intervals have been completed.
-  */
-  bool isNStraightHand(vector<int>& hand, int W) {
-    map<int, int> freq;
-    for (const auto& h : hand) freq[h]++;
-    queue<int> ends;
-
-    pair<int, int> prev = {-1, -1};
-    for (const auto& kv : freq) {
-      if (prev.first != -1 && kv.first != prev.first + 1 && !ends.empty())
-        return false;
-      prev = kv;
-      int diff = kv.second - ends.size();
-      if (diff < 0) return false;  // too many numbers needed
-      if (diff > 0) {
-        // new ends
-        for (int i = 0; i < diff; i++) ends.push(kv.first + W - 1);
-      }
-
-      while (!ends.empty() && kv.first == ends.front()) ends.pop();
-    }
-
-    return ends.empty();
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-849. Maximize Distance to Closest Person
-In a row of seats, 1 represents a person sitting in that seat, and 0 represents
-that the seat is empty.
-
-There is at least one empty seat, and at least one person sitting.
-
-Alex wants to sit in the seat such that the distance between him and the closest
-person to him is maximized.
-
-Return that maximum distance to closest person.
-
-Example 1:
-
-Input: [1,0,0,0,1,0,1]
-Output: 2
-Explanation:
-If Alex sits in the second open seat (seats[2]), then the closest person has
-distance 2. If Alex sits in any other open seat, the closest person has
-distance 1. Thus, the maximum distance to the closest person is 2. Example 2:
-
-Input: [1,0,0,0]
-Output: 3
-Explanation:
-If Alex sits in the last seat, the closest person is 3 seats away.
-This is the maximum distance possible, so the answer is 3.
-Note:
-
-1 <= seats.length <= 20000
-seats contains only 0s or 1s, at least one 0, and at least one 1.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 16 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int maxDistToClosest(vector<int>& seats) {
-    if (seats.empty()) return INT_MAX;
-
-    int N = seats.size();
-    // left[i] indicates the distance to the closest 1 to the left
-    vector<int> left(N, INT_MAX);
-    for (int i = 0; i < N; i++) {
-      if (seats[i] == 1)
-        left[i] = 0;
-      else if (i > 0 && left[i - 1] < INT_MAX) {
-        left[i] = left[i - 1] + 1;
-      }
-    }
-
-    int right = INT_MAX;
-    int res = INT_MIN;
-    /*
-    if there is at least one 1 and 0
-    left[i] will be INT_MAX until the first 1 then some number after it
-    
-    hence if starting from the back, the number will not be INT_MAX so right
-    will be correctly minimized.
-    */
-    for (int i = N - 1; i >= 0; i--) {
-      if (seats[i] == 1)
-        right = 0;
-      else if (right < INT_MAX)
-        right++;
-
-      res = max(res, min(left[i], right));
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-852. Peak Index in a Mountain Array
-Let's call an array A a mountain if the following properties hold:
-
-A.length >= 3
-There exists some 0 < i < A.length - 1 such that A[0] < A[1] < ... A[i-1] < A[i]
-> A[i+1] > ... > A[A.length - 1] Given an array that is definitely a mountain,
-return any i such that A[0] < A[1] < ... A[i-1] < A[i] > A[i+1] > ... >
-A[A.length - 1].
-
-Example 1:
-
-Input: [0,1,0]
-Output: 1
-Example 2:
-
-Input: [0,2,1,0]
-Output: 1
-Note:
-
-3 <= A.length <= 10000
-0 <= A[i] <= 10^6
-A is a mountain, as defined above.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 17 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int peakIndexInMountainArray(vector<int>& A) {
-    int low = 0;
-    int high = A.size() - 1;
-    while (low <= high - 2) {  // at least 3 elements
-      int mid = low + (high - low) / 2;
-      if (A[mid - 1] < A[mid] && A[mid] > A[mid + 1]) {
-        return mid;
-
-        /*
-        a number and the next number has only two conditions < and >
-        if < then it is before the peak, so go right
-        if > then it is after the peak, so go left
-        
-        need to include mid in the search as it can be either the left
-        or right boundary to the peak
-        */
-      }
-      if (A[mid - 1] < A[mid]) {
-        low = mid;
-      } else {  // A[mid-1] > A[mid]
-        high = mid;
-      }
-    }
-
-    return -1;
   }
 };
 

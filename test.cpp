@@ -153,6 +153,6 @@ bool IsPrime(int n) {
 }
 
 int main() {
-  std::thread t(IsPrime);
+  mutex m;
   return 0;
 }

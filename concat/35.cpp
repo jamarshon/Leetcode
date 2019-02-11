@@ -1,6 +1,242 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+806. Number of Lines To Write String
+We are to write the letters of a given string S, from left to right into lines.
+Each line has maximum width 100 units, and if writing a letter would cause the
+width of the line to exceed 100 units, it is written on the next line. We are
+given an array widths, an array where widths[0] is the width of 'a', widths[1]
+is the width of 'b', ..., and widths[25] is the width of 'z'.
+
+Now answer two questions: how many lines have at least one character from S, and
+what is the width used by the last such line? Return your answer as an integer
+list of length 2.
+
+Example :
+Input:
+widths =
+[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "abcdefghijklmnopqrstuvwxyz"
+Output: [3, 60]
+Explanation:
+All letters have the same length of 10. To write all 26 letters,
+we need two full lines and one line with 60 units.
+Example :
+Input:
+widths =
+[4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+S = "bbbcccdddaaa"
+Output: [2, 4]
+Explanation:
+All letters except 'a' have the same length of 10, and
+"bbbcccdddaa" will cover 9 * 10 + 2 * 4 = 98 units.
+For the last 'a', it is written on the second line because
+there is only 2 units left in the first line.
+So the answer is 2 lines, plus 4 units in the second line.
+ 
+Note:
+
+The length of S will be in the range [1, 1000].
+S will only contain lowercase letters.
+widths is an array of length 26.
+widths[i] will be in the range of [2, 10].
+/*
+    Submission Date: 2018-05-31
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> numberOfLines(vector<int>& widths, string S) {
+    int current_len = 0;
+    int num_lines = 0;
+    for (const auto& c : S) {
+      if (current_len + widths[c - 'a'] > 100) {
+        num_lines++;
+        current_len = 0;
+      }
+      current_len += widths[c - 'a'];
+    }
+    return {num_lines + 1, current_len};
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+807. Max Increase to Keep City Skyline
+In a 2 dimensional array grid, each value grid[i][j] represents the height of a
+building located there. We are allowed to increase the height of any number of
+buildings, by any amount (the amounts can be different for different buildings).
+Height 0 is considered to be a building as well.
+
+At the end, the "skyline" when viewed from all four directions of the grid, i.e.
+top, bottom, left, and right, must be the same as the skyline of the original
+grid. A city's skyline is the outer contour of the rectangles formed by all the
+buildings when viewed from a distance. See the following example.
+
+What is the maximum total sum that the height of the buildings can be increased?
+
+Example:
+Input: grid = [[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]
+Output: 35
+Explanation:
+The grid is:
+[ [3, 0, 8, 4],
+  [2, 4, 5, 7],
+  [9, 2, 6, 3],
+  [0, 3, 1, 0] ]
+
+The skyline viewed from top or bottom is: [9, 4, 8, 7]
+The skyline viewed from left or right is: [8, 7, 9, 3]
+
+The grid after increasing the height of buildings without affecting skylines is:
+
+gridNew = [ [8, 4, 8, 7],
+            [7, 4, 7, 7],
+            [9, 4, 8, 7],
+            [3, 3, 3, 3] ]
+
+Notes:
+
+1 < grid.length = grid[0].length <= 50.
+All heights grid[i][j] are in the range [0, 100].
+All buildings in grid[i][j] occupy the entire grid cell: that is, they are a 1 x
+1 x grid[i][j] rectangular prism.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 10 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int maxIncreaseKeepingSkyline(vector<vector<int>>& grid) {
+    if (grid.empty()) return 0;
+    int N = grid.size();
+    int M = grid[0].size();
+    vector<int> max_col(M, 0), max_row(N, 0);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) {
+        max_col[j] = max(max_col[j], grid[i][j]);
+        max_row[i] = max(max_row[i], grid[i][j]);
+      }
+    }
+
+    int res = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) {
+        res += min(max_col[j], max_row[i]) - grid[i][j];
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+811. Subdomain Visit Count
+A website domain like "discuss.leetcode.com" consists of various subdomains. At
+the top level, we have "com", at the next level, we have "leetcode.com", and at
+the lowest level, "discuss.leetcode.com". When we visit a domain like
+"discuss.leetcode.com", we will also visit the parent domains "leetcode.com" and
+"com" implicitly.
+
+Now, call a "count-paired domain" to be a count (representing the number of
+visits this domain received), followed by a space, followed by the address. An
+example of a count-paired domain might be "9001 discuss.leetcode.com".
+
+We are given a list cpdomains of count-paired domains. We would like a list of
+count-paired domains, (in the same format as the input, and in any order), that
+explicitly counts the number of visits to each subdomain.
+
+Example 1:
+Input:
+["9001 discuss.leetcode.com"]
+Output:
+["9001 discuss.leetcode.com", "9001 leetcode.com", "9001 com"]
+Explanation:
+We only have one website domain: "discuss.leetcode.com". As discussed above, the
+subdomain "leetcode.com" and "com" will also be visited. So they will all be
+visited 9001 times.
+
+Example 2:
+Input:
+["900 google.mail.com", "50 yahoo.com", "1 intel.mail.com", "5 wiki.org"]
+Output:
+["901 mail.com","50 yahoo.com","900 google.mail.com","5 wiki.org","5 org","1
+intel.mail.com","951 com"] Explanation: We will visit "google.mail.com" 900
+times, "yahoo.com" 50 times, "intel.mail.com" once and "wiki.org" 5 times. For
+the subdomains, we will visit "mail.com" 900 + 1 = 901 times, "com" 900 + 50 + 1
+= 951 times, and "org" 5 times.
+
+Notes:
+
+The length of cpdomains will not exceed 100.
+The length of each domain name will not exceed 100.
+Each address will have either 1 or 2 "." characters.
+The input count in any count-paired domain will not exceed 10000.
+The answer output can be returned in any order.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <cctype>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> subdomainVisits(vector<string>& cpdomains) {
+    unordered_map<string, int> domain_to_count;
+    for (const auto& s : cpdomains) {
+      int num = 0;
+      int i = 0;
+      while (i < s.size()) {
+        if (isdigit(s[i])) {
+          num = num * 10 + (s[i] - '0');
+        } else {
+          break;
+        }
+        i++;
+      }
+
+      string domain = s.substr(i + 1);
+      while (domain.find('.') != string::npos) {
+        domain_to_count[domain] += num;
+        domain = domain.substr(domain.find('.') + 1);
+      }
+
+      domain_to_count[domain] += num;
+    }
+
+    vector<string> res;
+    for (const auto& kv : domain_to_count) {
+      res.push_back(to_string(kv.second) + " " + kv.first);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 812. Largest Triangle Area
 You have a list of points in the plane. Return the area of the largest triangle
 that can be formed by any 3 of the points.
@@ -749,240 +985,6 @@ class Solution {
   bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
     return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) &&
            intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-838. Push Dominoes
-There are N dominoes in a line, and we place each domino vertically upright.
-
-In the beginning, we simultaneously push some of the dominoes either to the left
-or to the right.
-
-After each second, each domino that is falling to the left pushes the adjacent
-domino on the left.
-
-Similarly, the dominoes falling to the right push their adjacent dominoes
-standing on the right.
-
-When a vertical domino has dominoes falling on it from both sides, it stays
-still due to the balance of the forces.
-
-For the purposes of this question, we will consider that a falling
-domino expends no additional force to a falling or already fallen domino.
-
-Given a string "S" representing the initial state. S[i] = 'L', if the i-th
-domino has been pushed to the left; S[i] = 'R', if the i-th domino has been
-pushed to the right; S[i] = '.', if the i-th domino has not been pushed.
-
-Return a string representing the final state. 
-
-Example 1:
-
-Input: ".L.R...LR..L.."
-Output: "LL.RR.LLRRLL.."
-
-Example 2:
-
-Input: "RR.L"
-Output: "RR.L"
-Explanation: The first domino expends no additional force on the second domino.
-
-Note:
-
-  0 <= N <= 10^5
-  String dominoes contains only 'L', 'R' and '.'
-/*
-  Submission Date: 2019-01-26
-  Runtime: 16 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string pushDominoes(string s) {
-    int last_ind = -1;
-    for (int i = 0; i < s.size(); i++) {
-      if (s[i] == '.') continue;
-      if (s[i] == 'L') {
-        if (last_ind == -1 || s[last_ind] == 'L') {
-          fill(s.begin() + max(0, last_ind), s.begin() + i, 'L');
-        } else {
-          int j = 0;
-          while (last_ind + j < i - j) {
-            s[last_ind + j] = 'R';
-            s[i - j] = 'L';
-            j++;
-          }
-        }
-      } else if (last_ind != -1 && s[last_ind] != 'L') {
-        fill(s.begin() + last_ind, s.begin() + i, 'R');
-      }
-      last_ind = i;
-    }
-
-    if (last_ind != -1 && s[last_ind] == 'R') {
-      fill(s.begin() + last_ind, s.end(), 'R');
-    }
-
-    return s;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-840. Magic Squares In Grid
-A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9
-such that each row, column, and both diagonals all have the same sum.
-
-Given an grid of integers, how many 3 x 3 "magic square" subgrids are there?
-(Each subgrid is contiguous). Example 1:
-
-Input: [[4,3,8,4],
-        [9,5,1,9],
-        [2,7,6,2]]
-Output: 1
-Explanation:
-The following subgrid is a 3 x 3 magic square:
-438
-951
-276
-
-while this one is not:
-384
-519
-762
-
-In total, there is only one magic square inside the given grid.
-Note:
-
-1 <= grid.length <= 10
-1 <= grid[0].length <= 10
-0 <= grid[i][j] <= 15
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool IsMagicSquare(const vector<vector<int>>& grid, int i, int j) {
-    unordered_set<int> st;
-    vector<int> row_sum(3, 0), col_sum(3, 0);
-    int diag1 = 0, diag2 = 0;
-    for (int x = 0; x < 3; x++) {
-      for (int y = 0; y < 3; y++) {
-        int e = grid[i + y][j + x];
-        if (e < 1 || e > 9 || st.count(e)) return false;
-        row_sum[y] += e;
-        col_sum[x] += e;
-        if (y == x) diag1 += e;
-        if (x + y == 2) diag2 += e;
-      }
-    }
-
-    for (int x = 1; x < 3; x++) {
-      if (row_sum[x] != row_sum[x - 1]) return false;
-      if (col_sum[x] != col_sum[x - 1]) return false;
-    }
-
-    return diag1 == diag2;
-  }
-  int numMagicSquaresInside(vector<vector<int>>& grid) {
-    int N = grid.size();
-    int M = grid[0].size();
-    int res = 0;
-    for (int i = 0; i < N - 2; i++) {
-      for (int j = 0; j < M - 2; j++) {
-        res += IsMagicSquare(grid, i, j);
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-841. Keys and Rooms
-There are N rooms and you start in room 0.  Each room has a distinct number in
-0, 1, 2, ..., N-1, and each room may have some keys to access the next room.
-
-Formally, each room i has a list of keys rooms[i], and each key rooms[i][j] is
-an integer in [0, 1, ..., N-1] where N = rooms.length.  A key rooms[i][j] = v
-opens the room with number v.
-
-Initially, all the rooms start locked (except for room 0).
-
-You can walk back and forth between rooms freely.
-
-Return true if and only if you can enter every room.
-
-Example 1:
-
-Input: [[1],[2],[3],[]]
-Output: true
-Explanation:
-We start in room 0, and pick up key 1.
-We then go to room 1, and pick up key 2.
-We then go to room 2, and pick up key 3.
-We then go to room 3.  Since we were able to go to every room, we return true.
-Example 2:
-
-Input: [[1,3],[3,0,1],[2],[0]]
-Output: false
-Explanation: We can't enter the room with number 2.
-Note:
-
-1 <= rooms.length <= 1000
-0 <= rooms[i].length <= 1000
-The number of keys in all rooms combined is at most 3000.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool canVisitAllRooms(vector<vector<int>>& rooms) {
-    queue<int> q;
-    unordered_set<int> visited;
-
-    q.push(0);
-    visited.insert(0);
-    while (!q.empty()) {
-      int curr = q.front();
-      q.pop();
-      for (auto e : rooms[curr]) {
-        if (!visited.count(e)) {
-          q.push(e);
-          visited.insert(e);
-        }
-      }
-    }
-
-    return visited.size() == rooms.size();
   }
 };
 

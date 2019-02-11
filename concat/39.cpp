@@ -1,6 +1,391 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+892. Surface Area of 3D Shapes
+On a N * N grid, we place some 1 * 1 * 1 cubes.
+
+Each value v = grid[i][j] represents a tower of v cubes placed on top of grid
+cell (i, j).
+
+Return the total surface area of the resulting shapes.
+
+Example 1:
+
+Input: [[2]]
+Output: 10
+
+Example 2:
+
+Input: [[1,2],[3,4]]
+Output: 34
+
+Example 3:
+
+Input: [[1,0],[0,2]]
+Output: 16
+
+Example 4:
+
+Input: [[1,1,1],[1,0,1],[1,1,1]]
+Output: 32
+
+Example 5:
+
+Input: [[2,2,2],[2,1,2],[2,2,2]]
+Output: 46
+
+Note:
+
+  1 <= N <= 50
+  0 <= grid[i][j] <= 50
+/*
+  Submission Date: 2019-01-26
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  int di[2] = {-1, 0};
+  int dj[2] = {0, -1};
+
+ public:
+  int surfaceArea(vector<vector<int>>& grid) {
+    int res = 0;
+    for (int i = 0; i < grid.size(); i++) {
+      for (int j = 0; j < grid[i].size(); j++) {
+        if (grid[i][j] == 0) continue;
+        res += 4 * grid[i][j] + 2;
+        for (int k = 0; k < 2; k++) {
+          int n_i = i + di[k];
+          int n_j = j + dj[k];
+          if (0 <= n_i && n_i < grid.size() && 0 <= n_j &&
+              n_j < grid[j].size()) {
+            res -= 2 * min(grid[i][j], grid[n_i][n_j]);
+          }
+        }
+      }
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+893. Groups of Special-Equivalent Strings
+You are given an array A of strings.
+
+Two strings S and T are special-equivalent if after any number of moves, S == T.
+
+A move consists of choosing two indices i and j with i % 2 == j % 2, and
+swapping S[i] with S[j].
+
+Now, a group of special-equivalent strings from A is a non-empty subset S of
+A such that any string not in S is not special-equivalent with any string in S.
+
+Return the number of groups of special-equivalent strings from A.
+
+Example 1:
+
+Input: ["a","b","c","a","c","c"]
+Output: 3
+Explanation: 3 groups ["a","a"], ["b"], ["c","c","c"]
+
+Example 2:
+
+Input: ["aa","bb","ab","ba"]
+Output: 4
+Explanation: 4 groups ["aa"], ["bb"], ["ab"], ["ba"]
+
+Example 3:
+
+Input: ["abc","acb","bac","bca","cab","cba"]
+Output: 3
+Explanation: 3 groups ["abc","cba"], ["acb","bca"], ["bac","cab"]
+
+Example 4:
+
+Input: ["abcd","cdab","adcb","cbad"]
+Output: 1
+Explanation: 1 group ["abcd","cdab","adcb","cbad"]
+
+Note:
+
+  1 <= A.length <= 1000
+  1 <= A[i].length <= 20
+  All A[i] have the same length.
+  All A[i] consist of only lowercase letters.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 8 ms
+  Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int numSpecialEquivGroups(vector<string>& A) {
+    unordered_map<string, int> freq;
+
+    for (const auto& s : A) {
+      string even = "";
+      string odd = "";
+      for (int i = 0; i < s.size(); i++) {
+        if (i % 2 == 0) {
+          even.push_back(s[i]);
+        } else {
+          odd.push_back(s[i]);
+        }
+      }
+
+      sort(even.begin(), even.end());
+      sort(odd.begin(), odd.end());
+
+      freq[even + odd]++;
+    }
+
+    return freq.size();
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+894. All Possible Full Binary Trees
+A full binary tree is a binary tree where each node has exactly 0 or 2 children.
+
+Return a list of all possible full binary trees with N nodes.  Each element of
+the answer is the root node of one possible tree.
+
+Each node of each tree in the answer must have node.val = 0.
+
+You may return the final list of trees in any order.
+
+ 
+
+Example 1:
+
+Input: 7
+Output:
+[[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]
+Explanation:
+
+
+
+ 
+
+Note:
+
+
+  1 <= N <= 20
+/*
+  Submission Date: 2019-01-25
+  Runtime: 68 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  vector<TreeNode*> allPossibleFBT(int N) {
+    if (N == 0) return {};
+
+    vector<vector<TreeNode*>> dp(N + 1);
+    dp[1] = {new TreeNode(0)};
+
+    for (int i = 1; i <= N; i += 2) {
+      for (int j = 1; j < i; j += 2) {
+        for (const auto& l : dp[j]) {
+          for (const auto& r : dp[i - 1 - j]) {
+            TreeNode* node = new TreeNode(0);
+            node->left = l;
+            node->right = r;
+            dp[i].push_back(node);
+          }
+        }
+      }
+    }
+
+    return dp[N];
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+896. Monotonic Array
+An array is monotonic if it is either monotone increasing or monotone
+decreasing.
+
+An array A is monotone increasing if for all i <= j, A[i] <= A[j].  An array A
+is monotone decreasing if for all i <= j, A[i] >= A[j].
+
+Return true if and only if the given array A is monotonic.
+
+Example 1:
+
+Input: [1,2,2,3]
+Output: true
+
+Example 2:
+
+Input: [6,5,4,4]
+Output: true
+
+Example 3:
+
+Input: [1,3,2]
+Output: false
+
+Example 4:
+
+Input: [1,2,4,5]
+Output: true
+
+Example 5:
+
+Input: [1,1,1]
+Output: true
+
+Note:
+
+  1 <= A.length <= 50000
+  -100000 <= A[i] <= 100000
+/*
+  Submission Date: 2019-01-26
+  Runtime: 96 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool isMonotonic(vector<int>& A) {
+    int inc_cnt = 1;
+    int dec_cnt = 1;
+    for (int i = 1; i < A.size(); i++) {
+      inc_cnt += A[i] >= A[i - 1];
+      dec_cnt += A[i] <= A[i - 1];
+    }
+
+    return inc_cnt == A.size() || dec_cnt == A.size();
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+897. Increasing Order Search Tree
+Given a tree, rearrange the tree in in-order so that the leftmost node in the
+tree is now the root of the tree, and every node has no left child and only 1
+right child.
+
+Example 1:
+Input: [5,3,6,2,4,null,8,1,null,null,null,7,9]
+
+       5
+      / \
+    3    6
+   / \    \
+  2   4    8
+ /        / \
+1        7   9
+
+Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
+
+ 1
+  \
+   2
+    \
+     3
+      \
+       4
+        \
+         5
+          \
+           6
+            \
+             7
+              \
+               8
+                \
+                 9
+
+Note:
+
+  The number of nodes in the given tree will be between 1 and 100.
+  Each node will have a unique integer value from 0 to 1000.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 72 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  void inorder(TreeNode* curr, TreeNode** last, TreeNode** res) {
+    if (curr) {
+      inorder(curr->left, last, res);
+      if (*last) {
+        (*last)->right = curr;
+      }
+
+      *last = curr;
+      if (*res == NULL) {
+        *res = curr;
+      }
+
+      curr->left = NULL;
+      inorder(curr->right, last, res);
+    }
+  }
+  TreeNode* increasingBST(TreeNode* root) {
+    TreeNode *res = NULL, *last = NULL;
+    inorder(root, &last, &res);
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 905. Sort Array By Parity
 Given an array A of non-negative integers, return an array consisting of all the
 even elements of A, followed by all the odd elements of A.
@@ -468,329 +853,53 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-925. Long Pressed Name
-Your friend is typing his name into a keyboard.  Sometimes, when typing a
-character c, the key might get long pressed, and the character will be typed 1
-or more times.
+924. Minimize Malware Spread
+In a network of nodes, each node i is directly connected to another node j if
+and only if graph[i][j] = 1.
 
-You examine the typed characters of the keyboard.  Return True if it is possible
-that it was your friends name, with some characters (possibly none) being long
-pressed.
+Some nodes initial are initially infected by malware.  Whenever two nodes are
+directly connected and at least one of those two nodes is infected by malware,
+both nodes will be infected by malware.  This spread of malware will continue
+until no more nodes can be infected in this manner.
+
+Suppose M(initial) is the final number of nodes infected with malware in the
+entire network, after the spread of malware stops.
+
+We will remove one node from the initial list.  Return the node that if removed,
+would minimize M(initial).  If multiple nodes could be removed to minimize
+M(initial), return such a node with the smallest index.
+
+Note that if a node was removed from the initial list of infected nodes, it may
+still be infected later as a result of the malware spread.
 
 Example 1:
 
-Input: name = "alex", typed = "aaleex"
-Output: true
-Explanation: 'a' and 'e' in 'alex' were long pressed.
+Input: graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
+Output: 0
 
 Example 2:
 
-Input: name = "saeed", typed = "ssaaedd"
-Output: false
-Explanation: 'e' must have been pressed twice, but it wasn't in the typed
-output.
+Input: graph = [[1,0,0],[0,1,0],[0,0,1]], initial = [0,2]
+Output: 0
 
 Example 3:
 
-Input: name = "leelee", typed = "lleeelee"
-Output: true
-
-Example 4:
-
-Input: name = "laiden", typed = "laiden"
-Output: true
-Explanation: It's not necessary to long press any character.
+Input: graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]
+Output: 1
 
 Note:
 
-  name.length <= 1000
-  typed.length <= 1000
-  The characters of name and typed are lowercase letters.
+  1 < graph.length = graph[0].length <= 300
+  0 <= graph[i][j] == graph[j][i] <= 1
+  graph[i][i] = 1
+  1 <= initial.length < graph.length
+  0 <= initial[i] < graph.length
 /*
-  Submission Date: 2019-01-26
-  Runtime: 0 ms
-  Difficulty: EASY
+  Submission Date: 2019-02-04
+  Runtime: 168 ms
+  Difficulty: HARD
 */
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isLongPressedName(string name, string typed) {
-    int n = name.size();
-    int m = typed.size();
-    int i = 0;
-    int j = 0;
-    while (i < n && j < m) {
-      if (name[i] != typed[j]) return false;
-      int new_i = i;
-      int new_j = j;
-      while (new_i < n && name[i] == name[new_i]) new_i++;
-      while (new_j < m && typed[j] == typed[new_j]) new_j++;
-
-      int name_cnt = new_i - i + 1;
-      int typed_cnt = new_j - j + 1;
-
-      if (typed_cnt < name_cnt) return false;
-      i = new_i;
-      j = new_j;
-    }
-
-    return i == n && j == m;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-929. Unique Email Addresses
-Every email consists of a local name and a domain name, separated by the @ sign.
-
-For example, in alice@leetcode.com, alice is the local name, and leetcode.com is
-the domain name.
-
-Besides lowercase letters, these emails may contain '.'s or '+'s.
-
-If you add periods ('.') between some characters in the local name part of an
-email address, mail sent there will be forwarded to the same address without
-dots in the local name.  For example, "alice.z@leetcode.com" and
-"alicez@leetcode.com" forward to the same email address.  (Note that this rule
-does not apply for domain names.)
-
-If you add a plus ('+') in the local name, everything after the first plus sign
-will be ignored. This allows certain emails to be filtered, for
-example m.y+name@email.com will be forwarded to my@email.com.  (Again, this rule
-does not apply for domain names.)
-
-It is possible to use both of these rules at the same time.
-
-Given a list of emails, we send one email to each address in the list.  How many
-different addresses actually receive mails? 
-
-Example 1:
-
-Input:
-["test.email+alex@leetcode.com","test.e.mail+bob.cathy@leetcode.com","testemail+david@lee.tcode.com"]
-Output: 2
-Explanation: "testemail@leetcode.com" and "testemail@lee.tcode.com" actually
-receive mails
-
-Note:
-
-  1 <= emails[i].length <= 100
-  1 <= emails.length <= 100
-  Each emails[i] contains exactly one '@' character.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 40 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int numUniqueEmails(vector<string>& emails) {
-    unordered_set<string> uniq_emails;
-
-    for (const auto& email : emails) {
-      size_t at_ind = email.find('@');
-      if (at_ind == string::npos) return -1;
-      string res = "";
-      for (int i = 0; i < at_ind; i++) {
-        if (email[i] == '.') continue;
-        if (email[i] == '+') break;
-        res.push_back(email[i]);
-      }
-
-      for (int i = at_ind + 1; i < email.size(); i++) {
-        res.push_back(email[i]);
-      }
-
-      uniq_emails.insert(res);
-    }
-
-    return uniq_emails.size();
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-931. Minimum Falling Path Sum
-Given a square array of integers A, we want the minimum sum of a falling path
-through A.
-
-A falling path starts at any element in the first row, and chooses one element
-from each row.  The next row's choice must be in a column that is different from
-the previous row's column by at most one.
-
-Example 1:
-
-Input: [[1,2,3],[4,5,6],[7,8,9]]
-Output: 12
-Explanation:
-The possible falling paths are:
-
-  [1,4,7], [1,4,8], [1,5,7], [1,5,8], [1,5,9]
-  [2,4,7], [2,4,8], [2,5,7], [2,5,8], [2,5,9], [2,6,8], [2,6,9]
-  [3,5,7], [3,5,8], [3,5,9], [3,6,8], [3,6,9]
-
-The falling path with the smallest sum is [1,4,7], so the answer is 12.
-
-Note:
-
-  1 <= A.length == A[0].length <= 100
-  -100 <= A[i][j] <= 100
-/*
-  Submission Date: 2019-01-26
-  Runtime: 8 ms
-  Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <climits>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int minFallingPathSum(vector<vector<int>>& A) {
-    int n = A.size();
-    int m = A[0].size();
-
-    for (int i = n - 2; i >= 0; i--) {  // skip last row
-      for (int j = 0; j < m; j++) {
-        int to_add = INT_MAX;
-        for (int k = -1; k <= 1; k++) {
-          if (j + k >= 0 && j + k < m) {
-            to_add = min(to_add, A[i + 1][j + k]);
-          }
-        }
-
-        A[i][j] += to_add;
-      }
-    }
-    return *min_element(A[0].begin(), A[0].end());
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-933. Number of Recent Calls
-Write a class RecentCounter to count recent requests.
-
-It has only one method: ping(int t), where t represents some time in
-milliseconds.
-
-Return the number of pings that have been made from 3000 milliseconds ago until
-now.
-
-Any ping with time in [t - 3000, t] will count, including the current ping.
-
-It is guaranteed that every call to ping uses a strictly larger value of t than
-before.
-
-Example 1:
-
-Input: inputs = ["RecentCounter","ping","ping","ping","ping"], inputs =
-[[],[1],[100],[3001],[3002]]
-Output: [null,1,2,3,3]
-
-Note:
-
-  Each test case will have at most 10000 calls to ping.
-  Each test case will call ping with strictly increasing values of t.
-  Each call to ping will have 1 <= t <= 10^9.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 252 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-typedef priority_queue<int, vector<int>, greater<int>> MinHeap;
-class RecentCounter {
-  MinHeap heap;
-
- public:
-  RecentCounter() {}
-
-  int ping(int t) {
-    while (!heap.empty() && heap.top() < t - 3000) {
-      heap.pop();
-    }
-    heap.push(t);
-    return heap.size();
-  }
-};
-
-/**
- * Your RecentCounter object will be instantiated and called as such:
- * RecentCounter* obj = new RecentCounter();
- * int param_1 = obj->ping(t);
- */
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-953. Verifying an Alien Dictionary
-In an alien language, surprisingly they also use english lowercase letters, but
-possibly in a different order. The order of the alphabet is some permutation of
-lowercase letters.
-
-Given a sequence of words written in the alien language, and the order of the
-alphabet, return true if and only if the given words are sorted lexicographicaly
-in this alien language.
-
-Example 1:
-
-Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
-Output: true
-Explanation: As 'h' comes before 'l' in this language, then the sequence is
-sorted.
-
-Example 2:
-
-Input: words = ["word","world","row"], order = "worldabcefghijkmnpqstuvxyz"
-Output: false
-Explanation: As 'd' comes after 'l' in this language, then words[0] > words[1],
-hence the sequence is unsorted.
-
-Example 3:
-
-Input: words = ["apple","app"], order = "abcdefghijklmnopqrstuvwxyz"
-Output: false
-Explanation: The first three characters "app" match, and the second string is
-shorter (in size.) According to lexicographical rules "apple" > "app", because
-'l' > '∅', where '∅' is defined as the blank character which is less than any
-other character (More info).
-
-Note:
-
-  1 <= words.length <= 100
-  1 <= words[i].length <= 20
-  order.length == 26
-  All characters in words[i] and order are english lowercase letters.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
+#include <cassert>
 #include <climits>
 #include <iostream>
 #include <unordered_map>
@@ -798,87 +907,92 @@ Note:
 
 using namespace std;
 
-class Solution {
+template <typename T>
+class UnionFind {
+  unordered_map<T, int> rank_, size_;
+  unordered_map<T, T> parent_;
+
  public:
-  bool less(const string& s1, const string& s2,
-            unordered_map<char, int>& rank) {
-    int i = 0;
-    while (i < min(s1.size(), s2.size()) && s1[i] == s2[i]) i++;
-    int r1 = i == s1.size() ? INT_MIN : rank[s1[i]];
-    int r2 = i == s2.size() ? INT_MIN : rank[s2[i]];
-    return r1 <= r2;
+  bool IsWithinSet(T e) { return parent_.count(e); }
+
+  void CreateSet(T e) {
+    assert(!IsWithinSet(e));
+    parent_[e] = e;
+    rank_[e] = 0;
+    size_[e] = 1;
   }
 
-  bool isAlienSorted(vector<string>& words, string order) {
-    unordered_map<char, int> rank;
-    for (int i = 0; i < order.size(); i++) rank[order[i]] = i;
+  T Find(T e) {
+    if (parent_[e] != e) {
+      parent_[e] = Find(parent_[e]);
+    }
+    return parent_[e];
+  }
+  int GetSize(T e) { return size_[Find(e)]; }
 
-    for (int i = 1; i < words.size(); i++) {
-      if (!less(words[i - 1], words[i], rank)) return false;
+  bool Union(T e1, T e2) {
+    T e1_root = Find(e1);
+    T e2_root = Find(e2);
+
+    if (e1_root == e2_root) return false;  // same root
+
+    if (rank_[e1_root] < rank_[e2_root]) {
+      parent_[e1_root] = e2_root;
+      size_[e2_root] += size_[e1_root];
+    } else {
+      parent_[e2_root] = e1_root;
+      size_[e1_root] += size_[e2_root];
+      if (rank_[e1_root] == rank_[e2_root]) {
+        rank_[e1_root]++;
+      }
     }
 
     return true;
   }
 };
 
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-977. Squares of a Sorted Array
-Given an array of integers A sorted in non-decreasing order, return an array of
-the squares of each number, also in sorted non-decreasing order.
-
-Example 1:
-
-Input: [-4,-1,0,3,10]
-Output: [0,1,9,16,100]
-
-Example 2:
-
-Input: [-7,-3,2,3,11]
-Output: [4,9,9,49,121]
-
-Note:
-
-  1 <= A.length <= 10000
-  -10000 <= A[i] <= 10000
-  A is sorted in non-decreasing order.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 132 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
 class Solution {
  public:
-  vector<int> sortedSquares(vector<int>& A) {
-    int N = A.size();
-    vector<int> res(N);
-    int i = 0;
-    int j = N - 1;
-    int wr = N - 1;
-
-    while (i < j && A[i] < 0) {
-      if (-A[i] > A[j]) {
-        res[wr--] = A[i] * A[i];
-        i++;
-      } else {
-        res[wr--] = A[j] * A[j];
-        j--;
+  int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
+    int N = graph.size();
+    UnionFind<int> uf;
+    for (int i = 0; i < N; i++) uf.CreateSet(i);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (graph[i][j]) uf.Union(i, j);
       }
     }
 
-    while (j >= i) {
-      res[wr--] = A[j] * A[j];
-      j--;
+    unordered_map<int, vector<int>> parent_to_children;
+    int min_m = INT_MAX;
+    for (const auto& m : initial) {
+      parent_to_children[uf.Find(m)].push_back(m);
+      min_m = min(min_m, m);
     }
 
-    return res;
+    int largest_machine = -1;
+    for (const auto& kv : parent_to_children) {
+      // for connected components that with more than one initial machine, they
+      // should be discarded
+      if (kv.second.size() != 1) continue;
+      int m = kv.second.front();
+      if (largest_machine == -1) {
+        largest_machine = m;
+        continue;
+      }
+
+      // this component only has one machine, so removing it would result in
+      // uf.GetSize(m) number of machines saved.
+      int max_size = uf.GetSize(largest_machine);
+      int curr_size = uf.GetSize(m);
+      if (curr_size == max_size) {
+        largest_machine = min(largest_machine, m);
+      } else if (curr_size > max_size) {
+        largest_machine = m;
+      }
+    }
+
+    return (largest_machine == -1) ? min_m : largest_machine;
   }
 };
 

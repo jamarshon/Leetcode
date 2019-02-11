@@ -604,6 +604,248 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+705. Design HashSet
+Design a HashSet without using any built-in hash table libraries.
+
+To be specific, your design should include these functions:
+
+  add(value): Insert a value into the HashSet. 
+  contains(value) : Return whether the value exists in the HashSet or not.
+  remove(value): Remove a value in the HashSet. If the value does not exist in
+the HashSet, do nothing.
+
+Example:
+
+MyHashSet hashSet = new MyHashSet();
+hashSet.add(1);        
+hashSet.add(2);        
+hashSet.contains(1);    // returns true
+hashSet.contains(3);    // returns false (not found)
+hashSet.add(2);          
+hashSet.contains(2);    // returns true
+hashSet.remove(2);          
+hashSet.contains(2);    // returns false (already removed)
+
+Note:
+
+  All values will be in the range of [0, 1000000].
+  The number of operations will be in the range of [1, 10000].
+  Please do not use the built-in HashSet library.
+/*
+  Submission Date: 2019-02-06
+  Runtime: 140 ms
+  Difficulty: EASY
+*/
+#include <functional>
+#include <iostream>
+#include <list>
+#include <vector>
+
+using namespace std;
+
+struct Data {
+  hash<int> h;
+  int capacity;
+  int size = 0;
+  vector<list<int>> arr;
+  int GetHash(int key) { return h(key) % capacity; }
+
+  Data(int cap) : capacity(cap) { arr.resize(capacity); }
+};
+
+class MyHashSet {
+  const double load_factor_ = 0.75;
+  int capacity_ = 10;
+  Data* data_;
+
+  list<int>::iterator Get(int key) {
+    auto& l = data_->arr[data_->GetHash(key)];
+    for (auto it = l.begin(); it != l.end(); it++) {
+      if (*it == key) return it;
+    }
+    return l.end();
+  }
+
+ public:
+  /** Initialize your data structure here. */
+  MyHashSet() { data_ = new Data(capacity_); }
+
+  void add(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+
+    if (it == l.end()) {
+      // insert
+      l.emplace_back(key);
+      data_->size++;
+
+      if (data_->size > load_factor_ * capacity_) {
+        Data* old = data_;
+        capacity_ *= 2;
+        data_ = new Data(capacity_);
+        for (const auto& bucket : old->arr) {
+          for (const int& k : bucket) {
+            add(k);
+          }
+        }
+
+        delete old;
+      }
+    }
+  }
+
+  void remove(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    if (it != l.end()) {
+      l.erase(it);
+      data_->size--;
+    }
+  }
+
+  /** Returns true if this set contains the specified element */
+  bool contains(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    return it != l.end();
+  }
+};
+
+/**
+ * Your MyHashSet object will be instantiated and called as such:
+ * MyHashSet obj = new MyHashSet();
+ * obj.add(key);
+ * obj.remove(key);
+ * bool param_3 = obj.contains(key);
+ */
+
+int main() {
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+706. Design HashMap
+Design a HashMap without using any built-in hash table libraries.
+
+To be specific, your design should include these functions:
+
+  put(key, value) : Insert a (key, value) pair into the HashMap. If the value
+already exists in the HashMap, update the value.
+  get(key): Returns the value to which the specified key is mapped, or -1 if
+this map contains no mapping for the key. remove(key) : Remove the mapping for
+the value key if this map contains the mapping for the key.
+
+Example:
+
+MyHashMap hashMap = new MyHashMap();
+hashMap.put(1, 1);          
+hashMap.put(2, 2);        
+hashMap.get(1);            // returns 1
+hashMap.get(3);            // returns -1 (not found)
+hashMap.put(2, 1);          // update the existing value
+hashMap.get(2);            // returns 1
+hashMap.remove(2);          // remove the mapping for 2
+hashMap.get(2);            // returns -1 (not found)
+
+Note:
+
+  All keys and values will be in the range of [0, 1000000].
+  The number of operations will be in the range of [1, 10000].
+  Please do not use the built-in HashMap library.
+/*
+  Submission Date: 2019-02-06
+  Runtime: 160 ms
+  Difficulty: EASY
+*/
+#include <functional>
+#include <iostream>
+#include <list>
+#include <vector>
+
+using namespace std;
+
+typedef pair<int, int> pii;
+struct Data {
+  hash<int> h;
+  int capacity;
+  int size = 0;
+  vector<list<pii>> arr;
+  int GetHash(int key) { return h(key) % capacity; }
+
+  Data(int cap) : capacity(cap) { arr.resize(capacity); }
+};
+
+class MyHashMap {
+  const double load_factor_ = 0.75;
+  int capacity_ = 10;
+  Data* data_;
+
+  list<pii>::iterator Get(int key) {
+    auto& l = data_->arr[data_->GetHash(key)];
+    for (auto it = l.begin(); it != l.end(); it++) {
+      if (it->first == key) return it;
+    }
+    return l.end();
+  }
+
+ public:
+  /** Initialize your data structure here. */
+  MyHashMap() { data_ = new Data(capacity_); }
+
+  /** value will always be non-negative. */
+  void put(int key, int value) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+
+    if (it == l.end()) {
+      // insert
+      l.emplace_back(key, value);
+      data_->size++;
+
+      if (data_->size > load_factor_ * capacity_) {
+        Data* old = data_;
+        capacity_ *= 2;
+        data_ = new Data(capacity_);
+        for (const auto& bucket : old->arr) {
+          for (const pii& p : bucket) {
+            put(p.first, p.second);
+          }
+        }
+
+        delete old;
+      }
+    } else {
+      it->second = value;
+    }
+  }
+
+  /** Returns the value to which the specified key is mapped, or -1 if this map
+   * contains no mapping for the key */
+  int get(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    return it == l.end() ? -1 : it->second;
+  }
+
+  /** Removes the mapping of the specified value key if this map contains a
+   * mapping for the key */
+  void remove(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    if (it != l.end()) {
+      l.erase(it);
+      data_->size--;
+    }
+  }
+};
+
+int main() {
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 707. Design Linked List
 Design your implementation of the linked list. You can choose to use the singly
 linked list or the doubly linked list. A node in a singly linked list should
@@ -762,253 +1004,5 @@ class MyLinkedList {
  * obj.addAtIndex(index,val);
  * obj.deleteAtIndex(index);
  */
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-709. To Lower Case
-Implement function ToLowerCase() that has a string parameter str, and returns
-the same string in lowercase.
-
-/*
-    Submission Date: 2018-07-12
-    Runtime: 0 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string toLowerCase(string str) {
-    for (auto& c : str) c = tolower(c);
-    return str;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-712. Minimum ASCII Delete Sum for Two Strings
-Given two strings s1, s2, find the lowest ASCII sum of deleted characters to
-make two strings equal.
-
-Example 1:
-Input: s1 = "sea", s2 = "eat"
-Output: 231
-Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the
-sum.
-Deleting "t" from "eat" adds 116 to the sum.
-At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum
-possible to achieve this.
-
-
-
-Example 2:
-Input: s1 = "delete", s2 = "leet"
-Output: 403
-Explanation: Deleting "dee" from "delete" to turn the string into "let",
-adds 100[d]+101[e]+101[e] to the sum.  Deleting "e" from "leet" adds 101[e] to
-the sum.
-At the end, both strings are equal to "let", and the answer is 100+101+101+101 =
-403.
-If instead we turned both strings into "lee" or "eet", we would get answers of
-433 or 417, which are higher.
-
-
-
-Note:
-0 < s1.length, s2.length <= 1000.
-All elements of each string will have an ASCII value in [97, 122].
-
-/*
-    Submission Date: 2018-07-01
-    Runtime: 15 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  dp[i][j] is minimum cost for s1[0, i) s2[0, j)
-  dp[0][0] = 0
-  dp[0][j] = s2[j-1] + dp[i][j-1] // sum of ascii of s2[0, j)
-  dp[i][0] = s1[i-1] + dp[i-1][j] // sum of ascii of s1[0, i)
-  
-  if s1[i-1] == s2[j-1]
-      dp[i][j] = dp[i-1][j-1] // this character does not to be deleted so
-                              // it is just excluding the two end characters
-  else
-      dp[i][j] = min(
-          s1[i-1] + dp[i-1][j], // the cost of the end character of s1 + cost of
-  not using that character s2[j-1] + dp[i][j-1] // cost of the end character of
-  s2 + cost of not using that character
-      )
-  */
-  int minimumDeleteSum(string s1, string s2) {
-    int N = s1.size(), M = s2.size();
-    int dp[N + 1][M + 1];
-    for (int i = 0; i <= N; i++) {
-      for (int j = 0; j <= M; j++) {
-        if (i == 0 && j == 0) {
-          dp[i][j] = 0;
-        } else if (i == 0) {
-          dp[i][j] = s2[j - 1] + dp[i][j - 1];
-        } else if (j == 0) {
-          dp[i][j] = s1[i - 1] + dp[i - 1][j];
-        } else if (s1[i - 1] == s2[j - 1]) {
-          dp[i][j] = dp[i - 1][j - 1];
-        } else {
-          dp[i][j] = min(s1[i - 1] + dp[i - 1][j], s2[j - 1] + dp[i][j - 1]);
-        }
-      }
-    }
-
-    return dp[N][M];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-717. 1-bit and 2-bit Characters
-We have two special characters. The first character can be represented by one
-bit 0. The second character can be represented by two bits (10 or 11).
-
-Now given a string represented by several bits. Return whether the last
-character must be a one-bit character or not. The given string will always end
-with a zero.
-
-Example 1:
-Input:
-bits = [1, 0, 0]
-Output: True
-Explanation:
-The only way to decode it is two-bit character and one-bit character. So the
-last character is one-bit character. Example 2: Input: bits = [1, 1, 1, 0]
-Output: False
-Explanation:
-The only way to decode it is two-bit character and two-bit character. So the
-last character is NOT one-bit character. Note:
-
-1 <= len(bits) <= 1000.
-bits[i] is always 0 or 1.
-/*
-    Submission Date: 2018-06-07
-    Runtime: 7 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isOneBitCharacter(vector<int>& bits) {
-    int N = bits.size();
-    vector<bool> dp(N, false);
-    dp[N - 1] = true;
-
-    for (int i = N - 2; i >= 0; i--) {
-      if (bits[i] == 0) {
-        dp[i] = dp[i + 1];
-      } else {
-        if (i + 2 < N) dp[i] = dp[i + 2];
-      }
-    }
-
-    return dp[0];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-720. Longest Word in Dictionary
-Given a list of strings words representing an English Dictionary, find the
-longest word in words that can be built one character at a time by other words
-in words. If there is more than one possible answer, return the longest word
-with the smallest lexicographical order.
-
-If there is no answer, return the empty string.
-Example 1:
-Input:
-words = ["w","wo","wor","worl", "world"]
-Output: "world"
-Explanation:
-The word "world" can be built one character at a time by "w", "wo", "wor", and
-"worl". Example 2: Input: words = ["a", "banana", "app", "appl", "ap", "apply",
-"apple"] Output: "apple" Explanation: Both "apply" and "apple" can be built from
-other words in the dictionary. However, "apple" is lexicographically smaller
-than "apply". Note:
-
-All the strings in the input will only contain lowercase letters.
-The length of words will be in the range [1, 1000].
-The length of words[i] will be in the range [1, 30].
-/*
-    Submission Date: 2018-05-24
-    Runtime: 56 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-  bool is_word;
-  TrieNode* child[26];
-  TrieNode() {
-    is_word = false;
-    for (int i = 0; i < 26; i++) child[i] = NULL;
-  }
-};
-
-class Trie {
- public:
-  TrieNode* root_;
-
-  /** Initialize your data structure here. */
-  Trie() { root_ = new TrieNode(); }
-
-  /** Inserts a word into the trie. */
-  void insert(string word) {
-    TrieNode* curr = root_;
-    for (auto c : word) {
-      if (curr->child[c - 'a'] == NULL) curr->child[c - 'a'] = new TrieNode();
-      curr = curr->child[c - 'a'];
-    }
-    curr->is_word = true;
-  }
-};
-
-class Solution {
- public:
-  string dfs(TrieNode* node, string letter) {
-    if (node == NULL || !node->is_word) return "";
-    string max_child = "";
-    for (int i = 0; i < 26; i++) {
-      string child = dfs(node->child[i], string(1, 'a' + i));
-      if (child.size() > max_child.size()) {
-        max_child = child;
-      }
-    }
-
-    return letter + max_child;
-  }
-  string longestWord(vector<string>& words) {
-    Trie trie;
-    for (const auto& s : words) trie.insert(s);
-    trie.root_->is_word = true;
-    return dfs(trie.root_, "");
-  }
-};
 
 int main() { return 0; }

@@ -1,6 +1,253 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+709. To Lower Case
+Implement function ToLowerCase() that has a string parameter str, and returns
+the same string in lowercase.
+
+/*
+    Submission Date: 2018-07-12
+    Runtime: 0 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  string toLowerCase(string str) {
+    for (auto& c : str) c = tolower(c);
+    return str;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+712. Minimum ASCII Delete Sum for Two Strings
+Given two strings s1, s2, find the lowest ASCII sum of deleted characters to
+make two strings equal.
+
+Example 1:
+Input: s1 = "sea", s2 = "eat"
+Output: 231
+Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the
+sum.
+Deleting "t" from "eat" adds 116 to the sum.
+At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum
+possible to achieve this.
+
+
+
+Example 2:
+Input: s1 = "delete", s2 = "leet"
+Output: 403
+Explanation: Deleting "dee" from "delete" to turn the string into "let",
+adds 100[d]+101[e]+101[e] to the sum.  Deleting "e" from "leet" adds 101[e] to
+the sum.
+At the end, both strings are equal to "let", and the answer is 100+101+101+101 =
+403.
+If instead we turned both strings into "lee" or "eet", we would get answers of
+433 or 417, which are higher.
+
+
+
+Note:
+0 < s1.length, s2.length <= 1000.
+All elements of each string will have an ASCII value in [97, 122].
+
+/*
+    Submission Date: 2018-07-01
+    Runtime: 15 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  dp[i][j] is minimum cost for s1[0, i) s2[0, j)
+  dp[0][0] = 0
+  dp[0][j] = s2[j-1] + dp[i][j-1] // sum of ascii of s2[0, j)
+  dp[i][0] = s1[i-1] + dp[i-1][j] // sum of ascii of s1[0, i)
+  
+  if s1[i-1] == s2[j-1]
+      dp[i][j] = dp[i-1][j-1] // this character does not to be deleted so
+                              // it is just excluding the two end characters
+  else
+      dp[i][j] = min(
+          s1[i-1] + dp[i-1][j], // the cost of the end character of s1 + cost of
+  not using that character s2[j-1] + dp[i][j-1] // cost of the end character of
+  s2 + cost of not using that character
+      )
+  */
+  int minimumDeleteSum(string s1, string s2) {
+    int N = s1.size(), M = s2.size();
+    int dp[N + 1][M + 1];
+    for (int i = 0; i <= N; i++) {
+      for (int j = 0; j <= M; j++) {
+        if (i == 0 && j == 0) {
+          dp[i][j] = 0;
+        } else if (i == 0) {
+          dp[i][j] = s2[j - 1] + dp[i][j - 1];
+        } else if (j == 0) {
+          dp[i][j] = s1[i - 1] + dp[i - 1][j];
+        } else if (s1[i - 1] == s2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] = min(s1[i - 1] + dp[i - 1][j], s2[j - 1] + dp[i][j - 1]);
+        }
+      }
+    }
+
+    return dp[N][M];
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+717. 1-bit and 2-bit Characters
+We have two special characters. The first character can be represented by one
+bit 0. The second character can be represented by two bits (10 or 11).
+
+Now given a string represented by several bits. Return whether the last
+character must be a one-bit character or not. The given string will always end
+with a zero.
+
+Example 1:
+Input:
+bits = [1, 0, 0]
+Output: True
+Explanation:
+The only way to decode it is two-bit character and one-bit character. So the
+last character is one-bit character. Example 2: Input: bits = [1, 1, 1, 0]
+Output: False
+Explanation:
+The only way to decode it is two-bit character and two-bit character. So the
+last character is NOT one-bit character. Note:
+
+1 <= len(bits) <= 1000.
+bits[i] is always 0 or 1.
+/*
+    Submission Date: 2018-06-07
+    Runtime: 7 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool isOneBitCharacter(vector<int>& bits) {
+    int N = bits.size();
+    vector<bool> dp(N, false);
+    dp[N - 1] = true;
+
+    for (int i = N - 2; i >= 0; i--) {
+      if (bits[i] == 0) {
+        dp[i] = dp[i + 1];
+      } else {
+        if (i + 2 < N) dp[i] = dp[i + 2];
+      }
+    }
+
+    return dp[0];
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+720. Longest Word in Dictionary
+Given a list of strings words representing an English Dictionary, find the
+longest word in words that can be built one character at a time by other words
+in words. If there is more than one possible answer, return the longest word
+with the smallest lexicographical order.
+
+If there is no answer, return the empty string.
+Example 1:
+Input:
+words = ["w","wo","wor","worl", "world"]
+Output: "world"
+Explanation:
+The word "world" can be built one character at a time by "w", "wo", "wor", and
+"worl". Example 2: Input: words = ["a", "banana", "app", "appl", "ap", "apply",
+"apple"] Output: "apple" Explanation: Both "apply" and "apple" can be built from
+other words in the dictionary. However, "apple" is lexicographically smaller
+than "apply". Note:
+
+All the strings in the input will only contain lowercase letters.
+The length of words will be in the range [1, 1000].
+The length of words[i] will be in the range [1, 30].
+/*
+    Submission Date: 2018-05-24
+    Runtime: 56 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TrieNode {
+  bool is_word;
+  TrieNode* child[26];
+  TrieNode() {
+    is_word = false;
+    for (int i = 0; i < 26; i++) child[i] = NULL;
+  }
+};
+
+class Trie {
+ public:
+  TrieNode* root_;
+
+  /** Initialize your data structure here. */
+  Trie() { root_ = new TrieNode(); }
+
+  /** Inserts a word into the trie. */
+  void insert(string word) {
+    TrieNode* curr = root_;
+    for (auto c : word) {
+      if (curr->child[c - 'a'] == NULL) curr->child[c - 'a'] = new TrieNode();
+      curr = curr->child[c - 'a'];
+    }
+    curr->is_word = true;
+  }
+};
+
+class Solution {
+ public:
+  string dfs(TrieNode* node, string letter) {
+    if (node == NULL || !node->is_word) return "";
+    string max_child = "";
+    for (int i = 0; i < 26; i++) {
+      string child = dfs(node->child[i], string(1, 'a' + i));
+      if (child.size() > max_child.size()) {
+        max_child = child;
+      }
+    }
+
+    return letter + max_child;
+  }
+  string longestWord(vector<string>& words) {
+    Trie trie;
+    for (const auto& s : words) trie.insert(s);
+    trie.root_->is_word = true;
+    return dfs(trie.root_, "");
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 724. Find Pivot Index
 Given an array of integers nums, write a method that returns the "pivot" index
 of this array.
@@ -754,261 +1001,6 @@ class Solution {
     }
 
     return n;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-756. Pyramid Transition Matrix
-We are stacking blocks to form a pyramid.  Each block has a color which is a one
-letter string, like `'Z'`.
-
-For every block of color `C` we place not in the bottom row, we are placing it
-on top of a left block of color `A` and right block of color `B`.  We are
-allowed to place the block there only if `(A, B, C)` is an allowed triple.
-
-We start with a bottom row of bottom, represented as a single string.  We also
-start with a list of allowed triples allowed.  Each allowed triple is
-represented as a string of length 3.
-
-Return true if we can build the pyramid all the way to the top, otherwise false.
-
-
-Example 1:
-Input: bottom = "XYZ", allowed = ["XYD", "YZE", "DEA", "FFF"]
-Output: true
-Explanation:
-We can stack the pyramid like this:
-    A
-   / \
-  D   E
- / \ / \
-X   Y   Z
-
-This works because ('X', 'Y', 'D'), ('Y', 'Z', 'E'), and ('D', 'E', 'A') are
-allowed triples.
-
-
-
-Example 2:
-Input: bottom = "XXYX", allowed = ["XXX", "XXY", "XYX", "XYY", "YXZ"]
-Output: false
-Explanation:
-We can't stack the pyramid to the top.
-Note that there could be allowed triples (A, B, C) and (A, B, D) with C != D.
-
-
-
-Note:
-
-bottom will be a string with length in range [2, 8].
-allowed will have length in range [0, 200].
-Letters in all strings will be chosen from the set {'A', 'B', 'C', 'D', 'E',
-'F', 'G'}.
-
-/*
-    Submission Date: 2018-07-09
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TrieNode {
-  TrieNode* children[7];
-  TrieNode() {
-    for (int i = 0; i < 7; i++) {
-      children[i] = NULL;
-    }
-  }
-};
-
-class Solution {
- public:
-  /*
-  loop through s from i = [1,N) and seeing if s[i-1] + s[i] exists
-  if it does then try all combinations of s[i-1] + s[i] + _ where _ is
-  determined from the Trie. base case is when s is just a single letter.
-  
-  building.size() always == i-1 so if building.size() == N-1 (building row is
-  one less than previous row) then i-1 == N-1 or i == N which terminates
-  */
-  bool f(string s, int i, string building, TrieNode* root) {
-    int N = s.size();
-    if (N == 1) return true;
-
-    if (building.size() == N - 1) {
-      return f(building, 1, "", root);  // swap building and create a new row
-    }
-
-    // checking trie if AB exists
-    TrieNode* curr = root;
-    for (int j = 0; j < 2; j++) {
-      if (curr->children[s[i - 1 + j] - 'A'] == NULL) return false;
-      curr = curr->children[s[i - 1 + j] - 'A'];
-    }
-
-    // useing all combinations of AB_ to see if _ can work as the character for
-    // the building row
-    for (int j = 0; j < 7; j++) {
-      if (curr->children[j] == NULL) continue;
-      if (f(s, i + 1, building + char('A' + j), root)) return true;
-    }
-
-    return false;
-  }
-
-  bool pyramidTransition(string bottom, vector<string>& allowed) {
-    TrieNode* root = new TrieNode();
-    for (const auto& s : allowed) {
-      TrieNode* curr = root;
-      for (const auto& c : s) {
-        if (curr->children[c - 'A'] == NULL)
-          curr->children[c - 'A'] = new TrieNode();
-        curr = curr->children[c - 'A'];
-      }
-    }
-
-    return f(bottom, 1, "", root);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-762. Prime Number of Set Bits in Binary Representation
-Given two integers L and R, find the count of numbers in the range [L, R]
-(inclusive) having a prime number of set bits in their binary representation.
-
-(Recall that the number of set bits an integer has is the number of 1s present
-when written in binary. For example, 21 written in binary is 10101 which has 3
-set bits. Also, 1 is not a prime.)
-
-Example 1:
-
-Input: L = 6, R = 10
-Output: 4
-Explanation:
-6 -> 110 (2 set bits, 2 is prime)
-7 -> 111 (3 set bits, 3 is prime)
-9 -> 1001 (2 set bits , 2 is prime)
-10->1010 (2 set bits , 2 is prime)
-Example 2:
-
-Input: L = 10, R = 15
-Output: 5
-Explanation:
-10 -> 1010 (2 set bits, 2 is prime)
-11 -> 1011 (3 set bits, 3 is prime)
-12 -> 1100 (2 set bits, 2 is prime)
-13 -> 1101 (3 set bits, 3 is prime)
-14 -> 1110 (3 set bits, 3 is prime)
-15 -> 1111 (4 set bits, 4 is not prime)
-Note:
-
-L, R will be integers L <= R in the range [1, 10^6].
-R - L will be at most 10000.
-/*
-    Submission Date: 2018-06-02
-    Runtime: 105 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-  int numbits(int x) {
-    int res = 0;
-    while (x) {
-      x &= (x - 1);
-      res++;
-    }
-    return res;
-  }
-
- public:
-  /*
-      the number of bits for a number i = number of bits for i/2 + the last bit
-     of i e.g 10101 = number of bits for 1010 + last bit which is 1
-  */
-  int countPrimeSetBits(int L, int R) {
-    unordered_set<int> primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-    unordered_map<int, int> n_to_bits;
-    int res = 0;
-    for (int i = L; i <= R; i++) {
-      int bits;
-      if (n_to_bits.count(i)) {
-        bits = n_to_bits[i / 2] + (i % 2);
-      } else {
-        bits = numbits(i);
-      }
-      n_to_bits[i] = bits;
-      res += primes.count(bits);
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-763. Partition Labels
-A string S of lowercase letters is given. We want to partition this string into
-as many parts as possible so that each letter appears in at most one part, and
-return a list of integers representing the size of these parts.
-
-Example 1:
-Input: S = "ababcbacadefegdehijhklij"
-Output: [9,7,8]
-Explanation:
-The partition is "ababcbaca", "defegde", "hijhklij".
-This is a partition so that each letter appears in at most one part.
-A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits
-S into less parts. Note:
-
-S will have length in range [1, 500].
-S will consist of lowercase letters ('a' to 'z') only.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 10 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  everytime a letter is visited, update right to be max right and
-  the index of the furthest right of this character
-  if i == right it means all the caharacters between i and the previous pushed
-  number contains letters that do not appear in any other part of the string.
-  */
-  vector<int> partitionLabels(string S) {
-    unordered_map<char, int> last_seen;
-    int N = S.size();
-    for (int i = 0; i < N; i++) last_seen[S[i]] = i;
-    int right = 0;
-
-    vector<int> res;
-    for (int i = 0; i < N; i++) {
-      right = max(right, last_seen[S[i]]);
-      if (i == right) res.push_back(i + 1);
-    }
-
-    for (int i = res.size() - 1; i >= 1; i--) res[i] -= res[i - 1];
-    return res;
   }
 };
 

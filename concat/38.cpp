@@ -1,6 +1,416 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+871. Minimum Number of Refueling Stops
+A car travels from a starting position to a destination which is target miles 
+east of the starting position. 
+
+Along the way, there are gas stations.  Each station[i] represents a gas station 
+that is station[i][0] miles east of the starting position, and has station[i][1] 
+liters of gas. 
+
+The car starts with an infinite tank of gas, which initially 
+has startFuel liters of fuel in it.  It uses 1 liter of gas per 1 mile that it 
+drives. 
+
+When the car reaches a gas station, it may stop and refuel, transferring all the 
+gas from the station into the car. 
+
+What is the least number of refueling stops the car must make in order to reach 
+its destination?  If it cannot reach the destination, return -1. 
+
+Note that if the car reaches a gas station with 0 fuel left, the car can still 
+refuel there.  If the car reaches the destination with 0 fuel left, it is still 
+considered to have arrived. 
+
+ 
+
+
+Example 1:
+
+Input: target = 1, startFuel = 1, stations = []
+Output: 0
+Explanation: We can reach the target without refueling.
+
+
+
+Example 2:
+
+Input: target = 100, startFuel = 1, stations = [[10,100]]
+Output: -1
+Explanation: We can't reach the target (or even the first gas station).
+
+
+
+Example 3:
+
+Input: target = 100, startFuel = 10, stations = 
+[[10,60],[20,30],[30,30],[60,40]] 
+Output: 2
+Explanation: 
+We start with 10 liters of fuel.
+We drive to position 10, expending 10 liters of fuel.  We refuel from 0 liters 
+to 60 liters of gas. 
+Then, we drive from position 10 to position 60 (expending 50 liters of fuel),
+and refuel from 10 liters to 50 liters of gas.  We then drive to and reach the 
+target. 
+We made 2 refueling stops along the way, so we return 2.
+
+
+ 
+
+Note:
+
+
+    1 <= target, startFuel, stations[i][1] <= 10^9
+    0 <= stations.length <= 500
+    0 < stations[0][0] < stations[1][0] < ... < stations[stations.length-1][0] < 
+target 
+
+/*
+    Submission Date: 2018-07-15
+    Runtime: 44 ms
+    Difficulty: HARD
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+public:
+    int minRefuelStops(int target, int startFuel, vector<vector<int>>& stations) {
+        typedef long long ll;
+        int N = stations.size();
+        
+        // dp[t] is the furthest distance you can go with t number of refuels
+        // so for a new stations[i] that is smaller distance than dp[t]
+        // we can take a refuel (e.g update dp[t+1]) and have a new larger distance
+        // by refueling at stations[i]
+        vector<ll> dp(N + 1, 0);
+        dp[0] = startFuel;
+        for(int i = 0; i < N; i++) {
+            for(int t = i; t >= 0; t--) {
+                if(dp[t] >= stations[i][0]) {
+                    dp[t+1] = max(dp[t+1], dp[t] + stations[i][1]);
+                }
+            }
+        }
+        
+        for(int t = 0; t <= N; t++) if(dp[t] >= target) return t;
+        return -1;
+    }
+};
+        
+
+class Solution3 {
+public:
+    int minRefuelStops(int target, int startFuel, vector<vector<int>>& s) {
+        typedef long long ll;
+        priority_queue<int> pq;
+        // keep travelling until can't travel any more than use the largest fuel seen
+        int res = 0;
+        ll dist = startFuel;
+        int ind = 0;
+        while(true) {
+            while(ind < s.size() && s[ind][0] <= dist) {
+                pq.push(s[ind][1]);
+                ind++;
+            }
+            
+            if(dist >= target) return res;
+            if(pq.empty()) return -1;
+            // take largest refuel from pq
+            dist += pq.top();
+            pq.pop();
+            res++;
+        }
+    }
+};
+
+class Solution2 {
+public:
+    int minRefuelStops(int target, int startFuel, vector<vector<int>>& s) {
+        vector<vector<int>> stations;
+        stations.push_back({0, 0});
+        for(const auto& v: s) stations.push_back(v);
+        stations.push_back({target, 0});
+        
+        int N = stations.size();
+        // dp[i][j] = x where x is the minimum refuels to reach station i with j battery remaining
+        vector<unordered_map<int,int>> dp(N);
+        dp[0][startFuel] = 0; 
+        
+        int res = INT_MAX;
+        
+        for(int i = 0; i < N; i++) {
+            for(auto battery_to_min: dp[i]) {
+                int battery = battery_to_min.first;
+                
+                if(battery >= stations[N-1][0] - stations[i][0]) { // can reach target
+                    res = min(res, battery_to_min.second);
+                    continue;
+                }
+                
+                // dont use station i
+                for(int j = i + 1; j < N; j++) {
+                    int rem = battery - (stations[j][0] - stations[i][0]);
+                    if(rem < 0) break;
+                    if(!dp[j].count(rem) || dp[j][rem] > battery_to_min.second)
+                        dp[j][rem] = battery_to_min.second;
+                }
+                
+                // use station i
+                for(int j = i + 1; j < N; j++) {
+                    int rem = battery - (stations[j][0] - stations[i][0]);
+                    if(rem < 0) break;
+                    rem += stations[j][1];
+                    if(!dp[j].count(rem) || dp[j][rem] > battery_to_min.second + 1)
+                        dp[j][rem] = battery_to_min.second + 1;
+                }
+            }
+        }
+        
+        return res == INT_MAX ? -1 : res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+872. Leaf-Similar Trees
+Consider all the leaves of a binary tree.  From left to right order, the values
+of those leaves form a leaf value sequence.
+
+For example, in the given tree above, the leaf value sequence is (6, 7, 4, 9,
+8).
+
+Two binary trees are considered leaf-similar if their leaf value sequence is the
+same.
+
+Return true if and only if the two given trees with head nodes root1 and root2
+are leaf-similar.
+
+Note:
+
+  Both of the given trees will have between 1 and 100 nodes.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  void inorder(TreeNode* root, vector<int>& leaf) {
+    if (root) {
+      if (root->left == NULL && root->right == NULL) {
+        leaf.push_back(root->val);
+      }
+
+      inorder(root->left, leaf);
+      inorder(root->right, leaf);
+    }
+  }
+
+  bool leafSimilar(TreeNode* root1, TreeNode* root2) {
+    vector<int> leaf1, leaf2;
+    inorder(root1, leaf1);
+    inorder(root2, leaf2);
+
+    if (leaf1.size() != leaf2.size()) return false;
+    for (int i = 0; i < leaf1.size(); i++)
+      if (leaf1[i] != leaf2[i]) return false;
+    return true;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+874. Walking Robot Simulation
+A robot on an infinite grid starts at point (0, 0) and faces north.  The robot
+can receive one of three possible types of commands:
+
+  -2: turn left 90 degrees
+  -1: turn right 90 degrees
+  1 <= x <= 9: move forward x units
+
+Some of the grid squares are obstacles. 
+
+The i-th obstacle is at grid point (obstacles[i][0], obstacles[i][1])
+
+If the robot would try to move onto them, the robot stays on the previous grid
+square instead (but still continues following the rest of the route.)
+
+Return the square of the maximum Euclidean distance that the robot will be from
+the origin.
+
+Example 1:
+
+Input: commands = [4,-1,3], obstacles = []
+Output: 25
+Explanation: robot will go to (3, 4)
+
+Example 2:
+
+Input: commands = [4,-1,4,-2,4], obstacles = [[2,4]]
+Output: 65
+Explanation: robot will be stuck at (1, 4) before turning left and going to (1,
+8)
+
+Note:
+
+  0 <= commands.length <= 10000
+  0 <= obstacles.length <= 10000
+  -30000 <= obstacle[i][0] <= 30000
+  -30000 <= obstacle[i][1] <= 30000
+  The answer is guaranteed to be less than 2 ^ 31.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 120 ms
+  Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int dx = 0;
+  int dy = 1;
+
+  /*
+  0,1 => 1,0 => 0,-1 => -1,0
+  */
+  void rotateCW() {
+    swap(dx, dy);
+    dy = -dy;
+  }
+
+  /*
+  0,1 => -1,0 => 0,-1 => 1,0
+  */
+  void rotateCCW() {
+    swap(dx, dy);
+    dx = -dx;
+  }
+
+  int robotSim(vector<int>& commands, vector<vector<int>>& obstacles) {
+    int mx = 0;
+    int my = 0;
+    long long res = pow(mx, 2LL) + pow(my, 2LL);
+    unordered_set<string> st;
+    for (auto& p : obstacles) {
+      st.insert(to_string(p[0]) + "," + to_string(p[1]));
+    }
+
+    for (auto& c : commands) {
+      if (c == -2) {  // left
+        rotateCCW();
+      } else if (c == -1) {  // right
+        rotateCW();
+      } else {  // forward
+        for (int i = 1; i <= c; i++) {
+          string key = to_string(mx + dx) + "," + to_string(my + dy);
+          if (st.count(key)) break;
+
+          mx += dx;
+          my += dy;
+
+          long long pos = pow(mx, 2LL) + pow(my, 2LL);
+          res = max(res, pos);
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+876. Middle of the Linked List
+Given a non-empty, singly linked list with head node head, return a middle node
+of linked list.
+
+If there are two middle nodes, return the second middle node.
+
+Example 1:
+
+Input: [1,2,3,4,5]
+Output: Node 3 from this list (Serialization: [3,4,5])
+The returned node has value 3.  (The judge's serialization of this node is
+[3,4,5]).
+Note that we returned a ListNode object ans, such that:
+ans.val = 3, ans.next.val = 4, ans.next.next.val = 5, and ans.next.next.next =
+NULL.
+
+Example 2:
+
+Input: [1,2,3,4,5,6]
+Output: Node 4 from this list (Serialization: [4,5,6])
+Since the list has two middle nodes with values 3 and 4, we return the second
+one.
+
+Note:
+
+  The number of nodes in the given list will be between 1 and 100.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+  int val;
+  ListNode* next;
+  ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+ public:
+  ListNode* middleNode(ListNode* head) {
+    ListNode *slow = head, *fast = head;
+
+    while (fast && fast->next) {
+      slow = slow->next;
+      fast = fast->next->next;
+    }
+
+    return slow;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 877. Stone Game
 Alex and Lee play a game with piles of stones.  There are an even number
 of piles arranged in a row, and each pile has a positive integer number of
@@ -584,391 +994,6 @@ class Solution {
       if (can_insert) res.push_back(w);
     }
 
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-892. Surface Area of 3D Shapes
-On a N * N grid, we place some 1 * 1 * 1 cubes.
-
-Each value v = grid[i][j] represents a tower of v cubes placed on top of grid
-cell (i, j).
-
-Return the total surface area of the resulting shapes.
-
-Example 1:
-
-Input: [[2]]
-Output: 10
-
-Example 2:
-
-Input: [[1,2],[3,4]]
-Output: 34
-
-Example 3:
-
-Input: [[1,0],[0,2]]
-Output: 16
-
-Example 4:
-
-Input: [[1,1,1],[1,0,1],[1,1,1]]
-Output: 32
-
-Example 5:
-
-Input: [[2,2,2],[2,1,2],[2,2,2]]
-Output: 46
-
-Note:
-
-  1 <= N <= 50
-  0 <= grid[i][j] <= 50
-/*
-  Submission Date: 2019-01-26
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-  int di[2] = {-1, 0};
-  int dj[2] = {0, -1};
-
- public:
-  int surfaceArea(vector<vector<int>>& grid) {
-    int res = 0;
-    for (int i = 0; i < grid.size(); i++) {
-      for (int j = 0; j < grid[i].size(); j++) {
-        if (grid[i][j] == 0) continue;
-        res += 4 * grid[i][j] + 2;
-        for (int k = 0; k < 2; k++) {
-          int n_i = i + di[k];
-          int n_j = j + dj[k];
-          if (0 <= n_i && n_i < grid.size() && 0 <= n_j &&
-              n_j < grid[j].size()) {
-            res -= 2 * min(grid[i][j], grid[n_i][n_j]);
-          }
-        }
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-893. Groups of Special-Equivalent Strings
-You are given an array A of strings.
-
-Two strings S and T are special-equivalent if after any number of moves, S == T.
-
-A move consists of choosing two indices i and j with i % 2 == j % 2, and
-swapping S[i] with S[j].
-
-Now, a group of special-equivalent strings from A is a non-empty subset S of
-A such that any string not in S is not special-equivalent with any string in S.
-
-Return the number of groups of special-equivalent strings from A.
-
-Example 1:
-
-Input: ["a","b","c","a","c","c"]
-Output: 3
-Explanation: 3 groups ["a","a"], ["b"], ["c","c","c"]
-
-Example 2:
-
-Input: ["aa","bb","ab","ba"]
-Output: 4
-Explanation: 4 groups ["aa"], ["bb"], ["ab"], ["ba"]
-
-Example 3:
-
-Input: ["abc","acb","bac","bca","cab","cba"]
-Output: 3
-Explanation: 3 groups ["abc","cba"], ["acb","bca"], ["bac","cab"]
-
-Example 4:
-
-Input: ["abcd","cdab","adcb","cbad"]
-Output: 1
-Explanation: 1 group ["abcd","cdab","adcb","cbad"]
-
-Note:
-
-  1 <= A.length <= 1000
-  1 <= A[i].length <= 20
-  All A[i] have the same length.
-  All A[i] consist of only lowercase letters.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int numSpecialEquivGroups(vector<string>& A) {
-    unordered_map<string, int> freq;
-
-    for (const auto& s : A) {
-      string even = "";
-      string odd = "";
-      for (int i = 0; i < s.size(); i++) {
-        if (i % 2 == 0) {
-          even.push_back(s[i]);
-        } else {
-          odd.push_back(s[i]);
-        }
-      }
-
-      sort(even.begin(), even.end());
-      sort(odd.begin(), odd.end());
-
-      freq[even + odd]++;
-    }
-
-    return freq.size();
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-894. All Possible Full Binary Trees
-A full binary tree is a binary tree where each node has exactly 0 or 2 children.
-
-Return a list of all possible full binary trees with N nodes.  Each element of
-the answer is the root node of one possible tree.
-
-Each node of each tree in the answer must have node.val = 0.
-
-You may return the final list of trees in any order.
-
- 
-
-Example 1:
-
-Input: 7
-Output:
-[[0,0,0,null,null,0,0,null,null,0,0],[0,0,0,null,null,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,null,null,null,null,0,0],[0,0,0,0,0,null,null,0,0]]
-Explanation:
-
-
-
- 
-
-Note:
-
-
-  1 <= N <= 20
-/*
-  Submission Date: 2019-01-25
-  Runtime: 68 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  vector<TreeNode*> allPossibleFBT(int N) {
-    if (N == 0) return {};
-
-    vector<vector<TreeNode*>> dp(N + 1);
-    dp[1] = {new TreeNode(0)};
-
-    for (int i = 1; i <= N; i += 2) {
-      for (int j = 1; j < i; j += 2) {
-        for (const auto& l : dp[j]) {
-          for (const auto& r : dp[i - 1 - j]) {
-            TreeNode* node = new TreeNode(0);
-            node->left = l;
-            node->right = r;
-            dp[i].push_back(node);
-          }
-        }
-      }
-    }
-
-    return dp[N];
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-896. Monotonic Array
-An array is monotonic if it is either monotone increasing or monotone
-decreasing.
-
-An array A is monotone increasing if for all i <= j, A[i] <= A[j].  An array A
-is monotone decreasing if for all i <= j, A[i] >= A[j].
-
-Return true if and only if the given array A is monotonic.
-
-Example 1:
-
-Input: [1,2,2,3]
-Output: true
-
-Example 2:
-
-Input: [6,5,4,4]
-Output: true
-
-Example 3:
-
-Input: [1,3,2]
-Output: false
-
-Example 4:
-
-Input: [1,2,4,5]
-Output: true
-
-Example 5:
-
-Input: [1,1,1]
-Output: true
-
-Note:
-
-  1 <= A.length <= 50000
-  -100000 <= A[i] <= 100000
-/*
-  Submission Date: 2019-01-26
-  Runtime: 96 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool isMonotonic(vector<int>& A) {
-    int inc_cnt = 1;
-    int dec_cnt = 1;
-    for (int i = 1; i < A.size(); i++) {
-      inc_cnt += A[i] >= A[i - 1];
-      dec_cnt += A[i] <= A[i - 1];
-    }
-
-    return inc_cnt == A.size() || dec_cnt == A.size();
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-897. Increasing Order Search Tree
-Given a tree, rearrange the tree in in-order so that the leftmost node in the
-tree is now the root of the tree, and every node has no left child and only 1
-right child.
-
-Example 1:
-Input: [5,3,6,2,4,null,8,1,null,null,null,7,9]
-
-       5
-      / \
-    3    6
-   / \    \
-  2   4    8
- /        / \
-1        7   9
-
-Output: [1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]
-
- 1
-  \
-   2
-    \
-     3
-      \
-       4
-        \
-         5
-          \
-           6
-            \
-             7
-              \
-               8
-                \
-                 9
-
-Note:
-
-  The number of nodes in the given tree will be between 1 and 100.
-  Each node will have a unique integer value from 0 to 1000.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 72 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  void inorder(TreeNode* curr, TreeNode** last, TreeNode** res) {
-    if (curr) {
-      inorder(curr->left, last, res);
-      if (*last) {
-        (*last)->right = curr;
-      }
-
-      *last = curr;
-      if (*res == NULL) {
-        *res = curr;
-      }
-
-      curr->left = NULL;
-      inorder(curr->right, last, res);
-    }
-  }
-  TreeNode* increasingBST(TreeNode* root) {
-    TreeNode *res = NULL, *last = NULL;
-    inorder(root, &last, &res);
     return res;
   }
 };

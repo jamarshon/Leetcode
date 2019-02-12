@@ -154,5 +154,8 @@ bool IsPrime(int n) {
 
 int main() {
   mutex m;
+  vector<int> a{1, 2, 3};
+  auto it = lower_bound(a.begin(), a.end(), 4);
+  cout << it - a.begin() << ' ' << (it == a.end()) << endl;
   return 0;
 }

@@ -46,6 +46,41 @@ using namespace std;
 
 class Solution {
  public:
+  /*
+  populate freq with frequency of letters in p.
+  use sliding window and everytime a letter is added decrease
+  its frequency in freq and remove it if it is zero.
+  when a letter is removed, increase its frequency in freq
+  and again remove it if it is zero.
+  The idea is when freq is empty and since it only contains
+  M letters than the original distribution of letters (p)
+  must be in the current window.
+  */
+  vector<int> findAnagrams(string s, string p) {
+    int N = s.size();
+    int M = p.size();
+    if (M > N) return {};
+    vector<int> res;
+    unordered_map<char, int> freq;
+    for (const auto& c : p) freq[c]++;
+
+    for (int i = 0; i < N; i++) {
+      freq[s[i]]--;
+      if (freq[s[i]] == 0) freq.erase(s[i]);
+      if (i >= M) {
+        freq[s[i - M]]++;
+        if (freq[s[i - M]] == 0) freq.erase(s[i - M]);
+      }
+
+      if (freq.empty()) res.push_back(i - M + 1);
+    }
+
+    return res;
+  }
+};
+
+class Solution2 {
+ public:
   vector<int> findAnagrams(string s, string p) {
     vector<int> res;
     int M = s.size();

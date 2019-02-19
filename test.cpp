@@ -154,6 +154,5 @@ bool IsPrime(int n) {
 
 int main() {
   mutex m;
-  cout << min(string("ab"), string("aba")) << endl;
   return 0;
 }

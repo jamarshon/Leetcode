@@ -156,6 +156,5 @@ int main() {
   pair<int, int> p{1, 2};
   int a, b;
   tie(a, b) = p;
-  unordered_set<pair<int, int>> m;
   return 0;
 }

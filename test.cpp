@@ -152,9 +152,4 @@ bool IsPrime(int n) {
   return true;
 }
 
-int main() {
-  pair<int, int> p{1, 2};
-  int a, b;
-  tie(a, b) = p;
-  return 0;
-}
+int main() { return 0; }

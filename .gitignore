@@ -2,5 +2,5 @@
 done.txt
 to_do.txt
 paste.txt
-leetcode.sublime-project
-leetcode.sublime-workspace
+*.sublime-project
+*.sublime-workspace

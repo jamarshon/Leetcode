@@ -145,11 +145,4 @@ void print(vector<T> v)
 void print2(vector<vector<T>> v)
 */
 
-bool IsPrime(int n) {
-  if (n < 2) return false;
-  for (int i = 2; i <= n / i; i++)
-    if (n % i == 0) return false;
-  return true;
-}
-
 int main() { return 0; }

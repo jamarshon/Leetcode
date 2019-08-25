@@ -14,7 +14,13 @@ javascript: (function() {
     return e[0]
   };
 
-  var main_tabs = document.getElementById('question-detail-main-tabs');
+  var get2 = function(name) {
+    var e = document.querySelectorAll(name);
+    JASSERT(e.length === 1);
+    return e[0];
+  }
+
+  var main_tabs = get2('[data-cy="question-detail-main-tabs"]');
   var description = main_tabs.childNodes[1].firstChild;
   var question_div = description.firstChild;
 

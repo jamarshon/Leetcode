@@ -1,6 +1,330 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+858. Mirror Reflection
+There is a special square room with mirrors on each of the four walls.  Except
+for the southwest corner, there are receptors on each of the remaining corners,
+numbered 0, 1, and 2.
+
+The square room has walls of length p, and a laser ray from the southwest
+corner first meets the east wall at a distance q from the 0th receptor.
+
+Return the number of the receptor that the ray meets first.  (It is guaranteed
+that the ray will meet a receptor eventually.)
+
+Example 1:
+
+Input: p = 2, q = 1
+Output: 2
+Explanation: The ray meets receptor 2 the first time it gets reflected back to
+the left wall.
+
+Note:
+
+  1 <= p <= 1000
+  0 <= q <= p
+/*
+  Submission Date: 2019-02-17
+  Runtime: 4 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  expand these pxp blocks so that they form a grid in cartesian
+  the line q/p*x must intersect with a point that is (aq, bq)
+  where a is the number of qblocks horizontally and b is for vertically
+
+  q/p*(aq) = bq
+  aq^2/p = bq
+  aq/p = b
+  aq = bp
+
+  so find lcm of p and q and this would equal aq and bp
+  lcm(c,d) = c*d/gcd(c,d)
+
+
+  for the qblocks if a is even it means the receptors are in the same place
+  else it is flipped horizontally
+  if b is odd it is flipped vertically
+
+  a = p/gcd(p,q)
+  b = q/gcd(p,q)
+
+  the grid for the qblocks would be (bottom row is a,b = 0,0)
+  ...
+  [2,1,2,1,2]...
+  [0,x,0,x,0]...
+  [2,1,2,1,2]...
+  [x,0,x,0,x]...
+
+  the guarantee is that the cell will not end on x
+  */
+  int gcd(int a, int b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+  }
+
+  int mirrorReflection(int p, int q) {
+    int g = gcd(p, q);
+    int a = p / g;
+    int b = q / g;
+    if (b % 2 == 0) {
+      // not going to be x
+      return 0;
+    } else {
+      return a % 2 == 0 ? 2 : 1;
+    }
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+859. Buddy Strings
+Given two strings A and B of lowercase letters, return true if and only if we
+can swap two letters in A so that the result equals B.
+
+ 
+
+Example 1:
+
+Input: A = "ab", B = "ba"
+Output: true
+Example 2:
+
+Input: A = "ab", B = "ab"
+Output: false
+Example 3:
+
+Input: A = "aa", B = "aa"
+Output: true
+Example 4:
+
+Input: A = "aaaaaaabc", B = "aaaaaaacb"
+Output: true
+Example 5:
+
+Input: A = "", B = "aa"
+Output: false
+/*
+    Submission Date: 2018-06-24
+    Runtime: 9 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool buddyStrings(string A, string B) {
+    if (A.size() != B.size()) return false;
+
+    vector<int> diff;
+    for (int i = 0; i < A.size(); i++) {
+      if (A[i] != B[i]) {
+        diff.push_back(i);
+        if (diff.size() > 2) return false;
+      }
+    }
+
+    if (diff.size() == 1) return false;
+    if (diff.size() == 0)
+      return unordered_set<char>(A.begin(), A.end()).size() < A.size();
+    return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+860. Lemonade Change
+At a lemonade stand, each lemonade costs $5.
+
+Customers are standing in a queue to buy from you, and order one at a time
+(in the order specified by bills).
+
+Each customer will only buy one lemonade and pay with either a $5, $10, or $20
+bill. You must provide the correct change to each customer, so that the net
+transaction is that the customer pays $5.
+
+Note that you don't have any change in hand at first.
+
+Return true if and only if you can provide every customer with correct change.
+
+ 
+
+Example 1:
+
+Input: [5,5,5,10,20]
+Output: true
+Explanation:
+From the first 3 customers, we collect three $5 bills in order.
+From the fourth customer, we collect a $10 bill and give back a $5.
+From the fifth customer, we give a $10 bill and a $5 bill.
+Since all customers got correct change, we output true.
+Example 2:
+
+Input: [5,5,10]
+Output: true
+Example 3:
+
+Input: [10,10]
+Output: false
+Example 4:
+
+Input: [5,5,10,10,20]
+Output: false
+Explanation:
+From the first two customers in order, we collect two $5 bills.
+For the next two customers in order, we collect a $10 bill and give back a $5
+bill. For the last customer, we can't give change of $15 back because we only
+have two $10 bills. Since not every customer received correct change, the answer
+is false.
+ 
+
+Note:
+
+0 <= bills.length <= 10000
+bills[i] will be either 5, 10, or 20.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 30 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool lemonadeChange(vector<int>& bills) {
+    // change[0] is number of 5's and change[1] is number of 10's.
+    // 20's will never be given back so no need to count them.
+    vector<int> change(2, 0);
+    for (const auto& e : bills) {
+      if (e == 5) {
+        change[0]++;
+      } else if (e == 10) {  // can only give a 5 back
+        if (change[0] == 0) return false;
+        change[0]--;
+        change[1]++;
+      } else {  // e == 20 can give back either 5 and 10 or 3 fives
+        if (change[1] > 0 &&
+            change[0] >
+                0) {  // try to give back the 10 first as it is less useful
+          change[1]--;
+          change[0]--;
+        } else if (change[0] >= 3) {
+          change[0] -= 3;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+861. Score After Flipping Matrix
+We have a two dimensional matrix A where each value is 0 or 1.
+
+A move consists of choosing any row or column, and toggling each value in that
+row or column: changing all 0s to 1s, and all 1s to 0s.
+
+After making any number of moves, every row of this matrix is interpreted as a
+binary number, and the score of the matrix is the sum of these numbers.
+
+Return the highest possible score.
+
+ 
+
+Example 1:
+
+Input: [[0,0,1,1],[1,0,1,0],[1,1,0,0]]
+Output: 39
+Explanation:
+Toggled to [[1,1,1,1],[1,0,0,1],[1,1,1,1]].
+0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
+ 
+
+Note:
+
+1 <= A.length <= 20
+1 <= A[0].length <= 20
+A[i][j] is 0 or 1.
+/*
+    Submission Date: 2018-07-01
+    Runtime: 5 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  void FlipRow(vector<vector<int>>& A, int row, int M) {
+    for (int j = 0; j < M; j++) A[row][j] ^= 1;
+  }
+
+  void FlipCol(vector<vector<int>>& A, int col, int N) {
+    for (int i = 0; i < N; i++) A[i][col] ^= 1;
+  }
+
+  /*
+  First get all the the elements in A[i][0] to be 1 by toggling rows
+  this is because having a 1 in the left most column gives the greatest value
+  1000 > 0111 Then for each column, flip the column if it gives a greater amount
+  of 1's in that column
+  */
+  int matrixScore(vector<vector<int>>& A) {
+    if (A.empty()) return 0;
+    int N = A.size(), M = A[0].size();
+    for (int i = 0; i < N; i++) {
+      if (A[i][0] == 0) {
+        FlipRow(A, i, M);
+      }
+    }
+
+    for (int j = 0; j < M; j++) {
+      int one_count = 0;
+      for (int i = 0; i < N; i++) one_count += A[i][j] == 1;
+      if (one_count < N - one_count) {
+        FlipCol(A, j, N);
+      }
+    }
+
+    int res = 0;
+    for (int i = 0; i < N; i++) {
+      int temp = 0;
+      for (int j = 0; j < M; j++) {
+        temp |= A[i][j];
+        temp <<= 1;
+      }
+      res += temp >> 1;
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 864. Shortest Path to Get All Keys
 We are given a 2-dimensional grid. "." is an empty cell, "#" is a wall, "@" is 
 the starting point, ("a", "b", ...) are keys, and ("A", "B", ...) are locks. 
@@ -637,192 +961,6 @@ public:
         return res;
     }
 };
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-869. Reordered Power of 2
-Starting with a positive integer N, we reorder the digits in any order 
-(including the original order) such that the leading digit is not zero. 
-
-Return true if and only if we can do this in a way such that the resulting 
-number is a power of 2. 
-
- 
-
-
-
-
-
-Example 1:
-
-Input: 1
-Output: true
-
-
-
-Example 2:
-
-Input: 10
-Output: false
-
-
-
-Example 3:
-
-Input: 16
-Output: true
-
-
-
-Example 4:
-
-Input: 24
-Output: false
-
-
-
-Example 5:
-
-Input: 46
-Output: true
-
-
- 
-
-Note:
-
-
-    1 <= N <= 10^9
-/*
-    Submission Date: 2018-07-15
-    Runtime: 0 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <algorithm>
-#include <unordered_set>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    generate all powers of 2 which has the same length as the number
-    compare the sorted number and the sorted power to see if they
-    are anagrams of each other, return true if so.
-    */
-    bool reorderedPowerOf2(int N) {
-        string s = to_string(N);
-        sort(s.begin(), s.end());
-        unordered_set<string> seen;
-
-        for(int i = 0; i < 50; i++) {
-            string a = to_string(1LL << i);
-            if(a.size() > s.size()) break;
-            if(a.size() < s.size()) continue;
-            // a.size() == s.size();
-            sort(a.begin(), a.end());
-            if(a == s) {
-                // cout << a << ' '  << s << endl;
-                return true;
-            }
-        }
-
-        return false;
-    }
-};
-
-int main() {
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-870. Advantage Shuffle
-Given two arrays A and B of equal size, the advantage of A with respect to B is 
-the number of indices i for which A[i] > B[i]. 
-
-Return any permutation of A that maximizes its advantage with respect to B.
-
- 
-
-
-Example 1:
-
-Input: A = [2,7,11,15], B = [1,10,4,11]
-Output: [2,11,7,15]
-
-
-
-Example 2:
-
-Input: A = [12,24,8,32], B = [13,25,32,11]
-Output: [24,32,8,12]
-
-
- 
-
-Note:
-
-
-    1 <= A.length = B.length <= 10000
-    0 <= A[i] <= 10^9
-    0 <= B[i] <= 10^9
-/*
-    Submission Date: 2018-07-15
-    Runtime: 124 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <unordered_set>
-#include <cassert>
-
-using namespace std;
-
-class Solution {
-public:
-    /*
-    sort A and B, then do two pointers to find the smallest element in A greater than B[i]
-    if there is no element then just assign the remaining elemnets in A to B.
-    */
-    vector<int> advantageCount(vector<int>& A, vector<int>& B) {
-        typedef pair<int,int> pii;
-        int N = A.size();
-        vector<int> res(N, -1);
-        sort(A.begin(), A.end());
-
-        vector<pii> B2;
-        for(int i = 0; i < N; i++) B2.emplace_back(B[i], i);
-        sort(B2.begin(), B2.end());
-
-        int i = 0, j = 0;
-        unordered_set<int> not_used;
-        for(int k = 0; k < N; k++) not_used.insert(k);
-
-        while(i < N) {
-            while(i < N && A[i] <= B2[j].first) i++;
-            if(i < N) {
-                res[B2[j].second] = A[i];
-                not_used.erase(i);
-                i++;
-                j++;
-            }
-        }
-
-        for(const auto& e: not_used) {
-            assert(j < N);
-            res[B2[j].second] = A[e];
-            j++;
-        }
-        return res;
-    }
-};
-
 int main() {
     return 0;
 }

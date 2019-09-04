@@ -1,6 +1,192 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+869. Reordered Power of 2
+Starting with a positive integer N, we reorder the digits in any order 
+(including the original order) such that the leading digit is not zero. 
+
+Return true if and only if we can do this in a way such that the resulting 
+number is a power of 2. 
+
+ 
+
+
+
+
+
+Example 1:
+
+Input: 1
+Output: true
+
+
+
+Example 2:
+
+Input: 10
+Output: false
+
+
+
+Example 3:
+
+Input: 16
+Output: true
+
+
+
+Example 4:
+
+Input: 24
+Output: false
+
+
+
+Example 5:
+
+Input: 46
+Output: true
+
+
+ 
+
+Note:
+
+
+    1 <= N <= 10^9
+/*
+    Submission Date: 2018-07-15
+    Runtime: 0 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <algorithm>
+#include <unordered_set>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    generate all powers of 2 which has the same length as the number
+    compare the sorted number and the sorted power to see if they
+    are anagrams of each other, return true if so.
+    */
+    bool reorderedPowerOf2(int N) {
+        string s = to_string(N);
+        sort(s.begin(), s.end());
+        unordered_set<string> seen;
+
+        for(int i = 0; i < 50; i++) {
+            string a = to_string(1LL << i);
+            if(a.size() > s.size()) break;
+            if(a.size() < s.size()) continue;
+            // a.size() == s.size();
+            sort(a.begin(), a.end());
+            if(a == s) {
+                // cout << a << ' '  << s << endl;
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+870. Advantage Shuffle
+Given two arrays A and B of equal size, the advantage of A with respect to B is 
+the number of indices i for which A[i] > B[i]. 
+
+Return any permutation of A that maximizes its advantage with respect to B.
+
+ 
+
+
+Example 1:
+
+Input: A = [2,7,11,15], B = [1,10,4,11]
+Output: [2,11,7,15]
+
+
+
+Example 2:
+
+Input: A = [12,24,8,32], B = [13,25,32,11]
+Output: [24,32,8,12]
+
+
+ 
+
+Note:
+
+
+    1 <= A.length = B.length <= 10000
+    0 <= A[i] <= 10^9
+    0 <= B[i] <= 10^9
+/*
+    Submission Date: 2018-07-15
+    Runtime: 124 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <unordered_set>
+#include <cassert>
+
+using namespace std;
+
+class Solution {
+public:
+    /*
+    sort A and B, then do two pointers to find the smallest element in A greater than B[i]
+    if there is no element then just assign the remaining elemnets in A to B.
+    */
+    vector<int> advantageCount(vector<int>& A, vector<int>& B) {
+        typedef pair<int,int> pii;
+        int N = A.size();
+        vector<int> res(N, -1);
+        sort(A.begin(), A.end());
+
+        vector<pii> B2;
+        for(int i = 0; i < N; i++) B2.emplace_back(B[i], i);
+        sort(B2.begin(), B2.end());
+
+        int i = 0, j = 0;
+        unordered_set<int> not_used;
+        for(int k = 0; k < N; k++) not_used.insert(k);
+
+        while(i < N) {
+            while(i < N && A[i] <= B2[j].first) i++;
+            if(i < N) {
+                res[B2[j].second] = A[i];
+                not_used.erase(i);
+                i++;
+                j++;
+            }
+        }
+
+        for(const auto& e: not_used) {
+            assert(j < N);
+            res[B2[j].second] = A[e];
+            j++;
+        }
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 871. Minimum Number of Refueling Stops
 A car travels from a starting position to a destination which is target miles 
 east of the starting position. 
@@ -345,6 +531,90 @@ class Solution {
     }
 
     return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+875. Koko Eating Bananas
+Koko loves to eat bananas.  There are N piles of bananas, the i-th pile has
+piles[i] bananas.  The guards have gone and will come back in H hours.
+
+Koko can decide her bananas-per-hour eating speed of K.  Each hour, she chooses
+some pile of bananas, and eats K bananas from that pile.  If the pile has less
+than K bananas, she eats all of them instead, and won't eat any more bananas
+during this hour.
+
+Koko likes to eat slowly, but still wants to finish eating all the bananas
+before the guards come back.
+
+Return the minimum integer K such that she can eat all the bananas within H
+hours.
+
+Example 1:
+
+Input: piles = [3,6,7,11], H = 8
+Output: 4
+
+Example 2:
+
+Input: piles = [30,11,23,4,20], H = 5
+Output: 30
+
+Example 3:
+
+Input: piles = [30,11,23,4,20], H = 6
+Output: 23
+
+Note:
+
+  1 <= piles.length <= 10^4
+  piles.length <= H <= 10^9
+  1 <= piles[i] <= 10^9
+/*
+  Submission Date: 2019-02-22
+  Runtime: 68 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  min K such that sum(ceil(A[i]/K)) <= H
+  do a binary search on K from [1,max(A[i])] to find the first
+  K that satisfies H.
+
+  when K=1 there is high cost and K=max(A[i]) there is low cost
+  if cost==H then increasing K will decrease the cost but
+  this is the minimum K for the answer.
+
+  if the cost is too large we need to increase K to lower the cost.
+  */
+  int minEatingSpeed(vector<int>& piles, int H) {
+    int low = 1;
+    int high = *max_element(piles.begin(), piles.end());
+    while (low <= high) {
+      int K = low + (high - low) / 2;
+      int cost = 0;
+      for (const auto& e : piles) cost += ceil((double)e / K);
+      if (cost == H) {
+        return K;
+      } else if (cost > H) {
+        // K needs to be larger
+        low = K + 1;
+      } else {
+        high = K - 1;
+      }
+    }
+
+    return low;
   }
 };
 
@@ -721,277 +991,6 @@ class Solution {
           }
         }
       }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-888. Fair Candy Swap
-Alice and Bob have candy bars of different sizes: A[i] is the size of the i-th
-bar of candy that Alice has, and B[j] is the size of the j-th bar of candy that
-Bob has.
-
-Since they are friends, they would like to exchange one candy bar each so that
-after the exchange, they both have the same total amount of candy.  (The total
-amount of candy a person has is the sum of the sizes of candy bars they have.)
-
-Return an integer array ans where ans[0] is the size of the candy bar that Alice
-must exchange, and ans[1] is the size of the candy bar that Bob must exchange.
-
-If there are multiple answers, you may return any one of them.  It is guaranteed
-an answer exists.
-
-Example 1:
-
-Input: A = [1,1], B = [2,2]
-Output: [1,2]
-
-Example 2:
-
-Input: A = [1,2], B = [2,3]
-Output: [1,2]
-
-Example 3:
-
-Input: A = [2], B = [1,3]
-Output: [2,3]
-
-Example 4:
-
-Input: A = [1,2,5], B = [2,4]
-Output: [5,4]
-
-Note:
-
-  1 <= A.length <= 10000
-  1 <= B.length <= 10000
-  1 <= A[i] <= 100000
-  1 <= B[i] <= 100000
-  It is guaranteed that Alice and Bob have different total amounts of candy.
-  It is guaranteed there exists an answer.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 64 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*sum_A + (B[j] - A[i]) == sum_B == (A[i] - B[j])
-  sum_A = sum_B + 2*A[i] - 2*B[j]
-  */
-  vector<int> fairCandySwap(vector<int>& A, vector<int>& B) {
-    int sum_A = 0;
-    int sum_B = 0;
-    for (auto& e : A) sum_A += e;
-    for (auto& e : B) sum_B += e;
-
-    unordered_set<int> B_set(B.begin(), B.end());
-    for (auto& e : A) {
-      int B_j = (sum_A - sum_B - 2 * e) / -2;
-      if (B_set.count(B_j)) return {e, B_j};
-    }
-
-    return {};
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-889. Construct Binary Tree from Preorder and Postorder Traversal
-Return any binary tree that matches the given preorder and postorder traversals.
-
-Values in the traversals pre and post are distinct positive integers.
-
-Example 1:
-
-Input: pre = [1,2,4,5,3,6,7], post = [4,5,2,6,7,3,1]
-Output: [1,2,3,4,5,6,7]
-
-Note:
-
-  1 <= pre.length == post.length <= 30
-  pre[] and post[] are both permutations of 1, 2, ..., pre.length.
-  It is guaranteed an answer exists. If there exists multiple answers, you can
-return any of them.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 8 ms
-  Difficulty: MEDIUM
-*/
-#include <cassert>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  /* traverse pre and create nodes from there. the stk represents
-  the current path of the tree (ie. from root to node). when the
-  stk last value is equal to post[j], it means the tree is done
-  so pop stk and increment j until it is no longer so. add the
-  pre[i] is either the left or right of the stack depending on
-  which is available.
-  */
-  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
-    vector<TreeNode*> stk;
-    stk.emplace_back(new TreeNode(pre[0]));
-    for (int i = 1, j = 0; i < pre.size(); i++) {
-      while (stk.back()->val == post[j]) {
-        j++;
-        stk.pop_back();
-      }
-
-      TreeNode* curr = new TreeNode(pre[i]);
-      if (stk.back()->left == NULL)
-        stk.back()->left = curr;
-      else
-        stk.back()->right = curr;
-      stk.emplace_back(curr);
-    }
-
-    return stk.front();
-  }
-};
-
-class Solution2 {
- public:
-  TreeNode* f(vector<int>& pre, int a, int b, vector<int>& post, int c, int d,
-              unordered_map<int, int>& val_to_post_ind) {
-    if (a > b || c > d) return NULL;
-    assert(b - a == d - c);
-
-    TreeNode* root = new TreeNode(pre[a]);
-
-    int furthest = -1;
-    for (int i = a + 1; i <= b; i++) {
-      int ind = val_to_post_ind[pre[i]];
-      furthest = max(furthest, ind);
-      if (furthest - c == i - (a + 1)) {
-        root->left = f(pre, a + 1, i, post, c, furthest, val_to_post_ind);
-        root->right =
-            f(pre, i + 1, b, post, furthest + 1, d - 1, val_to_post_ind);
-        break;
-      }
-    }
-
-    return root;
-  }
-
-  /*
-  we traverse from pre i = 1 to N looking for where pre[i] is in post, say it is
-  at j. it means every element from 0 to j must be in the tree so keep going
-  until the furthest j contains as many elements as i-1. These range must be the
-  left sub tree so partition both the pre and post from [1,i] [i+1, N] and [0,
-  furthest_j] [furthest_j + 1, N-1]
-  */
-  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
-    unordered_map<int, int> val_to_post_ind;
-    for (int i = 0; i < post.size(); i++) val_to_post_ind[post[i]] = i;
-    return f(pre, 0, pre.size() - 1, post, 0, pre.size() - 1, val_to_post_ind);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-890. Find and Replace Pattern
-You have a list of words and a pattern, and you want to know which words in
-words matches the pattern.
-
-A word matches the pattern if there exists a permutation of letters p so that
-after replacing every letter x in the pattern with p(x), we get the desired
-word.
-
-(Recall that a permutation of letters is a bijection from letters to letters:
-every letter maps to another letter, and no two letters map to the same letter.)
-
-Return a list of the words in words that match the given pattern. 
-
-You may return the answer in any order.
-
- 
-
-
-Example 1:
-
-Input: words = ["abc","deq","mee","aqq","dkd","ccc"], pattern = "abb"
-Output: ["mee","aqq"]
-Explanation: "mee" matches the pattern because there is a permutation {a -> m, b
--> e, ...}.
-"ccc" does not match the pattern because {a -> c, b -> c, ...} is not a
-permutation,
-since a and b map to the same letter.
-
- 
-
-Note:
-
-
-  1 <= words.length <= 50
-  1 <= pattern.length = words[i].length <= 20
-/*
-  Submission Date: 2019-01-25
-  Runtime: 4 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<string> findAndReplacePattern(vector<string>& words, string pattern) {
-    vector<string> res;
-    for (const auto& w : words) {
-      if (w.size() != pattern.size()) continue;
-      unordered_map<char, char> p;
-
-      unordered_set<char> used;
-      bool can_insert = true;
-      for (int i = 0; i < w.size(); i++) {
-        if (p.count(w[i])) {
-          if (p[w[i]] != pattern[i]) {
-            can_insert = false;
-            break;
-          }
-        } else {
-          if (used.count(pattern[i])) {
-            can_insert = false;
-            break;
-          } else {
-            p[w[i]] = pattern[i];
-            used.insert(pattern[i]);
-          }
-        }
-      }
-
-      if (can_insert) res.push_back(w);
     }
 
     return res;

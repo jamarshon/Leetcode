@@ -1,6 +1,97 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+437. Path Sum III
+You are given a binary tree in which each node contains an integer value.
+
+Find the number of paths that sum to a given value.
+
+The path does not need to start or end at the root or a leaf, but it must go
+downwards (traveling only from parent nodes to child nodes).
+
+The tree has no more than 1,000 nodes and the values are in the range -1,000,000
+to 1,000,000.
+
+Example:
+
+root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
+
+      10
+     /  \
+    5   -3
+   / \    \
+  3   2   11
+ / \   \
+3  -2   1
+
+Return 3. The paths that sum to 8 are:
+
+1.  5 -> 3
+2.  5 -> 2 -> 1
+3. -3 -> 11
+/*
+    Submission Date: 2018-06-09
+    Runtime: 28 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+  returns path sums from this root down (not necessarily reach leaf)
+  this is {root->val,
+          root->val + l for all l from f(root->left),
+          root->val + r for all r from f(root->left),
+          }
+  first one meets terminate the path here, second one means this extends a left
+  path and the last one extends a right path check if any of the new paths equal
+  sum to increase res
+  */
+  vector<int> help(TreeNode* root, int sum, int& res) {
+    if (root == NULL) return {};
+    vector<int> left = help(root->left, sum, res);
+    vector<int> right = help(root->right, sum, res);
+
+    if (root->val == sum) res++;
+
+    vector<int> paths;
+    paths.reserve(1 + left.size() + right.size());
+    paths.push_back(root->val);
+
+    for (const auto& l : left) {
+      paths.push_back(root->val + l);
+      if (paths.back() == sum) res++;
+    }
+
+    for (const auto& r : right) {
+      paths.push_back(root->val + r);
+      if (paths.back() == sum) res++;
+    }
+
+    return paths;
+  }
+
+  int pathSum(TreeNode* root, int sum) {
+    int res = 0;
+    help(root, sum, res);
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 438. Find All Anagrams in a String
 Given a string s and a non-empty string p, find all the start indices of p's
 anagrams in s.
@@ -47,6 +138,41 @@ The substring with start index = 2 is "ab", which is an anagram of "ab".
 using namespace std;
 
 class Solution {
+ public:
+  /*
+  populate freq with frequency of letters in p.
+  use sliding window and everytime a letter is added decrease
+  its frequency in freq and remove it if it is zero.
+  when a letter is removed, increase its frequency in freq
+  and again remove it if it is zero.
+  The idea is when freq is empty and since it only contains
+  M letters than the original distribution of letters (p)
+  must be in the current window.
+  */
+  vector<int> findAnagrams(string s, string p) {
+    int N = s.size();
+    int M = p.size();
+    if (M > N) return {};
+    vector<int> res;
+    unordered_map<char, int> freq;
+    for (const auto& c : p) freq[c]++;
+
+    for (int i = 0; i < N; i++) {
+      freq[s[i]]--;
+      if (freq[s[i]] == 0) freq.erase(s[i]);
+      if (i >= M) {
+        freq[s[i - M]]++;
+        if (freq[s[i - M]] == 0) freq.erase(s[i - M]);
+      }
+
+      if (freq.empty()) res.push_back(i - M + 1);
+    }
+
+    return res;
+  }
+};
+
+class Solution2 {
  public:
   vector<int> findAnagrams(string s, string p) {
     vector<int> res;
@@ -496,6 +622,80 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+449. Serialize and Deserialize BST
+Serialization is the process of converting a data structure or object into a
+sequence of bits so that it can be stored in a file or memory buffer, or
+transmitted across a network connection link to be reconstructed later in the
+same or another computer environment.
+
+Design an algorithm to serialize and deserialize a binary search tree. There is
+no restriction on how your serialization/deserialization algorithm should work.
+You just need to ensure that a binary search tree can be serialized to a string
+and this string can be deserialized to the original tree structure.
+
+The encoded string should be as compact as possible.
+
+Note: Do not use class member/global/static variables to store states. Your
+serialize and deserialize algorithms should be stateless.
+/*
+  Submission Date: 2019-02-20
+  Runtime: 52 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Codec {
+  /*
+  normally store preorder with null but since its bst, a preorder
+  without null is enough as the bst property determines whether
+  a node is a left child or right child.
+  */
+  TreeNode* deserializeHelper(const string& data, int& i, const int& l,
+                              const int& r) {
+    size_t comma_ind = data.find(",", i);
+    if (comma_ind == string::npos) return nullptr;
+    int val = stoi(data.substr(i, comma_ind - i));
+    // if outside bound, this node shouldn't be here
+    if (val < l || val > r) return nullptr;
+    i = comma_ind + 1;
+    TreeNode* node = new TreeNode(val);
+    node->left = deserializeHelper(data, i, l, val);
+    node->right = deserializeHelper(data, i, val, r);
+    return node;
+  }
+
+ public:
+  // Encodes a tree to a single string.
+  string serialize(TreeNode* root) {
+    if (!root) return "";
+    return to_string(root->val) + "," + serialize(root->left) +
+           serialize(root->right);
+  }
+
+  // Decodes your encoded data to tree.
+  TreeNode* deserialize(string data) {
+    int i = 0;
+    return deserializeHelper(data, i, INT_MIN, INT_MAX);
+  }
+};
+
+// Your Codec object will be instantiated and called as such:
+// Codec codec;
+// codec.deserialize(codec.serialize(root));
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 451. Sort Characters By Frequency
 Given a string, sort it in decreasing order based on the frequency of
 characters.
@@ -770,169 +970,6 @@ class Solution {
       while (j < s.size() && g[i] > s[j]) j++;
       if (j >= s.size()) break;
       j++;
-      res++;
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-458. Poor Pigs
-There are 1000 buckets, one and only one of them contains poison, the rest are
-filled with water. They all look the same. If a pig drinks that poison it will
-die within 15 minutes. What is the minimum amount of pigs you need to figure out
-which bucket contains the poison within one hour.
-
-Answer this question, and write an algorithm for the follow-up general case.
-
-Follow-up:
-
-If there are n buckets and a pig drinking poison will die within m minutes, how
-many pigs (x) you need to figure out the "poison" bucket within p minutes? There
-is exact one bucket with poison.
-
-/*
-    Submission Date: 2018-07-13
-    Runtime: 0 ms
-    Difficulty: EASY
-*/
-#include <cmath>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  there are minutesToTest/minutesToDie opportunities e.g 60/15=4
-  to try. create minutesToTest/minutesToDie + 1 values in a dimension,
-  create as many pigs as dimensions who takes one entry along a certain
-  dimension every minutesToDie. the +1 means when minutesToTest is over, then
-  the last entry has to be the one.
-  
-  e.g suppose 2 dimensions (pigs) with 5 values in a dimension, one pig can take
-  every potion in a row every minutesToDie and another pig can take
-  every potion in a col every minutesToDie. thus, they can find
-  the poison for 5^2. if there was 3 pigs, then 5^3 and so on.
-  
-  entries = minutesToTest/minutesToDie + 1
-  entries^pigs > buckets
-  log(buckets)/log(entries) > buckets
-  */
-  int poorPigs(int buckets, int minutesToDie, int minutesToTest) {
-    int entries = minutesToTest / minutesToDie + 1;
-    return ceil(log(buckets) / log(entries));
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-459. Repeated Substring Pattern
-Given a non-empty string check if it can be constructed by taking a substring of
-it and appending multiple copies of the substring together. You may assume the
-given string consists of lowercase English letters only and its length will not
-exceed 10000. Example 1: Input: "abab"
-
-Output: True
-
-Explanation: It's the substring "ab" twice.
-Example 2:
-Input: "aba"
-
-Output: False
-Example 3:
-Input: "abcabcabcabc"
-
-Output: True
-
-Explanation: It's the substring "abc" four times. (And the substring "abcabc"
-twice.)
-/*
-    Submission Date: 2018-06-09
-    Runtime: 53 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  bool repeatedSubstringPattern(string s) {
-    int N = s.size();
-
-    for (int i = 1; i <= N / 2; i++) {
-      if (N % i == 0) {
-        // N can be split into parts containing i elements
-        string pos = "";
-        string part = s.substr(0, i);
-        for (int j = 0; j < N / i; j++) {
-          pos += part;
-        }
-
-        if (s == pos) return true;
-      }
-    }
-
-    return false;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-461. Hamming Distance
-The Hamming distance between two integers is the number of positions at which
-the corresponding bits are different.
-
-Given two integers x and y, calculate the Hamming distance.
-
-Note:
-0 ≤ x, y < 2^31.
-
-Example:
-
-Input: x = 1, y = 4
-
-Output: 2
-
-Explanation:
-1   (0 0 0 1)
-4   (0 1 0 0)
-       ↑   ↑
-
-The above arrows point to positions where the corresponding bits are different.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int hammingDistance(int x, int y) {
-    int res = 0;
-    while (x && y) {
-      res += (x % 2) != (y % 2);  // check if last bit are different
-      x /= 2;
-      y /= 2;
-    }
-
-    while (x) {
-      x &= (x - 1);  // y is all zeros so just count number of ones in x
-      res++;
-    }
-
-    while (y) {
-      y &= (y - 1);  // x is all zeros so just count number of ones in y
       res++;
     }
 

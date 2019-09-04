@@ -1,6 +1,277 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+888. Fair Candy Swap
+Alice and Bob have candy bars of different sizes: A[i] is the size of the i-th
+bar of candy that Alice has, and B[j] is the size of the j-th bar of candy that
+Bob has.
+
+Since they are friends, they would like to exchange one candy bar each so that
+after the exchange, they both have the same total amount of candy.  (The total
+amount of candy a person has is the sum of the sizes of candy bars they have.)
+
+Return an integer array ans where ans[0] is the size of the candy bar that Alice
+must exchange, and ans[1] is the size of the candy bar that Bob must exchange.
+
+If there are multiple answers, you may return any one of them.  It is guaranteed
+an answer exists.
+
+Example 1:
+
+Input: A = [1,1], B = [2,2]
+Output: [1,2]
+
+Example 2:
+
+Input: A = [1,2], B = [2,3]
+Output: [1,2]
+
+Example 3:
+
+Input: A = [2], B = [1,3]
+Output: [2,3]
+
+Example 4:
+
+Input: A = [1,2,5], B = [2,4]
+Output: [5,4]
+
+Note:
+
+  1 <= A.length <= 10000
+  1 <= B.length <= 10000
+  1 <= A[i] <= 100000
+  1 <= B[i] <= 100000
+  It is guaranteed that Alice and Bob have different total amounts of candy.
+  It is guaranteed there exists an answer.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 64 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*sum_A + (B[j] - A[i]) == sum_B == (A[i] - B[j])
+  sum_A = sum_B + 2*A[i] - 2*B[j]
+  */
+  vector<int> fairCandySwap(vector<int>& A, vector<int>& B) {
+    int sum_A = 0;
+    int sum_B = 0;
+    for (auto& e : A) sum_A += e;
+    for (auto& e : B) sum_B += e;
+
+    unordered_set<int> B_set(B.begin(), B.end());
+    for (auto& e : A) {
+      int B_j = (sum_A - sum_B - 2 * e) / -2;
+      if (B_set.count(B_j)) return {e, B_j};
+    }
+
+    return {};
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+889. Construct Binary Tree from Preorder and Postorder Traversal
+Return any binary tree that matches the given preorder and postorder traversals.
+
+Values in the traversals pre and post are distinct positive integers.
+
+Example 1:
+
+Input: pre = [1,2,4,5,3,6,7], post = [4,5,2,6,7,3,1]
+Output: [1,2,3,4,5,6,7]
+
+Note:
+
+  1 <= pre.length == post.length <= 30
+  pre[] and post[] are both permutations of 1, 2, ..., pre.length.
+  It is guaranteed an answer exists. If there exists multiple answers, you can
+return any of them.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 8 ms
+  Difficulty: MEDIUM
+*/
+#include <cassert>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /* traverse pre and create nodes from there. the stk represents
+  the current path of the tree (ie. from root to node). when the
+  stk last value is equal to post[j], it means the tree is done
+  so pop stk and increment j until it is no longer so. add the
+  pre[i] is either the left or right of the stack depending on
+  which is available.
+  */
+  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+    vector<TreeNode*> stk;
+    stk.emplace_back(new TreeNode(pre[0]));
+    for (int i = 1, j = 0; i < pre.size(); i++) {
+      while (stk.back()->val == post[j]) {
+        j++;
+        stk.pop_back();
+      }
+
+      TreeNode* curr = new TreeNode(pre[i]);
+      if (stk.back()->left == NULL)
+        stk.back()->left = curr;
+      else
+        stk.back()->right = curr;
+      stk.emplace_back(curr);
+    }
+
+    return stk.front();
+  }
+};
+
+class Solution2 {
+ public:
+  TreeNode* f(vector<int>& pre, int a, int b, vector<int>& post, int c, int d,
+              unordered_map<int, int>& val_to_post_ind) {
+    if (a > b || c > d) return NULL;
+    assert(b - a == d - c);
+
+    TreeNode* root = new TreeNode(pre[a]);
+
+    int furthest = -1;
+    for (int i = a + 1; i <= b; i++) {
+      int ind = val_to_post_ind[pre[i]];
+      furthest = max(furthest, ind);
+      if (furthest - c == i - (a + 1)) {
+        root->left = f(pre, a + 1, i, post, c, furthest, val_to_post_ind);
+        root->right =
+            f(pre, i + 1, b, post, furthest + 1, d - 1, val_to_post_ind);
+        break;
+      }
+    }
+
+    return root;
+  }
+
+  /*
+  we traverse from pre i = 1 to N looking for where pre[i] is in post, say it is
+  at j. it means every element from 0 to j must be in the tree so keep going
+  until the furthest j contains as many elements as i-1. These range must be the
+  left sub tree so partition both the pre and post from [1,i] [i+1, N] and [0,
+  furthest_j] [furthest_j + 1, N-1]
+  */
+  TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+    unordered_map<int, int> val_to_post_ind;
+    for (int i = 0; i < post.size(); i++) val_to_post_ind[post[i]] = i;
+    return f(pre, 0, pre.size() - 1, post, 0, pre.size() - 1, val_to_post_ind);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+890. Find and Replace Pattern
+You have a list of words and a pattern, and you want to know which words in
+words matches the pattern.
+
+A word matches the pattern if there exists a permutation of letters p so that
+after replacing every letter x in the pattern with p(x), we get the desired
+word.
+
+(Recall that a permutation of letters is a bijection from letters to letters:
+every letter maps to another letter, and no two letters map to the same letter.)
+
+Return a list of the words in words that match the given pattern. 
+
+You may return the answer in any order.
+
+ 
+
+
+Example 1:
+
+Input: words = ["abc","deq","mee","aqq","dkd","ccc"], pattern = "abb"
+Output: ["mee","aqq"]
+Explanation: "mee" matches the pattern because there is a permutation {a -> m, b
+-> e, ...}.
+"ccc" does not match the pattern because {a -> c, b -> c, ...} is not a
+permutation,
+since a and b map to the same letter.
+
+ 
+
+Note:
+
+
+  1 <= words.length <= 50
+  1 <= pattern.length = words[i].length <= 20
+/*
+  Submission Date: 2019-01-25
+  Runtime: 4 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<string> findAndReplacePattern(vector<string>& words, string pattern) {
+    vector<string> res;
+    for (const auto& w : words) {
+      if (w.size() != pattern.size()) continue;
+      unordered_map<char, char> p;
+
+      unordered_set<char> used;
+      bool can_insert = true;
+      for (int i = 0; i < w.size(); i++) {
+        if (p.count(w[i])) {
+          if (p[w[i]] != pattern[i]) {
+            can_insert = false;
+            break;
+          }
+        } else {
+          if (used.count(pattern[i])) {
+            can_insert = false;
+            break;
+          } else {
+            p[w[i]] = pattern[i];
+            used.insert(pattern[i]);
+          }
+        }
+      }
+
+      if (can_insert) res.push_back(w);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 892. Surface Area of 3D Shapes
 On a N * N grid, we place some 1 * 1 * 1 cubes.
 
@@ -714,286 +985,5 @@ class CBTInserter {
  * int param_1 = obj.insert(v);
  * TreeNode* param_2 = obj.get_root();
  */
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-921. Minimum Add to Make Parentheses Valid
-Given a string S of '(' and ')' parentheses, we add the minimum number of
-parentheses ( '(' or ')', and in any positions ) so that the resulting
-parentheses string is valid.
-
-Formally, a parentheses string is valid if and only if:
-
-  It is the empty string, or
-  It can be written as AB (A concatenated with B), where A and B are valid
-strings, or
-  It can be written as (A), where A is a valid string.
-
-Given a parentheses string, return the minimum number of parentheses we must add
-to make the resulting string valid.
-
-Example 1:
-
-Input: "())"
-Output: 1
-
-Example 2:
-
-Input: "((("
-Output: 3
-
-Example 3:
-
-Input: "()"
-Output: 0
-
-Example 4:
-
-Input: "()))(("
-Output: 4
-
-Note:
-
-  S.length <= 1000
-  S only consists of '(' and ')' characters.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 0 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int minAddToMakeValid(string s) {
-    int open = 0;
-    int res = 0;
-    for (auto& c : s) {
-      if (c == '(') {
-        open++;
-      } else {
-        if (open > 0) {
-          open--;
-        } else {
-          res++;
-        }
-      }
-    }
-    return res + open;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-922. Sort Array By Parity II
-Given an array A of non-negative integers, half of the integers in A are odd,
-and half of the integers are even.
-
-Sort the array so that whenever A[i] is odd, i is odd; and whenever A[i] is
-even, i is even.
-
-You may return any answer array that satisfies this condition.
-
-Example 1:
-
-Input: [4,2,5,7]
-Output: [4,5,2,7]
-Explanation: [4,7,2,5], [2,5,4,7], [2,7,4,5] would also have been accepted.
-
-Note:
-
-  2 <= A.length <= 20000
-  A.length % 2 == 0
-  0 <= A[i] <= 1000
-/*
-  Submission Date: 2019-01-26
-  Runtime: 120 ms
-  Difficulty: EASY
-*/
-#include <cassert>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> sortArrayByParityII(vector<int>& A) {
-    int even_ind = 0;
-    int odd_ind = 1;
-    while (even_ind < A.size() && odd_ind < A.size()) {
-      while (even_ind < A.size() && A[even_ind] % 2 == 0) {
-        even_ind += 2;
-      }
-
-      while (odd_ind < A.size() && A[odd_ind] % 2 == 1) {
-        odd_ind += 2;
-      }
-
-      int cnt = (even_ind < A.size()) + (odd_ind < A.size());
-
-      if (cnt == 0) break;
-      assert(cnt != 1);
-      swap(A[even_ind], A[odd_ind]);
-      even_ind += 2;
-      odd_ind += 2;
-    }
-
-    return A;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-924. Minimize Malware Spread
-In a network of nodes, each node i is directly connected to another node j if
-and only if graph[i][j] = 1.
-
-Some nodes initial are initially infected by malware.  Whenever two nodes are
-directly connected and at least one of those two nodes is infected by malware,
-both nodes will be infected by malware.  This spread of malware will continue
-until no more nodes can be infected in this manner.
-
-Suppose M(initial) is the final number of nodes infected with malware in the
-entire network, after the spread of malware stops.
-
-We will remove one node from the initial list.  Return the node that if removed,
-would minimize M(initial).  If multiple nodes could be removed to minimize
-M(initial), return such a node with the smallest index.
-
-Note that if a node was removed from the initial list of infected nodes, it may
-still be infected later as a result of the malware spread.
-
-Example 1:
-
-Input: graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
-Output: 0
-
-Example 2:
-
-Input: graph = [[1,0,0],[0,1,0],[0,0,1]], initial = [0,2]
-Output: 0
-
-Example 3:
-
-Input: graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]
-Output: 1
-
-Note:
-
-  1 < graph.length = graph[0].length <= 300
-  0 <= graph[i][j] == graph[j][i] <= 1
-  graph[i][i] = 1
-  1 <= initial.length < graph.length
-  0 <= initial[i] < graph.length
-/*
-  Submission Date: 2019-02-04
-  Runtime: 168 ms
-  Difficulty: HARD
-*/
-#include <cassert>
-#include <climits>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-template <typename T>
-class UnionFind {
-  unordered_map<T, int> rank_, size_;
-  unordered_map<T, T> parent_;
-
- public:
-  bool IsWithinSet(T e) { return parent_.count(e); }
-
-  void CreateSet(T e) {
-    assert(!IsWithinSet(e));
-    parent_[e] = e;
-    rank_[e] = 0;
-    size_[e] = 1;
-  }
-
-  T Find(T e) {
-    if (parent_[e] != e) {
-      parent_[e] = Find(parent_[e]);
-    }
-    return parent_[e];
-  }
-  int GetSize(T e) { return size_[Find(e)]; }
-
-  bool Union(T e1, T e2) {
-    T e1_root = Find(e1);
-    T e2_root = Find(e2);
-
-    if (e1_root == e2_root) return false;  // same root
-
-    if (rank_[e1_root] < rank_[e2_root]) {
-      parent_[e1_root] = e2_root;
-      size_[e2_root] += size_[e1_root];
-    } else {
-      parent_[e2_root] = e1_root;
-      size_[e1_root] += size_[e2_root];
-      if (rank_[e1_root] == rank_[e2_root]) {
-        rank_[e1_root]++;
-      }
-    }
-
-    return true;
-  }
-};
-
-class Solution {
- public:
-  int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
-    int N = graph.size();
-    UnionFind<int> uf;
-    for (int i = 0; i < N; i++) uf.CreateSet(i);
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        if (graph[i][j]) uf.Union(i, j);
-      }
-    }
-
-    unordered_map<int, vector<int>> parent_to_children;
-    int min_m = INT_MAX;
-    for (const auto& m : initial) {
-      parent_to_children[uf.Find(m)].push_back(m);
-      min_m = min(min_m, m);
-    }
-
-    int largest_machine = -1;
-    for (const auto& kv : parent_to_children) {
-      // for connected components that with more than one initial machine, they
-      // should be discarded
-      if (kv.second.size() != 1) continue;
-      int m = kv.second.front();
-      if (largest_machine == -1) {
-        largest_machine = m;
-        continue;
-      }
-
-      // this component only has one machine, so removing it would result in
-      // uf.GetSize(m) number of machines saved.
-      int max_size = uf.GetSize(largest_machine);
-      int curr_size = uf.GetSize(m);
-      if (curr_size == max_size) {
-        largest_machine = min(largest_machine, m);
-      } else if (curr_size > max_size) {
-        largest_machine = m;
-      }
-    }
-
-    return (largest_machine == -1) ? min_m : largest_machine;
-  }
-};
 
 int main() { return 0; }

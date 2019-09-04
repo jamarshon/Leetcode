@@ -1,6 +1,189 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+540. Single Element in a Sorted Array
+Given a sorted array consisting of only integers where every element appears
+twice except for one element which appears once. Find this single element that
+appears only once.
+
+Example 1:
+Input: [1,1,2,3,3,4,4,8,8]
+Output: 2
+Example 2:
+Input: [3,3,7,7,10,11,11]
+Output: 10
+Note: Your solution should run in O(log n) time and O(1) space.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 7 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int singleNonDuplicate(vector<int>& nums) {
+    int low = 0;
+    int high = nums.size() - 1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      if ((mid % 2 == 0 && nums[mid] == nums[mid + 1]) ||
+          (mid % 2 == 1 && nums[mid] == nums[mid - 1])) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return nums[low];
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+541. Reverse String II
+Given a string and an integer k, you need to reverse the first k characters for every 2k 
+characters counting from the start of the string. If there are less than k characters left, 
+reverse all of them. If there are less than 2k but greater than or equal to k characters, 
+then reverse the first k characters and left the other as original.
+
+Example:
+Input: s = "abcdefg", k = 2
+Output: "bacdfeg"
+
+Restrictions:
+The string consists of lower English letters only.
+Length of the given string and k will in the range [1, 10000]
+
+/*
+    Submission Date: 2017-03-11
+    Runtime: 26 ms
+    Difficulty: EASY
+*/
+
+using namespace std;
+#include <iostream>
+
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        string finalStr = "";
+        bool reverse = true;
+        int i = 0, len = s.size();
+        while(i < len) {
+            string currentStr = string(1, s[i++]);
+            while(i%k != 0 && i < len) {
+                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
+                i++;
+            }
+            finalStr += currentStr;
+            reverse ^= true;
+        }
+        
+        return finalStr;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+542. 01 Matrix
+Given a matrix consists of 0 and 1, find the distance of the nearest 0 for each
+cell.
+
+The distance between two adjacent cells is 1.
+
+Example 1:
+Input:
+0 0 0
+0 1 0
+0 0 0
+
+Output:
+0 0 0
+0 1 0
+0 0 0
+
+Example 2:
+Input:
+0 0 0
+0 1 0
+1 1 1
+
+Output:
+0 0 0
+0 1 0
+1 2 1
+
+Note:
+
+The number of elements of the given matrix will not exceed 10,000.
+There are at least one 0 in the given matrix.
+The cells are adjacent in only four directions: up, down, left and right.
+/*
+  Submission Date: 2019-02-10
+  Runtime: 220 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<vector<int>> updateMatrix(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return {};
+    int N = matrix.size();
+    int M = matrix[0].size();
+
+    vector<vector<int>> res(N, vector<int>(M, -1));
+    // from the top left
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) {
+        if (matrix[i][j] == 0) {
+          res[i][j] = 0;
+        } else {
+          if (i > 0 && res[i - 1][j] != -1) {
+            int x = 1 + res[i - 1][j];
+            res[i][j] = (res[i][j] == -1) ? x : min(res[i][j], x);
+          }
+          if (j > 0 && res[i][j - 1] != -1) {
+            int x = 1 + res[i][j - 1];
+            res[i][j] = (res[i][j] == -1) ? x : min(res[i][j], x);
+          }
+        }
+      }
+    }
+
+    // from the bottom right
+    for (int i = N - 1; i >= 0; i--) {
+      for (int j = M - 1; j >= 0; j--) {
+        if (i + 1 < N && res[i + 1][j] != -1) {
+          int x = 1 + res[i + 1][j];
+          res[i][j] = (res[i][j] == -1) ? x : min(res[i][j], x);
+        }
+        if (j + 1 < M && res[i][j + 1] != -1) {
+          int x = 1 + res[i][j + 1];
+          res[i][j] = (res[i][j] == -1) ? x : min(res[i][j], x);
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 543. Diameter of Binary Tree
 Given a binary tree, you need to compute the length of the diameter of the tree.
 The diameter of a binary tree is the length of the longest path between any two
@@ -765,222 +948,6 @@ class Solution {
     int res = 0;
     help(root, res);
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-565. Array Nesting
-A zero-indexed array A consisting of N different integers is given. The array contains 
-all integers in the range [0, N - 1].
-
-Sets S[K] for 0 <= K < N are defined as follows:
-
-S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
-
-Sets S[K] are finite for each K and should NOT contain duplicates.
-
-Write a function that given an array A consisting of N integers, return the size of 
-the largest set S[K] for this array.
-
-Example 1:
-Input: A = [5,4,0,3,1,6,2]
-Output: 4
-Explanation: 
-A[0] = 5, A[1] = 4, A[2] = 0, A[3] = 3, A[4] = 1, A[5] = 6, A[6] = 2.
-
-One of the longest S[K]:
-S[0] = {A[0], A[5], A[6], A[2]} = {5, 6, 2, 0}
-Note:
-N is an integer within the range [1, 20,000].
-The elements of A are all distinct.
-Each element of array A is an integer within the range [0, N-1].
-/*
-    Submission Date: 2017-05-29
-    Runtime: 36 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-public:
-    int arrayNesting(vector<int>& nums) {
-        int N = nums.size();
-        vector<bool> mask(N, true);
-        int max_set = 0;
-        for(int i = 0; i < N; i++) {
-            if(mask[i]) { // hasn't been processed
-                int current = i;
-                int current_set = 0;
-                while(true) {
-                    if(current >= N || !mask[current]) break;
-                    mask[current] = false;
-                    current = nums[current];
-                    current_set++;
-                }
-                max_set = max(current_set, max_set);
-            }
-        }
-        return max_set;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-566. Reshape the Matrix
-In MATLAB, there is a very useful function called 'reshape', which can reshape a
-matrix into a new one with different size but keep its original data.
-
-You're given a matrix represented by a two-dimensional array, and two positive
-integers r and c representing the row number and column number of the wanted
-reshaped matrix, respectively.
-
-The reshaped matrix need to be filled with all the elements of the original
-matrix in the same row-traversing order as they were.
-
-If the 'reshape' operation with given parameters is possible and legal, output
-the new reshaped matrix; Otherwise, output the original matrix.
-
-Example 1:
-Input:
-nums =
-[[1,2],
- [3,4]]
-r = 1, c = 4
-Output:
-[[1,2,3,4]]
-Explanation:
-The row-traversing of nums is [1,2,3,4]. The new reshaped matrix is a 1 * 4
-matrix, fill it row by row by using the previous list. Example 2: Input: nums =
-[[1,2],
- [3,4]]
-r = 2, c = 4
-Output:
-[[1,2],
- [3,4]]
-Explanation:
-There is no way to reshape a 2 * 2 matrix to a 2 * 4 matrix. So output the
-original matrix. Note: The height and width of the given matrix is in range [1,
-100]. The given r and c are all positive.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 39 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<vector<int>> matrixReshape(vector<vector<int>>& nums, int r, int c) {
-    if (nums.empty()) return {};
-    int N = nums.size();
-    int M = nums[0].size();
-
-    // cannot gain or lose elements
-    if (N * M != r * c) return nums;
-
-    vector<vector<int>> res(r, vector<int>(c));
-    int x = 0;
-    int y = 0;
-
-    for (int i = 0; i < r; i++) {
-      for (int j = 0; j < c; j++) {
-        res[i][j] = nums[y][x];
-        x++;
-        if (x == M) {
-          x = 0;
-          y++;
-        }
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-567. Permutation in String
-Given two strings s1 and s2, write a function to return true if s2 contains the
-permutation of s1. In other words, one of the first string's permutations is the
-substring of the second string. Example 1: Input:s1 = "ab" s2 = "eidbaooo"
-Output:True
-Explanation: s2 contains one permutation of s1 ("ba").
-Example 2:
-Input:s1= "ab" s2 = "eidboaoo"
-Output: False
-Note:
-The input strings only contain lower case letters.
-The length of both given strings is in range [1, 10,000].
-/*
-    Submission Date: 2018-06-02
-    Runtime: 18 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  frequency map of s1 with variable to_use as global to check if everything
-  equals 0 use sliding window where everything in a window is a valid character
-  and does not exceed the frequency map limit for certain character for a new
-  character, if it exceeds the limit or its not a valid character than keep
-  moving front (restoring freq map). if it is not a valid character, the map
-  will be restored and to_do = original Check if character is valid, if it is
-  use it else move front so that it is not included
-  */
-  bool checkInclusion(string s1, string s2) {
-    vector<int> freq(26, 0);
-    unordered_set<char> letters(s1.begin(), s1.end());
-    for (const auto& c : s1) freq[c - 'a']++;
-
-    int front = 0;
-    int back = 0;
-
-    int N = s2.size();
-    int to_use = s1.size();
-
-    while (back < N) {
-      if (to_use == 0) return true;
-      // slide the front until the letter is removed
-      int back_val = s2[back] - 'a';
-      while (front < back && freq[back_val] == 0) {
-        freq[s2[front] - 'a']++;
-        front++;
-        to_use++;
-      }
-
-      /* if the back letter is in s1, decrease the frequency and to_use
-          else it means front == back as freq[s2[back]] == 0 so increase front
-          to not include this letter
-      */
-      if (letters.count(s2[back])) {
-        freq[back_val]--;
-        to_use--;
-      } else {
-        front++;
-      }
-
-      back++;
-    }
-
-    return to_use == 0;
   }
 };
 

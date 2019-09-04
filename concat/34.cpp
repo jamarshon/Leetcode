@@ -1,6 +1,285 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+746. Min Cost Climbing Stairs
+On a staircase, the i-th step has some non-negative cost cost[i] assigned (0
+indexed).
+
+Once you pay the cost, you can either climb one or two steps. You need to find
+minimum cost to reach the top of the floor, and you can either start from the
+step with index 0, or the step with index 1.
+
+Example 1:
+Input: cost = [10, 15, 20]
+Output: 15
+Explanation: Cheapest is start on cost[1], pay that cost and go to the top.
+Example 2:
+Input: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+Output: 6
+Explanation: Cheapest is start on cost[0], and only step on 1s, skipping
+cost[3]. Note: cost will have a length in the range [2, 1000]. Every cost[i]
+will be an integer in the range [0, 999].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int minCostClimbingStairs(vector<int>& cost) {
+    if (cost.empty()) return 0;
+    int N = cost.size();
+
+    vector<int> dp(N + 2, 0);
+    for (int i = N - 1; i >= 0; i--) {
+      dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
+    }
+
+    return N == 1 ? dp[0] : min(dp[0], dp[1]);
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+747. Largest Number At Least Twice of Others
+In a given integer array nums, there is always exactly one largest element.
+
+Find whether the largest element in the array is at least twice as much as every
+other number in the array.
+
+If it is, return the index of the largest element, otherwise return -1.
+
+Example 1:
+
+Input: nums = [3, 6, 1, 0]
+Output: 1
+Explanation: 6 is the largest integer, and for every other number in the array
+x, 6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
+ 
+
+Example 2:
+
+Input: nums = [1, 2, 3, 4]
+Output: -1
+Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
+ 
+
+Note:
+
+nums will have a length in the range [1, 50].
+Every nums[i] will be an integer in the range [0, 99].
+/*
+    Submission Date: 2018-06-08
+    Runtime: 10 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  priority queue minheap to get the 2 largest element along with their index
+  compare if the largest element is > second largest element * 2 then return
+  index of largest element else -1
+  */
+  typedef pair<int, int> pii;
+  int dominantIndex(vector<int>& nums) {
+    if (nums.empty()) return -1;
+
+    priority_queue<pii, vector<pii>, greater<pii>> pq;
+    for (int i = 0; i < nums.size(); i++) {
+      pq.emplace(nums[i], i);
+      if (pq.size() > 2) pq.pop();
+    }
+
+    int top_ind = pq.top().second;
+    pq.pop();
+
+    if (pq.empty()) return top_ind;
+
+    return nums[top_ind] > nums[pq.top().second] / 2 ? -1 : pq.top().second;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+748. Shortest Completing Word
+Find the minimum length word from a given dictionary words, which has all the
+letters from the string licensePlate.  Such a word is said to complete the given
+string licensePlate
+
+Here, for letters we ignore case.  For example, "P" on the licensePlate still
+matches "p" on the word.
+
+It is guaranteed an answer exists.  If there are multiple answers, return the
+one that occurs first in the array.
+
+The license plate might have the same letter occurring multiple times.  For
+example, given a licensePlate of "PP", the word "pair" does not complete the
+licensePlate, but the word "supper" does.
+
+
+Example 1:
+Input: licensePlate = "1s3 PSt", words = ["step", "steps", "stripe", "stepple"]
+Output: "steps"
+Explanation: The smallest length word that contains the letters "S", "P", "S",
+and "T".
+Note that the answer is not "step", because the letter "s" must occur in the
+word twice.
+Also note that we ignored case for the purposes of comparing whether a letter
+exists in the word.
+
+
+
+Example 2:
+Input: licensePlate = "1s3 456", words = ["looks", "pest", "stew", "show"]
+Output: "pest"
+Explanation: There are 3 smallest length words that contains the letters "s".
+We return the one that occurred first.
+
+
+
+Note:
+
+licensePlate will be a string with length in range [1, 7].
+licensePlate will contain digits, spaces, or letters (uppercase or lowercase).
+words will have a length in the range [10, 1000].
+Every words[i] will consist of lowercase letters, and have length in range [1,
+15].
+
+/*
+    Submission Date: 2018-06-30
+    Runtime: 26 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  licensePlate size M, words size N, words[i] size k
+  
+  generate a frequency of character for licensePlate O(M)
+  for each word, loop through character and decrease frequency of character if
+  it exists if the frequency is zero, remove it and if the hashmap is empty than
+  all the characters are needed in this string so update res if it is shorter
+  O(N*k)
+  
+  O(N*k + M)
+  */
+  string shortestCompletingWord(string licensePlate, vector<string>& words) {
+    unordered_map<char, int> letters;
+    for (const auto& c : licensePlate)
+      if (isalpha(c)) letters[tolower(c)]++;
+
+    string res = "";
+    for (const auto& word : words) {
+      unordered_map<char, int> letters_copy = letters;
+      for (const auto& c : word) {
+        if (letters_copy.count(c)) {
+          letters_copy[c]--;
+          if (letters_copy[c] == 0) {
+            letters_copy.erase(c);
+            if (letters_copy.empty()) break;
+          }
+        }
+      }
+
+      if (letters_copy.empty() && (res.empty() || word.size() < res.size())) {
+        res = word;
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+754. Reach a Number
+You are standing at position 0 on an infinite number line.  There is a goal at
+position target.
+
+On each move, you can either go left or right.  During the n-th move (starting
+from 1), you take n steps.
+
+Return the minimum number of steps required to reach the destination.
+
+Example 1:
+Input: target = 3
+Output: 2
+Explanation:
+On the first move we step from 0 to 1.
+On the second step we step from 1 to 3.
+
+Example 2:
+Input: target = 2
+Output: 3
+Explanation:
+On the first move we step from 0 to 1.
+On the second move we step  from 1 to -1.
+On the third move we step from -1 to 2.
+
+Note:
+target will be a non-zero integer in the range [-10^9, 10^9].
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int reachNumber(int target) {
+    target = abs(target);  // due to symmetry.
+
+    // n*(n+1)/2 <= target
+    int n = (-1LL + sqrt(1LL + 8LL * target)) / 2LL;
+
+    if (n * (n + 1) / 2 < target) n++;
+
+    int sum = n * (n + 1) / 2;
+    // if the difference between sum and target is even,
+    // then we can reach target by changing a right to left
+    // which will cause a loss of 2 times the value.
+    // we can do this for any amount of numbers that equal to
+    // half the difference. The difference will be at most n (the
+    // last step) and it is guaranteed to have some combination
+    // that adds up to at least n/2 because it is consecutive
+    // no gaps hence able to create numbers from [0, n*(n+1)/2]
+    while ((sum - target) % 2 != 0) {
+      n++;
+      sum += n;
+    }
+
+    return n;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 756. Pyramid Transition Matrix
 We are stacking blocks to form a pyramid.  Each block has a color which is a one
 letter string, like `'Z'`.
@@ -693,321 +972,6 @@ class Solution {
       }
     }
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-789. Escape The Ghosts
-You are playing a simplified Pacman game. You start at the point (0, 0), and
-your destination is (target[0], target[1]). There are several ghosts on the map,
-the i-th ghost starts at (ghosts[i][0], ghosts[i][1]).
-
-Each turn, you and all ghosts simultaneously *may* move in one of 4 cardinal
-directions: north, east, west, or south, going from the previous point to a new
-point 1 unit of distance away.
-
-You escape if and only if you can reach the target before any ghost reaches you
-(for any given moves the ghosts may take.)  If you reach any square (including
-the target) at the same time as a ghost, it doesn't count as an escape.
-
-Return True if and only if it is possible to escape.
-
-Example 1:
-Input:
-ghosts = [[1, 0], [0, 3]]
-target = [0, 1]
-Output: true
-Explanation:
-You can directly reach the destination (0, 1) at time 1, while the ghosts
-located at (1, 0) or (0, 3) have no way to catch up with you.
-
-
-Example 2:
-Input:
-ghosts = [[1, 0]]
-target = [2, 0]
-Output: false
-Explanation:
-You need to reach the destination (2, 0), but the ghost at (1, 0) lies between
-you and the destination.
-
-
-Example 3:
-Input:
-ghosts = [[2, 0]]
-target = [1, 0]
-Output: false
-Explanation:
-The ghost can reach the target at the same time as you.
-
-
-Note:
-
-
-    All points have coordinates with absolute value <= 10000.
-    The number of ghosts will not exceed 100.
-
-/*
-    Submission Date: 2018-07-01
-    Runtime: 9 ms
-    Difficulty: MEDIUM
-*/
-#include <cmath>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  if the manhattan distance (abs horizontal + abs vertical) of the target
-  from the origin is less than or equal to the manhattan distance of the
-  target with the ghost, then return false as the ghost can get there
-  faster and just wait indefinitely.
-
-  why ghost intercept is not good?
-  if a ghost can intercept you, it means they can reach the target faster than
-  you. the shortest path between two points is straight line so if ghost can
-  take detour and intercept then it means if they just went straight, they
-  would be there before you.
-            if ghost gets here before you, they would already be at target
-            x
-  you --------------- target
-            |         |
-            |         |
-  ghost--------------
-  */
-  bool escapeGhosts(vector<vector<int>>& ghosts, vector<int>& target) {
-    int mine = abs(target[0]) + abs(target[1]);
-    for (const auto& e : ghosts) {
-      int dist = abs(e[0] - target[0]) + abs(e[1] - target[1]);
-      if (dist <= mine) return false;
-    }
-    return true;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-791. Custom Sort String
-S and T are strings composed of lowercase letters. In S, no letter occurs more
-than once.
-
-S was sorted in some custom order previously. We want to permute the characters
-of T so that they match the order that S was sorted. More specifically, if x
-occurs before y in S, then x should occur before y in the returned string.
-
-Return any permutation of T (as a string) that satisfies this property.
-
-Example :
-Input:
-S = "cba"
-T = "abcd"
-Output: "cbad"
-Explanation:
-"a", "b", "c" appear in S, so the order of "a", "b", "c" should be "c", "b", and
-"a". Since "d" does not appear in S, it can be at any position in T. "dcba",
-"cdba", "cbda" are also valid outputs.
- 
-
-Note:
-
-S has length at most 26, and no character is repeated in S.
-T has length at most 200.
-S and T consist of lowercase letters only.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 6 ms
-    Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  string customSortString(string S, string T) {
-    int N = S.size();
-
-    vector<int> letter_to_ind(26, N);
-    for (int i = 0; i < N; i++) letter_to_ind[S[i] - 'a'] = i;
-
-    sort(T.begin(), T.end(),
-         [&letter_to_ind](const char& lhs, const char& rhs) {
-           return letter_to_ind[lhs - 'a'] < letter_to_ind[rhs - 'a'];
-         });
-
-    return T;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-796. Rotate String
-We are given two strings, A and B.
-
-A shift on A consists of taking string A and moving the leftmost character to
-the rightmost position. For example, if A = 'abcde', then it will be 'bcdea'
-after one shift on A. Return True if and only if A can become B after some
-number of shifts on A.
-
-Example 1:
-Input: A = 'abcde', B = 'cdeab'
-Output: true
-
-Example 2:
-Input: A = 'abcde', B = 'abced'
-Output: false
-Note:
-
-A and B will have length at most 100.
-/*
-    Submission Date: 2018-06-04
-    Runtime: 3 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  bool rotateString(string A, string B) {
-    if (A.size() != B.size()) return false;
-    string A2 = A + A;
-    return A2.find(B) != string::npos;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-797. All Paths From Source to Target
-Given a directed, acyclic graph of N nodes.  Find all possible paths from node 0
-to node N-1, and return them in any order.
-
-The graph is given as follows:  the nodes are 0, 1, ..., graph.length - 1.
-graph[i] is a list of all nodes j for which the edge (i, j) exists.
-
-Example:
-Input: [[1,2], [3], [3], []]
-Output: [[0,1,3],[0,2,3]]
-Explanation: The graph looks like this:
-0--->1
-|    |
-v    v
-2--->3
-There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
-Note:
-
-The number of nodes in the graph will be in the range [2, 15].
-You can print different paths in any order, but you should keep the order of
-nodes inside one path.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 103 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  void dfs(int from, const vector<vector<int>>& graph, vector<int>& curr,
-           vector<vector<int>>& res) {
-    if (graph[from].empty()) {
-      res.push_back(curr);
-    } else {
-      for (auto e : graph[from]) {
-        curr.push_back(e);
-        dfs(e, graph, curr, res);
-        curr.pop_back();
-      }
-    }
-  }
-
-  vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
-    vector<int> curr{0};
-    vector<vector<int>> res;
-    dfs(0, graph, curr, res);
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-804. Unique Morse Code Words
-International Morse Code defines a standard encoding where each letter is mapped
-to a series of dots and dashes, as follows: "a" maps to ".-", "b" maps to
-"-...", "c" maps to "-.-.", and so on.
-
-For convenience, the full table for the 26 letters of the English alphabet is
-given below:
-
-[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
-Now, given a list of words, each word can be written as a concatenation of the
-Morse code of each letter. For example, "cab" can be written as "-.-.-....-",
-(which is the concatenation "-.-." + "-..." + ".-"). We'll call such a
-concatenation, the transformation of a word.
-
-Return the number of different transformations among all words we have.
-
-Example:
-Input: words = ["gin", "zen", "gig", "msg"]
-Output: 2
-Explanation:
-The transformation of each word is:
-"gin" -> "--...-."
-"zen" -> "--...-."
-"gig" -> "--...--."
-"msg" -> "--...--."
-
-There are 2 different transformations, "--...-." and "--...--.".
- 
-
-Note:
-
-The length of words will be at most 100.
-Each words[i] will have length in range [1, 12].
-words[i] will only consist of lowercase letters.
-/*
-    Submission Date: 2018-05-31
-    Runtime: 6 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
-  vector<string> morse_{".-",   "-...", "-.-.", "-..",  ".",    "..-.", "--.",
-                        "....", "..",   ".---", "-.-",  ".-..", "--",   "-.",
-                        "---",  ".--.", "--.-", ".-.",  "...",  "-",    "..-",
-                        "...-", ".--",  "-..-", "-.--", "--.."};
-
- public:
-  int uniqueMorseRepresentations(vector<string>& words) {
-    unordered_set<string> comb;
-    for (const auto& s : words) {
-      string curr = "";
-      for (const auto& c : s) {
-        curr += morse_[c - 'a'];
-      }
-      comb.insert(curr);
-    }
-    return comb.size();
   }
 };
 

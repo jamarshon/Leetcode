@@ -1,6 +1,804 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+941. Valid Mountain Array
+Given an array A of integers, return true if and only if it is a valid mountain
+array.
+
+Recall that A is a mountain array if and only if:
+
+  A.length >= 3
+  There exists some i with 0 < i < A.length - 1 such that:
+
+    A[0] < A[1] < ... A[i-1] < A[i]
+    A[i] > A[i+1] > ... > A[B.length - 1]
+
+Example 1:
+
+Input: [2,1]
+Output: false
+
+Example 2:
+
+Input: [3,5,5]
+Output: false
+
+Example 3:
+
+Input: [0,3,2,1]
+Output: true
+
+Note:
+
+  0 <= A.length <= 10000
+  0 <= A[i] <= 10000
+/*
+  Submission Date: 2019-02-05
+  Runtime: 24 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool validMountainArray(vector<int>& A) {
+    int N = A.size();
+    if (N < 3) return false;
+    // increasing
+    int i = 1;
+    for (; i < N && A[i - 1] < A[i]; i++) {
+    }
+
+    if (i == 1 || i == N) return false;
+
+    for (; i < N && A[i - 1] > A[i]; i++) {
+    }
+    return i == N;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+942. DI String Match
+Given a string S that only contains "I" (increase) or "D" (decrease), let N =
+S.length.
+
+Return any permutation A of [0, 1, ..., N] such that for all i = 0, ..., N-1:
+
+  If S[i] == "I", then A[i] < A[i+1]
+  If S[i] == "D", then A[i] > A[i+1]
+
+Example 1:
+
+Input: "IDID"
+Output: [0,4,1,3,2]
+
+Example 2:
+
+Input: "III"
+Output: [0,1,2,3]
+
+Example 3:
+
+Input: "DDI"
+Output: [3,2,0,1]
+
+Note:
+
+  1 <= S.length <= 10000
+  S only contains characters "I" or "D".
+/*
+  Submission Date: 2019-02-04
+  Runtime: 28 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  if S[i] is 'I', putting the smallest available number here works
+  because all other numbers will be larger.
+  else putting the largest available number here works.
+  */
+  vector<int> diStringMatch(string S) {
+    int N = S.size();
+    vector<int> res(N + 1);
+    int low = 0;
+    int high = N;
+    for (int i = 0; i < N; i++) {
+      if (S[i] == 'I')
+        res[i] = low++;
+      else
+        res[i] = high--;
+    }
+
+    res[N] = low;
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+944. Delete Columns to Make Sorted
+We are given an array A of N lowercase letter strings, all of the same length.
+
+Now, we may choose any set of deletion indices, and for each string, we delete
+all the characters in those indices.
+
+For example, if we have an array A = ["abcdef","uvwxyz"] and deletion indices
+{0, 2, 3}, then the final array after deletions is ["bef", "vyz"], and the
+remaining columns of A are ["b","v"], ["e","y"], and ["f","z"].  (Formally, the
+c-th column is [A[0][c], A[1][c], ..., A[A.length-1][c]].)
+
+Suppose we chose a set of deletion indices D such that after deletions, each
+remaining column in A is in non-decreasing sorted order.
+
+Return the minimum possible value of D.length.
+
+Example 1:
+
+Input: ["cba","daf","ghi"]
+Output: 1
+Explanation:
+After choosing D = {1}, each column ["c","d","g"] and ["a","f","i"] are in
+non-decreasing sorted order.
+If we chose D = {}, then a column ["b","a","h"] would not be in non-decreasing
+sorted order.
+
+Example 2:
+
+Input: ["a","b"]
+Output: 0
+Explanation: D = {}
+
+Example 3:
+
+Input: ["zyx","wvu","tsr"]
+Output: 3
+Explanation: D = {0, 1, 2}
+
+Note:
+
+  1 <= A.length <= 100
+  1 <= A[i].length <= 1000
+/*
+  Submission Date: 2019-02-04
+  Runtime: 44 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int minDeletionSize(vector<string>& A) {
+    int N = A[0].size();
+    int res = 0;
+    for (int c = 0; c < N; c++) {
+      for (int i = 1; i < A.size(); i++) {
+        if (A[i][c] < A[i - 1][c]) {
+          res++;
+          break;
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+946. Validate Stack Sequences
+Given two sequences pushed and popped with distinct values, return true if and
+only if this could have been the result of a sequence of push and pop operations
+on an initially empty stack.
+
+Example 1:
+
+Input: pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+Output: true
+Explanation: We might do the following sequence:
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+
+Example 2:
+
+Input: pushed = [1,2,3,4,5], popped = [4,3,5,1,2]
+Output: false
+Explanation: 1 cannot be popped before 2.
+
+Note:
+
+  0 <= pushed.length == popped.length <= 1000
+  0 <= pushed[i], popped[i] < 1000
+  pushed is a permutation of popped.
+  pushed and popped have distinct values.
+/*
+  Submission Date: 2019-02-12
+  Runtime: 12 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <stack>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  keep pushing everything into the stack and greedily pop off if we can.
+  */
+  bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
+    stack<int> stk;
+    int i = 0, N = pushed.size();
+    for (const auto& p : pushed) {
+      stk.push(p);
+      while (!stk.empty() && i < N && popped[i] == stk.top()) {
+        stk.pop();
+        i++;
+      }
+    }
+    return i == N;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+947. Most Stones Removed with Same Row or Column
+On a 2D plane, we place stones at some integer coordinate points.  Each
+coordinate point may have at most one stone.
+
+Now, a move consists of removing a stone that shares a column or row with
+another stone on the grid.
+
+What is the largest possible number of moves we can make?
+
+Example 1:
+
+Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+Output: 5
+
+Example 2:
+
+Input: stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+Output: 3
+
+Example 3:
+
+Input: stones = [[0,0]]
+Output: 0
+
+Note:
+
+  1 <= stones.length <= 1000
+  0 <= stones[i][j] < 10000
+/*
+  Submission Date: 2019-02-16
+  Runtime: 60 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct UnionFind {
+  unordered_map<int, int> parent_, rank_;
+
+  int FindHelper(int k) {
+    if (parent_[k] != k) {
+      parent_[k] = FindHelper(parent_[k]);
+    }
+
+    return parent_[k];
+  }
+
+  int Find(int k) {
+    if (!parent_.count(k)) {
+      parent_[k] = k;
+      rank_[k] = 1;
+    }
+
+    return FindHelper(k);
+  }
+
+  void Union(int a, int b) {
+    int a_root = Find(a);
+    int b_root = Find(b);
+    if (a_root == b_root) return;
+    if (rank_[a_root] > rank_[b_root]) {
+      parent_[b_root] = a_root;
+    } else {
+      parent_[a_root] = b_root;
+      if (rank_[a_root] == rank_[b_root]) rank_[b_root]++;
+    }
+  }
+
+  int NumberOfComponents() {
+    int res = 0;
+    for (const auto& kv : parent_) res += kv.first == kv.second;
+    return res;
+  }
+};
+
+class Solution {
+ public:
+  /*
+  if a stone shares the same x or y coordinates then
+  connect them in a graph. instead of connecting stones
+  or indices, say that if two stones have the same x coordinates (same column)
+  connect their y coordinates (the rows).
+  connecting columns to rows can be done by having the key of columns
+  be negative (x = -x-1 = ~x use -1 for zero to prevent collision) and the
+  key for rows to be positive in union find.
+
+  the result is the number of stones minus the number of islands
+  this is because for each island we can remove all stones except one.
+  this is done by doing a dfs and then removing those nodes in reverse
+  similar to removing leaves from a tree.
+  */
+  int removeStones(vector<vector<int>>& stones) {
+    UnionFind uf;
+    int N = stones.size();
+    for (const auto& s : stones) uf.Union(s[0], ~s[1]);
+    return N - uf.NumberOfComponents();
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+949. Largest Time for Given Digits
+Given an array of 4 digits, return the largest 24 hour time that can be made.
+
+The smallest 24 hour time is 00:00, and the largest is 23:59.  Starting from
+00:00, a time is larger if more time has elapsed since midnight.
+
+Return the answer as a string of length 5.  If no valid time can be made, return
+an empty string.
+
+Example 1:
+
+Input: [1,2,3,4]
+Output: "23:41"
+
+Example 2:
+
+Input: [5,5,5,5]
+Output: ""
+
+Note:
+
+  A.length == 4
+  0 <= A[i] <= 9
+/*
+  Submission Date: 2019-02-05
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  string largestTimeFromDigits(vector<int>& A) {
+    /*
+    ab:cd
+    a [0, 2]
+    b a == 2 [0-3] else [0-9]
+    c [0, 5]
+    d [0, 9]
+    */
+
+    unordered_map<int, int> freq;
+    for (const auto& e : A) freq[e]++;
+    for (int i = 2; i >= 0; i--) {
+      if (!freq.count(i)) continue;
+      freq[i]--;
+
+      int cap = (i == 2) ? 3 : 9;
+      for (int j = cap; j >= 0; j--) {
+        if (!freq.count(j) || freq[j] == 0) continue;
+        freq[j]--;
+        for (int k = 5; k >= 0; k--) {
+          if (!freq.count(k) || freq[k] == 0) continue;
+          freq[k]--;
+          for (int l = 9; l >= 0; l--) {
+            if (!freq.count(l) || freq[l] == 0) continue;
+            return to_string(i) + to_string(j) + string(":") + to_string(k) +
+                   to_string(l);
+          }
+          freq[k]++;
+        }
+
+        freq[j]++;
+      }
+      freq[i]++;
+    }
+
+    return "";
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+950. Reveal Cards In Increasing Order
+In a deck of cards, every card has a unique integer.  You can order the deck
+in any order you want.
+
+Initially, all the cards start face down (unrevealed) in one deck.
+
+Now, you do the following steps repeatedly, until all cards are revealed:
+
+  Take the top card of the deck, reveal it, and take it out of the deck.
+  If there are still cards in the deck, put the next top card of the deck at the
+bottom of the deck.
+  If there are still unrevealed cards, go back to step 1.  Otherwise, stop.
+
+Return an ordering of the deck that would reveal the cards in increasing order.
+
+The first entry in the answer is considered to be the top of the deck.
+
+Example 1:
+
+Input: [17,13,11,2,3,5,7]
+Output: [2,13,3,11,5,17,7]
+Explanation:
+We get the deck in the order [17,13,11,2,3,5,7] (this order doesn't matter), and
+reorder it.
+After reordering, the deck starts as [2,13,3,11,5,17,7], where 2 is the top of
+the deck.
+We reveal 2, and move 13 to the bottom.  The deck is now [3,11,5,17,7,13].
+We reveal 3, and move 11 to the bottom.  The deck is now [5,17,7,13,11].
+We reveal 5, and move 17 to the bottom.  The deck is now [7,13,11,17].
+We reveal 7, and move 13 to the bottom.  The deck is now [11,17,13].
+We reveal 11, and move 17 to the bottom.  The deck is now [13,17].
+We reveal 13, and move 17 to the bottom.  The deck is now [17].
+We reveal 17.
+Since all the cards revealed are in increasing order, the answer is correct.
+
+Note:
+
+  1 <= A.length <= 1000
+  1 <= A[i] <= 10^6
+  A[i] != A[j] for all i != j
+/*
+  Submission Date: 2019-02-07
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <deque>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  Find the order in which the cards are revealed (e.g. indices 0, 2, 4, ...).
+  Place the sorted numbers into these indices.
+  */
+  vector<int> deckRevealedIncreasing(vector<int>& deck) {
+    sort(deck.begin(), deck.end());
+    int N = deck.size();
+    deque<int> dq(N);
+    for (int i = 0; i < N; i++) dq[i] = i;
+    vector<int> order;
+    while (!dq.empty()) {
+      order.push_back(dq.front());
+      dq.pop_front();
+      if (!dq.empty()) {
+        dq.push_back(dq.front());
+        dq.pop_front();
+      }
+    }
+
+    int i = 0;
+    vector<int> res(N);
+    for (const auto& o : order) {
+      res[o] = deck[i++];
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+951. Flip Equivalent Binary Trees
+For a binary tree T, we can define a flip operation as follows: choose any node,
+and swap the left and right child subtrees.
+
+A binary tree X is flip equivalent to a binary tree Y if and only if we can make
+X equal to Y after some number of flip operations.
+
+Write a function that determines whether two binary trees are flip equivalent. 
+The trees are given by root nodes root1 and root2.
+
+Example 1:
+
+Input: root1 = [1,2,3,4,5,6,null,null,null,7,8], root2 =
+[1,3,2,null,6,4,5,null,null,null,null,8,7]
+Output: true
+Explanation: We flipped at nodes with values 1, 3, and 5.
+
+Note:
+
+  Each tree will have at most 100 nodes.
+  Each value in each tree will be a unique integer in the range [0, 99].
+/*
+  Submission Date: 2019-02-09
+  Runtime: 8 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  bool flipEquiv(TreeNode* root1, TreeNode* root2) {
+    if (root1 && root2) {
+      if (root1->val != root2->val) return false;
+      return (flipEquiv(root1->left, root2->left) &&
+              flipEquiv(root1->right, root2->right)) ||
+             (flipEquiv(root1->left, root2->right) &&
+              flipEquiv(root1->right, root2->left));
+    } else {
+      return root1 == nullptr && root2 == nullptr;
+    }
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+953. Verifying an Alien Dictionary
+In an alien language, surprisingly they also use english lowercase letters, but
+possibly in a different order. The order of the alphabet is some permutation of
+lowercase letters.
+
+Given a sequence of words written in the alien language, and the order of the
+alphabet, return true if and only if the given words are sorted lexicographicaly
+in this alien language.
+
+Example 1:
+
+Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
+Output: true
+Explanation: As 'h' comes before 'l' in this language, then the sequence is
+sorted.
+
+Example 2:
+
+Input: words = ["word","world","row"], order = "worldabcefghijkmnpqstuvxyz"
+Output: false
+Explanation: As 'd' comes after 'l' in this language, then words[0] > words[1],
+hence the sequence is unsorted.
+
+Example 3:
+
+Input: words = ["apple","app"], order = "abcdefghijklmnopqrstuvwxyz"
+Output: false
+Explanation: The first three characters "app" match, and the second string is
+shorter (in size.) According to lexicographical rules "apple" > "app", because
+'l' > '∅', where '∅' is defined as the blank character which is less than any
+other character (More info).
+
+Note:
+
+  1 <= words.length <= 100
+  1 <= words[i].length <= 20
+  order.length == 26
+  All characters in words[i] and order are english lowercase letters.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 8 ms
+  Difficulty: EASY
+*/
+#include <climits>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool less(const string& s1, const string& s2,
+            unordered_map<char, int>& rank) {
+    int i = 0;
+    while (i < min(s1.size(), s2.size()) && s1[i] == s2[i]) i++;
+    int r1 = i == s1.size() ? INT_MIN : rank[s1[i]];
+    int r2 = i == s2.size() ? INT_MIN : rank[s2[i]];
+    return r1 <= r2;
+  }
+
+  bool isAlienSorted(vector<string>& words, string order) {
+    unordered_map<char, int> rank;
+    for (int i = 0; i < order.size(); i++) rank[order[i]] = i;
+
+    for (int i = 1; i < words.size(); i++) {
+      if (!less(words[i - 1], words[i], rank)) return false;
+    }
+
+    return true;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+958. Check Completeness of a Binary Tree
+Given a binary tree, determine if it is a complete binary tree.
+
+Definition of a complete binary tree from Wikipedia:
+In a complete binary tree every level, except possibly the last, is completely
+filled, and all nodes in the last level are as far left as possible. It can have
+between 1 and 2h nodes inclusive at the last level h.
+
+Example 1:
+
+Input: [1,2,3,4,5,6]
+Output: true
+Explanation: Every level before the last is full (ie. levels with node-values
+{1} and {2, 3}), and all nodes in the last level ({4, 5, 6}) are as far left as
+possible.
+
+Example 2:
+
+Input: [1,2,3,4,5,null,7]
+Output: false
+Explanation: The node with value 7 isn't as far left as possible.
+
+Note:
+
+  The tree will have between 1 and 100 nodes.
+/*
+  Submission Date: 2019-02-21
+  Runtime: 12 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+  struct NodeInfo {
+    int height;
+    bool perfect;
+  };
+  /*
+  perfect means every node other than the leaves has two children and all leaves
+  are at the same level (e.g tree of height h should have 2^(h+1)-1 children)
+  height == -1 when subtree isn't complete else it is 1 + max(height(left,
+  right))
+
+  if the left height equals the right height then the left should be perfect
+  because there are nodes in the right subtree. For nodes to be furthest left
+  then nodes in right subtree indicates all the nodes are filled in the left.
+       x
+    z     x
+  z   z  y
+
+  z should be perfect
+
+  if the left height == right height + 1, then the right should be prefect
+  because there are nodes in the left subtree at right height + 1 but none in
+  the right subtree at that same level.
+       x
+    x     z
+  y
+
+  z should be perfect
+
+  a node is perfect if the heights of left and right are equal and both left and
+  right are perfect
+  */
+  NodeInfo helper(TreeNode* root) {
+    if (!root) return {0, true};
+    const auto& left = helper(root->left);
+    const auto& right = helper(root->right);
+    if (left.height == -1 || right.height == -1) return {-1, false};
+
+    const int& diff = left.height - right.height;
+    if ((diff == 0 && left.perfect) || (diff == 1 && right.perfect)) {
+      return {1 + max(left.height, right.height),
+              diff == 0 && left.perfect && right.perfect};
+    } else {
+      return {-1, false};
+    }
+  }
+
+ public:
+  bool isCompleteTree(TreeNode* root) { return helper(root).height != -1; }
+};
+
+class Solution2 {
+ public:
+  /* level order search
+  expect that depth d should have 2^d nodes except the last one
+  if a node has a right child it must have a left child
+  if a null node is encounted in a level, all the rest of the nodes should be
+  null.
+  */
+  bool isCompleteTree(TreeNode* root) {
+    if (!root) return true;
+    queue<TreeNode*> q{{root}};
+    int expected_size = 2;
+    bool found_not_equal = false;
+    while (!q.empty()) {
+      bool seen_null = false;
+      for (int i = 0, q_size = q.size(); i < q_size; i++) {
+        TreeNode* curr = q.front();
+        q.pop();
+        if ((seen_null && (curr->left || curr->right)) ||
+            (curr->right && !curr->left))
+          return false;
+        if (curr->left) q.push(curr->left);
+        if (curr->right) q.push(curr->right);
+        seen_null = curr->left == nullptr || curr->right == nullptr;
+      }
+
+      if (found_not_equal) return q.empty();
+      found_not_equal = expected_size != q.size();
+      expected_size *= 2;
+    }
+    return true;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 959. Regions Cut By Slashes
 In a N x N grid composed of 1 x 1 squares, each 1 x 1 square consists of a /, \,
 or blank space.  These characters divide the square into contiguous regions.
@@ -158,608 +956,6 @@ class Solution {
     // find the number of components
     for (int i = 0; i < 4 * N * N; i++) ans += uf.Find(i) == i;
     return ans;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-961. N-Repeated Element in Size 2N Array
-In a array A of size 2N, there are N+1 unique elements, and exactly one of these
-elements is repeated N times.
-
-Return the element repeated N times.
-
-Example 1:
-
-Input: [1,2,3,3]
-Output: 3
-
-Example 2:
-
-Input: [2,1,2,5,3,2]
-Output: 2
-
-Example 3:
-
-Input: [5,1,5,2,5,3,5,4]
-Output: 5
-
-Note:
-
-  4 <= A.length <= 10000
-  0 <= A[i] < 10000
-  A.length is even
-/*
-  Submission Date: 2019-01-26
-  Runtime: 32 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int repeatedNTimes(vector<int>& A) {
-    /*
-    2N elements with N+1 unique and one that repeats N times.
-    That means half the elements are the repeating value so we can check
-    adjacent values. If not, it must be [x, x, y, z] or [x, y, z, x] where we
-    miss the check between A[0] and A[1]
-    */
-
-    for (int i = 2; i < A.size(); i++) {
-      if (A[i] == A[i - 1] || A[i] == A[i - 2]) return A[i];
-    }
-    return A[0];
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-965. Univalued Binary Tree
-A binary tree is univalued if every node in the tree has the same value.
-
-Return true if and only if the given tree is univalued.
-
-Example 1:
-
-Input: [1,1,1,1,1,null,1]
-Output: true
-
-Example 2:
-
-Input: [2,2,2,5,2]
-Output: false
-
-Note:
-
-  The number of nodes in the given tree will be in the range [1, 100].
-  Each node's value will be an integer in the range [0, 99].
-/*
-  Submission Date: 2019-02-04
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode *left;
-  TreeNode *right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  bool isUnivalTree(TreeNode *root) {
-    return (root == nullptr) ||
-           ((root->left == nullptr || root->left->val == root->val) &&
-            (root->right == nullptr || root->right->val == root->val)) &&
-               isUnivalTree(root->left) && isUnivalTree(root->right);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-970. Powerful Integers
-Given two non-negative integers x and y, an integer is powerful if it is equal
-to x^i + y^j for some integers i >= 0 and j >= 0.
-
-Return a list of all powerful integers that have value less than or equal to
-bound.
-
-You may return the answer in any order.  In your answer, each value should occur
-at most once.
-
-Example 1:
-
-Input: x = 2, y = 3, bound = 10
-Output: [2,3,4,5,7,9,10]
-Explanation:
-2 = 2^0 + 3^0
-3 = 2^1 + 3^0
-4 = 2^0 + 3^1
-5 = 2^1 + 3^1
-7 = 2^2 + 3^1
-9 = 2^3 + 3^0
-10 = 2^0 + 3^2
-
-Example 2:
-
-Input: x = 3, y = 5, bound = 15
-Output: [2,4,6,8,10,14]
-
-Note:
-
-  1 <= x <= 100
-  1 <= y <= 100
-  0 <= bound <= 10^6
-/*
-  Submission Date: 2019-02-05
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> powerfulIntegers(int x, int y, int bound) {
-    unordered_set<int> res;
-    for (int i = 1; i <= bound; i *= x) {
-      for (int j = 1; j <= bound && i + j <= bound; j *= y) {
-        res.insert(i + j);
-        if (y == 1) break;
-      }
-      if (x == 1) break;
-    }
-    return vector<int>(res.begin(), res.end());
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-973. K Closest Points to Origin
-We have a list of points on the plane.  Find the K closest points to the origin
-(0, 0).
-
-(Here, the distance between two points on a plane is the Euclidean distance.)
-
-You may return the answer in any order.  The answer is guaranteed to be unique
-(except for the order that it is in.)
-
-Example 1:
-
-Input: points = [[1,3],[-2,2]], K = 1
-Output: [[-2,2]]
-Explanation:
-The distance between (1, 3) and the origin is sqrt(10).
-The distance between (-2, 2) and the origin is sqrt(8).
-Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
-We only want the closest K = 1 points from the origin, so the answer is just
-[[-2,2]].
-
-Example 2:
-
-Input: points = [[3,3],[5,-1],[-2,4]], K = 2
-Output: [[3,3],[-2,4]]
-(The answer [[-2,4],[3,3]] would also be accepted.)
-
-Note:
-
-  1 <= K <= points.length <= 10000
-  -10000 < points[i][0] < 10000
-  -10000 < points[i][1] < 10000
-/*
-  Submission Date: 2019-02-04
-  Runtime: 124 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-struct Item {
-  int dist, ind;
-  Item(int d, int i) : dist(d), ind(i) {}
-  bool operator<(const Item& other) const { return dist < other.dist; }
-};
-
-class Solution {
- public:
-  vector<vector<int>> kClosest(vector<vector<int>>& points, int K) {
-    vector<vector<int>> res;
-    res.reserve(K);
-
-    priority_queue<Item> pq;
-    for (int i = 0; i < points.size(); i++) {
-      pq.emplace(points[i][0] * points[i][0] + points[i][1] * points[i][1], i);
-      if (pq.size() > K) pq.pop();
-    }
-
-    while (!pq.empty()) {
-      res.push_back(points[pq.top().ind]);
-      pq.pop();
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-976. Largest Perimeter Triangle
-Given an array A of positive lengths, return the largest perimeter of a triangle
-with non-zero area, formed from 3 of these lengths.
-
-If it is impossible to form any triangle of non-zero area, return 0.
-
-Example 1:
-
-Input: [2,1,2]
-Output: 5
-
-Example 2:
-
-Input: [1,2,1]
-Output: 0
-
-Example 3:
-
-Input: [3,2,3,4]
-Output: 10
-
-Example 4:
-
-Input: [3,6,2,3]
-Output: 8
-
-Note:
-
-  3 <= A.length <= 10000
-  1 <= A[i] <= 10^6
-/*
-  Submission Date: 2019-02-05
-  Runtime: 40 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int largestPerimeter(vector<int>& A) {
-    /*
-    triangle inequality formula: sum of two sides greater than the other
-    a + b > c
-    a + c > b
-    b + c > a */
-    sort(A.begin(), A.end());
-    for (int i = A.size() - 1; i >= 2; i--) {
-      // don't need to check A[i] + A[i-1] > A[i-2] and A[i] + A[i-2] > A[i-i]
-      // because A[i] >= A[i-2] and A[i] >= A[i-1] and A only consists of
-      // numbers > 1
-      if (A[i - 1] + A[i - 2] > A[i]) return A[i] + A[i - 1] + A[i - 2];
-    }
-
-    return 0;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-977. Squares of a Sorted Array
-Given an array of integers A sorted in non-decreasing order, return an array of
-the squares of each number, also in sorted non-decreasing order.
-
-Example 1:
-
-Input: [-4,-1,0,3,10]
-Output: [0,1,9,16,100]
-
-Example 2:
-
-Input: [-7,-3,2,3,11]
-Output: [4,9,9,49,121]
-
-Note:
-
-  1 <= A.length <= 10000
-  -10000 <= A[i] <= 10000
-  A is sorted in non-decreasing order.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 132 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> sortedSquares(vector<int>& A) {
-    int N = A.size();
-    vector<int> res(N);
-    int i = 0;
-    int j = N - 1;
-    int wr = N - 1;
-
-    while (i < j && A[i] < 0) {
-      if (-A[i] > A[j]) {
-        res[wr--] = A[i] * A[i];
-        i++;
-      } else {
-        res[wr--] = A[j] * A[j];
-        j--;
-      }
-    }
-
-    while (j >= i) {
-      res[wr--] = A[j] * A[j];
-      j--;
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-979. Distribute Coins in Binary Tree
-Given the root of a binary tree with N nodes, each node in the tree has node.val
-coins, and there are N coins total.
-
-In one move, we may choose two adjacent nodes and move one coin from one node to
-another.  (The move may be from parent to child, or from child to parent.)
-
-Return the number of moves required to make every node have exactly one coin.
-
-Example 1:
-
-Input: [3,0,0]
-Output: 2
-Explanation: From the root of the tree, we move one coin to its left child, and
-one coin to its right child.
-
-Example 2:
-
-Input: [0,3,0]
-Output: 3
-Explanation: From the left child of the root, we move two coins to the root
-[taking two moves].  Then, we move one coin from the root of the tree to the
-right child.
-
-Example 3:
-
-Input: [1,0,2]
-Output: 2
-
-Example 4:
-
-Input: [1,0,0,null,3]
-Output: 4
-
-Note:
-
-  1<= N <= 100
-  0 <= node.val <= N
-/*
-  Submission Date: 2019-02-09
-  Runtime: 12 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  int ans;
-
-  /*
-  dfs returns the number of extra coins there are in this subtree.
-  if it is positive then we can move coins up else if it is negative
-  we move coins down from parent.
-  at the node, the total moves would be the absolute value of the left and right
-  subtree's number of extra coins.
-  the number of excess coins is the number of coins in the root plus the excess
-  amount of the left and right minus one for the root node requiring one.
-  */
-  int dfs(TreeNode* root) {
-    if (root == nullptr) return 0;
-    int L = dfs(root->left);
-    int R = dfs(root->right);
-    ans += abs(L) + abs(R);
-    return root->val + L + R - 1;
-  }
-
-  int distributeCoins(TreeNode* root) {
-    ans = 0;
-    dfs(root);
-    return ans;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-984. String Without AAA or BBB
-Given two integers A and B, return any string S such that:
-
-  S has length A + B and contains exactly A 'a' letters, and exactly B 'b'
-letters;
-  The substring 'aaa' does not occur in S;
-  The substring 'bbb' does not occur in S.
-
-Example 1:
-
-Input: A = 1, B = 2
-Output: "abb"
-Explanation: "abb", "bab" and "bba" are all correct answers.
-
-Example 2:
-
-Input: A = 4, B = 1
-Output: "aabaa"
-
-Note:
-
-  0 <= A <= 100
-  0 <= B <= 100
-  It is guaranteed such an S exists for the given A and B.
-/*
-  Submission Date: 2019-02-05
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  always write the most abundant character (greedy) unless last two letters are
-  the same
-  */
-  string strWithout3a3b(int A, int B) {
-    string S = "";
-    while (A || B) {
-      int n = S.size();
-      bool same_last_letter = n >= 2 && S[n - 1] == S[n - 2];
-      bool write_A = (same_last_letter && S[n - 1] == 'b') ||
-                     (!same_last_letter && A >= B);
-      if (write_A) {
-        A--;
-        S.push_back('a');
-      } else {
-        B--;
-        S.push_back('b');
-      }
-    }
-
-    return S;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-985. Sum of Even Numbers After Queries
-We have an array A of integers, and an array queries of queries.
-
-For the i-th query val = queries[i][0], index = queries[i][1], we add val to
-A[index].  Then, the answer to the i-th query is the sum of the even values of
-A.
-
-(Here, the given index = queries[i][1] is a 0-based index, and each query
-permanently modifies the array A.)
-
-Return the answer to all queries.  Your answer array should
-have answer[i] as the answer to the i-th query.
-
-Example 1:
-
-Input: A = [1,2,3,4], queries = [[1,0],[-3,1],[-4,0],[2,3]]
-Output: [8,6,2,4]
-Explanation:
-At the beginning, the array is [1,2,3,4].
-After adding 1 to A[0], the array is [2,2,3,4], and the sum of even values is 2
-+ 2 + 4 = 8.
-After adding -3 to A[1], the array is [2,-1,3,4], and the sum of even values is
-2 + 4 = 6.
-After adding -4 to A[0], the array is [-2,-1,3,4], and the sum of even values is
--2 + 4 = 2.
-After adding 2 to A[3], the array is [-2,-1,3,6], and the sum of even values is
--2 + 6 = 4.
-
-Note:
-
-  1 <= A.length <= 10000
-  -10000 <= A[i] <= 10000
-  1 <= queries.length <= 10000
-  -10000 <= queries[i][0] <= 10000
-  0 <= queries[i][1] < A.length
-/*
-  Submission Date: 2019-02-04
-  Runtime: 96 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> sumEvenAfterQueries(vector<int>& A,
-                                  vector<vector<int>>& queries) {
-    int N = queries.size();
-    vector<int> res(N);
-
-    int even_sum = 0;
-    for (const auto& e : A) {
-      if (e % 2 == 0) even_sum += e;
-    }
-
-    for (int i = 0; i < N; i++) {
-      int val = queries[i][0];
-      int ind = queries[i][1];
-
-      if ((A[ind] + val) % 2 == 0) {
-        if (A[ind] % 2 == 0) {
-          even_sum += val;  // even to new_even
-        } else {
-          even_sum += A[ind] + val;  // odd to new_even
-        }
-      } else {
-        if (A[ind] % 2 == 0) {
-          even_sum -= A[ind];  // even to odd
-        }
-        // odd to odd nothing happens
-      }
-
-      A[ind] += val;
-      res[i] = even_sum;
-    }
-    return res;
   }
 };
 

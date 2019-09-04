@@ -1,6 +1,290 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+706. Design HashMap
+Design a HashMap without using any built-in hash table libraries.
+
+To be specific, your design should include these functions:
+
+  put(key, value) : Insert a (key, value) pair into the HashMap. If the value
+already exists in the HashMap, update the value.
+  get(key): Returns the value to which the specified key is mapped, or -1 if
+this map contains no mapping for the key. remove(key) : Remove the mapping for
+the value key if this map contains the mapping for the key.
+
+Example:
+
+MyHashMap hashMap = new MyHashMap();
+hashMap.put(1, 1);          
+hashMap.put(2, 2);        
+hashMap.get(1);            // returns 1
+hashMap.get(3);            // returns -1 (not found)
+hashMap.put(2, 1);          // update the existing value
+hashMap.get(2);            // returns 1
+hashMap.remove(2);          // remove the mapping for 2
+hashMap.get(2);            // returns -1 (not found)
+
+Note:
+
+  All keys and values will be in the range of [0, 1000000].
+  The number of operations will be in the range of [1, 10000].
+  Please do not use the built-in HashMap library.
+/*
+  Submission Date: 2019-02-06
+  Runtime: 160 ms
+  Difficulty: EASY
+*/
+#include <functional>
+#include <iostream>
+#include <list>
+#include <vector>
+
+using namespace std;
+
+typedef pair<int, int> pii;
+struct Data {
+  hash<int> h;
+  int capacity;
+  int size = 0;
+  vector<list<pii>> arr;
+  int GetHash(int key) { return h(key) % capacity; }
+
+  Data(int cap) : capacity(cap) { arr.resize(capacity); }
+};
+
+class MyHashMap {
+  const double load_factor_ = 0.75;
+  int capacity_ = 10;
+  Data* data_;
+
+  list<pii>::iterator Get(int key) {
+    auto& l = data_->arr[data_->GetHash(key)];
+    for (auto it = l.begin(); it != l.end(); it++) {
+      if (it->first == key) return it;
+    }
+    return l.end();
+  }
+
+ public:
+  /** Initialize your data structure here. */
+  MyHashMap() { data_ = new Data(capacity_); }
+
+  /** value will always be non-negative. */
+  void put(int key, int value) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+
+    if (it == l.end()) {
+      // insert
+      l.emplace_back(key, value);
+      data_->size++;
+
+      if (data_->size > load_factor_ * capacity_) {
+        Data* old = data_;
+        capacity_ *= 2;
+        data_ = new Data(capacity_);
+        for (const auto& bucket : old->arr) {
+          for (const pii& p : bucket) {
+            put(p.first, p.second);
+          }
+        }
+
+        delete old;
+      }
+    } else {
+      it->second = value;
+    }
+  }
+
+  /** Returns the value to which the specified key is mapped, or -1 if this map
+   * contains no mapping for the key */
+  int get(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    return it == l.end() ? -1 : it->second;
+  }
+
+  /** Removes the mapping of the specified value key if this map contains a
+   * mapping for the key */
+  void remove(int key) {
+    auto it = Get(key);
+    auto& l = data_->arr[data_->GetHash(key)];
+    if (it != l.end()) {
+      l.erase(it);
+      data_->size--;
+    }
+  }
+};
+
+int main() {
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+707. Design Linked List
+Design your implementation of the linked list. You can choose to use the singly
+linked list or the doubly linked list. A node in a singly linked list should
+have two attributes: val and next. val is the value of the current node, and
+next is a pointer/reference to the next node. If you want to use the doubly
+linked list, you will need one more attribute prev to indicate the previous node
+in the linked list. Assume all nodes in the linked list are 0-indexed.
+
+Implement these functions in your linked list class:
+
+
+    get(index) : Get the value of the index-th node in the linked list. If the
+index is invalid, return -1.
+    addAtHead(val) : Add a node of value val before the first element of the
+linked list. After the insertion, the new node will be the first node of the
+linked list. addAtTail(val) : Append a node of value val to the last element of
+the linked list. addAtIndex(index, val) : Add a node of value val before the
+index-th node in the linked list. If index equals to the length of linked list,
+the node will be appended to the end of linked list. If index is greater than
+the length, the node will not be inserted. deleteAtIndex(index) : Delete the
+index-th node in the linked list, if the index is valid.
+
+
+Example:
+
+MyLinkedList linkedList = new MyLinkedList();
+linkedList.addAtHead(1);
+linkedList.addAtTail(3);
+linkedList.addAtIndex(1, 2);  // linked list becomes 1->2->3
+linkedList.get(1);            // returns 2
+linkedList.deleteAtIndex(1);  // now the linked list is 1->3
+linkedList.get(1);            // returns 3
+
+
+Note:
+
+
+    All values will be in the range of [1, 1000].
+    The number of operations will be in the range of [1, 1000].
+    Please do not use the built-in LinkedList library.
+/*
+    Submission Date: 2018-07-15
+    Runtime: 24 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+struct ListNode {
+  int val;
+  ListNode* next;
+  ListNode(int _val) : val(_val), next(NULL) {}
+};
+
+class MyLinkedList {
+  ListNode* head = NULL;
+  ListNode* tail = NULL;
+  int size = 0;
+
+ public:
+  /** Initialize your data structure here. */
+  MyLinkedList() {}
+
+  /** Get the value of the index-th node in the linked list. If the index is
+   * invalid, return -1. */
+  /* o(n) */
+
+  ListNode* getNode(int index) {
+    if (index >= size) return NULL;
+
+    ListNode* curr = head;
+    for (int i = 0; i < index && curr; i++) {
+      curr = curr->next;
+    }
+    return curr;
+  }
+
+  int get(int index) {
+    ListNode* curr = getNode(index);
+    return curr ? curr->val : -1;
+  }
+
+  /** Add a node of value val before the first element of the linked list. After
+   * the insertion, the new node will be the first node of the linked list. */
+  /* o(1) */
+  void addAtHead(int val) {
+    ListNode* add = new ListNode(val);
+    add->next = head;
+    head = add;
+    if (tail == NULL) tail = head;
+    size++;
+  }
+
+  /** Append a node of value val to the last element of the linked list. */
+  /* o(1) */
+  void addAtTail(int val) {
+    ListNode* add = new ListNode(val);
+    if (tail == NULL) {
+      head = add;
+    } else {
+      tail->next = add;
+    }
+    tail = add;
+    size++;
+  }
+
+  /** Add a node of value val before the index-th node in the linked list. If
+   * index equals to the length of linked list, the node will be appended to the
+   * end of linked list. If index is greater than the length, the node will not
+   * be inserted. */
+  /* o(n) */
+  void addAtIndex(int index, int val) {
+    if (index > size) return;
+    if (index == 0) {
+      addAtHead(val);
+    } else if (index == size) {
+      addAtTail(val);
+    } else {  // index [1, size-1]
+      ListNode* curr = getNode(index - 1);
+      ListNode* next = curr->next;
+      curr->next = new ListNode(val);
+      curr->next->next = next;
+      size++;
+    }
+  }
+
+  /** Delete the index-th node in the linked list, if the index is valid. */
+  /* o(n) */
+  void deleteAtIndex(int index) {
+    if (index >= size) return;
+    if (index == 0) {
+      ListNode* temp = head;
+      head = head->next;
+      delete temp;
+    } else {  // index [1, size-1]
+      ListNode* curr = getNode(index - 1);
+      ListNode* temp = curr->next;
+      if (temp == tail) {
+        tail = curr;
+      }
+      curr->next = temp->next;
+      delete temp;
+    }
+
+    size--;
+  }
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList obj = new MyLinkedList();
+ * int param_1 = obj.get(index);
+ * obj.addAtHead(val);
+ * obj.addAtTail(val);
+ * obj.addAtIndex(index,val);
+ * obj.deleteAtIndex(index);
+ */
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 709. To Lower Case
 Implement function ToLowerCase() that has a string parameter str, and returns
 the same string in lowercase.
@@ -723,284 +1007,6 @@ class Solution {
 
     if (low == letters.size()) return letters[0];
     return letters[low];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-746. Min Cost Climbing Stairs
-On a staircase, the i-th step has some non-negative cost cost[i] assigned (0
-indexed).
-
-Once you pay the cost, you can either climb one or two steps. You need to find
-minimum cost to reach the top of the floor, and you can either start from the
-step with index 0, or the step with index 1.
-
-Example 1:
-Input: cost = [10, 15, 20]
-Output: 15
-Explanation: Cheapest is start on cost[1], pay that cost and go to the top.
-Example 2:
-Input: cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
-Output: 6
-Explanation: Cheapest is start on cost[0], and only step on 1s, skipping
-cost[3]. Note: cost will have a length in the range [2, 1000]. Every cost[i]
-will be an integer in the range [0, 999].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 12 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int minCostClimbingStairs(vector<int>& cost) {
-    if (cost.empty()) return 0;
-    int N = cost.size();
-
-    vector<int> dp(N + 2, 0);
-    for (int i = N - 1; i >= 0; i--) {
-      dp[i] = cost[i] + min(dp[i + 1], dp[i + 2]);
-    }
-
-    return N == 1 ? dp[0] : min(dp[0], dp[1]);
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-747. Largest Number At Least Twice of Others
-In a given integer array nums, there is always exactly one largest element.
-
-Find whether the largest element in the array is at least twice as much as every
-other number in the array.
-
-If it is, return the index of the largest element, otherwise return -1.
-
-Example 1:
-
-Input: nums = [3, 6, 1, 0]
-Output: 1
-Explanation: 6 is the largest integer, and for every other number in the array
-x, 6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
- 
-
-Example 2:
-
-Input: nums = [1, 2, 3, 4]
-Output: -1
-Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
- 
-
-Note:
-
-nums will have a length in the range [1, 50].
-Every nums[i] will be an integer in the range [0, 99].
-/*
-    Submission Date: 2018-06-08
-    Runtime: 10 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  priority queue minheap to get the 2 largest element along with their index
-  compare if the largest element is > second largest element * 2 then return
-  index of largest element else -1
-  */
-  typedef pair<int, int> pii;
-  int dominantIndex(vector<int>& nums) {
-    if (nums.empty()) return -1;
-
-    priority_queue<pii, vector<pii>, greater<pii>> pq;
-    for (int i = 0; i < nums.size(); i++) {
-      pq.emplace(nums[i], i);
-      if (pq.size() > 2) pq.pop();
-    }
-
-    int top_ind = pq.top().second;
-    pq.pop();
-
-    if (pq.empty()) return top_ind;
-
-    return nums[top_ind] > nums[pq.top().second] / 2 ? -1 : pq.top().second;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-748. Shortest Completing Word
-Find the minimum length word from a given dictionary words, which has all the
-letters from the string licensePlate.  Such a word is said to complete the given
-string licensePlate
-
-Here, for letters we ignore case.  For example, "P" on the licensePlate still
-matches "p" on the word.
-
-It is guaranteed an answer exists.  If there are multiple answers, return the
-one that occurs first in the array.
-
-The license plate might have the same letter occurring multiple times.  For
-example, given a licensePlate of "PP", the word "pair" does not complete the
-licensePlate, but the word "supper" does.
-
-
-Example 1:
-Input: licensePlate = "1s3 PSt", words = ["step", "steps", "stripe", "stepple"]
-Output: "steps"
-Explanation: The smallest length word that contains the letters "S", "P", "S",
-and "T".
-Note that the answer is not "step", because the letter "s" must occur in the
-word twice.
-Also note that we ignored case for the purposes of comparing whether a letter
-exists in the word.
-
-
-
-Example 2:
-Input: licensePlate = "1s3 456", words = ["looks", "pest", "stew", "show"]
-Output: "pest"
-Explanation: There are 3 smallest length words that contains the letters "s".
-We return the one that occurred first.
-
-
-
-Note:
-
-licensePlate will be a string with length in range [1, 7].
-licensePlate will contain digits, spaces, or letters (uppercase or lowercase).
-words will have a length in the range [10, 1000].
-Every words[i] will consist of lowercase letters, and have length in range [1,
-15].
-
-/*
-    Submission Date: 2018-06-30
-    Runtime: 26 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  licensePlate size M, words size N, words[i] size k
-  
-  generate a frequency of character for licensePlate O(M)
-  for each word, loop through character and decrease frequency of character if
-  it exists if the frequency is zero, remove it and if the hashmap is empty than
-  all the characters are needed in this string so update res if it is shorter
-  O(N*k)
-  
-  O(N*k + M)
-  */
-  string shortestCompletingWord(string licensePlate, vector<string>& words) {
-    unordered_map<char, int> letters;
-    for (const auto& c : licensePlate)
-      if (isalpha(c)) letters[tolower(c)]++;
-
-    string res = "";
-    for (const auto& word : words) {
-      unordered_map<char, int> letters_copy = letters;
-      for (const auto& c : word) {
-        if (letters_copy.count(c)) {
-          letters_copy[c]--;
-          if (letters_copy[c] == 0) {
-            letters_copy.erase(c);
-            if (letters_copy.empty()) break;
-          }
-        }
-      }
-
-      if (letters_copy.empty() && (res.empty() || word.size() < res.size())) {
-        res = word;
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-754. Reach a Number
-You are standing at position 0 on an infinite number line.  There is a goal at
-position target.
-
-On each move, you can either go left or right.  During the n-th move (starting
-from 1), you take n steps.
-
-Return the minimum number of steps required to reach the destination.
-
-Example 1:
-Input: target = 3
-Output: 2
-Explanation:
-On the first move we step from 0 to 1.
-On the second step we step from 1 to 3.
-
-Example 2:
-Input: target = 2
-Output: 3
-Explanation:
-On the first move we step from 0 to 1.
-On the second move we step  from 1 to -1.
-On the third move we step from -1 to 2.
-
-Note:
-target will be a non-zero integer in the range [-10^9, 10^9].
-/*
-  Submission Date: 2019-01-26
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <cmath>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int reachNumber(int target) {
-    target = abs(target);  // due to symmetry.
-
-    // n*(n+1)/2 <= target
-    int n = (-1LL + sqrt(1LL + 8LL * target)) / 2LL;
-
-    if (n * (n + 1) / 2 < target) n++;
-
-    int sum = n * (n + 1) / 2;
-    // if the difference between sum and target is even,
-    // then we can reach target by changing a right to left
-    // which will cause a loss of 2 times the value.
-    // we can do this for any amount of numbers that equal to
-    // half the difference. The difference will be at most n (the
-    // last step) and it is guaranteed to have some combination
-    // that adds up to at least n/2 because it is consecutive
-    // no gaps hence able to create numbers from [0, n*(n+1)/2]
-    while ((sum - target) % 2 != 0) {
-      n++;
-      sum += n;
-    }
-
-    return n;
   }
 };
 

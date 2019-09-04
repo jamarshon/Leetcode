@@ -1,6 +1,232 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+686. Repeated String Match
+Given two strings A and B, find the minimum number of times A has to be repeated
+such that B is a substring of it. If no such solution, return -1.
+
+
+For example, with A = "abcd" and B = "cdabcdab".
+
+
+Return 3, because by repeating A three times (“abcdabcdabcd”), B is a substring
+of it; and B is not a substring of A repeated two times ("abcdabcd").
+
+
+Note:
+The length of A and B will be between 1 and 10000.
+/*
+    Submission Date: 2018-06-24
+    Runtime: 716 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  if A is already in B, return 1
+  else it is a suffix of A + A repeated n times + prefix of A
+  so return n + 2
+  for all suffix of A, check if it is a prefix of B. if it is then see how many
+  times A repeats if it does repeat n times and the prefix of A is a suffix of
+  B, then the answer is just n + 2.
+  */
+  int repeatedStringMatch(string A, string B) {
+    if (A.find(B) != string::npos) return 1;
+    for (int i = 0; i < A.size(); i++) {
+      bool got_suffix = true;
+      for (int j = 0; j < A.size() - i; j++) {
+        if (B[j] != A[i + j]) {
+          got_suffix = false;
+          break;
+        }
+      }
+
+      if (!got_suffix) continue;
+      int res = 1;
+      int A_ind = 0;
+      for (int j = A.size() - i; j < B.size(); j++) {
+        if (A_ind == 0) res++;
+
+        if (B[j] != A[A_ind]) {
+          res = -1;
+          break;
+        }
+
+        A_ind = (A_ind + 1) % A.size();
+      }
+
+      if (res == -1) continue;
+      return res;
+    }
+
+    return -1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+687. Longest Univalue Path
+Given a binary tree, find the length of the longest path where each node in the
+path has the same value. This path may or may not pass through the root.
+
+Note: The length of path between two nodes is represented by the number of edges
+between them.
+
+Example 1:
+
+Input:
+
+              5
+             / \
+            4   5
+           / \   \
+          1   1   5
+Output:
+
+2
+Example 2:
+
+Input:
+
+              1
+             / \
+            4   5
+           / \   \
+          4   4   5
+Output:
+
+2
+Note: The given binary tree has not more than 10000 nodes. The height of the
+tree is not more than 1000.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 112 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  /*
+      N by returning the longest path that starts from this node where a path is
+     straight down where all the nodes have the same value. This is 1 +
+     max(f(left), f(right)) if left and right have the same value as this node.
+      Variable that is passed by reference is the result where it can be 1 +
+     f(left) + f(right) if left and right have the same value as this node as it
+     means there is a path for the left and a path for the right which creates a
+     upside down v shape.
+  */
+  int solve(TreeNode* root, int& res) {
+    if (!root) return 0;
+    vector<int> longest_path_starting_at_child{solve(root->left, res),
+                                               solve(root->right, res)};
+    int pos_res = 1;
+    int longest_path_starting_at_node = 0;
+
+    if (root->left && root->left->val == root->val) {
+      pos_res += longest_path_starting_at_child[0];
+      longest_path_starting_at_node = longest_path_starting_at_child[0];
+    }
+    if (root->right && root->right->val == root->val) {
+      pos_res += longest_path_starting_at_child[1];
+      longest_path_starting_at_node =
+          max(longest_path_starting_at_node, longest_path_starting_at_child[1]);
+    }
+
+    res = max(res, pos_res);
+    return 1 + longest_path_starting_at_node;
+  }
+
+  int longestUnivaluePath(TreeNode* root) {
+    int res = 1;
+    solve(root, res);
+    return res - 1;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+690. Employee Importance
+You are given a data structure of employee information, which includes the
+employee's unique id, his importance value and his direct subordinates' id.
+
+For example, employee 1 is the leader of employee 2, and employee 2 is the
+leader of employee 3. They have importance value 15, 10 and 5, respectively.
+Then employee 1 has a data structure like [1, 15, [2]], and employee 2 has [2,
+10, [3]], and employee 3 has [3, 5, []]. Note that although employee 3 is also a
+subordinate of employee 1, the relationship is not direct.
+
+Now given the employee information of a company, and an employee id, you need to
+return the total importance value of this employee and all his subordinates.
+
+Example 1:
+Input: [[1, 5, [2, 3]], [2, 3, []], [3, 3, []]], 1
+Output: 11
+Explanation:
+Employee 1 has importance value 5, and he has two direct subordinates: employee
+2 and employee 3. They both have importance value 3. So the total importance
+value of employee 1 is 5 + 3 + 3 = 11. Note: One employee has at most one direct
+leader and may have several subordinates. The maximum number of employees won't
+exceed 2000.
+/*
+    Submission Date: 2018-06-04
+    Runtime: 135 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Employee {
+ public:
+  // It's the unique ID of each node.
+  // unique id of this employee
+  int id;
+  // the importance value of this employee
+  int importance;
+  // the id of direct subordinates
+  vector<int> subordinates;
+};
+
+class Solution {
+ public:
+  int dfs(int id, unordered_map<int, int> id_to_ind,
+          const vector<Employee*>& employees) {
+    int res = employees[id_to_ind[id]]->importance;
+    for (const auto& e : employees[id_to_ind[id]]->subordinates)
+      res += dfs(e, id_to_ind, employees);
+    return res;
+  }
+
+  int getImportance(vector<Employee*> employees, int id) {
+    unordered_map<int, int> id_to_ind;
+    for (int i = 0; i < employees.size(); i++) id_to_ind[employees[i]->id] = i;
+
+    return dfs(id, id_to_ind, employees);
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 692. Top K Frequent Words
 Given a non-empty list of words, return the k most frequent elements.
 
@@ -722,287 +948,3 @@ class MyHashSet {
 int main() {
   return 0;
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-706. Design HashMap
-Design a HashMap without using any built-in hash table libraries.
-
-To be specific, your design should include these functions:
-
-  put(key, value) : Insert a (key, value) pair into the HashMap. If the value
-already exists in the HashMap, update the value.
-  get(key): Returns the value to which the specified key is mapped, or -1 if
-this map contains no mapping for the key. remove(key) : Remove the mapping for
-the value key if this map contains the mapping for the key.
-
-Example:
-
-MyHashMap hashMap = new MyHashMap();
-hashMap.put(1, 1);          
-hashMap.put(2, 2);        
-hashMap.get(1);            // returns 1
-hashMap.get(3);            // returns -1 (not found)
-hashMap.put(2, 1);          // update the existing value
-hashMap.get(2);            // returns 1
-hashMap.remove(2);          // remove the mapping for 2
-hashMap.get(2);            // returns -1 (not found)
-
-Note:
-
-  All keys and values will be in the range of [0, 1000000].
-  The number of operations will be in the range of [1, 10000].
-  Please do not use the built-in HashMap library.
-/*
-  Submission Date: 2019-02-06
-  Runtime: 160 ms
-  Difficulty: EASY
-*/
-#include <functional>
-#include <iostream>
-#include <list>
-#include <vector>
-
-using namespace std;
-
-typedef pair<int, int> pii;
-struct Data {
-  hash<int> h;
-  int capacity;
-  int size = 0;
-  vector<list<pii>> arr;
-  int GetHash(int key) { return h(key) % capacity; }
-
-  Data(int cap) : capacity(cap) { arr.resize(capacity); }
-};
-
-class MyHashMap {
-  const double load_factor_ = 0.75;
-  int capacity_ = 10;
-  Data* data_;
-
-  list<pii>::iterator Get(int key) {
-    auto& l = data_->arr[data_->GetHash(key)];
-    for (auto it = l.begin(); it != l.end(); it++) {
-      if (it->first == key) return it;
-    }
-    return l.end();
-  }
-
- public:
-  /** Initialize your data structure here. */
-  MyHashMap() { data_ = new Data(capacity_); }
-
-  /** value will always be non-negative. */
-  void put(int key, int value) {
-    auto it = Get(key);
-    auto& l = data_->arr[data_->GetHash(key)];
-
-    if (it == l.end()) {
-      // insert
-      l.emplace_back(key, value);
-      data_->size++;
-
-      if (data_->size > load_factor_ * capacity_) {
-        Data* old = data_;
-        capacity_ *= 2;
-        data_ = new Data(capacity_);
-        for (const auto& bucket : old->arr) {
-          for (const pii& p : bucket) {
-            put(p.first, p.second);
-          }
-        }
-
-        delete old;
-      }
-    } else {
-      it->second = value;
-    }
-  }
-
-  /** Returns the value to which the specified key is mapped, or -1 if this map
-   * contains no mapping for the key */
-  int get(int key) {
-    auto it = Get(key);
-    auto& l = data_->arr[data_->GetHash(key)];
-    return it == l.end() ? -1 : it->second;
-  }
-
-  /** Removes the mapping of the specified value key if this map contains a
-   * mapping for the key */
-  void remove(int key) {
-    auto it = Get(key);
-    auto& l = data_->arr[data_->GetHash(key)];
-    if (it != l.end()) {
-      l.erase(it);
-      data_->size--;
-    }
-  }
-};
-
-int main() {
-  return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-707. Design Linked List
-Design your implementation of the linked list. You can choose to use the singly
-linked list or the doubly linked list. A node in a singly linked list should
-have two attributes: val and next. val is the value of the current node, and
-next is a pointer/reference to the next node. If you want to use the doubly
-linked list, you will need one more attribute prev to indicate the previous node
-in the linked list. Assume all nodes in the linked list are 0-indexed.
-
-Implement these functions in your linked list class:
-
-
-    get(index) : Get the value of the index-th node in the linked list. If the
-index is invalid, return -1.
-    addAtHead(val) : Add a node of value val before the first element of the
-linked list. After the insertion, the new node will be the first node of the
-linked list. addAtTail(val) : Append a node of value val to the last element of
-the linked list. addAtIndex(index, val) : Add a node of value val before the
-index-th node in the linked list. If index equals to the length of linked list,
-the node will be appended to the end of linked list. If index is greater than
-the length, the node will not be inserted. deleteAtIndex(index) : Delete the
-index-th node in the linked list, if the index is valid.
-
-
-Example:
-
-MyLinkedList linkedList = new MyLinkedList();
-linkedList.addAtHead(1);
-linkedList.addAtTail(3);
-linkedList.addAtIndex(1, 2);  // linked list becomes 1->2->3
-linkedList.get(1);            // returns 2
-linkedList.deleteAtIndex(1);  // now the linked list is 1->3
-linkedList.get(1);            // returns 3
-
-
-Note:
-
-
-    All values will be in the range of [1, 1000].
-    The number of operations will be in the range of [1, 1000].
-    Please do not use the built-in LinkedList library.
-/*
-    Submission Date: 2018-07-15
-    Runtime: 24 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct ListNode {
-  int val;
-  ListNode* next;
-  ListNode(int _val) : val(_val), next(NULL) {}
-};
-
-class MyLinkedList {
-  ListNode* head = NULL;
-  ListNode* tail = NULL;
-  int size = 0;
-
- public:
-  /** Initialize your data structure here. */
-  MyLinkedList() {}
-
-  /** Get the value of the index-th node in the linked list. If the index is
-   * invalid, return -1. */
-  /* o(n) */
-
-  ListNode* getNode(int index) {
-    if (index >= size) return NULL;
-
-    ListNode* curr = head;
-    for (int i = 0; i < index && curr; i++) {
-      curr = curr->next;
-    }
-    return curr;
-  }
-
-  int get(int index) {
-    ListNode* curr = getNode(index);
-    return curr ? curr->val : -1;
-  }
-
-  /** Add a node of value val before the first element of the linked list. After
-   * the insertion, the new node will be the first node of the linked list. */
-  /* o(1) */
-  void addAtHead(int val) {
-    ListNode* add = new ListNode(val);
-    add->next = head;
-    head = add;
-    if (tail == NULL) tail = head;
-    size++;
-  }
-
-  /** Append a node of value val to the last element of the linked list. */
-  /* o(1) */
-  void addAtTail(int val) {
-    ListNode* add = new ListNode(val);
-    if (tail == NULL) {
-      head = add;
-    } else {
-      tail->next = add;
-    }
-    tail = add;
-    size++;
-  }
-
-  /** Add a node of value val before the index-th node in the linked list. If
-   * index equals to the length of linked list, the node will be appended to the
-   * end of linked list. If index is greater than the length, the node will not
-   * be inserted. */
-  /* o(n) */
-  void addAtIndex(int index, int val) {
-    if (index > size) return;
-    if (index == 0) {
-      addAtHead(val);
-    } else if (index == size) {
-      addAtTail(val);
-    } else {  // index [1, size-1]
-      ListNode* curr = getNode(index - 1);
-      ListNode* next = curr->next;
-      curr->next = new ListNode(val);
-      curr->next->next = next;
-      size++;
-    }
-  }
-
-  /** Delete the index-th node in the linked list, if the index is valid. */
-  /* o(n) */
-  void deleteAtIndex(int index) {
-    if (index >= size) return;
-    if (index == 0) {
-      ListNode* temp = head;
-      head = head->next;
-      delete temp;
-    } else {  // index [1, size-1]
-      ListNode* curr = getNode(index - 1);
-      ListNode* temp = curr->next;
-      if (temp == tail) {
-        tail = curr;
-      }
-      curr->next = temp->next;
-      delete temp;
-    }
-
-    size--;
-  }
-};
-
-/**
- * Your MyLinkedList object will be instantiated and called as such:
- * MyLinkedList obj = new MyLinkedList();
- * int param_1 = obj.get(index);
- * obj.addAtHead(val);
- * obj.addAtTail(val);
- * obj.addAtIndex(index,val);
- * obj.deleteAtIndex(index);
- */
-
-int main() { return 0; }

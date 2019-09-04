@@ -1,6 +1,169 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+458. Poor Pigs
+There are 1000 buckets, one and only one of them contains poison, the rest are
+filled with water. They all look the same. If a pig drinks that poison it will
+die within 15 minutes. What is the minimum amount of pigs you need to figure out
+which bucket contains the poison within one hour.
+
+Answer this question, and write an algorithm for the follow-up general case.
+
+Follow-up:
+
+If there are n buckets and a pig drinking poison will die within m minutes, how
+many pigs (x) you need to figure out the "poison" bucket within p minutes? There
+is exact one bucket with poison.
+
+/*
+    Submission Date: 2018-07-13
+    Runtime: 0 ms
+    Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  there are minutesToTest/minutesToDie opportunities e.g 60/15=4
+  to try. create minutesToTest/minutesToDie + 1 values in a dimension,
+  create as many pigs as dimensions who takes one entry along a certain
+  dimension every minutesToDie. the +1 means when minutesToTest is over, then
+  the last entry has to be the one.
+  
+  e.g suppose 2 dimensions (pigs) with 5 values in a dimension, one pig can take
+  every potion in a row every minutesToDie and another pig can take
+  every potion in a col every minutesToDie. thus, they can find
+  the poison for 5^2. if there was 3 pigs, then 5^3 and so on.
+  
+  entries = minutesToTest/minutesToDie + 1
+  entries^pigs > buckets
+  log(buckets)/log(entries) > buckets
+  */
+  int poorPigs(int buckets, int minutesToDie, int minutesToTest) {
+    int entries = minutesToTest / minutesToDie + 1;
+    return ceil(log(buckets) / log(entries));
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+459. Repeated Substring Pattern
+Given a non-empty string check if it can be constructed by taking a substring of
+it and appending multiple copies of the substring together. You may assume the
+given string consists of lowercase English letters only and its length will not
+exceed 10000. Example 1: Input: "abab"
+
+Output: True
+
+Explanation: It's the substring "ab" twice.
+Example 2:
+Input: "aba"
+
+Output: False
+Example 3:
+Input: "abcabcabcabc"
+
+Output: True
+
+Explanation: It's the substring "abc" four times. (And the substring "abcabc"
+twice.)
+/*
+    Submission Date: 2018-06-09
+    Runtime: 53 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool repeatedSubstringPattern(string s) {
+    int N = s.size();
+
+    for (int i = 1; i <= N / 2; i++) {
+      if (N % i == 0) {
+        // N can be split into parts containing i elements
+        string pos = "";
+        string part = s.substr(0, i);
+        for (int j = 0; j < N / i; j++) {
+          pos += part;
+        }
+
+        if (s == pos) return true;
+      }
+    }
+
+    return false;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+461. Hamming Distance
+The Hamming distance between two integers is the number of positions at which
+the corresponding bits are different.
+
+Given two integers x and y, calculate the Hamming distance.
+
+Note:
+0 ≤ x, y < 2^31.
+
+Example:
+
+Input: x = 1, y = 4
+
+Output: 2
+
+Explanation:
+1   (0 0 0 1)
+4   (0 1 0 0)
+       ↑   ↑
+
+The above arrows point to positions where the corresponding bits are different.
+/*
+    Submission Date: 2018-05-31
+    Runtime: 6 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int hammingDistance(int x, int y) {
+    int res = 0;
+    while (x && y) {
+      res += (x % 2) != (y % 2);  // check if last bit are different
+      x /= 2;
+      y /= 2;
+    }
+
+    while (x) {
+      x &= (x - 1);  // y is all zeros so just count number of ones in x
+      res++;
+    }
+
+    while (y) {
+      y &= (y - 1);  // x is all zeros so just count number of ones in y
+      res++;
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 462. Minimum Moves to Equal Array Elements II
 Given a non-empty integer array, find the minimum number of moves required to
 make all array elements equal, where a move is incrementing a selected element
@@ -798,118 +961,6 @@ class Solution {
     }
 
     return one_cnt;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-482. License Key Formatting
-You are given a license key represented as a string S which consists only
-alphanumeric character and dashes. The string is separated into N+1 groups by N
-dashes.
-
-Given a number K, we would want to reformat the strings such that each group
-contains exactly K characters, except for the first group which could be shorter
-than K, but still must contain at least one character. Furthermore, there must
-be a dash inserted between two groups and all lowercase letters should be
-converted to uppercase.
-
-Given a non-empty string S and a number K, format the string according to the
-rules described above.
-
-Example 1:
-Input: S = "5F3Z-2e-9-w", K = 4
-
-Output: "5F3Z-2E9W"
-
-Explanation: The string S has been split into two parts, each part has 4
-characters. Note that the two extra dashes are not needed and can be removed.
-Example 2:
-Input: S = "2-5g-3-J", K = 2
-
-Output: "2-5G-3J"
-
-Explanation: The string S has been split into three parts, each part has 2
-characters except the first part as it could be shorter as mentioned above.
-Note:
-The length of string S will not exceed 12,000, and K is a positive integer.
-String S consists only of alphanumerical characters (a-z and/or A-Z and/or 0-9)
-and dashes(-). String S is non-empty.
-/*
-    Submission Date: 2018-06-09
-    Runtime: 13 ms
-    Difficulty: EASY
-*/
-#include <cctype>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string licenseKeyFormatting(string S, int K) {
-    string s = "";
-    // remove dashes and lower case letter
-    for (const auto& c : S) {
-      if (c == '-') continue;
-      s.push_back(toupper(c));
-    }
-
-    int N = s.size();
-    int first_size = N % K;
-
-    string res = "";
-    res.reserve(N + (N - 1) / 2);
-    for (int i = 0; i < N; i++) {
-      if (i > 0 && (i - first_size) % K == 0) res.push_back('-');
-      res.push_back(s[i]);
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-485. Max Consecutive Ones
-Given a binary array, find the maximum number of consecutive 1s in this array.
-
-Example 1:
-Input: [1,1,0,1,1,1]
-Output: 3
-Explanation: The first two digits or the last three digits are consecutive 1s.
-    The maximum number of consecutive 1s is 3.
-Note:
-
-The input array will only contain 0 and 1.
-The length of input array is a positive integer and will not exceed 10,000
-/*
-    Submission Date: 2018-06-03
-    Runtime: 37 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int findMaxConsecutiveOnes(vector<int>& nums) {
-    int curr = 0;
-    int res = 0;
-    for (int i = 0; i < nums.size(); i++) {
-      if (nums[i] == 1) {
-        curr++;
-        res = max(res, curr);
-      } else {
-        curr = 0;
-      }
-    }
-    return res;
   }
 };
 

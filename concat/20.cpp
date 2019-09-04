@@ -140,6 +140,108 @@ class Solution {
 int main() { return 0; }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+380. Insert Delete GetRandom O(1)
+Design a data structure that supports all following operations in average O(1)
+time.
+
+insert(val): Inserts an item val to the set if not already present.
+remove(val): Removes an item val from the set if present.
+getRandom: Returns a random element from current set of elements. Each element
+must have the same probability of being returned.
+
+Example:
+// Init an empty set.
+RandomizedSet randomSet = new RandomizedSet();
+
+// Inserts 1 to the set. Returns true as 1 was inserted successfully.
+randomSet.insert(1);
+
+// Returns false as 2 does not exist in the set.
+randomSet.remove(2);
+
+// Inserts 2 to the set, returns true. Set now contains [1,2].
+randomSet.insert(2);
+
+// getRandom should return either 1 or 2 randomly.
+randomSet.getRandom();
+
+// Removes 1 from the set, returns true. Set now contains [2].
+randomSet.remove(1);
+
+// 2 was already in the set, so return false.
+randomSet.insert(2);
+
+// Since 2 is the only number in the set, getRandom always return 2.
+randomSet.getRandom();
+/*
+  Submission Date: 2019-02-10
+  Runtime: 64 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class RandomizedSet {
+  /*
+  need a vector the random function
+  m_ key is the element and the value is its index in v_
+  when we remove a kv from m_ in order to keep the rest of the
+  values in m_ to point to the right place we have to ensure
+  that none of them moves so we swap the last one with the
+  one we're removing and then removing the last one.
+  this means none of the indicies change besides the last one.
+  */
+  unordered_map<int, int> m_;
+  vector<int> v_;
+
+ public:
+  /** Initialize your data structure here. */
+  RandomizedSet() {}
+
+  /** Inserts a value to the set. Returns true if the set did not already
+   * contain the specified element. */
+  bool insert(int val) {
+    if (m_.count(val)) return false;
+    m_[val] = v_.size();
+    v_.push_back(val);
+    return true;
+  }
+
+  /** Removes a value from the set. Returns true if the set contained the
+   * specified element. */
+  bool remove(int val) {
+    if (!m_.count(val)) return false;
+    int ind = m_[val];
+
+    // fix map. erase after in case val is the last element
+    m_[v_.back()] = ind;
+    m_.erase(val);
+
+    // fix vector
+    swap(v_.back(), v_[ind]);
+    v_.pop_back();
+    return true;
+  }
+
+  /** Get a random element from the set. */
+  int getRandom() { return v_[rand() % v_.size()]; }
+};
+
+/**
+ * Your RandomizedSet object will be instantiated and called as such:
+ * RandomizedSet obj = new RandomizedSet();
+ * bool param_1 = obj.insert(val);
+ * bool param_2 = obj.remove(val);
+ * int param_3 = obj.getRandom();
+ */
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 382. Linked List Random Node
 Given a singly linked list, return a random node's value from the linked list.
 Each node must have the same probability of being chosen.
@@ -892,124 +994,6 @@ class Solution {
     res = res.substr(0, last_non_zero + 1);
     reverse(res.begin(), res.end());
     return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-406. Queue Reconstruction by Height
-Suppose you have a random list of people standing in a queue. Each person is
-described by a pair of integers (h, k), where h is the height of the person and
-k is the number of people in front of this person who have a height greater than
-or equal to h. Write an algorithm to reconstruct the queue.
-
-Note:
-The number of people is less than 1,100.
-
-
-Example
-
-Input:
-[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
-
-Output:
-[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
-/*
-    Submission Date: 2018-06-24
-    Runtime: 42 ms
-    Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  sort by height (h) and break tie on number greater than or equal to before
-  (called k)
-
-  start from the lowest and for each of the same height, find the kth not used
-  spot and place the pair there. keep track of the number of same height
-  elements already placed.
-  */
-  vector<pair<int, int>> reconstructQueue(vector<pair<int, int>>& people) {
-    vector<pair<int, int>> res(people.size(), {-1, -1});
-    sort(people.begin(), people.end());
-
-    int N = people.size();
-    for (int i = 0; i < N;) {
-      int start = i;
-      while (people[i].first == people[start].first) {
-        auto p = people[i];
-        int to_go = p.second - (i - start);
-        for (int j = 0; j < N; j++) {
-          if (res[j].second != -1) continue;
-          if (to_go == 0) {
-            res[j] = p;
-            break;
-          }
-          to_go--;
-        }
-        i++;
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-409. Longest Palindrome
-Given a string which consists of lowercase or uppercase letters, find the length
-of the longest palindromes that can be built with those letters.
-
-This is case sensitive, for example "Aa" is not considered a palindrome here.
-
-Note:
-Assume the length of given string will not exceed 1,010.
-
-Example:
-
-Input:
-"abccccdd"
-
-Output:
-7
-
-Explanation:
-One longest palindrome that can be built is "dccaccd", whose length is 7.
-/*
-    Submission Date: 2018-05-30
-    Runtime: 8 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
- public:
-  // return all the frequencies floored to nearest multiple of 2 and add one for
-  // if any of the frequency is odd
-  int longestPalindrome(string s) {
-    unordered_map<char, int> letter_to_freq;
-    for (const auto& c : s) letter_to_freq[c]++;
-    int res = 0;
-    bool has_odd = false;
-
-    for (const auto& kv : letter_to_freq) {
-      res += (kv.second / 2) * 2;
-      has_odd |= kv.second % 2;
-    }
-
-    return res + has_odd;
   }
 };
 

@@ -1,6 +1,138 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+508. Most Frequent Subtree Sum
+Given the root of a tree, you are asked to find the most frequent subtree sum.
+The subtree sum of a node is defined as the sum of all the node values formed by
+the subtree rooted at that node (including the node itself). So what is the most
+frequent subtree sum value? If there is a tie, return all the values with the
+highest frequency in any order.
+
+
+Examples 1
+Input:
+  5
+ /  \
+2   -3
+
+return [2, -3, 4], since all the values happen only once, return all of them in
+any order.
+
+
+Examples 2
+Input:
+  5
+ /  \
+2   -5
+
+return [2], since 2 happens twice, however -5 only occur once.
+
+
+Note:
+You may assume the sum of values in any subtree is in the range of 32-bit signed
+integer.
+
+/*
+    Submission Date: 2018-06-30
+    Runtime: 16 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  int f(TreeNode* node, unordered_map<int, int>& sum_to_freq, int& max_freq) {
+    if (node == NULL) return 0;
+
+    int sum = node->val + f(node->left, sum_to_freq, max_freq) +
+              f(node->right, sum_to_freq, max_freq);
+    sum_to_freq[sum]++;
+    max_freq = max(max_freq, sum_to_freq[sum]);
+    return sum;
+  }
+
+  vector<int> findFrequentTreeSum(TreeNode* root) {
+    unordered_map<int, int> sum_to_freq;
+    int max_freq = 0;
+    f(root, sum_to_freq, max_freq);
+    vector<int> res;
+    for (const auto& kv : sum_to_freq)
+      if (kv.second == max_freq) res.push_back(kv.first);
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+509. Fibonacci Number
+The Fibonacci numbers, commonly denoted F(n) form a sequence, called
+the Fibonacci sequence, such that each number is the sum of the two preceding
+ones, starting from 0 and 1. That is,
+
+F(0) = 0,   F(1) = 1
+F(N) = F(N - 1) + F(N - 2), for N > 1.
+
+Given N, calculate F(N).
+
+Example 1:
+
+Input: 2
+Output: 1
+Explanation: F(2) = F(1) + F(0) = 1 + 0 = 1.
+
+Example 2:
+
+Input: 3
+Output: 2
+Explanation: F(3) = F(2) + F(1) = 1 + 1 = 2.
+
+Example 3:
+
+Input: 4
+Output: 3
+Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3.
+
+Note:
+
+0 ≤ N ≤ 30.
+/*
+  Submission Date: 2019-02-05
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int fib(int N) {
+    int prev = 0, curr = 1;
+    for (int i = 0; i < N; i++) {
+      curr += prev;
+      prev = curr - prev;
+    }
+
+    return prev;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 513. Find Bottom Left Tree Value
 Given a binary tree, find the leftmost value in the last row of the tree.
 
@@ -871,98 +1003,6 @@ public:
 
         if(wrapDiff < minDiff) minDiff = wrapDiff;
         return minDiff;
-    }
-};
-
-int main() {
-    return 0;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-540. Single Element in a Sorted Array
-Given a sorted array consisting of only integers where every element appears
-twice except for one element which appears once. Find this single element that
-appears only once.
-
-Example 1:
-Input: [1,1,2,3,3,4,4,8,8]
-Output: 2
-Example 2:
-Input: [3,3,7,7,10,11,11]
-Output: 10
-Note: Your solution should run in O(log n) time and O(1) space.
-/*
-    Submission Date: 2018-06-24
-    Runtime: 7 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int singleNonDuplicate(vector<int>& nums) {
-    int low = 0;
-    int high = nums.size() - 1;
-    while (low <= high) {
-      int mid = low + (high - low) / 2;
-      if ((mid % 2 == 0 && nums[mid] == nums[mid + 1]) ||
-          (mid % 2 == 1 && nums[mid] == nums[mid - 1])) {
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-
-    return nums[low];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-541. Reverse String II
-Given a string and an integer k, you need to reverse the first k characters for every 2k 
-characters counting from the start of the string. If there are less than k characters left, 
-reverse all of them. If there are less than 2k but greater than or equal to k characters, 
-then reverse the first k characters and left the other as original.
-
-Example:
-Input: s = "abcdefg", k = 2
-Output: "bacdfeg"
-
-Restrictions:
-The string consists of lower English letters only.
-Length of the given string and k will in the range [1, 10000]
-
-/*
-    Submission Date: 2017-03-11
-    Runtime: 26 ms
-    Difficulty: EASY
-*/
-
-using namespace std;
-#include <iostream>
-
-class Solution {
-public:
-    string reverseStr(string s, int k) {
-        string finalStr = "";
-        bool reverse = true;
-        int i = 0, len = s.size();
-        while(i < len) {
-            string currentStr = string(1, s[i++]);
-            while(i%k != 0 && i < len) {
-                currentStr = reverse ? s[i] + currentStr : currentStr + s[i];
-                i++;
-            }
-            finalStr += currentStr;
-            reverse ^= true;
-        }
-        
-        return finalStr;
     }
 };
 

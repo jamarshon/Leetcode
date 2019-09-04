@@ -1,6 +1,227 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+649. Dota2 Senate
+In the world of Dota2, there are two parties: the Radiant and the Dire.
+
+The Dota2 senate consists of senators coming from two parties. Now the senate wants to make a decision about 
+a change in the Dota2 game. The voting for this change is a round-based procedure. In each round, each senator 
+can exercise one of the two rights:
+
+Ban one senator's right: 
+A senator can make another senator lose all his rights in this and all the following rounds.
+Announce the victory: 
+If this senator found the senators who still have rights to vote are all from the same party, he can announce 
+the victory and make the decision about the change in the game.
+Given a string representing each senator's party belonging. The character 'R' and 'D' represent the Radiant 
+party and the Dire party respectively. Then if there are n senators, the size of the given string will be n.
+
+The round-based procedure starts from the first senator to the last senator in the given order. This 
+procedure will last until the end of voting. All the senators who have lost their rights will be skipped 
+during the procedure.
+
+Suppose every senator is smart enough and will play the best strategy for his own party, you need to predict 
+which party will finally announce the victory and make the change in the Dota2 game. The output should be 
+Radiant or Dire.
+
+Example 1:
+Input: "RD"
+Output: "Radiant"
+Explanation: The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights any more since his right has been banned. 
+And in the round 2, the first senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Example 2:
+Input: "RDD"
+Output: "Dire"
+Explanation: 
+The first senator comes from Radiant and he can just ban the next senator's right in the round 1. 
+And the second senator can't exercise any rights anymore since his right has been banned. 
+And the third senator comes from Dire and he can ban the first senator's right in the round 1. 
+And in the round 2, the third senator can just announce the victory since he is the only guy in the senate 
+who can vote.
+Note:
+The length of the given string will in the range [1, 10,000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 69 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        while(!senate.empty()) {
+            for(int i = 0; i < senate.size();) {
+                char curr = senate[i];
+                int j = i;
+                for(; j < senate.size(); j++) {
+                    if(senate[j] != curr) {
+                        break;
+                    }
+                }
+            
+                if(j == senate.size()) {
+                    j = 0;
+                    for(; j < i; j++) {
+                        if(senate[j] != curr) {
+                            break;
+                        }
+                    }
+
+                    if(j == i) {
+                        if(curr == 'R') return "Radiant";
+                        return "Dire";
+                    } else {
+                        senate = senate.substr(0, j) + senate.substr(j + 1);
+                    }
+                } else {
+                    senate = senate.substr(0, j) + senate.substr(j + 1);
+                    i++;
+                }
+            }
+        }
+        return "";
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+650. 2 Keys Keyboard
+Initially on a notepad only one character 'A' is present. You can perform two operations on this notepad 
+for each step:
+
+Copy All: You can copy all the characters present on the notepad (partial copy is not allowed).
+Paste: You can paste the characters which are copied last time.
+Given a number n. You have to get exactly n 'A' on the notepad by performing the minimum number of steps 
+permitted. Output the minimum number of steps to get n 'A'.
+
+Example 1:
+Input: 3
+Output: 3
+Explanation:
+Intitally, we have one character 'A'.
+In step 1, we use Copy All operation.
+In step 2, we use Paste operation to get 'AA'.
+In step 3, we use Paste operation to get 'AAA'.
+Note:
+The n will be in the range [1, 1000].
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 3 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <climits>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    int minSteps(int n) {
+        vector<int> dp(n + 1, INT_MAX);
+        dp[0] = dp[1] = 0;
+
+        for(int i = 1; i <= n; i++) {
+            int cost = dp[i] + 1;
+            int temp = i*2;
+            if(temp > n) break; 
+            while(temp <= n) {
+                dp[temp] = min(dp[temp], ++cost);
+                temp += i;
+            }
+        }
+
+        return dp[n];
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+652. Find Duplicate Subtrees
+Given a binary tree, return all duplicate subtrees. For each kind of duplicate subtrees, you only need to 
+return the root node of any one of them.
+
+Two trees are duplicate if they have the same structure with same node values.
+
+Example 1: 
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+The following are two duplicate subtrees:
+      2
+     /
+    4
+and
+    4
+Therefore, you need to return above trees' root in the form of a list.
+
+/*
+    Submission Date: 2017-07-30
+    Runtime: 45 ms
+    Difficulty: MEDIUM
+*/
+
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    string preorder(TreeNode* root, unordered_map<string, int>& freq, vector<TreeNode*>& res) {
+        if(root != NULL) {
+            string left = preorder(root -> left, freq, res);
+            string right = preorder(root -> right, freq, res);
+            
+            string str = to_string(root -> val) + " " + left + right;
+            
+            if(freq[str] == 1) res.push_back(root);
+            freq[str]++;
+            return str;
+        } else {
+            return "null ";
+        }
+    }
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        unordered_map<string, int> freq;
+        vector<TreeNode*> res;
+        preorder(root, freq, res);
+        return res;
+    }
+};
+
+int main() {
+    return 0;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 653. Two Sum IV - Input is a BST
 Given a Binary Search Tree and a target number, return true if there exist two 
 elements in the BST such that their sum is equal to the given target.
@@ -738,236 +959,3 @@ int main() {
   Solution s;
   return 0;
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-665. Non-decreasing Array
-Given an array with n integers, your task is to check if it could become
-non-decreasing by modifying at most 1 element.
-
-We define an array is non-decreasing if array[i] <= array[i + 1] holds for every
-i (1 <= i < n).
-
-Example 1:
-Input: [4,2,3]
-Output: True
-Explanation: You could modify the first 4 to 1 to get a non-decreasing array.
-Example 2:
-Input: [4,2,1]
-Output: False
-Explanation: You can't get a non-decreasing array by modify at most one element.
-Note: The n belongs to [1, 10,000].
-/*
-    Submission Date: 2018-06-09
-    Runtime: 40 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  for the first number where nums[i] < nums[i-1] where nums[i] = c
-  a b c d
-  
-  then a <= b and c < b.
-  the condition must hold c <= d as if c < d then it will be a a c (c-x)
-  or 10 10 7 6 where c has to be fixed and d as well
-  
-  if problem_ind == -1 means the array is already sorted in increasing order
-  if it is 1 then just update nums[0] to equal nums[1]
-  
-  if a <= c then it is true as well as a <= b, a <= c and c <= d (from before)
-  so a <= b <= c <= d
-  
-  if d does not exist or b <= d as a <= b and b <= d so replace c with any
-  number between [b,d] to get a b b d
-  */
-  bool checkPossibility(vector<int>& nums) {
-    int problem_ind = -1;
-    for (int i = 1; i < nums.size(); i++) {
-      if (nums[i] < nums[i - 1]) {
-        if (problem_ind != -1) return false;
-        problem_ind = i;
-      }
-    }
-
-    return problem_ind < 2 || nums[problem_ind - 2] <= nums[problem_ind] ||
-           (problem_ind + 1 == nums.size() ||
-            nums[problem_ind - 1] <= nums[problem_ind + 1]);
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-667. Beautiful Arrangement II
-Given two integers n and k, you need to construct a list which contains n
-different positive integers ranging from 1 to n and obeys the following
-requirement:
-
-Suppose this list is [a1, a2, a3, ... , an], then the list [|a1 - a2|, |a2 -
-a3|, |a3 - a4|, ... , |an-1 - an|] has exactly k distinct integers.
-
-
-
-If there are multiple answers, print any of them.
-
-
-Example 1:
-Input: n = 3, k = 1
-Output: [1, 2, 3]
-Explanation: The [1, 2, 3] has three different positive integers ranging from 1
-to 3, and the [1, 1] has exactly 1 distinct integer: 1.
-
-
-
-Example 2:
-Input: n = 3, k = 2
-Output: [1, 3, 2]
-Explanation: The [1, 3, 2] has three different positive integers ranging from 1
-to 3, and the [2, 1] has exactly 2 distinct integers: 1 and 2.
-
-
-
-Note:
-
-The n and k are in the range 1 <= k < n <= 104.
-
-/*
-    Submission Date: 2018-07-02
-    Runtime: 29 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  place elements [1, n-k] in array then keep adding to the back numbers from
-  [k, 1] alterating the sign (+, -) starting with +
-  */
-  vector<int> constructArray(int n, int k) {
-    vector<int> res;
-    res.reserve(n);
-    for (int i = 1; i + k <= n; i++) res.push_back(i);
-    for (int i = 0; i < k; i++) {
-      res.push_back(res.back() + (i % 2 == 0 ? 1 : -1) * (k - i));
-    }
-
-    return res;
-  }
-};
-
-class Solution2 {
- public:
-  /*
-  have two pointers i and j where i starts at 1 and j starts at n
-  interweave i and j for the first k elements then just keep increasing i until
-  reaches j e.g n = 5, k = 3
-  
-  weaves 3 2 1
-  res    1 5 2 3 4
-  diff    4 3 1 1
-  */
-  vector<int> constructArray(int n, int k) {
-    vector<int> res;
-    res.reserve(n);
-    int j = n;
-    for (int i = 1; i <= j;) {
-      if (k > 1) {
-        res.push_back(k-- % 2 ? i++ : j--);
-      } else {
-        res.push_back(i++);
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-669. Trim a Binary Search Tree
-Given a binary search tree and the lowest and highest boundaries as L and R,
-trim the tree so that all its elements lies in [L, R] (R >= L). You might need
-to change the root of the tree, so the result should return the new root of the
-trimmed binary search tree.
-
-Example 1:
-Input:
-    1
-   / \
-  0   2
-
-  L = 1
-  R = 2
-
-Output:
-    1
-      \
-       2
-Example 2:
-Input:
-    3
-   / \
-  0   4
-   \
-    2
-   /
-  1
-
-  L = 1
-  R = 3
-
-Output:
-      3
-     /
-   2
-  /
- 1
-/*
-    Submission Date: 2018-05-31
-    Runtime: 18 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  /*
-  if node val is within bounds, than return node with left and right subtrees
-  trimmed if node val is > R that means all the element in the right subtree
-  will also be bigger so return the trimmed left subtree if node val is < L that
-  means all the element in the left subtree will also be smaller so return the
-  trimmed right subtree
-  */
-  TreeNode* trimBST(TreeNode* root, int L, int R) {
-    if (root == NULL) return NULL;
-    if (root->val > R) {
-      return trimBST(root->left, L, R);
-    } else if (root->val < L) {
-      return trimBST(root->right, L, R);
-    } else {
-      root->left = trimBST(root->left, L, R);
-      root->right = trimBST(root->right, L, R);
-      return root;
-    }
-  }
-};
-int main() { return 0; }

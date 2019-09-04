@@ -1,6 +1,287 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+921. Minimum Add to Make Parentheses Valid
+Given a string S of '(' and ')' parentheses, we add the minimum number of
+parentheses ( '(' or ')', and in any positions ) so that the resulting
+parentheses string is valid.
+
+Formally, a parentheses string is valid if and only if:
+
+  It is the empty string, or
+  It can be written as AB (A concatenated with B), where A and B are valid
+strings, or
+  It can be written as (A), where A is a valid string.
+
+Given a parentheses string, return the minimum number of parentheses we must add
+to make the resulting string valid.
+
+Example 1:
+
+Input: "())"
+Output: 1
+
+Example 2:
+
+Input: "((("
+Output: 3
+
+Example 3:
+
+Input: "()"
+Output: 0
+
+Example 4:
+
+Input: "()))(("
+Output: 4
+
+Note:
+
+  S.length <= 1000
+  S only consists of '(' and ')' characters.
+/*
+  Submission Date: 2019-01-26
+  Runtime: 0 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int minAddToMakeValid(string s) {
+    int open = 0;
+    int res = 0;
+    for (auto& c : s) {
+      if (c == '(') {
+        open++;
+      } else {
+        if (open > 0) {
+          open--;
+        } else {
+          res++;
+        }
+      }
+    }
+    return res + open;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+922. Sort Array By Parity II
+Given an array A of non-negative integers, half of the integers in A are odd,
+and half of the integers are even.
+
+Sort the array so that whenever A[i] is odd, i is odd; and whenever A[i] is
+even, i is even.
+
+You may return any answer array that satisfies this condition.
+
+Example 1:
+
+Input: [4,2,5,7]
+Output: [4,5,2,7]
+Explanation: [4,7,2,5], [2,5,4,7], [2,7,4,5] would also have been accepted.
+
+Note:
+
+  2 <= A.length <= 20000
+  A.length % 2 == 0
+  0 <= A[i] <= 1000
+/*
+  Submission Date: 2019-01-26
+  Runtime: 120 ms
+  Difficulty: EASY
+*/
+#include <cassert>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> sortArrayByParityII(vector<int>& A) {
+    int even_ind = 0;
+    int odd_ind = 1;
+    while (even_ind < A.size() && odd_ind < A.size()) {
+      while (even_ind < A.size() && A[even_ind] % 2 == 0) {
+        even_ind += 2;
+      }
+
+      while (odd_ind < A.size() && A[odd_ind] % 2 == 1) {
+        odd_ind += 2;
+      }
+
+      int cnt = (even_ind < A.size()) + (odd_ind < A.size());
+
+      if (cnt == 0) break;
+      assert(cnt != 1);
+      swap(A[even_ind], A[odd_ind]);
+      even_ind += 2;
+      odd_ind += 2;
+    }
+
+    return A;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+924. Minimize Malware Spread
+In a network of nodes, each node i is directly connected to another node j if
+and only if graph[i][j] = 1.
+
+Some nodes initial are initially infected by malware.  Whenever two nodes are
+directly connected and at least one of those two nodes is infected by malware,
+both nodes will be infected by malware.  This spread of malware will continue
+until no more nodes can be infected in this manner.
+
+Suppose M(initial) is the final number of nodes infected with malware in the
+entire network, after the spread of malware stops.
+
+We will remove one node from the initial list.  Return the node that if removed,
+would minimize M(initial).  If multiple nodes could be removed to minimize
+M(initial), return such a node with the smallest index.
+
+Note that if a node was removed from the initial list of infected nodes, it may
+still be infected later as a result of the malware spread.
+
+Example 1:
+
+Input: graph = [[1,1,0],[1,1,0],[0,0,1]], initial = [0,1]
+Output: 0
+
+Example 2:
+
+Input: graph = [[1,0,0],[0,1,0],[0,0,1]], initial = [0,2]
+Output: 0
+
+Example 3:
+
+Input: graph = [[1,1,1],[1,1,1],[1,1,1]], initial = [1,2]
+Output: 1
+
+Note:
+
+  1 < graph.length = graph[0].length <= 300
+  0 <= graph[i][j] == graph[j][i] <= 1
+  graph[i][i] = 1
+  1 <= initial.length < graph.length
+  0 <= initial[i] < graph.length
+/*
+  Submission Date: 2019-02-04
+  Runtime: 168 ms
+  Difficulty: HARD
+*/
+#include <cassert>
+#include <climits>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+template <typename T>
+class UnionFind {
+  unordered_map<T, int> rank_, size_;
+  unordered_map<T, T> parent_;
+
+ public:
+  bool IsWithinSet(T e) { return parent_.count(e); }
+
+  void CreateSet(T e) {
+    assert(!IsWithinSet(e));
+    parent_[e] = e;
+    rank_[e] = 0;
+    size_[e] = 1;
+  }
+
+  T Find(T e) {
+    if (parent_[e] != e) {
+      parent_[e] = Find(parent_[e]);
+    }
+    return parent_[e];
+  }
+  int GetSize(T e) { return size_[Find(e)]; }
+
+  bool Union(T e1, T e2) {
+    T e1_root = Find(e1);
+    T e2_root = Find(e2);
+
+    if (e1_root == e2_root) return false;  // same root
+
+    if (rank_[e1_root] < rank_[e2_root]) {
+      parent_[e1_root] = e2_root;
+      size_[e2_root] += size_[e1_root];
+    } else {
+      parent_[e2_root] = e1_root;
+      size_[e1_root] += size_[e2_root];
+      if (rank_[e1_root] == rank_[e2_root]) {
+        rank_[e1_root]++;
+      }
+    }
+
+    return true;
+  }
+};
+
+class Solution {
+ public:
+  int minMalwareSpread(vector<vector<int>>& graph, vector<int>& initial) {
+    int N = graph.size();
+    UnionFind<int> uf;
+    for (int i = 0; i < N; i++) uf.CreateSet(i);
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        if (graph[i][j]) uf.Union(i, j);
+      }
+    }
+
+    unordered_map<int, vector<int>> parent_to_children;
+    int min_m = INT_MAX;
+    for (const auto& m : initial) {
+      parent_to_children[uf.Find(m)].push_back(m);
+      min_m = min(min_m, m);
+    }
+
+    int largest_machine = -1;
+    for (const auto& kv : parent_to_children) {
+      // for connected components that with more than one initial machine, they
+      // should be discarded
+      if (kv.second.size() != 1) continue;
+      int m = kv.second.front();
+      if (largest_machine == -1) {
+        largest_machine = m;
+        continue;
+      }
+
+      // this component only has one machine, so removing it would result in
+      // uf.GetSize(m) number of machines saved.
+      int max_size = uf.GetSize(largest_machine);
+      int curr_size = uf.GetSize(m);
+      if (curr_size == max_size) {
+        largest_machine = min(largest_machine, m);
+      } else if (curr_size > max_size) {
+        largest_machine = m;
+      }
+    }
+
+    return (largest_machine == -1) ? min_m : largest_machine;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 925. Long Pressed Name
 Your friend is typing his name into a keyboard.  Sometimes, when typing a
 character c, the key might get long pressed, and the character will be typed 1
@@ -71,6 +352,77 @@ class Solution {
     }
 
     return i == n && j == m;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+926. Flip String to Monotone Increasing
+A string of '0's and '1's is monotone increasing if it consists of some number
+of '0's (possibly 0), followed by some number of '1's (also possibly 0.)
+
+We are given a string S of '0's and '1's, and we may flip any '0' to a '1' or a
+'1' to a '0'.
+
+Return the minimum number of flips to make S monotone increasing.
+
+Example 1:
+
+Input: "00110"
+Output: 1
+Explanation: We flip the last digit to get 00111.
+
+Example 2:
+
+Input: "010110"
+Output: 2
+Explanation: We flip to get 011111, or alternatively 000111.
+
+Example 3:
+
+Input: "00011000"
+Output: 2
+Explanation: We flip to get 00000000.
+
+Note:
+
+  1 <= S.length <= 20000
+  S only consists of '0' and '1' characters.
+/*
+  Submission Date: 2019-02-21
+  Runtime: 8 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  for index i if we have number of ones from [0, i) ones_left
+  and number of ones from [i,N) ones_right then the cost
+  of partitioning at i would be number of ones on left +
+  number of zeros on right
+  */
+  int minFlipsMonoIncr(string S) {
+    int N = S.size();
+    int ones_right = 0;
+    for (const auto& c : S) ones_right += c == '1';
+
+    int res = min(ones_right, N - ones_right);
+    int ones_left = 0;
+    for (int i = 0; i < N; i++) {
+      res = min(res, ones_left + N - i - ones_right);
+      if (S[i] == '1') {
+        ones_left++;
+        ones_right--;
+      }
+    }
+
+    return res;
   }
 };
 
@@ -212,6 +564,91 @@ class Solution {
       }
     }
     return *min_element(A[0].begin(), A[0].end());
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+932. Beautiful Array
+For some fixed N, an array A is beautiful if it is a permutation of the integers
+1, 2, ..., N, such that:
+
+For every i < j, there is no k with i < k < j such that A[k] * 2 = A[i] + A[j].
+
+Given N, return any beautiful array A.  (It is guaranteed that one exists.)
+
+Example 1:
+
+Input: 4
+Output: [2,1,4,3]
+
+Example 2:
+
+Input: 5
+Output: [3,1,2,5,4]
+
+Note:
+
+  1 <= N <= 1000
+/*
+  Submission Date: 2019-02-19
+  Runtime: 12 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  generate all the odd numbers followed by the even
+  this partition helps because if even_a + even_b = x and odd_a + odd_b = y
+  then if x is 2*odd number or y is 2*even number, it will never violate
+  the beautiful condition due to the partition
+
+  even_a + odd_a is always odd so concatenate an array of odd numbers and
+  even numbers is still beautiful
+
+  given a beautiful array A of size N, the operations are supported
+  1) remove element
+  -removing element will never violate condition as it relaxes the criteria
+  2) multiplication
+  since beautiful A[k]*2 != A[i] + A[j], if all elements multiplied by x
+  # (A[k]*x)*2
+  ## (A[i]*x) + (A[j]*x)
+  divide # and ## by x and get A[k]*2 and A[i] + A[j] which are not equal so
+  still beautiful
+
+  3) addition
+  add x to each element
+  # (A[k]+x)*2 = A[k]*2 + 2x
+  ## (A[i]+x) + (A[j]+x) = A[i] + A[j] + 2x
+  subtract 2x from # and ## and get A[k]*2 and A[i] + A[j] which are not equal
+  so still beautiful
+
+  so start with the base case of A = {1} for size 1 and build it recursively
+  to size N by multiply, add and remove elements that are too large
+
+  odd = A[i]*2-1 for all i (generates all odd from 1 to 2*N-1)
+  even = A[i]*2 for all i (generates all even from 0 to 2*N)
+  new_A = concat odd and even (size of 2*N)
+  */
+  vector<int> beautifulArray(int N) {
+    vector<int> res{1};
+    res.reserve(N);
+    while (res.size() < N) {
+      vector<int> tmp;
+      for (const auto& i : res)
+        if (2 * i - 1 <= N) tmp.push_back(2 * i - 1);
+      for (const auto& i : res)
+        if (2 * i <= N) tmp.push_back(2 * i);
+      res = tmp;
+    }
+    return res;
   }
 };
 
@@ -406,501 +843,158 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-941. Valid Mountain Array
-Given an array A of integers, return true if and only if it is a valid mountain
-array.
+939. Minimum Area Rectangle
+Given a set of points in the xy-plane, determine the minimum area of a rectangle
+formed from these points, with sides parallel to the x and y axes.
 
-Recall that A is a mountain array if and only if:
-
-  A.length >= 3
-  There exists some i with 0 < i < A.length - 1 such that:
-
-    A[0] < A[1] < ... A[i-1] < A[i]
-    A[i] > A[i+1] > ... > A[B.length - 1]
+If there isn't any rectangle, return 0.
 
 Example 1:
 
-Input: [2,1]
-Output: false
+Input: [[1,1],[1,3],[3,1],[3,3],[2,2]]
+Output: 4
 
 Example 2:
 
-Input: [3,5,5]
-Output: false
-
-Example 3:
-
-Input: [0,3,2,1]
-Output: true
+Input: [[1,1],[1,3],[3,1],[3,3],[4,1],[4,3]]
+Output: 2
 
 Note:
 
-  0 <= A.length <= 10000
-  0 <= A[i] <= 10000
+  1 <= points.length <= 500
+  0 <= points[i][0] <= 40000
+  0 <= points[i][1] <= 40000
+  All points are distinct.
 /*
-  Submission Date: 2019-02-05
-  Runtime: 24 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool validMountainArray(vector<int>& A) {
-    int N = A.size();
-    if (N < 3) return false;
-    // increasing
-    int i = 1;
-    for (; i < N && A[i - 1] < A[i]; i++) {
-    }
-
-    if (i == 1 || i == N) return false;
-
-    for (; i < N && A[i - 1] > A[i]; i++) {
-    }
-    return i == N;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-942. DI String Match
-Given a string S that only contains "I" (increase) or "D" (decrease), let N =
-S.length.
-
-Return any permutation A of [0, 1, ..., N] such that for all i = 0, ..., N-1:
-
-  If S[i] == "I", then A[i] < A[i+1]
-  If S[i] == "D", then A[i] > A[i+1]
-
-Example 1:
-
-Input: "IDID"
-Output: [0,4,1,3,2]
-
-Example 2:
-
-Input: "III"
-Output: [0,1,2,3]
-
-Example 3:
-
-Input: "DDI"
-Output: [3,2,0,1]
-
-Note:
-
-  1 <= S.length <= 10000
-  S only contains characters "I" or "D".
-/*
-  Submission Date: 2019-02-04
-  Runtime: 28 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  /*
-  if S[i] is 'I', putting the smallest available number here works
-  because all other numbers will be larger.
-  else putting the largest available number here works.
-  */
-  vector<int> diStringMatch(string S) {
-    int N = S.size();
-    vector<int> res(N + 1);
-    int low = 0;
-    int high = N;
-    for (int i = 0; i < N; i++) {
-      if (S[i] == 'I')
-        res[i] = low++;
-      else
-        res[i] = high--;
-    }
-
-    res[N] = low;
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-944. Delete Columns to Make Sorted
-We are given an array A of N lowercase letter strings, all of the same length.
-
-Now, we may choose any set of deletion indices, and for each string, we delete
-all the characters in those indices.
-
-For example, if we have an array A = ["abcdef","uvwxyz"] and deletion indices
-{0, 2, 3}, then the final array after deletions is ["bef", "vyz"], and the
-remaining columns of A are ["b","v"], ["e","y"], and ["f","z"].  (Formally, the
-c-th column is [A[0][c], A[1][c], ..., A[A.length-1][c]].)
-
-Suppose we chose a set of deletion indices D such that after deletions, each
-remaining column in A is in non-decreasing sorted order.
-
-Return the minimum possible value of D.length.
-
-Example 1:
-
-Input: ["cba","daf","ghi"]
-Output: 1
-Explanation:
-After choosing D = {1}, each column ["c","d","g"] and ["a","f","i"] are in
-non-decreasing sorted order.
-If we chose D = {}, then a column ["b","a","h"] would not be in non-decreasing
-sorted order.
-
-Example 2:
-
-Input: ["a","b"]
-Output: 0
-Explanation: D = {}
-
-Example 3:
-
-Input: ["zyx","wvu","tsr"]
-Output: 3
-Explanation: D = {0, 1, 2}
-
-Note:
-
-  1 <= A.length <= 100
-  1 <= A[i].length <= 1000
-/*
-  Submission Date: 2019-02-04
-  Runtime: 44 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int minDeletionSize(vector<string>& A) {
-    int N = A[0].size();
-    int res = 0;
-    for (int c = 0; c < N; c++) {
-      for (int i = 1; i < A.size(); i++) {
-        if (A[i][c] < A[i - 1][c]) {
-          res++;
-          break;
-        }
-      }
-    }
-
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-949. Largest Time for Given Digits
-Given an array of 4 digits, return the largest 24 hour time that can be made.
-
-The smallest 24 hour time is 00:00, and the largest is 23:59.  Starting from
-00:00, a time is larger if more time has elapsed since midnight.
-
-Return the answer as a string of length 5.  If no valid time can be made, return
-an empty string.
-
-Example 1:
-
-Input: [1,2,3,4]
-Output: "23:41"
-
-Example 2:
-
-Input: [5,5,5,5]
-Output: ""
-
-Note:
-
-  A.length == 4
-  0 <= A[i] <= 9
-/*
-  Submission Date: 2019-02-05
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  string largestTimeFromDigits(vector<int>& A) {
-    /*
-    ab:cd
-    a [0, 2]
-    b a == 2 [0-3] else [0-9]
-    c [0, 5]
-    d [0, 9]
-    */
-
-    unordered_map<int, int> freq;
-    for (const auto& e : A) freq[e]++;
-    for (int i = 2; i >= 0; i--) {
-      if (!freq.count(i)) continue;
-      freq[i]--;
-
-      int cap = (i == 2) ? 3 : 9;
-      for (int j = cap; j >= 0; j--) {
-        if (!freq.count(j) || freq[j] == 0) continue;
-        freq[j]--;
-        for (int k = 5; k >= 0; k--) {
-          if (!freq.count(k) || freq[k] == 0) continue;
-          freq[k]--;
-          for (int l = 9; l >= 0; l--) {
-            if (!freq.count(l) || freq[l] == 0) continue;
-            return to_string(i) + to_string(j) + string(":") + to_string(k) +
-                   to_string(l);
-          }
-          freq[k]++;
-        }
-
-        freq[j]++;
-      }
-      freq[i]++;
-    }
-
-    return "";
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-950. Reveal Cards In Increasing Order
-In a deck of cards, every card has a unique integer.  You can order the deck
-in any order you want.
-
-Initially, all the cards start face down (unrevealed) in one deck.
-
-Now, you do the following steps repeatedly, until all cards are revealed:
-
-  Take the top card of the deck, reveal it, and take it out of the deck.
-  If there are still cards in the deck, put the next top card of the deck at the
-bottom of the deck.
-  If there are still unrevealed cards, go back to step 1.  Otherwise, stop.
-
-Return an ordering of the deck that would reveal the cards in increasing order.
-
-The first entry in the answer is considered to be the top of the deck.
-
-Example 1:
-
-Input: [17,13,11,2,3,5,7]
-Output: [2,13,3,11,5,17,7]
-Explanation:
-We get the deck in the order [17,13,11,2,3,5,7] (this order doesn't matter), and
-reorder it.
-After reordering, the deck starts as [2,13,3,11,5,17,7], where 2 is the top of
-the deck.
-We reveal 2, and move 13 to the bottom.  The deck is now [3,11,5,17,7,13].
-We reveal 3, and move 11 to the bottom.  The deck is now [5,17,7,13,11].
-We reveal 5, and move 17 to the bottom.  The deck is now [7,13,11,17].
-We reveal 7, and move 13 to the bottom.  The deck is now [11,17,13].
-We reveal 11, and move 17 to the bottom.  The deck is now [13,17].
-We reveal 13, and move 17 to the bottom.  The deck is now [17].
-We reveal 17.
-Since all the cards revealed are in increasing order, the answer is correct.
-
-Note:
-
-  1 <= A.length <= 1000
-  1 <= A[i] <= 10^6
-  A[i] != A[j] for all i != j
-/*
-  Submission Date: 2019-02-07
-  Runtime: 16 ms
+  Submission Date: 2019-02-19
+  Runtime: 84 ms
   Difficulty: MEDIUM
 */
 #include <algorithm>
-#include <deque>
 #include <iostream>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
+
+class Solution3 {
+ public:
+  /*
+  consider each point as diagonals of the rectangle (a,b) (c,d) seach
+  for (a,d) and (c,b). use hashmap for lookup.
+  if same x coord a==c (a,b) (a,d) look for (a,d) (a,b) not valid
+  so exclude if same x coord and same y coord.
+  */
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    unordered_set<int> s;
+    for (const auto& p : points) s.insert(p[0] * 40001 + p[1]);
+    for (int i = 0; i < points.size(); i++) {
+      for (int j = i + 1; j < points.size(); j++) {
+        if (points[i][0] == points[j][0] || points[i][1] == points[j][1])
+          continue;
+        if (s.count(points[i][0] * 40001 + points[j][1]) &&
+            s.count(points[j][0] * 40001 + points[i][1])) {
+          int area =
+              (points[i][0] - points[j][0]) * (points[i][1] - points[j][1]);
+          res = (res == -1) ? abs(area) : min(abs(area), res);
+        }
+      }
+    }
+    return max(res, 0);
+  }
+};
 
 class Solution {
  public:
   /*
-  Find the order in which the cards are revealed (e.g. indices 0, 2, 4, ...).
-  Place the sorted numbers into these indices.
+  group by x coordinates. sort each column and do pairwise comparison of
+  each column by finding intersecting elements. The smallest distance between
+  intersecting elements multiplied by the distance between columns is smallest
+  rectangle that is bordered by these two columns.
   */
-  vector<int> deckRevealedIncreasing(vector<int>& deck) {
-    sort(deck.begin(), deck.end());
-    int N = deck.size();
-    deque<int> dq(N);
-    for (int i = 0; i < N; i++) dq[i] = i;
-    vector<int> order;
-    while (!dq.empty()) {
-      order.push_back(dq.front());
-      dq.pop_front();
-      if (!dq.empty()) {
-        dq.push_back(dq.front());
-        dq.pop_front();
+  int ShortestCommon(const vector<int>& A, const vector<int>& B) {
+    int res = -1;
+    int N = A.size(), M = B.size();
+    int i = 0, j = 0;
+    int last_y = -1;
+
+    while (i < N && j < M) {
+      if (A[i] == B[j]) {
+        if (last_y != -1)
+          res = (res == -1) ? A[i] - last_y : min(res, A[i] - last_y);
+        last_y = A[i];
+        i++;
+        j++;
+      } else if (A[i] > B[j]) {
+        j++;
+      } else {
+        i++;
+      }
+    }
+    return res;
+  }
+
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    unordered_map<int, vector<int>> m;
+    for (const auto& p : points) {
+      m[p[0]].push_back(p[1]);
+    }
+
+    for (auto& kv : m) sort(kv.second.begin(), kv.second.end());
+    for (auto it = m.begin(); it != m.end(); it++) {
+      for (auto next_it = next(it); next_it != m.end(); next_it++) {
+        int height = ShortestCommon(it->second, next_it->second);
+        if (height == -1) continue;
+        int pos_res = height * abs(it->first - next_it->first);
+        res = (res == -1) ? pos_res : min(pos_res, res);
       }
     }
 
-    int i = 0;
-    vector<int> res(N);
-    for (const auto& o : order) {
-      res[o] = deck[i++];
-    }
-
-    return res;
+    return max(res, 0);
   }
 };
 
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-951. Flip Equivalent Binary Trees
-For a binary tree T, we can define a flip operation as follows: choose any node,
-and swap the left and right child subtrees.
-
-A binary tree X is flip equivalent to a binary tree Y if and only if we can make
-X equal to Y after some number of flip operations.
-
-Write a function that determines whether two binary trees are flip equivalent. 
-The trees are given by root nodes root1 and root2.
-
-Example 1:
-
-Input: root1 = [1,2,3,4,5,6,null,null,null,7,8], root2 =
-[1,3,2,null,6,4,5,null,null,null,null,8,7]
-Output: true
-Explanation: We flipped at nodes with values 1, 3, and 5.
-
-Note:
-
-  Each tree will have at most 100 nodes.
-  Each value in each tree will be a unique integer in the range [0, 99].
-/*
-  Submission Date: 2019-02-09
-  Runtime: 8 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
+class Solution2 {
  public:
-  bool flipEquiv(TreeNode* root1, TreeNode* root2) {
-    if (root1 && root2) {
-      if (root1->val != root2->val) return false;
-      return (flipEquiv(root1->left, root2->left) &&
-              flipEquiv(root1->right, root2->right)) ||
-             (flipEquiv(root1->left, root2->right) &&
-              flipEquiv(root1->right, root2->left));
-    } else {
-      return root1 == nullptr && root2 == nullptr;
-    }
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-953. Verifying an Alien Dictionary
-In an alien language, surprisingly they also use english lowercase letters, but
-possibly in a different order. The order of the alphabet is some permutation of
-lowercase letters.
-
-Given a sequence of words written in the alien language, and the order of the
-alphabet, return true if and only if the given words are sorted lexicographicaly
-in this alien language.
-
-Example 1:
-
-Input: words = ["hello","leetcode"], order = "hlabcdefgijkmnopqrstuvwxyz"
-Output: true
-Explanation: As 'h' comes before 'l' in this language, then the sequence is
-sorted.
-
-Example 2:
-
-Input: words = ["word","world","row"], order = "worldabcefghijkmnpqstuvxyz"
-Output: false
-Explanation: As 'd' comes after 'l' in this language, then words[0] > words[1],
-hence the sequence is unsorted.
-
-Example 3:
-
-Input: words = ["apple","app"], order = "abcdefghijklmnopqrstuvwxyz"
-Output: false
-Explanation: The first three characters "app" match, and the second string is
-shorter (in size.) According to lexicographical rules "apple" > "app", because
-'l' > '∅', where '∅' is defined as the blank character which is less than any
-other character (More info).
-
-Note:
-
-  1 <= words.length <= 100
-  1 <= words[i].length <= 20
-  order.length == 26
-  All characters in words[i] and order are english lowercase letters.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <climits>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool less(const string& s1, const string& s2,
-            unordered_map<char, int>& rank) {
-    int i = 0;
-    while (i < min(s1.size(), s2.size()) && s1[i] == s2[i]) i++;
-    int r1 = i == s1.size() ? INT_MIN : rank[s1[i]];
-    int r2 = i == s2.size() ? INT_MIN : rank[s2[i]];
-    return r1 <= r2;
-  }
-
-  bool isAlienSorted(vector<string>& words, string order) {
-    unordered_map<char, int> rank;
-    for (int i = 0; i < order.size(); i++) rank[order[i]] = i;
-
-    for (int i = 1; i < words.size(); i++) {
-      if (!less(words[i - 1], words[i], rank)) return false;
+  /*
+  group points by x coordinates (into columns)
+  traverse these columns starting from the left and for each column
+  loop the pair of y1, y2 to see if any previous column had it. since
+  we start from the left, it is guaranteed that it will be the shortest
+  x distance. this is can be done by having a unordered_map<int,int>
+  where key is y1*40001 + y2 where y1 <= y2 and value is the
+  most recent x coordinate
+  */
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    map<int, vector<int>> m;
+    for (const auto& p : points) {
+      m[p[0]].push_back(p[1]);
     }
 
-    return true;
+    unordered_map<int, int> x_coord;
+    for (const auto& kv : m) {
+      const auto& column = kv.second;
+      for (int i = 0; i < column.size(); i++) {
+        for (int j = i + 1; j < column.size(); j++) {
+          int y1 = column[i];
+          int y2 = column[j];
+          if (y1 > y2) swap(y1, y2);
+          auto it = x_coord.find(y1 * 40001 + y2);
+          if (it != x_coord.end()) {
+            int area = (kv.first - it->second) * (y2 - y1);
+            res = (res == -1) ? area : min(area, res);
+          }
+          x_coord[y1 * 40001 + y2] = kv.first;
+        }
+      }
+    }
+
+    return max(res, 0);
   }
 };
 

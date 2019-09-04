@@ -1,6 +1,117 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+482. License Key Formatting
+You are given a license key represented as a string S which consists only
+alphanumeric character and dashes. The string is separated into N+1 groups by N
+dashes.
+
+Given a number K, we would want to reformat the strings such that each group
+contains exactly K characters, except for the first group which could be shorter
+than K, but still must contain at least one character. Furthermore, there must
+be a dash inserted between two groups and all lowercase letters should be
+converted to uppercase.
+
+Given a non-empty string S and a number K, format the string according to the
+rules described above.
+
+Example 1:
+Input: S = "5F3Z-2e-9-w", K = 4
+
+Output: "5F3Z-2E9W"
+
+Explanation: The string S has been split into two parts, each part has 4
+characters. Note that the two extra dashes are not needed and can be removed.
+Example 2:
+Input: S = "2-5g-3-J", K = 2
+
+Output: "2-5G-3J"
+
+Explanation: The string S has been split into three parts, each part has 2
+characters except the first part as it could be shorter as mentioned above.
+Note:
+The length of string S will not exceed 12,000, and K is a positive integer.
+String S consists only of alphanumerical characters (a-z and/or A-Z and/or 0-9)
+and dashes(-). String S is non-empty.
+/*
+    Submission Date: 2018-06-09
+    Runtime: 13 ms
+    Difficulty: EASY
+*/
+#include <cctype>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  string licenseKeyFormatting(string S, int K) {
+    string s = "";
+    // remove dashes and lower case letter
+    for (const auto& c : S) {
+      if (c == '-') continue;
+      s.push_back(toupper(c));
+    }
+
+    int N = s.size();
+    int first_size = N % K;
+
+    string res = "";
+    res.reserve(N + (N - 1) / 2);
+    for (int i = 0; i < N; i++) {
+      if (i > 0 && (i - first_size) % K == 0) res.push_back('-');
+      res.push_back(s[i]);
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+485. Max Consecutive Ones
+Given a binary array, find the maximum number of consecutive 1s in this array.
+
+Example 1:
+Input: [1,1,0,1,1,1]
+Output: 3
+Explanation: The first two digits or the last three digits are consecutive 1s.
+    The maximum number of consecutive 1s is 3.
+Note:
+
+The input array will only contain 0 and 1.
+The length of input array is a positive integer and will not exceed 10,000
+/*
+    Submission Date: 2018-06-03
+    Runtime: 37 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int findMaxConsecutiveOnes(vector<int>& nums) {
+    int curr = 0;
+    int res = 0;
+    for (int i = 0; i < nums.size(); i++) {
+      if (nums[i] == 1) {
+        curr++;
+        res = max(res, curr);
+      } else {
+        curr = 0;
+      }
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 486. Predict the Winner
 Given an array of scores that are non-negative integers. Player 1 picks one of
 the numbers from either end of the array followed by the player 2 and then
@@ -869,137 +980,6 @@ class Solution {
     }
 
     return res == num;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-508. Most Frequent Subtree Sum
-Given the root of a tree, you are asked to find the most frequent subtree sum.
-The subtree sum of a node is defined as the sum of all the node values formed by
-the subtree rooted at that node (including the node itself). So what is the most
-frequent subtree sum value? If there is a tie, return all the values with the
-highest frequency in any order.
-
-
-Examples 1
-Input:
-  5
- /  \
-2   -3
-
-return [2, -3, 4], since all the values happen only once, return all of them in
-any order.
-
-
-Examples 2
-Input:
-  5
- /  \
-2   -5
-
-return [2], since 2 happens twice, however -5 only occur once.
-
-
-Note:
-You may assume the sum of values in any subtree is in the range of 32-bit signed
-integer.
-
-/*
-    Submission Date: 2018-06-30
-    Runtime: 16 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  int f(TreeNode* node, unordered_map<int, int>& sum_to_freq, int& max_freq) {
-    if (node == NULL) return 0;
-
-    int sum = node->val + f(node->left, sum_to_freq, max_freq) +
-              f(node->right, sum_to_freq, max_freq);
-    sum_to_freq[sum]++;
-    max_freq = max(max_freq, sum_to_freq[sum]);
-    return sum;
-  }
-
-  vector<int> findFrequentTreeSum(TreeNode* root) {
-    unordered_map<int, int> sum_to_freq;
-    int max_freq = 0;
-    f(root, sum_to_freq, max_freq);
-    vector<int> res;
-    for (const auto& kv : sum_to_freq)
-      if (kv.second == max_freq) res.push_back(kv.first);
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-509. Fibonacci Number
-The Fibonacci numbers, commonly denoted F(n) form a sequence, called
-the Fibonacci sequence, such that each number is the sum of the two preceding
-ones, starting from 0 and 1. That is,
-
-F(0) = 0,   F(1) = 1
-F(N) = F(N - 1) + F(N - 2), for N > 1.
-
-Given N, calculate F(N).
-
-Example 1:
-
-Input: 2
-Output: 1
-Explanation: F(2) = F(1) + F(0) = 1 + 0 = 1.
-
-Example 2:
-
-Input: 3
-Output: 2
-Explanation: F(3) = F(2) + F(1) = 1 + 1 = 2.
-
-Example 3:
-
-Input: 4
-Output: 3
-Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3.
-
-Note:
-
-0 ≤ N ≤ 30.
-/*
-  Submission Date: 2019-02-05
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int fib(int N) {
-    int prev = 0, curr = 1;
-    for (int i = 0; i < N; i++) {
-      curr += prev;
-      prev = curr - prev;
-    }
-
-    return prev;
   }
 };
 

@@ -1,6 +1,124 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+406. Queue Reconstruction by Height
+Suppose you have a random list of people standing in a queue. Each person is
+described by a pair of integers (h, k), where h is the height of the person and
+k is the number of people in front of this person who have a height greater than
+or equal to h. Write an algorithm to reconstruct the queue.
+
+Note:
+The number of people is less than 1,100.
+
+
+Example
+
+Input:
+[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
+
+Output:
+[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
+/*
+    Submission Date: 2018-06-24
+    Runtime: 42 ms
+    Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  sort by height (h) and break tie on number greater than or equal to before
+  (called k)
+
+  start from the lowest and for each of the same height, find the kth not used
+  spot and place the pair there. keep track of the number of same height
+  elements already placed.
+  */
+  vector<pair<int, int>> reconstructQueue(vector<pair<int, int>>& people) {
+    vector<pair<int, int>> res(people.size(), {-1, -1});
+    sort(people.begin(), people.end());
+
+    int N = people.size();
+    for (int i = 0; i < N;) {
+      int start = i;
+      while (people[i].first == people[start].first) {
+        auto p = people[i];
+        int to_go = p.second - (i - start);
+        for (int j = 0; j < N; j++) {
+          if (res[j].second != -1) continue;
+          if (to_go == 0) {
+            res[j] = p;
+            break;
+          }
+          to_go--;
+        }
+        i++;
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+409. Longest Palindrome
+Given a string which consists of lowercase or uppercase letters, find the length
+of the longest palindromes that can be built with those letters.
+
+This is case sensitive, for example "Aa" is not considered a palindrome here.
+
+Note:
+Assume the length of given string will not exceed 1,010.
+
+Example:
+
+Input:
+"abccccdd"
+
+Output:
+7
+
+Explanation:
+One longest palindrome that can be built is "dccaccd", whose length is 7.
+/*
+    Submission Date: 2018-05-30
+    Runtime: 8 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+ public:
+  // return all the frequencies floored to nearest multiple of 2 and add one for
+  // if any of the frequency is odd
+  int longestPalindrome(string s) {
+    unordered_map<char, int> letter_to_freq;
+    for (const auto& c : s) letter_to_freq[c]++;
+    int res = 0;
+    bool has_odd = false;
+
+    for (const auto& kv : letter_to_freq) {
+      res += (kv.second / 2) * 2;
+      has_odd |= kv.second % 2;
+    }
+
+    return res + has_odd;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 412. Fizz Buzz
 Write a program that outputs the string representation of numbers from 1 to n.
 
@@ -887,97 +1005,6 @@ class Solution {
       }
     }
 
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-437. Path Sum III
-You are given a binary tree in which each node contains an integer value.
-
-Find the number of paths that sum to a given value.
-
-The path does not need to start or end at the root or a leaf, but it must go
-downwards (traveling only from parent nodes to child nodes).
-
-The tree has no more than 1,000 nodes and the values are in the range -1,000,000
-to 1,000,000.
-
-Example:
-
-root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
-
-      10
-     /  \
-    5   -3
-   / \    \
-  3   2   11
- / \   \
-3  -2   1
-
-Return 3. The paths that sum to 8 are:
-
-1.  5 -> 3
-2.  5 -> 2 -> 1
-3. -3 -> 11
-/*
-    Submission Date: 2018-06-09
-    Runtime: 28 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  /*
-  returns path sums from this root down (not necessarily reach leaf)
-  this is {root->val,
-          root->val + l for all l from f(root->left),
-          root->val + r for all r from f(root->left),
-          }
-  first one meets terminate the path here, second one means this extends a left
-  path and the last one extends a right path check if any of the new paths equal
-  sum to increase res
-  */
-  vector<int> help(TreeNode* root, int sum, int& res) {
-    if (root == NULL) return {};
-    vector<int> left = help(root->left, sum, res);
-    vector<int> right = help(root->right, sum, res);
-
-    if (root->val == sum) res++;
-
-    vector<int> paths;
-    paths.reserve(1 + left.size() + right.size());
-    paths.push_back(root->val);
-
-    for (const auto& l : left) {
-      paths.push_back(root->val + l);
-      if (paths.back() == sum) res++;
-    }
-
-    for (const auto& r : right) {
-      paths.push_back(root->val + r);
-      if (paths.back() == sum) res++;
-    }
-
-    return paths;
-  }
-
-  int pathSum(TreeNode* root, int sum) {
-    int res = 0;
-    help(root, sum, res);
     return res;
   }
 };

@@ -1,6 +1,330 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+825. Friends Of Appropriate Ages
+Some people will make friend requests. The list of their ages is given
+and ages[i] is the age of the ith person. 
+
+Person A will NOT friend request person B (B != A) if any of the following
+conditions are true:
+
+
+    age[B] <= 0.5 * age[A] + 7
+    age[B] > age[A]
+    age[B] > 100 && age[A] < 100
+
+
+Otherwise, A will friend request B.
+
+Note that if A requests B, B does not necessarily request A.  Also, people will
+not friend request themselves.
+
+How many total friend requests are made?
+
+Example 1:
+
+Input: [16,16]
+Output: 2
+Explanation: 2 people friend request each other.
+
+
+Example 2:
+
+Input: [16,17,18]
+Output: 2
+Explanation: Friend requests are made 17 -> 16, 18 -> 17.
+
+Example 3:
+
+Input: [20,30,100,110,120]
+Output:
+Explanation: Friend requests are made 110 -> 100, 120 -> 110, 120 -> 100.
+
+
+ 
+
+Notes:
+
+
+    1 <= ages.length <= 20000.
+    1 <= ages[i] <= 120.
+
+/*
+    Submission Date: 2018-06-29
+    Runtime: 39 ms
+    Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  /*
+  1 <= ages[i] <= 120
+  so have a[i] be the frequency of age i
+  for an age i, there should be an age j <= i which can be friends with
+  j > 0.5*i + 7     ie. j = 0.5*i + 8
+  j must be !(j > 100 && i < 100) note this will never occur as j <= i
+  
+  so for every person of age i (a[i]) and every person of age j (a[j])
+  there can be a[j] * a[i] friend requests made as for a person in j
+  can make friend with every person in i (a[i] times) and there are a[j] of
+  these people
+  
+  if j == i, then it is a[i] * (a[i] - 1) as every person in i
+  can make friends with a[i] - 1 people as they cannot make friends with
+  themself
+  */
+  int numFriendRequests(vector<int>& ages) {
+    vector<int> a(121, 0);
+
+    for (const auto& e : ages) a[e]++;
+
+    int res = 0;
+    for (int i = 1; i < 121; i++) {
+      for (int j = 0.5 * i + 8; j <= i; j++) res += a[j] * (a[i] - (i == j));
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+830. Positions of Large Groups
+In a string S of lowercase letters, these letters form consecutive groups of the
+same character.
+
+For example, a string like S = "abbxxxxzyy" has the groups "a", "bb", "xxxx",
+"z" and "yy".
+
+Call a group large if it has 3 or more characters.  We would like the starting
+and ending positions of every large group.
+
+The final answer should be in lexicographic order.
+
+ 
+
+Example 1:
+
+Input: "abbxxxxzzy"
+Output: [[3,6]]
+Explanation: "xxxx" is the single large group with starting  3 and ending
+positions 6. Example 2:
+
+Input: "abc"
+Output: []
+Explanation: We have "a","b" and "c" but no large group.
+Example 3:
+
+Input: "abcdddeeeeaabbbcd"
+Output: [[3,5],[6,9],[12,14]]
+ 
+
+Note:  1 <= S.length <= 1000
+/*
+    Submission Date: 2018-06-08
+    Runtime: 12 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<vector<int>> largeGroupPositions(string S) {
+    vector<vector<int>> res;
+    for (int i = 0; i < S.size();) {
+      int j = i;
+      while (j < S.size() && S[i] == S[j]) j++;
+      if (j - i >= 3) {
+        res.push_back({i, j - 1});
+      }
+      i = j;
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+832. Flipping an Image
+Given a binary matrix A, we want to flip the image horizontally, then invert it,
+and return the resulting image.
+
+To flip an image horizontally means that each row of the image is reversed.  For
+example, flipping [1, 1, 0] horizontally results in [0, 1, 1].
+
+To invert an image means that each 0 is replaced by 1, and each 1 is replaced by
+0. For example, inverting [0, 1, 1] results in [1, 0, 0].
+
+Example 1:
+
+Input: [[1,1,0],[1,0,1],[0,0,0]]
+Output: [[1,0,0],[0,1,0],[1,1,1]]
+Explanation: First reverse each row: [[0,1,1],[1,0,1],[0,0,0]].
+Then, invert the image: [[1,0,0],[0,1,0],[1,1,1]]
+Example 2:
+
+Input: [[1,1,0,0],[1,0,0,1],[0,1,1,1],[1,0,1,0]]
+Output: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Explanation: First reverse each row: [[0,0,1,1],[1,0,0,1],[1,1,1,0],[0,1,0,1]].
+Then invert the image: [[1,1,0,0],[0,1,1,0],[0,0,0,1],[1,0,1,0]]
+Notes:
+
+1 <= A.length = A[0].length <= 20
+0 <= A[i][j] <= 1
+/*
+    Submission Date: 2018-05-31
+    Runtime: 15 ms
+    Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<vector<int>> flipAndInvertImage(vector<vector<int>>& A) {
+    for (auto& row : A) {
+      reverse(row.begin(), row.end());
+      for (auto& el : row) el ^= 1;
+    }
+
+    return A;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+835. Image Overlap
+Two images A and B are given, represented as binary, square matrices of the same
+size.  (A binary matrix has only 0s and 1s as values.)
+
+We translate one image however we choose (sliding it left, right, up, or down
+any number of units), and place it on top of the other image.  After, the
+overlap of this translation is the number of positions that have a 1 in both
+images.
+
+(Note also that a translation does not include any kind of rotation.)
+
+What is the largest possible overlap?
+
+Example 1:
+
+Input: A = [[1,1,0],
+            [0,1,0],
+            [0,1,0]]
+       B = [[0,0,0],
+            [0,1,1],
+            [0,0,1]]
+Output: 3
+Explanation: We slide A to right by 1 unit and down by 1 unit.
+
+Notes: 
+
+  1 <= A.length = A[0].length = B.length = B[0].length <= 30
+  0 <= A[i][j], B[i][j] <= 1
+/*
+  Submission Date: 2019-01-26
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int helper(vector<vector<int>>& A, vector<vector<int>>& B, const int i,
+             const int j, int N) {
+    int sum1 = 0, sum2 = 0;
+    for (int ii = i; ii < N; ii++) {
+      for (int jj = j; jj < N; jj++) {
+        sum1 += B[ii][jj] == 1 && B[ii][jj] == A[ii - i][jj - j];
+        sum2 += A[ii][jj] == 1 && A[ii][jj] == B[ii - i][jj - j];
+      }
+    }
+
+    return max(sum1, sum2);
+  }
+
+  int largestOverlap(vector<vector<int>>& A, vector<vector<int>>& B) {
+    int N = A.size();
+    int res = 0;
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        res = max(res, helper(A, B, i, j, N));
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+836. Rectangle Overlap
+A rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) are the
+coordinates of its bottom-left corner, and (x2, y2) are the coordinates of its
+top-right corner.
+
+Two rectangles overlap if the area of their intersection is positive.  To be
+clear, two rectangles that only touch at the corner or edges do not overlap.
+
+Given two rectangles, return whether they overlap.
+
+Example 1:
+
+Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
+Output: true
+Example 2:
+
+Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
+Output: false
+Notes:
+
+Both rectangles rec1 and rec2 are lists of 4 integers.
+All coordinates in rectangles will be between -10^9 and 10^9.
+/*
+    Submission Date: 2018-05-24
+    Runtime: 3 ms
+    Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool intersects(int a1, int a2, int b1, int b2) {
+    return !(b1 >= a2 || a1 >= b2);
+  }
+
+  // Check if x intervals intersect and y intervals intersect
+  bool isRectangleOverlap(vector<int>& rec1, vector<int>& rec2) {
+    return intersects(rec1[0], rec1[2], rec2[0], rec2[2]) &&
+           intersects(rec1[1], rec1[3], rec2[1], rec2[3]);
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 838. Push Dominoes
 There are N dominoes in a line, and we place each domino vertically upright.
 
@@ -672,245 +996,6 @@ class Solution {
       stk.pop();
     }
 
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-859. Buddy Strings
-Given two strings A and B of lowercase letters, return true if and only if we
-can swap two letters in A so that the result equals B.
-
- 
-
-Example 1:
-
-Input: A = "ab", B = "ba"
-Output: true
-Example 2:
-
-Input: A = "ab", B = "ab"
-Output: false
-Example 3:
-
-Input: A = "aa", B = "aa"
-Output: true
-Example 4:
-
-Input: A = "aaaaaaabc", B = "aaaaaaacb"
-Output: true
-Example 5:
-
-Input: A = "", B = "aa"
-Output: false
-/*
-    Submission Date: 2018-06-24
-    Runtime: 9 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool buddyStrings(string A, string B) {
-    if (A.size() != B.size()) return false;
-
-    vector<int> diff;
-    for (int i = 0; i < A.size(); i++) {
-      if (A[i] != B[i]) {
-        diff.push_back(i);
-        if (diff.size() > 2) return false;
-      }
-    }
-
-    if (diff.size() == 1) return false;
-    if (diff.size() == 0)
-      return unordered_set<char>(A.begin(), A.end()).size() < A.size();
-    return A[diff[0]] == B[diff[1]] && A[diff[1]] == B[diff[0]];
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-860. Lemonade Change
-At a lemonade stand, each lemonade costs $5.
-
-Customers are standing in a queue to buy from you, and order one at a time
-(in the order specified by bills).
-
-Each customer will only buy one lemonade and pay with either a $5, $10, or $20
-bill. You must provide the correct change to each customer, so that the net
-transaction is that the customer pays $5.
-
-Note that you don't have any change in hand at first.
-
-Return true if and only if you can provide every customer with correct change.
-
- 
-
-Example 1:
-
-Input: [5,5,5,10,20]
-Output: true
-Explanation:
-From the first 3 customers, we collect three $5 bills in order.
-From the fourth customer, we collect a $10 bill and give back a $5.
-From the fifth customer, we give a $10 bill and a $5 bill.
-Since all customers got correct change, we output true.
-Example 2:
-
-Input: [5,5,10]
-Output: true
-Example 3:
-
-Input: [10,10]
-Output: false
-Example 4:
-
-Input: [5,5,10,10,20]
-Output: false
-Explanation:
-From the first two customers in order, we collect two $5 bills.
-For the next two customers in order, we collect a $10 bill and give back a $5
-bill. For the last customer, we can't give change of $15 back because we only
-have two $10 bills. Since not every customer received correct change, the answer
-is false.
- 
-
-Note:
-
-0 <= bills.length <= 10000
-bills[i] will be either 5, 10, or 20.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 30 ms
-    Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool lemonadeChange(vector<int>& bills) {
-    // change[0] is number of 5's and change[1] is number of 10's.
-    // 20's will never be given back so no need to count them.
-    vector<int> change(2, 0);
-    for (const auto& e : bills) {
-      if (e == 5) {
-        change[0]++;
-      } else if (e == 10) {  // can only give a 5 back
-        if (change[0] == 0) return false;
-        change[0]--;
-        change[1]++;
-      } else {  // e == 20 can give back either 5 and 10 or 3 fives
-        if (change[1] > 0 &&
-            change[0] >
-                0) {  // try to give back the 10 first as it is less useful
-          change[1]--;
-          change[0]--;
-        } else if (change[0] >= 3) {
-          change[0] -= 3;
-        } else {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-861. Score After Flipping Matrix
-We have a two dimensional matrix A where each value is 0 or 1.
-
-A move consists of choosing any row or column, and toggling each value in that
-row or column: changing all 0s to 1s, and all 1s to 0s.
-
-After making any number of moves, every row of this matrix is interpreted as a
-binary number, and the score of the matrix is the sum of these numbers.
-
-Return the highest possible score.
-
- 
-
-Example 1:
-
-Input: [[0,0,1,1],[1,0,1,0],[1,1,0,0]]
-Output: 39
-Explanation:
-Toggled to [[1,1,1,1],[1,0,0,1],[1,1,1,1]].
-0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
- 
-
-Note:
-
-1 <= A.length <= 20
-1 <= A[0].length <= 20
-A[i][j] is 0 or 1.
-/*
-    Submission Date: 2018-07-01
-    Runtime: 5 ms
-    Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  void FlipRow(vector<vector<int>>& A, int row, int M) {
-    for (int j = 0; j < M; j++) A[row][j] ^= 1;
-  }
-
-  void FlipCol(vector<vector<int>>& A, int col, int N) {
-    for (int i = 0; i < N; i++) A[i][col] ^= 1;
-  }
-
-  /*
-  First get all the the elements in A[i][0] to be 1 by toggling rows
-  this is because having a 1 in the left most column gives the greatest value
-  1000 > 0111 Then for each column, flip the column if it gives a greater amount
-  of 1's in that column
-  */
-  int matrixScore(vector<vector<int>>& A) {
-    if (A.empty()) return 0;
-    int N = A.size(), M = A[0].size();
-    for (int i = 0; i < N; i++) {
-      if (A[i][0] == 0) {
-        FlipRow(A, i, M);
-      }
-    }
-
-    for (int j = 0; j < M; j++) {
-      int one_count = 0;
-      for (int i = 0; i < N; i++) one_count += A[i][j] == 1;
-      if (one_count < N - one_count) {
-        FlipCol(A, j, N);
-      }
-    }
-
-    int res = 0;
-    for (int i = 0; i < N; i++) {
-      int temp = 0;
-      for (int j = 0; j < M; j++) {
-        temp |= A[i][j];
-        temp <<= 1;
-      }
-      res += temp >> 1;
-    }
     return res;
   }
 };

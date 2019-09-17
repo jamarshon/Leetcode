@@ -145,4 +145,9 @@ void print(vector<T> v)
 void print2(vector<vector<T>> v)
 */
 
-int main() { return 0; }
+int main() {
+  double x = 1.0 / 3;
+  printf("%.36f\n", x);
+  printf("%.23f\n", x);
+  return 0;
+}

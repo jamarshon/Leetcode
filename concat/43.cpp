@@ -529,6 +529,136 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+1009. Complement of Base 10 Integer
+Every non-negative integer N has a binary representation.  For example, 5 can be
+represented as "101" in binary, 11 as "1011" in binary, and so on.  Note that
+except for N = 0, there are no leading zeroes in any binary representation.
+
+The complement of a binary representation is the number in binary you get when
+changing every 1 to a 0 and 0 to a 1.  For example, the complement of "101" in
+binary is "010" in binary.
+
+For a given number N in base-10, return the complement of it's binary
+representation as a base-10 integer.
+
+Example 1:
+
+Input: 5
+Output: 2
+Explanation: 5 is "101" in binary, with complement "010" in binary, which is 2
+in base-10.
+
+Example 2:
+
+Input: 7
+Output: 0
+Explanation: 7 is "111" in binary, with complement "000" in binary, which is 0
+in base-10.
+
+Example 3:
+
+Input: 10
+Output: 5
+Explanation: 10 is "1010" in binary, with complement "0101" in binary, which is
+5 in base-10.
+
+Note:
+
+  0 <= N < 10^9
+/*
+  Submission Date: 2019-09-17
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <cmath>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  int bitwiseComplement(int N) {
+    if (N == 0) return 1;
+    int num_bits = floor(log2(N)) + 1;
+    // return last num_bits
+    return ~N & ((1 << num_bits) - 1);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1013. Partition Array Into Three Parts With Equal Sum
+Given an array A of integers, return true if and only if we can partition the
+array into three non-empty parts with equal sums.
+
+Formally, we can partition the array if we can find indexes i+1 < j with (A[0] +
+A[1] + ... + A[i] == A[i+1] + A[i+2] + ... + A[j-1] == A[j] + A[j-1] + ... +
+A[A.length - 1])
+
+Example 1:
+
+Input: [0,2,1,-6,6,-7,9,1,2,0,1]
+Output: true
+Explanation: 0 + 2 + 1 = -6 + 6 - 7 + 9 + 1 = 2 + 0 + 1
+
+Example 2:
+
+Input: [0,2,1,-6,6,7,9,-1,2,0,1]
+Output: false
+
+Example 3:
+
+Input: [3,3,6,5,-2,2,5,1,-9,4]
+Output: true
+Explanation: 3 + 3 = 6 = 5 - 2 + 2 + 5 + 1 - 9 + 4
+
+Note:
+
+  3 <= A.length <= 50000
+  -10000 <= A[i] <= 10000
+/*
+  Submission Date: 2019-09-18
+  Runtime: 68 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <numeric>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool canThreePartsEqualSum(vector<int>& A) {
+    /*
+    get the total sum of the array, if its not divisible
+    by three return false.
+    iterate and increment until reaching the total sum / 3 then
+    increase the number of parts by one and reset the sum
+    if there are three parts then return true
+    */
+    int total_sum = accumulate(A.begin(), A.end(), 0);
+    if (total_sum % 3 != 0) return false;
+    int part_sum = total_sum / 3;
+    int sum = 0;
+    int num_parts = 0;
+    for (const auto& e : A) {
+      sum += e;
+      if (sum == part_sum) {
+        sum = 0;
+        num_parts++;
+      }
+    }
+    return num_parts == 3;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 1021. Remove Outermost Parentheses
 A valid parentheses string is either empty (""), "(" + A + ")", or A + B, where
 A and B are valid parentheses strings, and + represents string concatenation. 
@@ -611,222 +741,61 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-1051. Height Checker
-Students are asked to stand in non-decreasing order of heights for an annual
-photo.
+1022. Sum of Root To Leaf Binary Numbers
+Given a binary tree, each node has value 0 or 1.  Each root-to-leaf path
+represents a binary number starting with the most significant bit.  For example,
+if the path is 0 -> 1 -> 1 -> 0 -> 1, then this could represent 01101 in binary,
+which is 13.
 
-Return the minimum number of students not standing in the right positions. 
-(This is the number of students that must move in order for all students to be
-standing in non-decreasing order of height.)
+For all leaves in the tree, consider the numbers represented by the path from
+the root to that leaf.
+
+Return the sum of these numbers.
 
 Example 1:
 
-Input: [1,1,4,2,1,3]
-Output: 3
-Explanation:
-Students with heights 4, 3 and the last 1 are not standing in the right
-positions.
+Input: [1,0,1,0,1,0,1]
+Output: 22
+Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
 
 Note:
 
-  1 <= heights.length <= 100
-  1 <= heights[i] <= 100
+  The number of nodes in the tree is between 1 and 1000.
+  node.val is 0 or 1.
+  The answer will not exceed 2^31 - 1.
 /*
-  Submission Date: 2019-08-25
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  // sort the list and see compare elmentwise between
-  // the two lists to see how many elements are out of place
-  int heightChecker(vector<int>& heights) {
-    int res = 0;
-    vector<int> v = heights;
-    sort(v.begin(), v.end());
-    for (int i = 0; i < heights.size(); i++) res += v[i] != heights[i];
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1078. Occurrences After Bigram
-Given words first and second, consider occurrences in some text of the form
-"first second third", where second comes immediately after first, and third
-comes immediately after second.
-
-For each such occurrence, add "third" to the answer, and return the answer.
-
-Example 1:
-
-Input: text = "alice is a good girl she is a good student", first = "a", second
-= "good"
-Output: ["girl","student"]
-
-Example 2:
-
-Input: text = "we will we will rock you", first = "we", second = "will"
-Output: ["we","rock"]
-
-Note:
-
-  1 <= text.length <= 1000
-  text consists of space separated words, where each word consists of lowercase
-English letters.
-  1 <= first.length, second.length <= 10
-  first and second consist of lowercase English letters.
-/*
-  Submission Date: 2019-09-04
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  // store the last two words and return the current word
-  // if the last two words match `first`, `second`
-  vector<string> findOcurrences(string text, string first, string second) {
-    vector<string> res;
-    stringstream ss(text);
-    string token;
-    string last, lastlast;
-    while (ss >> token) {
-      if (lastlast.empty()) {
-        lastlast = token;
-      } else if (last.empty()) {
-        last = token;
-      } else {
-        if (lastlast == first && last == second) {
-          res.push_back(token);
-        }
-        lastlast = last;
-        last = token;
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1108. Defanging an IP Address
-Given a valid (IPv4) IP address, return a defanged version of that IP address.
-
-A defanged IP address replaces every period "." with "[.]".
-
-Example 1:
-Input: address = "1.1.1.1"
-Output: "1[.]1[.]1[.]1"
-Example 2:
-Input: address = "255.100.50.0"
-Output: "255[.]100[.]50[.]0"
-
-Constraints:
-
-  The given address is a valid IPv4 address.
-/*
-  Submission Date: 2019-08-25
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
- public:
-  string defangIPaddr(string address) {
-    istringstream ss(address);
-    string res, token;
-    string splitter = "[.]";
-    while (getline(ss, token, '.')) {
-      res += token + splitter;
-    }
-    return res.substr(0, res.size() - 3);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1122. Relative Sort Array
-Given two arrays arr1 and arr2, the elements of arr2 are distinct, and all
-elements in arr2 are also in arr1.
-
-Sort the elements of arr1 such that the relative ordering of items in arr1 are
-the same as in arr2.  Elements that don't appear in arr2 should be placed at the
-end of arr1 in ascending order.
-
-Example 1:
-Input: arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
-Output: [2,2,2,1,4,3,3,9,6,7,19]
-
-Constraints:
-
-  arr1.length, arr2.length <= 1000
-  0 <= arr1[i], arr2[i] <= 1000
-  Each arr2[i] is distinct.
-  Each arr2[i] is in arr1.
-/*
-  Submission Date: 2019-09-03
+  Submission Date: 2019-09-17
   Runtime: 8 ms
   Difficulty: EASY
 */
-#include <algorithm>
 #include <iostream>
-#include <unordered_map>
-#include <vector>
 
 using namespace std;
 
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
 class Solution {
  public:
-  vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
-    unordered_map<int, int> arr2_to_ind;
-    for (int i = 0; i < arr2.size(); i++) {
-      arr2_to_ind[arr2[i]] = i;
+  int sumRootToLeaf(TreeNode* root) {
+    int res = 0;
+    f(root, res, 0);
+    return res;
+  }
+
+  void f(TreeNode* root, int& res, int curr) {
+    if (root == nullptr) return;
+    curr = curr * 2 + root->val;
+    if (root->left == nullptr && root->right == nullptr) {
+      res += curr;
+    } else {
+      f(root->left, res, curr);
+      f(root->right, res, curr);
     }
-
-    auto end_it = arr2_to_ind.end();
-
-    sort(arr1.begin(), arr1.end(),
-         [&arr2_to_ind, &end_it](const int& left, const int& right) {
-           auto left_it = arr2_to_ind.find(left);
-           auto right_it = arr2_to_ind.find(right);
-           if (left_it == end_it && right_it == end_it) {
-             // ascending order
-             return left < right;
-           } else if (left_it == end_it) {
-             // put the right in front as the left is not defined
-             return false;
-           } else if (right_it == end_it) {
-             // put the left in front as the right is not defined
-             return true;
-           } else {
-             // return the relative order of left, right
-             return left_it->second < right_it->second;
-           }
-         });
-
-    return arr1;
   }
 };
 
@@ -834,66 +803,159 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-1160. Find Words That Can Be Formed by Characters
-You are given an array of strings words and a string chars.
+1025. Divisor Game
+Alice and Bob take turns playing a game, with Alice starting first.
 
-A string is good if it can be formed by characters from chars (each
-character can only be used once).
+Initially, there is a number N on the chalkboard.  On each player's turn, that
+player makes a move consisting of:
 
-Return the sum of lengths of all good strings in words.
+  Choosing any x with 0 < x < N and N % x == 0.
+  Replacing the number N on the chalkboard with N - x.
+
+Also, if a player cannot make a move, they lose the game.
+
+Return True if and only if Alice wins the game, assuming both players play
+optimally.
 
 Example 1:
 
-Input: words = ["cat","bt","hat","tree"], chars = "atach"
-Output: 6
-Explanation:
-The strings that can be formed are "cat" and "hat" so the answer is 3 + 3 = 6.
+Input: 2
+Output: true
+Explanation: Alice chooses 1, and Bob has no more moves.
 
 Example 2:
 
-Input: words = ["hello","world","leetcode"], chars = "welldonehoneyr"
-Output: 10
-Explanation:
-The strings that can be formed are "hello" and "world" so the answer is 5 + 5 =
-10.
+Input: 3
+Output: false
+Explanation: Alice chooses 1, Bob chooses 1, and Alice has no more moves.
 
 Note:
 
-  1 <= words.length <= 1000
-  1 <= words[i].length, chars.length <= 100
-  All strings contain lowercase English letters only.
+  1 <= N <= 1000
 /*
-  Submission Date: 2019-08-25
-  Runtime: 172 ms
+  Submission Date: 2019-09-07
+  Runtime: 0 ms
   Difficulty: EASY
 */
 #include <iostream>
-#include <unordered_map>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool divisorGame(int N) {
+    // suppose N is odd, then it cannot be divided by 2
+    // or any multiples of 2. the divisor is odd meaning
+    // N - divisor would be odd - odd = even. hence, if
+    // N is odd, then the current user will have to make
+    // it even for the next user.
+    //
+    // if N is even, the current user can force the
+    // opponent to get an odd number by subtracting one.
+    //
+    // even => odd
+    // odd => even
+    //
+    // base case odd 1 is a lost
+    // at even 2, it is a win as even (2) => odd (1)
+    // at odd 3, it is a lost as odd (3) => even (2) => odd (1)
+    // at even 4, it is a win as even (4) => odd (3) => even (2) => odd (1)
+    // thus, we can win only if N is even by forcing
+    // the oponent to get odd numbers until they reach 1
+    return N % 2 == 0;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1029. Two City Scheduling
+There are 2N people a company is planning to interview. The cost of flying the
+i-th person to city A is costs[i][0], and the cost of flying the i-th person to
+city B is costs[i][1].
+
+Return the minimum cost to fly every person to a city such that exactly N people
+arrive in each city.
+
+Example 1:
+
+Input: [[10,20],[30,200],[400,50],[30,20]]
+Output: 110
+Explanation:
+The first person goes to city A for a cost of 10.
+The second person goes to city A for a cost of 30.
+The third person goes to city B for a cost of 50.
+The fourth person goes to city B for a cost of 20.
+
+The total minimum cost is 10 + 30 + 50 + 20 = 110 to have half the people
+interviewing in each city.
+
+Note:
+
+  1 <= costs.length <= 100
+  It is guaranteed that costs.length is even.
+  1 <= costs[i][0], costs[i][1] <= 1000
+/*
+  Submission Date: 2019-09-20
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
 using namespace std;
 
 class Solution {
  public:
-  // count the frequency of letters in chars and
-  // make sure the string has at most that many letters
-  // and no unknown letters
-  int countCharacters(vector<string>& words, string chars) {
-    unordered_map<char, int> freqs;
-    for (const auto& e : chars) freqs[e]++;
+  int twoCitySchedCost(vector<vector<int>>& costs) {
+    /*
+    dp[i][j] represents the min cost of i + j people where
+    i people go to A and j people go to B. this represents
+    people from indices [0, i + j]
+    dp[0][j] would just be the cumulative cost of B
+    dp[i][0] would just be the cumulative cost of A
+    dp[i][j] = min(
+        dp[i-1][j] + costs[i+j-1][0], // person goes to A
+        dp[i][j-1] + costs[i+j-1][1] // person goes to B
+      )
+    */
+    int N = costs.size() / 2;
+    int dp[N + 1][N + 1];
+    dp[0][0] = 0;
+    for (int i = 1; i <= N; i++) dp[i][0] = dp[i - 1][0] + costs[i - 1][0];
+    for (int j = 1; j <= N; j++) dp[0][j] = dp[0][j - 1] + costs[j - 1][1];
+    for (int i = 1; i <= N; i++)
+      for (int j = 1; j <= N; j++)
+        dp[i][j] = min(dp[i - 1][j] + costs[i + j - 1][0],
+                       dp[i][j - 1] + costs[i + j - 1][1]);
+    return dp[N][N];
+  }
+};
+
+class Solution2 {
+ public:
+  int twoCitySchedCost(vector<vector<int>>& costs) {
+    /*
+    for a person if they go to one city for costs[i][0], it means
+    we get the benefit of not going to the other city by costs[i][1] -
+    costs[i][0]
+
+    e.g 100 to go to city A and 110 to go to city B, if they go
+    to city A we save 110-100=10
+
+    so we sort by the savings and the top half savings go to A
+    the bottom half go to B
+    */
+    sort(costs.begin(), costs.end(),
+         [](const vector<int>& left, const vector<int>& right) {
+           return left[0] - left[1] < right[0] - right[1];
+         });
+
     int res = 0;
-    for (const auto& s : words) {
-      unordered_map<char, int> freqs_copy = freqs;
-      bool ok = true;
-      for (const auto& e : s) {
-        if (!freqs_copy.count(e)) {
-          ok = false;
-          break;
-        }
-        freqs_copy[e]--;
-        if (freqs_copy[e] == 0) freqs_copy.erase(e);
-      }
-      if (ok) res += s.size();
+    for (int i = 0, N = costs.size(); i < N; i++) {
+      res += i >= N / 2 ? costs[i][1] : costs[i][0];
     }
     return res;
   }

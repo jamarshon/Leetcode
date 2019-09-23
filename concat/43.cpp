@@ -1,6 +1,167 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+985. Sum of Even Numbers After Queries
+We have an array A of integers, and an array queries of queries.
+
+For the i-th query val = queries[i][0], index = queries[i][1], we add val to
+A[index].  Then, the answer to the i-th query is the sum of the even values of
+A.
+
+(Here, the given index = queries[i][1] is a 0-based index, and each query
+permanently modifies the array A.)
+
+Return the answer to all queries.  Your answer array should
+have answer[i] as the answer to the i-th query.
+
+Example 1:
+
+Input: A = [1,2,3,4], queries = [[1,0],[-3,1],[-4,0],[2,3]]
+Output: [8,6,2,4]
+Explanation:
+At the beginning, the array is [1,2,3,4].
+After adding 1 to A[0], the array is [2,2,3,4], and the sum of even values is 2
++ 2 + 4 = 8.
+After adding -3 to A[1], the array is [2,-1,3,4], and the sum of even values is
+2 + 4 = 6.
+After adding -4 to A[0], the array is [-2,-1,3,4], and the sum of even values is
+-2 + 4 = 2.
+After adding 2 to A[3], the array is [-2,-1,3,6], and the sum of even values is
+-2 + 6 = 4.
+
+Note:
+
+  1 <= A.length <= 10000
+  -10000 <= A[i] <= 10000
+  1 <= queries.length <= 10000
+  -10000 <= queries[i][0] <= 10000
+  0 <= queries[i][1] < A.length
+/*
+  Submission Date: 2019-02-04
+  Runtime: 96 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> sumEvenAfterQueries(vector<int>& A,
+                                  vector<vector<int>>& queries) {
+    int N = queries.size();
+    vector<int> res(N);
+
+    int even_sum = 0;
+    for (const auto& e : A) {
+      if (e % 2 == 0) even_sum += e;
+    }
+
+    for (int i = 0; i < N; i++) {
+      int val = queries[i][0];
+      int ind = queries[i][1];
+
+      if ((A[ind] + val) % 2 == 0) {
+        if (A[ind] % 2 == 0) {
+          even_sum += val;  // even to new_even
+        } else {
+          even_sum += A[ind] + val;  // odd to new_even
+        }
+      } else {
+        if (A[ind] % 2 == 0) {
+          even_sum -= A[ind];  // even to odd
+        }
+        // odd to odd nothing happens
+      }
+
+      A[ind] += val;
+      res[i] = even_sum;
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+986. Interval List Intersections
+Given two lists of closed intervals, each list of intervals is pairwise disjoint
+and in sorted order.
+
+Return the intersection of these two interval lists.
+
+(Formally, a closed interval [a, b] (with a <= b) denotes the set of real
+numbers x with a <= x <= b.  The intersection of two closed intervals is a set
+of real numbers that is either empty, or can be represented as a closed
+interval.  For example, the intersection of [1, 3] and [2, 4] is [2, 3].)
+
+Example 1:
+
+Input: A = [[0,2],[5,10],[13,23],[24,25]], B = [[1,5],[8,12],[15,24],[25,26]]
+Output: [[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]
+Reminder: The inputs and the desired output are lists of Interval objects, and
+not arrays or lists.
+
+Note:
+
+  0 <= A.length < 1000
+  0 <= B.length < 1000
+  0 <= A[i].start, A[i].end, B[i].start, B[i].end < 10^9
+/*
+  Submission Date: 2019-02-10
+  Runtime: 44 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct Interval {
+  int start;
+  int end;
+  Interval() : start(0), end(0) {}
+  Interval(int s, int e) : start(s), end(e) {}
+};
+
+class Solution {
+ public:
+  vector<Interval> intervalIntersection(vector<Interval>& A,
+                                        vector<Interval>& B) {
+    int i = 0, j = 0;
+    int N = A.size(), M = B.size();
+    vector<Interval> res;
+    res.reserve(N + M);
+
+    while (i < N && j < M) {
+      if (A[i].end < B[j].start) {
+        i++;
+      } else if (B[j].end < A[i].start) {
+        j++;
+      } else {
+        // intersect
+        res.emplace_back(max(A[i].start, B[j].start), min(A[i].end, B[j].end));
+        if (A[i].end > B[j].end) {
+          j++;
+        } else if (A[i].end < B[j].end) {
+          i++;
+        } else {
+          i++;
+          j++;
+        }
+      }
+    }
+
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 988. Smallest String Starting From Leaf
 Given the root of a binary tree, each node has a value from 0 to 25 representing
 the letters 'a' to 'z': a value of 0 represents 'a', a value of 1 represents
@@ -338,6 +499,93 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+997. Find the Town Judge
+In a town, there are N people labelled from 1 to N.  There is a rumor that one
+of these people is secretly the town judge.
+
+If the town judge exists, then:
+
+  The town judge trusts nobody.
+  Everybody (except for the town judge) trusts the town judge.
+  There is exactly one person that satisfies properties 1 and 2.
+
+You are given trust, an array of pairs trust[i] = [a, b] representing that the
+person labelled a trusts the person labelled b.
+
+If the town judge exists and can be identified, return the label of the town
+judge.  Otherwise, return -1.
+
+Example 1:
+
+Input: N = 2, trust = [[1,2]]
+Output: 2
+
+Example 2:
+
+Input: N = 3, trust = [[1,3],[2,3]]
+Output: 3
+
+Example 3:
+
+Input: N = 3, trust = [[1,3],[2,3],[3,1]]
+Output: -1
+
+Example 4:
+
+Input: N = 3, trust = [[1,2],[2,3]]
+Output: -1
+
+Example 5:
+
+Input: N = 4, trust = [[1,3],[1,4],[2,3],[2,4],[4,3]]
+Output: 3
+
+Note:
+
+  1 <= N <= 1000
+  trust.length <= 10000
+  trust[i] are all different
+  trust[i][0] != trust[i][1]
+  1 <= trust[i][0], trust[i][1] <= N
+/*
+  Submission Date: 2019-09-23
+  Runtime: 172 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int findJudge(int N, vector<vector<int>>& trust) {
+    if (N == 1) return 1;
+
+    // num_trusted_by[i] means the number of people who
+    // trust person[i], num_people_they_trust means the
+    // number of people who person[i] trusts
+    unordered_map<int, int> num_people_they_trust, num_trusted_by;
+
+    vector<int> trusted_by_everyone;
+    for (const auto& e : trust) {
+      num_people_they_trust[e[0]]++;
+      num_trusted_by[e[1]]++;
+      if (num_trusted_by[e[1]] == N - 1) trusted_by_everyone.push_back(e[1]);
+    }
+
+    for (const auto& e : trusted_by_everyone) {
+      if (!num_people_they_trust.count(e)) return e;
+    }
+    return -1;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 999. Available Captures for Rook
 On an 8 x 8 chessboard, there is one white rook.  There also may be empty
 squares, white bishops, and black pawns.  These are given as characters 'R',
@@ -529,375 +777,38 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-1009. Complement of Base 10 Integer
-Every non-negative integer N has a binary representation.  For example, 5 can be
-represented as "101" in binary, 11 as "1011" in binary, and so on.  Note that
-except for N = 0, there are no leading zeroes in any binary representation.
+1005. Maximize Sum Of Array After K Negations
+Given an array A of integers, we must modify the array in the following way: we
+choose an i and replace A[i] with -A[i], and we repeat this process K times in
+total.  (We may choose the same index i multiple times.)
 
-The complement of a binary representation is the number in binary you get when
-changing every 1 to a 0 and 0 to a 1.  For example, the complement of "101" in
-binary is "010" in binary.
-
-For a given number N in base-10, return the complement of it's binary
-representation as a base-10 integer.
+Return the largest possible sum of the array after modifying it in this way.
 
 Example 1:
 
-Input: 5
-Output: 2
-Explanation: 5 is "101" in binary, with complement "010" in binary, which is 2
-in base-10.
-
-Example 2:
-
-Input: 7
-Output: 0
-Explanation: 7 is "111" in binary, with complement "000" in binary, which is 0
-in base-10.
-
-Example 3:
-
-Input: 10
+Input: A = [4,2,3], K = 1
 Output: 5
-Explanation: 10 is "1010" in binary, with complement "0101" in binary, which is
-5 in base-10.
-
-Note:
-
-  0 <= N < 10^9
-/*
-  Submission Date: 2019-09-17
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <cmath>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int bitwiseComplement(int N) {
-    if (N == 0) return 1;
-    int num_bits = floor(log2(N)) + 1;
-    // return last num_bits
-    return ~N & ((1 << num_bits) - 1);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1013. Partition Array Into Three Parts With Equal Sum
-Given an array A of integers, return true if and only if we can partition the
-array into three non-empty parts with equal sums.
-
-Formally, we can partition the array if we can find indexes i+1 < j with (A[0] +
-A[1] + ... + A[i] == A[i+1] + A[i+2] + ... + A[j-1] == A[j] + A[j-1] + ... +
-A[A.length - 1])
-
-Example 1:
-
-Input: [0,2,1,-6,6,-7,9,1,2,0,1]
-Output: true
-Explanation: 0 + 2 + 1 = -6 + 6 - 7 + 9 + 1 = 2 + 0 + 1
+Explanation: Choose indices (1,) and A becomes [4,-2,3].
 
 Example 2:
 
-Input: [0,2,1,-6,6,7,9,-1,2,0,1]
-Output: false
+Input: A = [3,-1,0,2], K = 3
+Output: 6
+Explanation: Choose indices (1, 2, 2) and A becomes [3,1,0,2].
 
 Example 3:
 
-Input: [3,3,6,5,-2,2,5,1,-9,4]
-Output: true
-Explanation: 3 + 3 = 6 = 5 - 2 + 2 + 5 + 1 - 9 + 4
+Input: A = [2,-3,-1,5,-4], K = 2
+Output: 13
+Explanation: Choose indices (1, 4) and A becomes [2,3,-1,5,4].
 
 Note:
 
-  3 <= A.length <= 50000
-  -10000 <= A[i] <= 10000
+  1 <= A.length <= 10000
+  1 <= K <= 10000
+  -100 <= A[i] <= 100
 /*
-  Submission Date: 2019-09-18
-  Runtime: 68 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <numeric>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  bool canThreePartsEqualSum(vector<int>& A) {
-    /*
-    get the total sum of the array, if its not divisible
-    by three return false.
-    iterate and increment until reaching the total sum / 3 then
-    increase the number of parts by one and reset the sum
-    if there are three parts then return true
-    */
-    int total_sum = accumulate(A.begin(), A.end(), 0);
-    if (total_sum % 3 != 0) return false;
-    int part_sum = total_sum / 3;
-    int sum = 0;
-    int num_parts = 0;
-    for (const auto& e : A) {
-      sum += e;
-      if (sum == part_sum) {
-        sum = 0;
-        num_parts++;
-      }
-    }
-    return num_parts == 3;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1021. Remove Outermost Parentheses
-A valid parentheses string is either empty (""), "(" + A + ")", or A + B, where
-A and B are valid parentheses strings, and + represents string concatenation. 
-For example, "", "()", "(())()", and "(()(()))" are all valid parentheses
-strings.
-
-A valid parentheses string S is primitive if it is nonempty, and there does not
-exist a way to split it into S = A+B, with A and B nonempty valid parentheses
-strings.
-
-Given a valid parentheses string S, consider its primitive decomposition: S =
-P_1 + P_2 + ... + P_k, where P_i are primitive valid parentheses strings.
-
-Return S after removing the outermost parentheses of every primitive string in
-the primitive decomposition of S.
-
-Example 1:
-
-Input: "(()())(())"
-Output: "()()()"
-Explanation:
-The input string is "(()())(())", with primitive decomposition "(()())" +
-"(())".
-After removing outer parentheses of each part, this is "()()" + "()" = "()()()".
-
-Example 2:
-
-Input: "(()())(())(()(()))"
-Output: "()()()()(())"
-Explanation:
-The input string is "(()())(())(()(()))", with primitive decomposition "(()())"
-+ "(())" + "(()(()))".
-After removing outer parentheses of each part, this is "()()" + "()" + "()(())"
-= "()()()()(())".
-
-Example 3:
-
-Input: "()()"
-Output: ""
-Explanation:
-The input string is "()()", with primitive decomposition "()" + "()".
-After removing outer parentheses of each part, this is "" + "" = "".
-
-Note:
-
-  S.length <= 10000
-  S[i] is "(" or ")"
-  S is a valid parentheses string
-/*
-  Submission Date: 2019-08-25
-  Runtime: 12 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string removeOuterParentheses(string S) {
-    int cnt = 0;
-    string res, token;
-    for (const auto& c : S) {
-      if (c == '(') {
-        cnt++;
-      } else {
-        cnt--;
-      }
-      token.push_back(c);
-      if (cnt == 0) {
-        res += token.substr(1, token.size() - 2);
-        token = "";
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1022. Sum of Root To Leaf Binary Numbers
-Given a binary tree, each node has value 0 or 1.  Each root-to-leaf path
-represents a binary number starting with the most significant bit.  For example,
-if the path is 0 -> 1 -> 1 -> 0 -> 1, then this could represent 01101 in binary,
-which is 13.
-
-For all leaves in the tree, consider the numbers represented by the path from
-the root to that leaf.
-
-Return the sum of these numbers.
-
-Example 1:
-
-Input: [1,0,1,0,1,0,1]
-Output: 22
-Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
-
-Note:
-
-  The number of nodes in the tree is between 1 and 1000.
-  node.val is 0 or 1.
-  The answer will not exceed 2^31 - 1.
-/*
-  Submission Date: 2019-09-17
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  int sumRootToLeaf(TreeNode* root) {
-    int res = 0;
-    f(root, res, 0);
-    return res;
-  }
-
-  void f(TreeNode* root, int& res, int curr) {
-    if (root == nullptr) return;
-    curr = curr * 2 + root->val;
-    if (root->left == nullptr && root->right == nullptr) {
-      res += curr;
-    } else {
-      f(root->left, res, curr);
-      f(root->right, res, curr);
-    }
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1025. Divisor Game
-Alice and Bob take turns playing a game, with Alice starting first.
-
-Initially, there is a number N on the chalkboard.  On each player's turn, that
-player makes a move consisting of:
-
-  Choosing any x with 0 < x < N and N % x == 0.
-  Replacing the number N on the chalkboard with N - x.
-
-Also, if a player cannot make a move, they lose the game.
-
-Return True if and only if Alice wins the game, assuming both players play
-optimally.
-
-Example 1:
-
-Input: 2
-Output: true
-Explanation: Alice chooses 1, and Bob has no more moves.
-
-Example 2:
-
-Input: 3
-Output: false
-Explanation: Alice chooses 1, Bob chooses 1, and Alice has no more moves.
-
-Note:
-
-  1 <= N <= 1000
-/*
-  Submission Date: 2019-09-07
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  bool divisorGame(int N) {
-    // suppose N is odd, then it cannot be divided by 2
-    // or any multiples of 2. the divisor is odd meaning
-    // N - divisor would be odd - odd = even. hence, if
-    // N is odd, then the current user will have to make
-    // it even for the next user.
-    //
-    // if N is even, the current user can force the
-    // opponent to get an odd number by subtracting one.
-    //
-    // even => odd
-    // odd => even
-    //
-    // base case odd 1 is a lost
-    // at even 2, it is a win as even (2) => odd (1)
-    // at odd 3, it is a lost as odd (3) => even (2) => odd (1)
-    // at even 4, it is a win as even (4) => odd (3) => even (2) => odd (1)
-    // thus, we can win only if N is even by forcing
-    // the oponent to get odd numbers until they reach 1
-    return N % 2 == 0;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1029. Two City Scheduling
-There are 2N people a company is planning to interview. The cost of flying the
-i-th person to city A is costs[i][0], and the cost of flying the i-th person to
-city B is costs[i][1].
-
-Return the minimum cost to fly every person to a city such that exactly N people
-arrive in each city.
-
-Example 1:
-
-Input: [[10,20],[30,200],[400,50],[30,20]]
-Output: 110
-Explanation:
-The first person goes to city A for a cost of 10.
-The second person goes to city A for a cost of 30.
-The third person goes to city B for a cost of 50.
-The fourth person goes to city B for a cost of 20.
-
-The total minimum cost is 10 + 30 + 50 + 20 = 110 to have half the people
-interviewing in each city.
-
-Note:
-
-  1 <= costs.length <= 100
-  It is guaranteed that costs.length is even.
-  1 <= costs[i][0], costs[i][1] <= 1000
-/*
-  Submission Date: 2019-09-20
+  Submission Date: 2019-09-21
   Runtime: 4 ms
   Difficulty: EASY
 */
@@ -909,55 +820,159 @@ using namespace std;
 
 class Solution {
  public:
-  int twoCitySchedCost(vector<vector<int>>& costs) {
+  int largestSumAfterKNegations(vector<int>& A, int K) {
     /*
-    dp[i][j] represents the min cost of i + j people where
-    i people go to A and j people go to B. this represents
-    people from indices [0, i + j]
-    dp[0][j] would just be the cumulative cost of B
-    dp[i][0] would just be the cumulative cost of A
-    dp[i][j] = min(
-        dp[i-1][j] + costs[i+j-1][0], // person goes to A
-        dp[i][j-1] + costs[i+j-1][1] // person goes to B
-      )
+    sort A to toggle the most negative if we can
+    if we have remaining K then we should spend it all
+    on the smallest absolute value as it has the
+    least potential to reduce the sum
     */
-    int N = costs.size() / 2;
-    int dp[N + 1][N + 1];
-    dp[0][0] = 0;
-    for (int i = 1; i <= N; i++) dp[i][0] = dp[i - 1][0] + costs[i - 1][0];
-    for (int j = 1; j <= N; j++) dp[0][j] = dp[0][j - 1] + costs[j - 1][1];
-    for (int i = 1; i <= N; i++)
-      for (int j = 1; j <= N; j++)
-        dp[i][j] = min(dp[i - 1][j] + costs[i + j - 1][0],
-                       dp[i][j - 1] + costs[i + j - 1][1]);
-    return dp[N][N];
+    sort(A.begin(), A.end());
+    int sum = 0;
+    int smallest_abs_val = INT_MAX;
+    for (const auto& e : A) {
+      smallest_abs_val = min(smallest_abs_val, abs(e));
+      if (K > 0 && e <= 0) {
+        sum += -e;
+        K--;
+      } else {
+        sum += e;
+      }
+    }
+
+    if (K > 0) {
+      // everything is positive
+      if (K % 2 == 1) sum -= 2 * smallest_abs_val;
+    }
+    return sum;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1007. Minimum Domino Rotations For Equal Row
+In a row of dominoes, A[i] and B[i] represent the top and bottom halves of the
+i-th domino.  (A domino is a tile with two numbers from 1 to 6 - one on each
+half of the tile.)
+
+We may rotate the i-th domino, so that A[i] and B[i] swap values.
+
+Return the minimum number of rotations so that all the values in A are the same,
+or all the values in B are the same.
+
+If it cannot be done, return -1.
+
+Example 1:
+
+Input: A = [2,1,2,4,2,2], B = [5,2,6,2,3,2]
+Output: 2
+Explanation:
+The first figure represents the dominoes as given by A and B: before we do any
+rotations.
+If we rotate the second and fourth dominoes, we can make every value in the top
+row equal to 2, as indicated by the second figure.
+
+Example 2:
+
+Input: A = [3,5,1,2,3], B = [3,6,3,3,4]
+Output: -1
+Explanation:
+In this case, it is not possible to rotate the dominoes to make one row of
+values equal.
+
+Note:
+
+  1 <= A[i], B[i] <= 6
+  2 <= A.length == B.length <= 20000
+/*
+  Submission Date: 2019-09-22
+  Runtime: 192 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int f(const vector<int>& A, const vector<int>& B) {
+    int N = A.size();
+    int target = A[0];
+    int A_cnt = 0;
+    int B_cnt = 0;
+    for (int i = 0; i < N; i++) {
+      if (A[i] != target && B[i] != target) return -1;
+      A_cnt += A[i] == target;
+      B_cnt += B[i] == target;
+    }
+    return min(min(B_cnt, N - B_cnt), min(A_cnt, N - A_cnt));
+  }
+  int minDominoRotations(vector<int>& A, vector<int>& B) {
+    /*
+    check that every element has either A[0] or B[0]
+    count the number of occurences in A or B
+    if it is A_cnt it means swap all the occurences in A where (A[i] == target)
+    if it is N-A_cnt it means swap all the occurrences in B where
+      (B[i] for i where A[i] != target)
+    if it is B_cnt it means swap all the occurences in B where (B[i] == target)
+    if it is N-B_cnt it means swap all the occurrences in A where
+      (A[i] for i where B[i] != target)
+    */
+    int f1 = f(A, B);
+    int f2 = f(B, A);
+    if (f1 == -1)
+      return f2;
+    else if (f2 == -1)
+      return f1;
+    else
+      return min(f1, f2);
   }
 };
 
 class Solution2 {
  public:
-  int twoCitySchedCost(vector<vector<int>>& costs) {
+  int minDominoRotations(vector<int>& A, vector<int>& B) {
     /*
-    for a person if they go to one city for costs[i][0], it means
-    we get the benefit of not going to the other city by costs[i][1] -
-    costs[i][0]
-
-    e.g 100 to go to city A and 110 to go to city B, if they go
-    to city A we save 110-100=10
-
-    so we sort by the savings and the top half savings go to A
-    the bottom half go to B
+    get the most frequent character in A and B, assume A's most
+    frequent character > B's most frequent character
+    A_freq[A_max_key] should at least be N/2 as to cover the whole
+    array, the minimum size of a half is N/2
+    A_freq[A_max_key] + B_freq[B_max_key] >= N as there should be
+    enough characters in B to make N
+    just swap all non A_max_key in B which is N - A_freq[A_max_key]
+    need to check that for i in A[i] B[i] must have at least one
+    A_max_key
     */
-    sort(costs.begin(), costs.end(),
-         [](const vector<int>& left, const vector<int>& right) {
-           return left[0] - left[1] < right[0] - right[1];
-         });
-
-    int res = 0;
-    for (int i = 0, N = costs.size(); i < N; i++) {
-      res += i >= N / 2 ? costs[i][1] : costs[i][0];
+    unordered_map<int, int> A_freq, B_freq;
+    int A_max_key = -1;
+    for (const auto& e : A) {
+      A_freq[e]++;
+      if (A_max_key == -1 || A_freq[A_max_key] < A_freq[e]) A_max_key = e;
     }
-    return res;
+    int B_max_key = -1;
+    for (const auto& e : B) {
+      B_freq[e]++;
+      if (B_max_key == -1 || B_freq[B_max_key] < B_freq[e]) B_max_key = e;
+    }
+
+    if (A_freq[A_max_key] < B_freq[B_max_key]) {
+      A_freq.swap(B_freq);
+      A.swap(B);
+      swap(A_max_key, B_max_key);
+    }
+
+    // A has the majority frequency
+    int N = A.size();
+    if (A_freq[A_max_key] < N / 2 || A_freq[A_max_key] + B_freq[B_max_key] < N)
+      return -1;
+    for (int i = 0; i < N; i++) {
+      if (A[i] != A_max_key && B[i] != A_max_key) return -1;
+    }
+    return N - A_freq[A_max_key];
   }
 };
 

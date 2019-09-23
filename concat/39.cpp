@@ -769,6 +769,63 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+912. Sort an Array
+Given an array of integers nums, sort the array in ascending order.
+
+Example 1:
+
+Input: [5,2,3,1]
+Output: [1,2,3,5]
+
+Example 2:
+
+Input: [5,1,1,2,0,0]
+Output: [0,0,1,1,2,5]
+
+Note:
+
+  1 <= A.length <= 10000
+  -50000 <= A[i] <= 50000
+/*
+  Submission Date: 2019-09-23
+  Runtime: 84 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  void sort(vector<int>& nums, int l, int r) {
+    if (l < r) {
+      int mid = l + (r - l) / 2;
+      int pivot = nums[mid];
+      swap(nums[mid], nums[l]);
+      int j = l + 1;
+      for (int i = l + 1; i <= r; i++) {
+        if (nums[i] < pivot) {
+          swap(nums[i], nums[j]);
+          j++;
+        }
+      }
+      swap(nums[j - 1], nums[l]);
+      sort(nums, l, j - 2);
+      sort(nums, j, r);
+    }
+  }
+  vector<int> sortArray(vector<int>& nums) {
+    // quick sort
+    sort(nums, 0, nums.size() - 1);
+    return nums;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 914. X of a Kind in a Deck of Cards
 In a deck of cards, each card has an integer written on it.
 
@@ -898,92 +955,5 @@ class Solution {
     return S;
   }
 };
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-919. Complete Binary Tree Inserter
-A complete binary tree is a binary tree in which every level, except possibly
-the last, is completely filled, and all nodes are as far left as possible.
-
-Write a data structure CBTInserter that is initialized with a complete binary
-tree and supports the following operations:
-
-  CBTInserter(TreeNode root) initializes the data structure on a given tree with
-head node root;
-  CBTInserter.insert(int v) will insert a TreeNode into the tree with value
-node.val = v so that the tree remains complete, and returns the value of the
-parent of the inserted TreeNode;
-  CBTInserter.get_root() will return the head node of the tree.
-
-Example 1:
-
-Input: inputs = ["CBTInserter","insert","get_root"], inputs = [[[1]],[2],[]]
-Output: [null,1,[1,2]]
-
-Example 2:
-
-Input: inputs = ["CBTInserter","insert","insert","get_root"], inputs =
-[[[1,2,3,4,5,6]],[7],[8],[]]
-Output: [null,3,4,[1,2,3,4,5,6,7,8]]
-
-Note:
-
-  The initial given tree is complete and contains between 1 and 1000 nodes.
-  CBTInserter.insert is called at most 10000 times per test case.
-  Every value of a given or inserted node is between 0 and 5000.
-/*
-  Submission Date: 2019-01-26
-  Runtime: 20 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class CBTInserter {
-  vector<TreeNode*> nodes;
-
- public:
-  CBTInserter(TreeNode* root) {
-    queue<TreeNode*> q{{root}};
-    while (!q.empty()) {
-      TreeNode* front = q.front();
-      q.pop();
-      if (front->left) q.push(front->left);
-      if (front->right) q.push(front->right);
-      nodes.push_back(front);
-    }
-  }
-
-  int insert(int v) {
-    nodes.emplace_back(new TreeNode(v));
-    int parent_ind = (nodes.size() - 2) / 2;
-    if (nodes[parent_ind]->left == NULL)
-      nodes[parent_ind]->left = nodes.back();
-    else
-      nodes[parent_ind]->right = nodes.back();
-    return nodes[parent_ind]->val;
-  }
-
-  TreeNode* get_root() { return nodes[0]; }
-};
-
-/**
- * Your CBTInserter object will be instantiated and called as such:
- * CBTInserter obj = new CBTInserter(root);
- * int param_1 = obj.insert(v);
- * TreeNode* param_2 = obj.get_root();
- */
 
 int main() { return 0; }

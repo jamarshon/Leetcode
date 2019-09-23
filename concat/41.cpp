@@ -1,6 +1,165 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+939. Minimum Area Rectangle
+Given a set of points in the xy-plane, determine the minimum area of a rectangle
+formed from these points, with sides parallel to the x and y axes.
+
+If there isn't any rectangle, return 0.
+
+Example 1:
+
+Input: [[1,1],[1,3],[3,1],[3,3],[2,2]]
+Output: 4
+
+Example 2:
+
+Input: [[1,1],[1,3],[3,1],[3,3],[4,1],[4,3]]
+Output: 2
+
+Note:
+
+  1 <= points.length <= 500
+  0 <= points[i][0] <= 40000
+  0 <= points[i][1] <= 40000
+  All points are distinct.
+/*
+  Submission Date: 2019-02-19
+  Runtime: 84 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+class Solution3 {
+ public:
+  /*
+  consider each point as diagonals of the rectangle (a,b) (c,d) seach
+  for (a,d) and (c,b). use hashmap for lookup.
+  if same x coord a==c (a,b) (a,d) look for (a,d) (a,b) not valid
+  so exclude if same x coord and same y coord.
+  */
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    unordered_set<int> s;
+    for (const auto& p : points) s.insert(p[0] * 40001 + p[1]);
+    for (int i = 0; i < points.size(); i++) {
+      for (int j = i + 1; j < points.size(); j++) {
+        if (points[i][0] == points[j][0] || points[i][1] == points[j][1])
+          continue;
+        if (s.count(points[i][0] * 40001 + points[j][1]) &&
+            s.count(points[j][0] * 40001 + points[i][1])) {
+          int area =
+              (points[i][0] - points[j][0]) * (points[i][1] - points[j][1]);
+          res = (res == -1) ? abs(area) : min(abs(area), res);
+        }
+      }
+    }
+    return max(res, 0);
+  }
+};
+
+class Solution {
+ public:
+  /*
+  group by x coordinates. sort each column and do pairwise comparison of
+  each column by finding intersecting elements. The smallest distance between
+  intersecting elements multiplied by the distance between columns is smallest
+  rectangle that is bordered by these two columns.
+  */
+  int ShortestCommon(const vector<int>& A, const vector<int>& B) {
+    int res = -1;
+    int N = A.size(), M = B.size();
+    int i = 0, j = 0;
+    int last_y = -1;
+
+    while (i < N && j < M) {
+      if (A[i] == B[j]) {
+        if (last_y != -1)
+          res = (res == -1) ? A[i] - last_y : min(res, A[i] - last_y);
+        last_y = A[i];
+        i++;
+        j++;
+      } else if (A[i] > B[j]) {
+        j++;
+      } else {
+        i++;
+      }
+    }
+    return res;
+  }
+
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    unordered_map<int, vector<int>> m;
+    for (const auto& p : points) {
+      m[p[0]].push_back(p[1]);
+    }
+
+    for (auto& kv : m) sort(kv.second.begin(), kv.second.end());
+    for (auto it = m.begin(); it != m.end(); it++) {
+      for (auto next_it = next(it); next_it != m.end(); next_it++) {
+        int height = ShortestCommon(it->second, next_it->second);
+        if (height == -1) continue;
+        int pos_res = height * abs(it->first - next_it->first);
+        res = (res == -1) ? pos_res : min(pos_res, res);
+      }
+    }
+
+    return max(res, 0);
+  }
+};
+
+class Solution2 {
+ public:
+  /*
+  group points by x coordinates (into columns)
+  traverse these columns starting from the left and for each column
+  loop the pair of y1, y2 to see if any previous column had it. since
+  we start from the left, it is guaranteed that it will be the shortest
+  x distance. this is can be done by having a unordered_map<int,int>
+  where key is y1*40001 + y2 where y1 <= y2 and value is the
+  most recent x coordinate
+  */
+  int minAreaRect(vector<vector<int>>& points) {
+    int res = -1;
+    map<int, vector<int>> m;
+    for (const auto& p : points) {
+      m[p[0]].push_back(p[1]);
+    }
+
+    unordered_map<int, int> x_coord;
+    for (const auto& kv : m) {
+      const auto& column = kv.second;
+      for (int i = 0; i < column.size(); i++) {
+        for (int j = i + 1; j < column.size(); j++) {
+          int y1 = column[i];
+          int y2 = column[j];
+          if (y1 > y2) swap(y1, y2);
+          auto it = x_coord.find(y1 * 40001 + y2);
+          if (it != x_coord.end()) {
+            int area = (kv.first - it->second) * (y2 - y1);
+            res = (res == -1) ? area : min(area, res);
+          }
+          x_coord[y1 * 40001 + y2] = kv.first;
+        }
+      }
+    }
+
+    return max(res, 0);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 941. Valid Mountain Array
 Given an array A of integers, return true if and only if it is a valid mountain
 array.
@@ -792,170 +951,6 @@ class Solution2 {
       expected_size *= 2;
     }
     return true;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-959. Regions Cut By Slashes
-In a N x N grid composed of 1 x 1 squares, each 1 x 1 square consists of a /, \,
-or blank space.  These characters divide the square into contiguous regions.
-
-(Note that backslash characters are escaped, so a \ is represented as "\\".)
-
-Return the number of regions.
-
-Example 1:
-
-Input:
-[
-  " /",
-  "/ "
-]
-Output: 2
-Explanation: The 2x2 grid is as follows:
-
-Example 2:
-
-Input:
-[
-  " /",
-  "  "
-]
-Output: 1
-Explanation: The 2x2 grid is as follows:
-
-Example 3:
-
-Input:
-[
-  "\\/",
-  "/\\"
-]
-Output: 4
-Explanation: (Recall that because \ characters are escaped, "\\/" refers to \/,
-and "/\\" refers to /\.)
-The 2x2 grid is as follows:
-
-Example 4:
-
-Input:
-[
-  "/\\",
-  "\\/"
-]
-Output: 5
-Explanation: (Recall that because \ characters are escaped, "/\\" refers to /\,
-and "\\/" refers to \/.)
-The 2x2 grid is as follows:
-
-Example 5:
-
-Input:
-[
-  "//",
-  "/ "
-]
-Output: 3
-Explanation: The 2x2 grid is as follows:
-
-Note:
-
-  1 <= grid.length == grid[0].length <= 30
-  grid[i][j] is either '/', '\', or ' '.
-/*
-  Submission Date: 2019-02-10
-  Runtime: 176 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-struct UnionFind {
-  unordered_map<int, int> parent_, rank_;
-  void Create(int x) {
-    parent_[x] = x;
-    rank_[x] = 0;
-  }
-
-  int Find(int x) {
-    if (parent_[x] != x) parent_[x] = Find(parent_[x]);
-    return parent_[x];
-  }
-
-  void Union(int x, int y) {
-    int r1 = Find(x);
-    int r2 = Find(y);
-
-    if (r1 == r2) return;
-    if (rank_[r1] < rank_[r2]) {
-      parent_[r1] = r2;
-    } else {
-      parent_[r2] = r1;
-      if (rank_[r1] == rank_[r2]) rank_[r1]++;
-    }
-  }
-};
-
-enum Directions { NORTH, EAST, SOUTH, WEST };
-
-class Solution {
- public:
-  /*
-  4*n*n grid where the four represents north, east, south, west of a single
-  1x1 block where the block is split into 4 by the diagonals
-  ----
-  |\/|
-  |/\|
-  ----
-
-  if grid[i][j] is '/' then we can only join north,west and south,east
-  if grid[i][j] is '\' then we can only join north,east and south,west
-  if its empty join all 4
-
-  then connect adjacent cells.
-
-  flatten a 2d array of [N][M] than element [i][j] is i*M + j
-  flatten a 3d array of [N][M][O] than element [i][j][k] is i*M + j + k*N*M or
-    O*(i*M + j) + k which has the z elements be contiguous and not the x elments
-  */
-  int regionsBySlashes(vector<string>& grid) {
-    UnionFind uf;
-    int N = grid.size();
-    for (int i = 0; i < 4 * N * N; i++) uf.Create(i);
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
-        char c = grid[i][j];
-        int key = 4 * (i * N + j);
-        if (c != '/') {
-          uf.Union(key + NORTH, key + EAST);  // north,east
-          uf.Union(key + SOUTH, key + WEST);  // south,west
-        }
-        if (c != '\\') {
-          uf.Union(key + NORTH, key + WEST);  // north,west
-          uf.Union(key + SOUTH, key + EAST);  // south,east
-        }
-
-        // adjacent cells
-        // north and south
-        if (i > 0) uf.Union(key + NORTH, (key - 4 * N) + SOUTH);
-        if (i + 1 < N) uf.Union(key + SOUTH, (key + 4 * N) + NORTH);
-
-        // west and east
-        if (j > 0) uf.Union(key + WEST, (key - 4) + EAST);
-        if (j + 1 < N) uf.Union(key + EAST, (key + 4) + WEST);
-      }
-    }
-
-    int ans = 0;
-    // find the number of components
-    for (int i = 0; i < 4 * N * N; i++) ans += uf.Find(i) == i;
-    return ans;
   }
 };
 

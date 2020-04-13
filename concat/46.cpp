@@ -1,6 +1,592 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+1103. Distribute Candies to People
+We distribute some number of candies, to a row of n = num_people people in the
+following way:
+
+We then give 1 candy to the first person, 2 candies to the second person, and so
+on until we give n candies to the last person.
+
+Then, we go back to the start of the row, giving n + 1 candies to the first
+person, n + 2 candies to the second person, and so on until we give 2 *
+n candies to the last person.
+
+This process repeats (with us giving one more candy each time, and moving to the
+start of the row after we reach the end) until we run out of candies.  The last
+person will receive all of our remaining candies (not necessarily one more than
+the previous gift).
+
+Return an array (of length num_people and sum candies) that represents the final
+distribution of candies.
+
+Example 1:
+
+Input: candies = 7, num_people = 4
+Output: [1,2,3,1]
+Explanation:
+On the first turn, ans[0] += 1, and the array is [1,0,0,0].
+On the second turn, ans[1] += 2, and the array is [1,2,0,0].
+On the third turn, ans[2] += 3, and the array is [1,2,3,0].
+On the fourth turn, ans[3] += 1 (because there is only one candy left), and the
+final array is [1,2,3,1].
+
+Example 2:
+
+Input: candies = 10, num_people = 3
+Output: [5,2,3]
+Explanation:
+On the first turn, ans[0] += 1, and the array is [1,0,0].
+On the second turn, ans[1] += 2, and the array is [1,2,0].
+On the third turn, ans[2] += 3, and the array is [1,2,3].
+On the fourth turn, ans[0] += 4, and the final array is [5,2,3].
+
+Constraints:
+
+  1 <= candies <= 10^9
+  1 <= num_people <= 1000
+/*
+  Submission Date: 2019-09-08
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> distributeCandies(int candies, int num_people) {
+    int i = 1, j = 0;
+    vector<int> res(num_people, 0);
+    while (candies) {
+      i = min(candies, i);
+      candies -= i;
+      res[j] += i;
+      i++;
+      j = (j + 1) % num_people;
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1104. Path In Zigzag Labelled Binary Tree
+In an infinite binary tree where every node has two children, the nodes are
+labelled in row order.
+
+In the odd numbered rows (ie., the first, third, fifth,...), the labelling is
+left to right, while in the even numbered rows (second, fourth, sixth,...), the
+labelling is right to left.
+
+Given the label of a node in this tree, return the labels in the path from the
+root of the tree to the node with that label.
+
+Example 1:
+
+Input: label = 14
+Output: [1,3,4,14]
+
+Example 2:
+
+Input: label = 26
+Output: [1,2,6,10,26]
+
+Constraints:
+
+  1 <= label <= 10^6
+/*
+  Submission Date: 2019-09-22
+  Runtime: 4 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> pathInZigZagTree(int label) {
+    /*
+    get the current level, reverse the level and
+    divide by two to get the parent
+    to reverse a number y around x do 2x-y
+    now for level i in a tree [2^i, 2^(i+1)-1] the
+    center is (2^i + 2^(i+1)-1)/2 so to reverse a level
+    just reverse around the center
+    */
+    int level = log2(label);
+    vector<int> res;
+    while (level >= 0) {
+      res.push_back(label);
+      int flipped = (1 << level) + (1 << (level + 1)) - 1 - label;
+      level--;
+      label = flipped / 2;
+    }
+    reverse(res.begin(), res.end());
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1108. Defanging an IP Address
+Given a valid (IPv4) IP address, return a defanged version of that IP address.
+
+A defanged IP address replaces every period "." with "[.]".
+
+Example 1:
+Input: address = "1.1.1.1"
+Output: "1[.]1[.]1[.]1"
+Example 2:
+Input: address = "255.100.50.0"
+Output: "255[.]100[.]50[.]0"
+
+Constraints:
+
+  The given address is a valid IPv4 address.
+/*
+  Submission Date: 2019-08-25
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <sstream>
+
+using namespace std;
+
+class Solution {
+ public:
+  string defangIPaddr(string address) {
+    istringstream ss(address);
+    string res, token;
+    string splitter = "[.]";
+    while (getline(ss, token, '.')) {
+      res += token + splitter;
+    }
+    return res.substr(0, res.size() - 3);
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1110. Delete Nodes And Return Forest
+Given the root of a binary tree, each node in the tree has a distinct value.
+
+After deleting all nodes with a value in to_delete, we are left with a forest
+(a disjoint union of trees).
+
+Return the roots of the trees in the remaining forest.  You may return the
+result in any order.
+
+Example 1:
+
+Input: root = [1,2,3,4,5,6,7], to_delete = [3,5]
+Output: [[1,2,null,4],[6],[7]]
+
+Constraints:
+
+  The number of nodes in the given tree is at most 1000.
+  Each node has a distinct value between 1 and 1000.
+  to_delete.length <= 1000
+  to_delete contains distinct values between 1 and 1000.
+/*
+  Submission Date: 2019-09-23
+  Runtime: 20 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+  vector<TreeNode*> res;
+
+ public:
+  /*
+  return the tree without the deleted nodes
+  when a node is deleted, put the pruned left/right (if non null) into the
+  forest also add the root if it is not deleted
+  */
+  TreeNode* helper(TreeNode* root, const unordered_set<int>& delete_set) {
+    if (!root) return nullptr;
+    auto left = helper(root->left, delete_set);
+    auto right = helper(root->right, delete_set);
+    if (delete_set.count(root->val)) {
+      if (left) res.push_back(left);
+      if (right) res.push_back(right);
+      return nullptr;
+    } else {
+      root->left = left;
+      root->right = right;
+      return root;
+    }
+  }
+
+  vector<TreeNode*> delNodes(TreeNode* root, vector<int>& to_delete) {
+    unordered_set<int> delete_set(to_delete.begin(), to_delete.end());
+    if (!delete_set.count(root->val)) res.push_back(root);
+    helper(root, delete_set);
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1111. Maximum Nesting Depth of Two Valid Parentheses Strings
+A string is a valid parentheses string (denoted VPS) if and only if it consists
+of "(" and ")" characters only, and:
+
+  It is the empty string, or
+  It can be written as AB (A concatenated with B), where A and B are VPS's, or
+  It can be written as (A), where A is a VPS.
+
+We can similarly define the nesting depth depth(S) of any VPS S as follows:
+
+  depth("") = 0
+  depth(A + B) = max(depth(A), depth(B)), where A and B are VPS's
+  depth("(" + A + ")") = 1 + depth(A), where A is a VPS.
+
+For example,  "", "()()", and "()(()())" are VPS's (with nesting depths 0, 1,
+and 2), and ")(" and "(()" are not VPS's.
+
+Given a VPS seq, split it into two disjoint subsequences A and B, such that A
+and B are VPS's (and A.length + B.length = seq.length).
+
+Now choose any such A and B such that max(depth(A), depth(B)) is the minimum
+possible value.
+
+Return an answer array (of length seq.length) that encodes such a choice of A
+and B:  answer[i] = 0 if seq[i] is part of A, else answer[i] = 1.  Note that
+even though multiple answers may exist, you may return any of them.
+
+Example 1:
+
+Input: seq = "(()())"
+Output: [0,1,1,1,1,0]
+
+Example 2:
+
+Input: seq = "()(())()"
+Output: [0,0,0,1,1,0,1,1]
+
+Constraints:
+
+  1 <= seq.size <= 10000
+/*
+  Submission Date: 2019-09-22
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> maxDepthAfterSplit(string seq) {
+    // put all the even '(' in one area with all the
+    // odd ')'
+    vector<int> res;
+    for (int i = 0; i < seq.size(); i++) res.push_back(i & 1 ^ (seq[i] == '('));
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1122. Relative Sort Array
+Given two arrays arr1 and arr2, the elements of arr2 are distinct, and all
+elements in arr2 are also in arr1.
+
+Sort the elements of arr1 such that the relative ordering of items in arr1 are
+the same as in arr2.  Elements that don't appear in arr2 should be placed at the
+end of arr1 in ascending order.
+
+Example 1:
+Input: arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
+Output: [2,2,2,1,4,3,3,9,6,7,19]
+
+Constraints:
+
+  arr1.length, arr2.length <= 1000
+  0 <= arr1[i], arr2[i] <= 1000
+  Each arr2[i] is distinct.
+  Each arr2[i] is in arr1.
+/*
+  Submission Date: 2019-09-03
+  Runtime: 8 ms
+  Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
+    unordered_map<int, int> arr2_to_ind;
+    for (int i = 0; i < arr2.size(); i++) {
+      arr2_to_ind[arr2[i]] = i;
+    }
+
+    auto end_it = arr2_to_ind.end();
+
+    sort(arr1.begin(), arr1.end(),
+         [&arr2_to_ind, &end_it](const int& left, const int& right) {
+           auto left_it = arr2_to_ind.find(left);
+           auto right_it = arr2_to_ind.find(right);
+           if (left_it == end_it && right_it == end_it) {
+             // ascending order
+             return left < right;
+           } else if (left_it == end_it) {
+             // put the right in front as the left is not defined
+             return false;
+           } else if (right_it == end_it) {
+             // put the left in front as the right is not defined
+             return true;
+           } else {
+             // return the relative order of left, right
+             return left_it->second < right_it->second;
+           }
+         });
+
+    return arr1;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1123. Lowest Common Ancestor of Deepest Leaves
+Given a rooted binary tree, return the lowest common ancestor of its deepest
+leaves.
+
+Recall that:
+
+  The node of a binary tree is a leaf if and only if it has no children
+  The depth of the root of the tree is 0, and if the depth of a node is d, the
+depth of each of its children is d+1.
+  The lowest common ancestor of a set S of nodes is the node A with the largest
+depth such that every node in S is in the subtree with root A.
+
+Example 1:
+
+Input: root = [1,2,3]
+Output: [1,2,3]
+Explanation:
+The deepest leaves are the nodes with values 2 and 3.
+The lowest common ancestor of these leaves is the node with value 1.
+The answer returned is a TreeNode object (not an array) with serialization
+"[1,2,3]".
+
+Example 2:
+
+Input: root = [1,2,3,4]
+Output: [4]
+
+Example 3:
+
+Input: root = [1,2,3,4,5]
+Output: [2,4,5]
+
+Constraints:
+
+  The given tree will have between 1 and 1000 nodes.
+  Each node of the tree will have a distinct value between 1 and 1000.
+/*
+  Submission Date: 2019-09-23
+  Runtime: 16 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+ public:
+  // return lca, depth
+  pair<TreeNode*, int> helper(TreeNode* curr) {
+    if (!curr) return {nullptr, 0};
+    auto left = helper(curr->left);
+    auto right = helper(curr->right);
+    // same depth means this is the lca
+    if (left.second == right.second) return {curr, left.second + 1};
+    // the left lca is the lca of all the deepest leaves so
+    // return that upward
+    else if (left.second > right.second)
+      return {left.first, left.second + 1};
+    // same as before but its the right lca
+    else
+      return {right.first, right.second + 1};
+  }
+
+  TreeNode* lcaDeepestLeaves(TreeNode* root) { return helper(root).first; }
+};
+
+class Solution3 {
+  unordered_map<int, unordered_set<TreeNode*>> depth_to_node;
+
+ public:
+  pair<TreeNode*, int> lca(TreeNode* curr,
+                           const unordered_set<TreeNode*>& leaves) {
+    if (!curr) return {nullptr, 0};
+    int N = leaves.size();
+    auto left = lca(curr->left, leaves);
+    if (left.second == N) return left;
+    auto right = lca(curr->right, leaves);
+    if (right.second == N) return right;
+    int total = left.second + right.second + leaves.count(curr);
+    return {curr, total};
+  }
+
+  void search(TreeNode* root, int depth = 0) {
+    if (root == nullptr) return;
+    depth_to_node[depth].insert(root);
+    search(root->left, depth + 1);
+    search(root->right, depth + 1);
+  }
+
+  TreeNode* lcaDeepestLeaves(TreeNode* root) {
+    /*
+    get all the nodes with the maximum depth, then do pairwise lca
+    through all of them
+    */
+    search(root);
+    int max_depth = -1;
+    for (auto kv : depth_to_node) max_depth = max(max_depth, kv.first);
+    return lca(root, depth_to_node[max_depth]).first;
+  }
+};
+
+class Solution2 {
+  unordered_map<int, vector<TreeNode*>> depth_to_node;
+
+ public:
+  TreeNode* lca(TreeNode* curr, TreeNode* a, TreeNode* b) {
+    if (!curr || curr == a || curr == b) return curr;
+    auto left = lca(curr->left, a, b);
+    auto right = lca(curr->right, a, b);
+    if (left && right)
+      return curr;
+    else if (left)
+      return left;
+    else
+      return right;
+  }
+
+  void search(TreeNode* root, int depth = 0) {
+    if (root == nullptr) return;
+    depth_to_node[depth].push_back(root);
+    search(root->left, depth + 1);
+    search(root->right, depth + 1);
+  }
+
+  TreeNode* lcaDeepestLeaves(TreeNode* root) {
+    /*
+    get all the nodes with the maximum depth, then do pairwise lca
+    through all of them
+    */
+    search(root);
+    int max_depth = -1;
+    for (auto kv : depth_to_node) max_depth = max(max_depth, kv.first);
+    auto v = depth_to_node[max_depth];
+    TreeNode* prev = nullptr;
+    for (auto e : v) prev = lca(root, prev, e);
+    return prev;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1128. Number of Equivalent Domino Pairs
+Given a list of dominoes, dominoes[i] = [a, b] is equivalent to dominoes[j] =
+[c, d] if and only if either (a==c and b==d), or (a==d and b==c) - that is, one
+domino can be rotated to be equal to another domino.
+
+Return the number of pairs (i, j) for which 0 <= i < j < dominoes.length,
+and dominoes[i] is equivalent to dominoes[j].
+
+Example 1:
+Input: dominoes = [[1,2],[2,1],[3,4],[5,6]]
+Output: 1
+
+Constraints:
+
+  1 <= dominoes.length <= 40000
+  1 <= dominoes[i][j] <= 9
+/*
+  Submission Date: 2019-09-23
+  Runtime: 64 ms
+  Difficulty: EASY
+*/
+#include <algorithm>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int numEquivDominoPairs(vector<vector<int>>& dominoes) {
+    unordered_map<string, int> freq;
+    int res = 0;
+    for (const auto& d : dominoes) {
+      auto p = minmax(d[0], d[1]);
+      string key = to_string(p.first) + ',' + to_string(p.second);
+      res += freq[key];
+      freq[key]++;
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 1137. N-th Tribonacci Number
 The Tribonacci sequence Tn is defined as follows: 
 
@@ -404,338 +990,6 @@ class Solution {
     int num_primes = sieve(n);
     int num_composites = n - sieve(n);
     return (factorial(num_primes) * factorial(num_composites)) % mod;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1180. Count Substrings with Only One Distinct Letter
-Given a string S, return the number of substrings that have only one distinct
-letter.
-
-Example 1:
-
-Input: S = "aaaba"
-Output: 8
-Explanation: The substrings with one distinct letter are "aaa", "aa", "a", "b".
-"aaa" occurs 1 time.
-"aa" occurs 2 times.
-"a" occurs 4 times.
-"b" occurs 1 time.
-So the answer is 1 + 2 + 4 + 1 = 8.
-
-Example 2:
-
-Input: S = "aaaaaaaaaa"
-Output: 55
-
-Constraints:
-
-  1 <= S.length <= 1000
-  S[i] consists of only lowercase English letters.
-/*
-  Submission Date: 2019-09-07
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  int countLetters(string S) {
-    // count the number of repeating consecutive characters
-    // there are n*(n+1) substrings of them
-    int N = S.size();
-    int res = 0;
-    for (int i = 0; i < N;) {
-      int j = i;
-      while (j < N && S[i] == S[j]) j++;
-      res += (j - i) * (j - i + 1) / 2;
-      i = j;
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1184. Distance Between Bus Stops
-A bus has n stops numbered from 0 to n - 1 that form a circle. We know the
-distance between all pairs of neighboring stops where distance[i] is the
-distance between the stops number i and (i + 1) % n.
-
-The bus goes along both directions i.e. clockwise and counterclockwise.
-
-Return the shortest distance between the given start and destination stops.
-
-Example 1:
-
-Input: distance = [1,2,3,4], start = 0, destination = 1
-Output: 1
-Explanation: Distance between 0 and 1 is 1 or 9, minimum is 1.
-
-Example 2:
-
-Input: distance = [1,2,3,4], start = 0, destination = 2
-Output: 3
-Explanation: Distance between 0 and 2 is 3 or 7, minimum is 3.
-
-Example 3:
-
-Input: distance = [1,2,3,4], start = 0, destination = 3
-Output: 4
-Explanation: Distance between 0 and 3 is 6 or 4, minimum is 4.
-
-Constraints:
-
-  1 <= n <= 10^4
-  distance.length == n
-  0 <= start, destination < n
-  0 <= distance[i] <= 10^4
-/*
-  Submission Date: 2019-09-17
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int distanceBetweenBusStops(vector<int>& distance, int start,
-                              int destination) {
-    // sum represents the sum of array from i to j where i < j
-    // total_sum is the whole array sum
-    // the result is the minimum of sum and total_sum - sum
-    // as that is doing the reverse direction
-    int total_sum = 0, sum = 0;
-    if (start > destination) swap(start, destination);
-    for (int i = 0; i < distance.size(); i++) {
-      if (start <= i && i < destination) {
-        sum += distance[i];
-      }
-      total_sum += distance[i];
-    }
-    return min(sum, total_sum - sum);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1185. Day of the Week
-Given a date, return the corresponding day of the week for that date.
-
-The input is given as three integers representing the day, month and year
-respectively.
-
-Return the answer as one of the following values {"Sunday", "Monday", "Tuesday",
-"Wednesday", "Thursday", "Friday", "Saturday"}.
-
-Example 1:
-
-Input: day = 31, month = 8, year = 2019
-Output: "Saturday"
-
-Example 2:
-
-Input: day = 18, month = 7, year = 1999
-Output: "Sunday"
-
-Example 3:
-
-Input: day = 15, month = 8, year = 1993
-Output: "Sunday"
-
-Constraints:
-
-  The given dates are valid dates between the years 1971 and 2100.
-/*
-  Submission Date: 2019-09-08
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-
-using namespace std;
-
-class Solution {
-  string days[7] = {"Monday", "Tuesday",  "Wednesday", "Thursday",
-                    "Friday", "Saturday", "Sunday"};
-
-  int reference_year = 1900;
-  bool IsLeapYear(int year) {
-    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
-  }
-
-  int month_days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
- public:
-  string dayOfTheWeek(int day, int month, int year) {
-    int diff_year = year - reference_year;
-    // the number of days from full years
-    int diff_common_days = diff_year * 365;
-
-    // the number of leap days from full years
-    // leap years are divisible 4 unless it is divisible by 100 where
-    // it has to be divisible by 400 (i.e. 2000)
-    int diff_leap_days =
-        (diff_year - 1) / 4 - (diff_year - 1) / 100 + (year > 2000);
-    int diff_days = diff_common_days + diff_leap_days;
-
-    // days from the number of months
-    bool is_leap_year = IsLeapYear(year);
-    for (int i = 0; i < month - 1; i++) {
-      diff_days += month_days[i] + (is_leap_year && i == 1);
-    }
-
-    // days from the number of days in this month
-    diff_days += day - 1;
-
-    // jan 1, 1900 is a monday so do modulo
-    return days[diff_days % 7];
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1189. Maximum Number of Balloons
-Given a string text, you want to use the characters of text to form as many
-instances of the word "balloon" as possible.
-
-You can use each character in text at most once. Return the maximum number of
-instances that can be formed.
-
-Example 1:
-
-Input: text = "nlaebolko"
-Output: 1
-
-Example 2:
-
-Input: text = "loonbalxballpoon"
-Output: 2
-
-Example 3:
-
-Input: text = "leetcode"
-Output: 0
-
-Constraints:
-
-  1 <= text.length <= 10^4
-  text consists of lower case English letters only.
-/*
-  Submission Date: 2019-09-17
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-
-using namespace std;
-
-class Solution {
-  string target = "balloon";
-  unordered_map<char, int> target_freq;
-
- public:
-  Solution() {
-    for (const auto& c : target) target_freq[c]++;
-  }
-
-  // count the frequency of chars in text and then
-  // count the frequency of chars in target
-  // for all the characters in target,
-  // if it does not exist in text, then return 0
-  // as a target letter is not present
-  // else take the minimum of the frequency in the
-  // text divide by the frequency in the target
-  int maxNumberOfBalloons(string text) {
-    unordered_map<char, int> freq;
-    for (const auto& c : text) freq[c]++;
-    int res = INT_MAX;
-    for (const auto& c : target) {
-      if (!freq.count(c)) return 0;
-      res = min(res, freq[c] / target_freq[c]);
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1200. Minimum Absolute Difference
-Given an array of distinct integers arr, find all pairs of elements with the
-minimum absolute difference of any two elements. 
-
-Return a list of pairs in ascending order(with respect to pairs), each pair [a,
-b] follows
-
-  a, b are from arr
-  a < b
-  b - a equals to the minimum absolute difference of any two elements in arr
-
-Example 1:
-
-Input: arr = [4,2,1,3]
-Output: [[1,2],[2,3],[3,4]]
-Explanation: The minimum absolute difference is 1. List all pairs with
-difference equal to 1 in ascending order.
-
-Example 2:
-
-Input: arr = [1,3,6,10,15]
-Output: [[1,3]]
-
-Example 3:
-
-Input: arr = [3,8,-10,23,19,-4,-14,27]
-Output: [[-14,-10],[19,23],[23,27]]
-
-Constraints:
-
-  2 <= arr.length <= 10^5
-  -10^6 <= arr[i] <= 10^6
-/*
-  Submission Date: 2019-09-22
-  Runtime: 120 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<vector<int>> minimumAbsDifference(vector<int>& arr) {
-    sort(arr.begin(), arr.end());
-    int min_abs_difference = INT_MAX;
-    for (int i = 1; i < arr.size(); i++) {
-      min_abs_difference = min(min_abs_difference, abs(arr[i] - arr[i - 1]));
-    }
-    vector<vector<int>> res;
-    for (int i = 1; i < arr.size(); i++) {
-      if (abs(arr[i] - arr[i - 1]) == min_abs_difference) {
-        res.push_back({arr[i - 1], arr[i]});
-      }
-    }
-    return res;
   }
 };
 

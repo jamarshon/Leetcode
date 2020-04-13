@@ -1,6 +1,134 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+1007. Minimum Domino Rotations For Equal Row
+In a row of dominoes, A[i] and B[i] represent the top and bottom halves of the
+i-th domino.  (A domino is a tile with two numbers from 1 to 6 - one on each
+half of the tile.)
+
+We may rotate the i-th domino, so that A[i] and B[i] swap values.
+
+Return the minimum number of rotations so that all the values in A are the same,
+or all the values in B are the same.
+
+If it cannot be done, return -1.
+
+Example 1:
+
+Input: A = [2,1,2,4,2,2], B = [5,2,6,2,3,2]
+Output: 2
+Explanation:
+The first figure represents the dominoes as given by A and B: before we do any
+rotations.
+If we rotate the second and fourth dominoes, we can make every value in the top
+row equal to 2, as indicated by the second figure.
+
+Example 2:
+
+Input: A = [3,5,1,2,3], B = [3,6,3,3,4]
+Output: -1
+Explanation:
+In this case, it is not possible to rotate the dominoes to make one row of
+values equal.
+
+Note:
+
+  1 <= A[i], B[i] <= 6
+  2 <= A.length == B.length <= 20000
+/*
+  Submission Date: 2019-09-22
+  Runtime: 192 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int f(const vector<int>& A, const vector<int>& B) {
+    int N = A.size();
+    int target = A[0];
+    int A_cnt = 0;
+    int B_cnt = 0;
+    for (int i = 0; i < N; i++) {
+      if (A[i] != target && B[i] != target) return -1;
+      A_cnt += A[i] == target;
+      B_cnt += B[i] == target;
+    }
+    return min(min(B_cnt, N - B_cnt), min(A_cnt, N - A_cnt));
+  }
+  int minDominoRotations(vector<int>& A, vector<int>& B) {
+    /*
+    check that every element has either A[0] or B[0]
+    count the number of occurences in A or B
+    if it is A_cnt it means swap all the occurences in A where (A[i] == target)
+    if it is N-A_cnt it means swap all the occurrences in B where
+      (B[i] for i where A[i] != target)
+    if it is B_cnt it means swap all the occurences in B where (B[i] == target)
+    if it is N-B_cnt it means swap all the occurrences in A where
+      (A[i] for i where B[i] != target)
+    */
+    int f1 = f(A, B);
+    int f2 = f(B, A);
+    if (f1 == -1)
+      return f2;
+    else if (f2 == -1)
+      return f1;
+    else
+      return min(f1, f2);
+  }
+};
+
+class Solution2 {
+ public:
+  int minDominoRotations(vector<int>& A, vector<int>& B) {
+    /*
+    get the most frequent character in A and B, assume A's most
+    frequent character > B's most frequent character
+    A_freq[A_max_key] should at least be N/2 as to cover the whole
+    array, the minimum size of a half is N/2
+    A_freq[A_max_key] + B_freq[B_max_key] >= N as there should be
+    enough characters in B to make N
+    just swap all non A_max_key in B which is N - A_freq[A_max_key]
+    need to check that for i in A[i] B[i] must have at least one
+    A_max_key
+    */
+    unordered_map<int, int> A_freq, B_freq;
+    int A_max_key = -1;
+    for (const auto& e : A) {
+      A_freq[e]++;
+      if (A_max_key == -1 || A_freq[A_max_key] < A_freq[e]) A_max_key = e;
+    }
+    int B_max_key = -1;
+    for (const auto& e : B) {
+      B_freq[e]++;
+      if (B_max_key == -1 || B_freq[B_max_key] < B_freq[e]) B_max_key = e;
+    }
+
+    if (A_freq[A_max_key] < B_freq[B_max_key]) {
+      A_freq.swap(B_freq);
+      A.swap(B);
+      swap(A_max_key, B_max_key);
+    }
+
+    // A has the majority frequency
+    int N = A.size();
+    if (A_freq[A_max_key] < N / 2 || A_freq[A_max_key] + B_freq[B_max_key] < N)
+      return -1;
+    for (int i = 0; i < N; i++) {
+      if (A[i] != A_max_key && B[i] != A_max_key) return -1;
+    }
+    return N - A_freq[A_max_key];
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 1008. Construct Binary Search Tree from Preorder Traversal
 Return the root node of a binary search tree that matches the given preorder
 traversal.
@@ -534,6 +662,93 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+1026. Maximum Difference Between Node and Ancestor
+Given the root of a binary tree, find the maximum value V for which there exists
+different nodes A and B where V = |A.val - B.val| and A is an ancestor of B.
+
+(A node A is an ancestor of B if either: any child of A is equal to B, or any
+child of A is an ancestor of B.)
+
+Example 1:
+
+Input: [8,3,10,1,6,null,14,null,null,4,7,13]
+Output: 7
+Explanation:
+We have various ancestor-node differences, some of which are given below :
+|8 - 3| = 5
+|3 - 7| = 4
+|8 - 1| = 7
+|10 - 13| = 3
+Among all possible differences, the maximum value of 7 is obtained by |8 - 1| =
+7.
+
+Note:
+
+  The number of nodes in the tree is between 2 and 5000.
+  Each node will have value between 0 and 100000.
+/*
+  Submission Date: 2019-09-23
+  Runtime: 12 ms
+  Difficulty: MEDIUM
+*/
+#include <functional>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+  int res = 0;
+
+ public:
+  void update(int x, pair<int, int> p) {
+    if (p.first != -1) res = max(res, abs(x - p.first));
+    if (p.second != -1) res = max(res, abs(x - p.second));
+  }
+
+  int get(vector<int> v, function<int(int, int)> compare) {
+    int res = v[0];
+    for (int i = 1; i < v.size(); i++) {
+      if (v[i] != -1) res = compare(res, v[i]);
+    }
+    return res;
+  }
+
+  pair<int, int> solve(TreeNode* root) {
+    if (!root) return {-1, -1};
+    auto left = solve(root->left);
+    auto right = solve(root->right);
+    int x = root->val;
+    update(x, left);
+    update(x, right);
+    int smallest = get(vector<int>{x, left.first, right.first},
+                       [](int a, int b) { return min(a, b); });
+    int largest = get(vector<int>{x, left.second, right.second},
+                      [](int a, int b) { return max(a, b); });
+    return {smallest, largest};
+  }
+
+  int maxAncestorDiff(TreeNode* root) {
+    // compute the smallest and largest in the subtrees
+    // then update and return the smalles/largest
+    // see if abs(curr - smallest) || abs(curr - largest) is
+    // greater than res
+    solve(root);
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 1029. Two City Scheduling
 There are 2N people a company is planning to interview. The cost of flying the
 i-th person to city A is costs[i][0], and the cost of flying the i-th person to
@@ -707,283 +922,6 @@ class Solution {
       }
     }
     return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1033. Moving Stones Until Consecutive
-Three stones are on a number line at positions a, b, and c.
-
-Each turn, you pick up a stone at an endpoint (ie., either the lowest or highest
-position stone), and move it to an unoccupied position between those endpoints. 
-Formally, let's say the stones are currently at positions x, y, z with x < y <
-z.  You pick up the stone at either position x or position z, and move that
-stone to an integer position k, with x < k < z and k != y.
-
-The game ends when you cannot make any more moves, ie. the stones are in
-consecutive positions.
-
-When the game ends, what is the minimum and maximum number of moves that you
-could have made?  Return the answer as an length 2 array: answer =
-[minimum_moves, maximum_moves]
-
-Example 1:
-
-Input: a = 1, b = 2, c = 5
-Output: [1,2]
-Explanation: Move the stone from 5 to 3, or move the stone from 5 to 4 to 3.
-
-Example 2:
-
-Input: a = 4, b = 3, c = 2
-Output: [0,0]
-Explanation: We cannot make any moves.
-
-Example 3:
-
-Input: a = 3, b = 5, c = 1
-Output: [1,2]
-Explanation: Move the stone from 1 to 4; or move the stone from 1 to 2 to 4.
-
-Note:
-
-  1 <= a <= 100
-  1 <= b <= 100
-  1 <= c <= 100
-  a != b, b != c, c != a
-/*
-  Submission Date: 2019-09-23
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> numMovesStones(int a, int b, int c) {
-    /*
-    if a < b < c, and its a, a + 1, a + 2 then its done and minmove is 0
-    if there's a gap a, a + 2 then the minmove is 1 as it can be placed in the
-    gap if there's two in a row a, a + 1 then the minmove is 1 as it can be
-    placed before or after for max moves its just the number of elements between
-    b,a and c,b
-    */
-    if (a > b) swap(a, b);
-    if (b > c) swap(b, c);
-    if (a > b) swap(a, b);
-    // a < b < c
-    int min_moves;
-    if (b - a == 1 && c - b == 1) {
-      min_moves = 0;
-    } else if (b - a <= 2 || c - b <= 2) {
-      min_moves = 1;
-    } else {
-      min_moves = 2;
-    }
-    return {min_moves, (c - b - 1) + (b - a - 1)};
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1038. Binary Search Tree to Greater Sum Tree
-Given the root of a binary search tree with distinct values, modify it so that
-every node has a new value equal to the sum of the values of the original tree
-that are greater than or equal to node.val.
-
-As a reminder, a binary search tree is a tree that satisfies these constraints:
-
-  The left subtree of a node contains only nodes with keys less than the node's
-key.
-  The right subtree of a node contains only nodes with keys greater than the
-node's key.
-  Both the left and right subtrees must also be binary search trees.
-
-Example 1:
-
-Input: [4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
-Output: [30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
-
-Note:
-
-  The number of nodes in the tree is between 1 and 100.
-  Each node will have value between 0 and 100.
-  The given tree is a binary search tree.
-/*
-  Submission Date: 2019-09-21
-  Runtime: 0 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-  int prev = 0;
-
- public:
-  TreeNode* bstToGst(TreeNode* root) {
-    // an inorder traversal goes through a sorted array
-    // smallest first, if we go the reverse than we
-    // visist the largest first and do a cumulative
-    // sum
-    if (root == nullptr) return nullptr;
-    bstToGst(root->right);
-    root->val += prev;
-    prev = root->val;
-    bstToGst(root->left);
-    return root;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1042. Flower Planting With No Adjacent
-You have N gardens, labelled 1 to N.  In each garden, you want to plant one of 4
-types of flowers.
-
-paths[i] = [x, y] describes the existence of a bidirectional path from garden x
-to garden y.
-
-Also, there is no garden that has more than 3 paths coming into or leaving it.
-
-Your task is to choose a flower type for each garden such that, for any two
-gardens connected by a path, they have different types of flowers.
-
-Return any such a choice as an array answer, where answer[i] is the type of
-flower planted in the (i+1)-th garden.  The flower types are denoted 1, 2, 3, or
-4.  It is guaranteed an answer exists.
-
-Example 1:
-
-Input: N = 3, paths = [[1,2],[2,3],[3,1]]
-Output: [1,2,3]
-
-Example 2:
-
-Input: N = 4, paths = [[1,2],[3,4]]
-Output: [1,2,1,2]
-
-Example 3:
-
-Input: N = 4, paths = [[1,2],[2,3],[3,4],[4,1],[1,3],[2,4]]
-Output: [1,2,3,4]
-
-Note:
-
-  1 <= N <= 10000
-  0 <= paths.size <= 20000
-  No garden has 4 or more paths coming into or leaving it.
-  It is guaranteed an answer exists.
-/*
-  Submission Date: 2019-09-23
-  Runtime: 172 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> gardenNoAdj(int N, vector<vector<int>>& paths) {
-    /*
-    since a node can only have 3 neighbors, it will always have
-    a possible color to choose. just do it greedily.
-    */
-    unordered_map<int, vector<int>> G;
-    for (const auto& e : paths) {
-      G[e[0]].push_back(e[1]);
-      G[e[1]].push_back(e[0]);
-    }
-
-    vector<int> res(N, -1);
-    for (int i = 0; i < N; i++) {
-      bool colors[5] = {};
-      for (const auto& e : G[i + 1]) {
-        if (res[e - 1] != -1) colors[res[e - 1]] = true;
-      }
-      for (int c = 1; c <= 4; c++) {
-        if (!colors[c]) res[i] = c;
-      }
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1046. Last Stone Weight
-We have a collection of rocks, each rock has a positive integer weight.
-
-Each turn, we choose the two heaviest rocks and smash them together.  Suppose
-the stones have weights x and y with x <= y.  The result of this smash is:
-
-  If x == y, both stones are totally destroyed;
-  If x != y, the stone of weight x is totally destroyed, and the stone of weight
-y has new weight y-x.
-
-At the end, there is at most 1 stone left.  Return the weight of this stone (or
-0 if there are no stones left.)
-
-Example 1:
-
-Input: [2,7,4,1,8,1]
-Output: 1
-Explanation:
-We combine 7 and 8 to get 1 so the array converts to [2,4,1,1,1] then,
-we combine 2 and 4 to get 2 so the array converts to [2,1,1,1] then,
-we combine 2 and 1 to get 1 so the array converts to [1,1,1] then,
-we combine 1 and 1 to get 0 so the array converts to [1] then that's the value
-of last stone.
-
-Note:
-
-  1 <= stones.length <= 30
-  1 <= stones[i] <= 1000
-/*
-  Submission Date: 2019-09-07
-  Runtime: 0 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <queue>
-
-using namespace std;
-
-class Solution {
- public:
-  int lastStoneWeight(vector<int>& stones) {
-    priority_queue<int> pq(stones.begin(), stones.end());
-    while (pq.size() >= 2) {
-      auto x = pq.top();
-      pq.pop();
-      auto y = pq.top();
-      pq.pop();
-
-      if (x != y) pq.push(abs(x - y));
-    }
-    return pq.empty() ? 0 : pq.top();
   }
 };
 

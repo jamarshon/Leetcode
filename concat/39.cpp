@@ -657,6 +657,96 @@ int main() { return 0; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+904. Fruit Into Baskets
+In a row of trees, the i-th tree produces fruit with type tree[i].
+
+You start at any tree of your choice, then repeatedly perform the following
+steps:
+
+  Add one piece of fruit from this tree to your baskets.  If you cannot, stop.
+  Move to the next tree to the right of the current tree.  If there is no tree
+to the right, stop.
+
+Note that you do not have any choice after the initial choice of starting
+tree: you must perform step 1, then step 2, then back to step 1, then step 2,
+and so on until you stop.
+
+You have two baskets, and each basket can carry any quantity of fruit, but you
+want each basket to only carry one type of fruit each.
+
+What is the total amount of fruit you can collect with this procedure?
+
+Example 1:
+
+Input: [1,2,1]
+Output: 3
+Explanation: We can collect [1,2,1].
+
+Example 2:
+
+Input: [0,1,2,2]
+Output: 3
+Explanation: We can collect [1,2,2].
+If we started at the first tree, we would only collect [0, 1].
+
+Example 3:
+
+Input: [1,2,3,2,2]
+Output: 4
+Explanation: We can collect [2,3,2,2].
+If we started at the first tree, we would only collect [1, 2].
+
+Example 4:
+
+Input: [3,3,3,1,2,1,1,2,3,3,4]
+Output: 5
+Explanation: We can collect [1,2,1,1,2].
+If we started at the first tree or the eighth tree, we would only collect 4
+fruits.
+
+Note:
+
+  1 <= tree.length <= 40000
+  0 <= tree[i] < tree.length
+/*
+  Submission Date: 2019-09-24
+  Runtime: 192 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int totalFruit(vector<int>& tree) {
+    unordered_map<int, int> seen;
+    int sum = 0;
+    int res = 0;
+    int front = 0;
+    for (int i = 0, N = tree.size(); i < N; i++) {
+      seen[tree[i]]++;
+      sum++;
+      while (seen.size() > 2) {
+        int to_remove = tree[front++];
+        seen[to_remove]--;
+        if (seen[to_remove] == 0) {
+          seen.erase(to_remove);
+        }
+        sum--;
+      }
+      res = max(res, sum);
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 905. Sort Array By Parity
 Given an array A of non-negative integers, return an array consisting of all the
 even elements of A, followed by all the odd elements of A.
@@ -901,58 +991,6 @@ class Solution {
     int res = 0;
     for (auto& kv : freq) res = gcd(res, kv.second);
     return res > 1;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-917. Reverse Only Letters
-Given a string S, return the "reversed" string where all characters that are not
-a letter stay in the same place, and all letters reverse their positions.
-
-Example 1:
-
-Input: "ab-cd"
-Output: "dc-ba"
-
-Example 2:
-
-Input: "a-bC-dEf-ghIj"
-Output: "j-Ih-gfE-dCba"
-
-Example 3:
-
-Input: "Test1ng-Leet=code-Q!"
-Output: "Qedo1ct-eeLg=ntse-T!"
-
-Note:
-
-  S.length <= 100
-  33 <= S[i].ASCIIcode <= 122 
-  S doesn't contain \ or "
-/*
-  Submission Date: 2019-01-26
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <cctype>
-#include <iostream>
-
-using namespace std;
-
-class Solution {
- public:
-  string reverseOnlyLetters(string S) {
-    int last_ind = S.size() - 1;
-    for (int i = 0; i < last_ind; i++) {
-      if (!isalpha(S[i])) continue;
-      while (last_ind > i && !isalpha(S[last_ind])) last_ind--;
-      swap(S[i], S[last_ind]);
-      last_ind--;
-    }
-    return S;
   }
 };
 

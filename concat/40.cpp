@@ -1,6 +1,58 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+917. Reverse Only Letters
+Given a string S, return the "reversed" string where all characters that are not
+a letter stay in the same place, and all letters reverse their positions.
+
+Example 1:
+
+Input: "ab-cd"
+Output: "dc-ba"
+
+Example 2:
+
+Input: "a-bC-dEf-ghIj"
+Output: "j-Ih-gfE-dCba"
+
+Example 3:
+
+Input: "Test1ng-Leet=code-Q!"
+Output: "Qedo1ct-eeLg=ntse-T!"
+
+Note:
+
+  S.length <= 100
+  33 <= S[i].ASCIIcode <= 122 
+  S doesn't contain \ or "
+/*
+  Submission Date: 2019-01-26
+  Runtime: 4 ms
+  Difficulty: EASY
+*/
+#include <cctype>
+#include <iostream>
+
+using namespace std;
+
+class Solution {
+ public:
+  string reverseOnlyLetters(string S) {
+    int last_ind = S.size() - 1;
+    for (int i = 0; i < last_ind; i++) {
+      if (!isalpha(S[i])) continue;
+      while (last_ind > i && !isalpha(S[last_ind])) last_ind--;
+      swap(S[i], S[last_ind]);
+      last_ind--;
+    }
+    return S;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 919. Complete Binary Tree Inserter
 A complete binary tree is a binary tree in which every level, except possibly
 the last, is completely filled, and all nodes are as far left as possible.

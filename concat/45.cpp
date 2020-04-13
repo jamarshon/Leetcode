@@ -1,6 +1,568 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
+1031. Maximum Sum of Two Non-Overlapping Subarrays
+Given an array A of non-negative integers, return the maximum sum of elements in
+two non-overlapping (contiguous) subarrays, which have lengths L and M.  (For
+clarification, the L-length subarray could occur before or after the M-length
+subarray.)
+
+Formally, return the largest V for which V = (A[i] + A[i+1] + ... + A[i+L-1]) +
+(A[j] + A[j+1] + ... + A[j+M-1]) and either:
+
+  0 <= i < i + L - 1 < j < j + M - 1 < A.length, or
+  0 <= j < j + M - 1 < i < i + L - 1 < A.length.
+
+Example 1:
+
+Input: A = [0,6,5,2,2,5,1,9,4], L = 1, M = 2
+Output: 20
+Explanation: One choice of subarrays is [9] with length 1, and [6,5] with length
+2.
+
+Example 2:
+
+Input: A = [3,8,1,3,2,1,8,9,0], L = 3, M = 2
+Output: 29
+Explanation: One choice of subarrays is [3,8,1] with length 3, and [8,9] with
+length 2.
+
+Example 3:
+
+Input: A = [2,1,5,6,0,9,5,0,3,8], L = 4, M = 3
+Output: 31
+Explanation: One choice of subarrays is [5,6,0,9] with length 4, and [3,8] with
+length 3.
+
+Note:
+
+  L >= 1
+  M >= 1
+  L + M <= A.length <= 1000
+  0 <= A[i] <= 1000
+/*
+  Submission Date: 2019-09-24
+  Runtime: 4 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int maxSumTwoNoOverlap(vector<int>& A, int L, int M) {
+    /*
+    prefix[i] is sum of A from [0, i]
+    l_max[i] is max sum of L subarray before last M elements [0, i-M]
+      computed as max(l_max,
+        prefix[i - M] -  prefix[i-M-L] // the current sum of L subarray
+        [i-M-L+1, i-M])
+    m_max[i] is max sum of M subarray before last L elements [0, i-L]
+      computed as max(m_max,
+        prefix[i - L] -  prefix[i-L-M] // the current sum of M subarray
+        [i-L-M+1, i-L])
+
+    start m_max at prefix[M-1] and l_max at prefix[L-1]
+    start res at prefix[L+M-1] as it is two subarrays of L and M
+    */
+    int N = A.size();
+    vector<int> prefix = A;
+    for (int i = 1; i < N; i++) prefix[i] += prefix[i - 1];
+    int res = prefix[L + M - 1];
+    int m_max = prefix[M - 1];
+    int l_max = prefix[L - 1];
+    for (int i = L + M; i < N; i++) {
+      m_max = max(m_max, prefix[i - L] - prefix[i - L - M]);
+      l_max = max(l_max, prefix[i - M] - prefix[i - M - L]);
+      res = max(res, max(m_max + prefix[i] - prefix[i - L],
+                         l_max + prefix[i] - prefix[i - M]));
+    }
+
+    return res;
+  }
+};
+
+class Solution2 {
+ public:
+  vector<int> max_sliding_window_sum(const vector<int>& A, const int& K) {
+    int N = A.size();
+    vector<int> dp(N, 0);
+    int sum = 0;
+    for (int i = 0; i < N; i++) {
+      sum += A[i];
+      if (i >= K - 1) {
+        if (i - K >= 0) sum -= A[i - K];
+        dp[i] = i - 1 >= 0 ? max(dp[i - 1], sum) : sum;
+      }
+    }
+    return dp;
+  }
+
+  int maxSumTwoNoOverlap(vector<int>& A, int L, int M) {
+    /*
+    [0,6,5,2,2,5,1,9,4], M = 2
+    sliding window sums of size 2
+    [0, 6, 11, 7, 4, 7, 6, 10, 13]
+    B[i] is the maximum sliding window sum for [0, i]
+    [0, 6, 11, 11, 11, 11, 11, 11, 13]
+    C[i] is the maximum sliding window sum for [i, N)
+
+    dp[i] is partition of [0, i] and [i+1, N)
+    dp[i] = B[i] + C[i+1]
+    the result is max(dp[i])
+    */
+    vector<int> A_rev = A;
+    reverse(A_rev.begin(), A_rev.end());
+    vector<int> l_forward = max_sliding_window_sum(A, L),
+                l_backward = max_sliding_window_sum(A_rev, L),
+                m_forward = max_sliding_window_sum(A, M),
+                m_backward = max_sliding_window_sum(A_rev, M);
+    reverse(l_backward.begin(), l_backward.end());
+    reverse(m_backward.begin(), m_backward.end());
+    int res = 0;
+    for (int i = 0; i + 1 < A.size(); i++) {
+      res = max(res, l_forward[i] + m_backward[i + 1]);
+      res = max(res, m_forward[i] + l_backward[i + 1]);
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1033. Moving Stones Until Consecutive
+Three stones are on a number line at positions a, b, and c.
+
+Each turn, you pick up a stone at an endpoint (ie., either the lowest or highest
+position stone), and move it to an unoccupied position between those endpoints. 
+Formally, let's say the stones are currently at positions x, y, z with x < y <
+z.  You pick up the stone at either position x or position z, and move that
+stone to an integer position k, with x < k < z and k != y.
+
+The game ends when you cannot make any more moves, ie. the stones are in
+consecutive positions.
+
+When the game ends, what is the minimum and maximum number of moves that you
+could have made?  Return the answer as an length 2 array: answer =
+[minimum_moves, maximum_moves]
+
+Example 1:
+
+Input: a = 1, b = 2, c = 5
+Output: [1,2]
+Explanation: Move the stone from 5 to 3, or move the stone from 5 to 4 to 3.
+
+Example 2:
+
+Input: a = 4, b = 3, c = 2
+Output: [0,0]
+Explanation: We cannot make any moves.
+
+Example 3:
+
+Input: a = 3, b = 5, c = 1
+Output: [1,2]
+Explanation: Move the stone from 1 to 4; or move the stone from 1 to 2 to 4.
+
+Note:
+
+  1 <= a <= 100
+  1 <= b <= 100
+  1 <= c <= 100
+  a != b, b != c, c != a
+/*
+  Submission Date: 2019-09-23
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> numMovesStones(int a, int b, int c) {
+    /*
+    if a < b < c, and its a, a + 1, a + 2 then its done and minmove is 0
+    if there's a gap a, a + 2 then the minmove is 1 as it can be placed in the
+    gap if there's two in a row a, a + 1 then the minmove is 1 as it can be
+    placed before or after for max moves its just the number of elements between
+    b,a and c,b
+    */
+    if (a > b) swap(a, b);
+    if (b > c) swap(b, c);
+    if (a > b) swap(a, b);
+    // a < b < c
+    int min_moves;
+    if (b - a == 1 && c - b == 1) {
+      min_moves = 0;
+    } else if (b - a <= 2 || c - b <= 2) {
+      min_moves = 1;
+    } else {
+      min_moves = 2;
+    }
+    return {min_moves, (c - b - 1) + (b - a - 1)};
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1037. Valid Boomerang
+A boomerang is a set of 3 points that are all distinct and not in a straight
+line.
+
+Given a list of three points in the plane, return whether these points are a
+boomerang.
+
+Example 1:
+
+Input: [[1,1],[2,3],[3,2]]
+Output: true
+
+Example 2:
+
+Input: [[1,1],[2,2],[3,3]]
+Output: false
+
+Note:
+
+  points.length == 3
+  points[i].length == 2
+  0 <= points[i][j] <= 100
+/*
+  Submission Date: 2019-09-23
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  bool isBoomerang(vector<vector<int>>& points) {
+    /*
+    check if the slope of points[0] points[1] and points[0] points[2]
+    are the same
+
+    (points[1][1] - points[0][1])/(points[1][0] - points[0][0])
+    != (points[2][1] - points[0][1])/(points[2][0] - points[0][0])
+    */
+    return (points[1][1] - points[0][1]) * (points[2][0] - points[0][0]) !=
+           (points[2][1] - points[0][1]) * (points[1][0] - points[0][0]);
+  }
+};
+
+class Solution2 {
+ public:
+  bool isBoomerang(vector<vector<int>>& points) {
+    /*
+    calculate y=mx+b from points[0] and points[1]
+    then check if plugging in points[2] returns the same
+    y
+    */
+    if (points[0] == points[1] || points[0] == points[2] ||
+        points[1] == points[2])
+      return false;
+    int dx = points[1][0] - points[0][0];
+    int dy = points[1][1] - points[0][1];
+    if (dx == 0) return points[2][0] != points[1][0];
+    float m = float(dy) / dx;
+    float b = points[0][1] - m * points[0][0];
+    return m * points[2][0] + b != points[2][1];
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1038. Binary Search Tree to Greater Sum Tree
+Given the root of a binary search tree with distinct values, modify it so that
+every node has a new value equal to the sum of the values of the original tree
+that are greater than or equal to node.val.
+
+As a reminder, a binary search tree is a tree that satisfies these constraints:
+
+  The left subtree of a node contains only nodes with keys less than the node's
+key.
+  The right subtree of a node contains only nodes with keys greater than the
+node's key.
+  Both the left and right subtrees must also be binary search trees.
+
+Example 1:
+
+Input: [4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
+Output: [30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
+
+Note:
+
+  The number of nodes in the tree is between 1 and 100.
+  Each node will have value between 0 and 100.
+  The given tree is a binary search tree.
+/*
+  Submission Date: 2019-09-21
+  Runtime: 0 ms
+  Difficulty: MEDIUM
+*/
+#include <iostream>
+
+using namespace std;
+
+struct TreeNode {
+  int val;
+  TreeNode* left;
+  TreeNode* right;
+  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+  int prev = 0;
+
+ public:
+  TreeNode* bstToGst(TreeNode* root) {
+    // an inorder traversal goes through a sorted array
+    // smallest first, if we go the reverse than we
+    // visist the largest first and do a cumulative
+    // sum
+    if (root == nullptr) return nullptr;
+    bstToGst(root->right);
+    root->val += prev;
+    prev = root->val;
+    bstToGst(root->left);
+    return root;
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1042. Flower Planting With No Adjacent
+You have N gardens, labelled 1 to N.  In each garden, you want to plant one of 4
+types of flowers.
+
+paths[i] = [x, y] describes the existence of a bidirectional path from garden x
+to garden y.
+
+Also, there is no garden that has more than 3 paths coming into or leaving it.
+
+Your task is to choose a flower type for each garden such that, for any two
+gardens connected by a path, they have different types of flowers.
+
+Return any such a choice as an array answer, where answer[i] is the type of
+flower planted in the (i+1)-th garden.  The flower types are denoted 1, 2, 3, or
+4.  It is guaranteed an answer exists.
+
+Example 1:
+
+Input: N = 3, paths = [[1,2],[2,3],[3,1]]
+Output: [1,2,3]
+
+Example 2:
+
+Input: N = 4, paths = [[1,2],[3,4]]
+Output: [1,2,1,2]
+
+Example 3:
+
+Input: N = 4, paths = [[1,2],[2,3],[3,4],[4,1],[1,3],[2,4]]
+Output: [1,2,3,4]
+
+Note:
+
+  1 <= N <= 10000
+  0 <= paths.size <= 20000
+  No garden has 4 or more paths coming into or leaving it.
+  It is guaranteed an answer exists.
+/*
+  Submission Date: 2019-09-23
+  Runtime: 172 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  vector<int> gardenNoAdj(int N, vector<vector<int>>& paths) {
+    /*
+    since a node can only have 3 neighbors, it will always have
+    a possible color to choose. just do it greedily.
+    */
+    unordered_map<int, vector<int>> G;
+    for (const auto& e : paths) {
+      G[e[0]].push_back(e[1]);
+      G[e[1]].push_back(e[0]);
+    }
+
+    vector<int> res(N, -1);
+    for (int i = 0; i < N; i++) {
+      bool colors[5] = {};
+      for (const auto& e : G[i + 1]) {
+        if (res[e - 1] != -1) colors[res[e - 1]] = true;
+      }
+      for (int c = 1; c <= 4; c++) {
+        if (!colors[c]) res[i] = c;
+      }
+    }
+    return res;
+  }
+};
+
+int main() { return 0; }
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1043. Partition Array for Maximum Sum
+Given an integer array A, you partition the array into (contiguous) subarrays of
+length at most K.  After partitioning, each subarray has their values changed to
+become the maximum value of that subarray.
+
+Return the largest sum of the given array after partitioning.
+
+Example 1:
+
+Input: A = [1,15,7,9,2,5,10], K = 3
+Output: 84
+Explanation: A becomes [15,15,15,9,10,10,10]
+
+Note:
+
+  1 <= K <= A.length <= 500
+  0 <= A[i] <= 10^6
+/*
+  Submission Date: 2019-09-23
+  Runtime: 460 ms
+  Difficulty: MEDIUM
+*/
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+ public:
+  int maxSumAfterPartitioning(vector<int>& A, int K) {
+    /*
+    same as before but keep track of the maximum element
+    when iterating backwards for the remainder subarray
+    */
+    int N = A.size();
+    vector<int> dp(N + 1);
+    dp[0] = 0;
+    for (int i = 1; i <= N; i++) {
+      int res = 0;
+      int max_el = INT_MIN;
+      for (int j = 1; j <= K && i - j >= 0; j++) {
+        max_el = max(max_el, A[i - j]);
+        res = max(res, dp[i - j] + j * max_el);
+      }
+      dp[i] = res;
+    }
+    return dp[N];
+  }
+};
+
+class Solution2 {
+ public:
+  int maxSumAfterPartitioning(vector<int>& A, int K) {
+    /*
+    dp[i] is the answer for A[0] ... A[i-1]
+    dp[0] = 0
+    dp[i] = max_{j=[1,K]}(dp[i-j] + j * max_{l=[i-j, i-1]}(A[l]))
+    taking the max of previous subarray answer + the remaining
+    subarray's maximum value multiplied by its length
+    */
+    int N = A.size();
+    vector<int> dp(N + 1);
+    dp[0] = 0;
+    for (int i = 1; i <= N; i++) {
+      int res = 0;
+      for (int j = 1; j <= K && i - j >= 0; j++) {
+        auto max_el = max_element(A.begin() + (i - 1) - j + 1, A.begin() + i);
+        res = max(res, dp[i - j] + j * (*max_el));
+      }
+      dp[i] = res;
+    }
+    return dp[N];
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+1046. Last Stone Weight
+We have a collection of rocks, each rock has a positive integer weight.
+
+Each turn, we choose the two heaviest rocks and smash them together.  Suppose
+the stones have weights x and y with x <= y.  The result of this smash is:
+
+  If x == y, both stones are totally destroyed;
+  If x != y, the stone of weight x is totally destroyed, and the stone of weight
+y has new weight y-x.
+
+At the end, there is at most 1 stone left.  Return the weight of this stone (or
+0 if there are no stones left.)
+
+Example 1:
+
+Input: [2,7,4,1,8,1]
+Output: 1
+Explanation:
+We combine 7 and 8 to get 1 so the array converts to [2,4,1,1,1] then,
+we combine 2 and 4 to get 2 so the array converts to [2,1,1,1] then,
+we combine 2 and 1 to get 1 so the array converts to [1,1,1] then,
+we combine 1 and 1 to get 0 so the array converts to [1] then that's the value
+of last stone.
+
+Note:
+
+  1 <= stones.length <= 30
+  1 <= stones[i] <= 1000
+/*
+  Submission Date: 2019-09-07
+  Runtime: 0 ms
+  Difficulty: EASY
+*/
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+class Solution {
+ public:
+  int lastStoneWeight(vector<int>& stones) {
+    priority_queue<int> pq(stones.begin(), stones.end());
+    while (pq.size() >= 2) {
+      auto x = pq.top();
+      pq.pop();
+      auto y = pq.top();
+      pq.pop();
+
+      if (x != y) pq.push(abs(x - y));
+    }
+    return pq.empty() ? 0 : pq.top();
+  }
+};
+
+int main() { return 0; }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 1047. Remove All Adjacent Duplicates In String
 Given a string S of lowercase letters, a duplicate removal consists of choosing
 two adjacent and equal letters, and removing them.
@@ -378,592 +940,6 @@ class Solution {
         }
       }
     }
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1103. Distribute Candies to People
-We distribute some number of candies, to a row of n = num_people people in the
-following way:
-
-We then give 1 candy to the first person, 2 candies to the second person, and so
-on until we give n candies to the last person.
-
-Then, we go back to the start of the row, giving n + 1 candies to the first
-person, n + 2 candies to the second person, and so on until we give 2 *
-n candies to the last person.
-
-This process repeats (with us giving one more candy each time, and moving to the
-start of the row after we reach the end) until we run out of candies.  The last
-person will receive all of our remaining candies (not necessarily one more than
-the previous gift).
-
-Return an array (of length num_people and sum candies) that represents the final
-distribution of candies.
-
-Example 1:
-
-Input: candies = 7, num_people = 4
-Output: [1,2,3,1]
-Explanation:
-On the first turn, ans[0] += 1, and the array is [1,0,0,0].
-On the second turn, ans[1] += 2, and the array is [1,2,0,0].
-On the third turn, ans[2] += 3, and the array is [1,2,3,0].
-On the fourth turn, ans[3] += 1 (because there is only one candy left), and the
-final array is [1,2,3,1].
-
-Example 2:
-
-Input: candies = 10, num_people = 3
-Output: [5,2,3]
-Explanation:
-On the first turn, ans[0] += 1, and the array is [1,0,0].
-On the second turn, ans[1] += 2, and the array is [1,2,0].
-On the third turn, ans[2] += 3, and the array is [1,2,3].
-On the fourth turn, ans[0] += 4, and the final array is [5,2,3].
-
-Constraints:
-
-  1 <= candies <= 10^9
-  1 <= num_people <= 1000
-/*
-  Submission Date: 2019-09-08
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> distributeCandies(int candies, int num_people) {
-    int i = 1, j = 0;
-    vector<int> res(num_people, 0);
-    while (candies) {
-      i = min(candies, i);
-      candies -= i;
-      res[j] += i;
-      i++;
-      j = (j + 1) % num_people;
-    }
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1104. Path In Zigzag Labelled Binary Tree
-In an infinite binary tree where every node has two children, the nodes are
-labelled in row order.
-
-In the odd numbered rows (ie., the first, third, fifth,...), the labelling is
-left to right, while in the even numbered rows (second, fourth, sixth,...), the
-labelling is right to left.
-
-Given the label of a node in this tree, return the labels in the path from the
-root of the tree to the node with that label.
-
-Example 1:
-
-Input: label = 14
-Output: [1,3,4,14]
-
-Example 2:
-
-Input: label = 26
-Output: [1,2,6,10,26]
-
-Constraints:
-
-  1 <= label <= 10^6
-/*
-  Submission Date: 2019-09-22
-  Runtime: 4 ms
-  Difficulty: MEDIUM
-*/
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> pathInZigZagTree(int label) {
-    /*
-    get the current level, reverse the level and
-    divide by two to get the parent
-    to reverse a number y around x do 2x-y
-    now for level i in a tree [2^i, 2^(i+1)-1] the
-    center is (2^i + 2^(i+1)-1)/2 so to reverse a level
-    just reverse around the center
-    */
-    int level = log2(label);
-    vector<int> res;
-    while (level >= 0) {
-      res.push_back(label);
-      int flipped = (1 << level) + (1 << (level + 1)) - 1 - label;
-      level--;
-      label = flipped / 2;
-    }
-    reverse(res.begin(), res.end());
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1108. Defanging an IP Address
-Given a valid (IPv4) IP address, return a defanged version of that IP address.
-
-A defanged IP address replaces every period "." with "[.]".
-
-Example 1:
-Input: address = "1.1.1.1"
-Output: "1[.]1[.]1[.]1"
-Example 2:
-Input: address = "255.100.50.0"
-Output: "255[.]100[.]50[.]0"
-
-Constraints:
-
-  The given address is a valid IPv4 address.
-/*
-  Submission Date: 2019-08-25
-  Runtime: 4 ms
-  Difficulty: EASY
-*/
-#include <iostream>
-#include <sstream>
-
-using namespace std;
-
-class Solution {
- public:
-  string defangIPaddr(string address) {
-    istringstream ss(address);
-    string res, token;
-    string splitter = "[.]";
-    while (getline(ss, token, '.')) {
-      res += token + splitter;
-    }
-    return res.substr(0, res.size() - 3);
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1110. Delete Nodes And Return Forest
-Given the root of a binary tree, each node in the tree has a distinct value.
-
-After deleting all nodes with a value in to_delete, we are left with a forest
-(a disjoint union of trees).
-
-Return the roots of the trees in the remaining forest.  You may return the
-result in any order.
-
-Example 1:
-
-Input: root = [1,2,3,4,5,6,7], to_delete = [3,5]
-Output: [[1,2,null,4],[6],[7]]
-
-Constraints:
-
-  The number of nodes in the given tree is at most 1000.
-  Each node has a distinct value between 1 and 1000.
-  to_delete.length <= 1000
-  to_delete contains distinct values between 1 and 1000.
-/*
-  Submission Date: 2019-09-23
-  Runtime: 20 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
-  vector<TreeNode*> res;
-
- public:
-  /*
-  return the tree without the deleted nodes
-  when a node is deleted, put the pruned left/right (if non null) into the
-  forest also add the root if it is not deleted
-  */
-  TreeNode* helper(TreeNode* root, const unordered_set<int>& delete_set) {
-    if (!root) return nullptr;
-    auto left = helper(root->left, delete_set);
-    auto right = helper(root->right, delete_set);
-    if (delete_set.count(root->val)) {
-      if (left) res.push_back(left);
-      if (right) res.push_back(right);
-      return nullptr;
-    } else {
-      root->left = left;
-      root->right = right;
-      return root;
-    }
-  }
-
-  vector<TreeNode*> delNodes(TreeNode* root, vector<int>& to_delete) {
-    unordered_set<int> delete_set(to_delete.begin(), to_delete.end());
-    if (!delete_set.count(root->val)) res.push_back(root);
-    helper(root, delete_set);
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1111. Maximum Nesting Depth of Two Valid Parentheses Strings
-A string is a valid parentheses string (denoted VPS) if and only if it consists
-of "(" and ")" characters only, and:
-
-  It is the empty string, or
-  It can be written as AB (A concatenated with B), where A and B are VPS's, or
-  It can be written as (A), where A is a VPS.
-
-We can similarly define the nesting depth depth(S) of any VPS S as follows:
-
-  depth("") = 0
-  depth(A + B) = max(depth(A), depth(B)), where A and B are VPS's
-  depth("(" + A + ")") = 1 + depth(A), where A is a VPS.
-
-For example,  "", "()()", and "()(()())" are VPS's (with nesting depths 0, 1,
-and 2), and ")(" and "(()" are not VPS's.
-
-Given a VPS seq, split it into two disjoint subsequences A and B, such that A
-and B are VPS's (and A.length + B.length = seq.length).
-
-Now choose any such A and B such that max(depth(A), depth(B)) is the minimum
-possible value.
-
-Return an answer array (of length seq.length) that encodes such a choice of A
-and B:  answer[i] = 0 if seq[i] is part of A, else answer[i] = 1.  Note that
-even though multiple answers may exist, you may return any of them.
-
-Example 1:
-
-Input: seq = "(()())"
-Output: [0,1,1,1,1,0]
-
-Example 2:
-
-Input: seq = "()(())()"
-Output: [0,0,0,1,1,0,1,1]
-
-Constraints:
-
-  1 <= seq.size <= 10000
-/*
-  Submission Date: 2019-09-22
-  Runtime: 16 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> maxDepthAfterSplit(string seq) {
-    // put all the even '(' in one area with all the
-    // odd ')'
-    vector<int> res;
-    for (int i = 0; i < seq.size(); i++) res.push_back(i & 1 ^ (seq[i] == '('));
-    return res;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1122. Relative Sort Array
-Given two arrays arr1 and arr2, the elements of arr2 are distinct, and all
-elements in arr2 are also in arr1.
-
-Sort the elements of arr1 such that the relative ordering of items in arr1 are
-the same as in arr2.  Elements that don't appear in arr2 should be placed at the
-end of arr1 in ascending order.
-
-Example 1:
-Input: arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
-Output: [2,2,2,1,4,3,3,9,6,7,19]
-
-Constraints:
-
-  arr1.length, arr2.length <= 1000
-  0 <= arr1[i], arr2[i] <= 1000
-  Each arr2[i] is distinct.
-  Each arr2[i] is in arr1.
-/*
-  Submission Date: 2019-09-03
-  Runtime: 8 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
-    unordered_map<int, int> arr2_to_ind;
-    for (int i = 0; i < arr2.size(); i++) {
-      arr2_to_ind[arr2[i]] = i;
-    }
-
-    auto end_it = arr2_to_ind.end();
-
-    sort(arr1.begin(), arr1.end(),
-         [&arr2_to_ind, &end_it](const int& left, const int& right) {
-           auto left_it = arr2_to_ind.find(left);
-           auto right_it = arr2_to_ind.find(right);
-           if (left_it == end_it && right_it == end_it) {
-             // ascending order
-             return left < right;
-           } else if (left_it == end_it) {
-             // put the right in front as the left is not defined
-             return false;
-           } else if (right_it == end_it) {
-             // put the left in front as the right is not defined
-             return true;
-           } else {
-             // return the relative order of left, right
-             return left_it->second < right_it->second;
-           }
-         });
-
-    return arr1;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1123. Lowest Common Ancestor of Deepest Leaves
-Given a rooted binary tree, return the lowest common ancestor of its deepest
-leaves.
-
-Recall that:
-
-  The node of a binary tree is a leaf if and only if it has no children
-  The depth of the root of the tree is 0, and if the depth of a node is d, the
-depth of each of its children is d+1.
-  The lowest common ancestor of a set S of nodes is the node A with the largest
-depth such that every node in S is in the subtree with root A.
-
-Example 1:
-
-Input: root = [1,2,3]
-Output: [1,2,3]
-Explanation:
-The deepest leaves are the nodes with values 2 and 3.
-The lowest common ancestor of these leaves is the node with value 1.
-The answer returned is a TreeNode object (not an array) with serialization
-"[1,2,3]".
-
-Example 2:
-
-Input: root = [1,2,3,4]
-Output: [4]
-
-Example 3:
-
-Input: root = [1,2,3,4,5]
-Output: [2,4,5]
-
-Constraints:
-
-  The given tree will have between 1 and 1000 nodes.
-  Each node of the tree will have a distinct value between 1 and 1000.
-/*
-  Submission Date: 2019-09-23
-  Runtime: 16 ms
-  Difficulty: MEDIUM
-*/
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-using namespace std;
-
-struct TreeNode {
-  int val;
-  TreeNode* left;
-  TreeNode* right;
-  TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-class Solution {
- public:
-  // return lca, depth
-  pair<TreeNode*, int> helper(TreeNode* curr) {
-    if (!curr) return {nullptr, 0};
-    auto left = helper(curr->left);
-    auto right = helper(curr->right);
-    // same depth means this is the lca
-    if (left.second == right.second) return {curr, left.second + 1};
-    // the left lca is the lca of all the deepest leaves so
-    // return that upward
-    else if (left.second > right.second)
-      return {left.first, left.second + 1};
-    // same as before but its the right lca
-    else
-      return {right.first, right.second + 1};
-  }
-
-  TreeNode* lcaDeepestLeaves(TreeNode* root) { return helper(root).first; }
-};
-
-class Solution3 {
-  unordered_map<int, unordered_set<TreeNode*>> depth_to_node;
-
- public:
-  pair<TreeNode*, int> lca(TreeNode* curr,
-                           const unordered_set<TreeNode*>& leaves) {
-    if (!curr) return {nullptr, 0};
-    int N = leaves.size();
-    auto left = lca(curr->left, leaves);
-    if (left.second == N) return left;
-    auto right = lca(curr->right, leaves);
-    if (right.second == N) return right;
-    int total = left.second + right.second + leaves.count(curr);
-    return {curr, total};
-  }
-
-  void search(TreeNode* root, int depth = 0) {
-    if (root == nullptr) return;
-    depth_to_node[depth].insert(root);
-    search(root->left, depth + 1);
-    search(root->right, depth + 1);
-  }
-
-  TreeNode* lcaDeepestLeaves(TreeNode* root) {
-    /*
-    get all the nodes with the maximum depth, then do pairwise lca
-    through all of them
-    */
-    search(root);
-    int max_depth = -1;
-    for (auto kv : depth_to_node) max_depth = max(max_depth, kv.first);
-    return lca(root, depth_to_node[max_depth]).first;
-  }
-};
-
-class Solution2 {
-  unordered_map<int, vector<TreeNode*>> depth_to_node;
-
- public:
-  TreeNode* lca(TreeNode* curr, TreeNode* a, TreeNode* b) {
-    if (!curr || curr == a || curr == b) return curr;
-    auto left = lca(curr->left, a, b);
-    auto right = lca(curr->right, a, b);
-    if (left && right)
-      return curr;
-    else if (left)
-      return left;
-    else
-      return right;
-  }
-
-  void search(TreeNode* root, int depth = 0) {
-    if (root == nullptr) return;
-    depth_to_node[depth].push_back(root);
-    search(root->left, depth + 1);
-    search(root->right, depth + 1);
-  }
-
-  TreeNode* lcaDeepestLeaves(TreeNode* root) {
-    /*
-    get all the nodes with the maximum depth, then do pairwise lca
-    through all of them
-    */
-    search(root);
-    int max_depth = -1;
-    for (auto kv : depth_to_node) max_depth = max(max_depth, kv.first);
-    auto v = depth_to_node[max_depth];
-    TreeNode* prev = nullptr;
-    for (auto e : v) prev = lca(root, prev, e);
-    return prev;
-  }
-};
-
-int main() { return 0; }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-1128. Number of Equivalent Domino Pairs
-Given a list of dominoes, dominoes[i] = [a, b] is equivalent to dominoes[j] =
-[c, d] if and only if either (a==c and b==d), or (a==d and b==c) - that is, one
-domino can be rotated to be equal to another domino.
-
-Return the number of pairs (i, j) for which 0 <= i < j < dominoes.length,
-and dominoes[i] is equivalent to dominoes[j].
-
-Example 1:
-Input: dominoes = [[1,2],[2,1],[3,4],[5,6]]
-Output: 1
-
-Constraints:
-
-  1 <= dominoes.length <= 40000
-  1 <= dominoes[i][j] <= 9
-/*
-  Submission Date: 2019-09-23
-  Runtime: 64 ms
-  Difficulty: EASY
-*/
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
-
-using namespace std;
-
-class Solution {
- public:
-  int numEquivDominoPairs(vector<vector<int>>& dominoes) {
-    unordered_map<string, int> freq;
-    int res = 0;
-    for (const auto& d : dominoes) {
-      auto p = minmax(d[0], d[1]);
-      string key = to_string(p.first) + ',' + to_string(p.second);
-      res += freq[key];
-      freq[key]++;
-    }
-    return res;
   }
 };
 
